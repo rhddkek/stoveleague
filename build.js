@@ -24,5 +24,5 @@ ${r('ui.js')}
 window.UI=UI;
 </script>
 </body></html>`;
-fs.writeFileSync('stoveleague.html',html);
+fs.writeFileSync('stoveleague.html',html);fs.writeFileSync('index.html',html); // GitHub Pages 주소(rhddkek.github.io/stoveleague)용
 const art=`<title>스토브리그</title>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">\n<meta name="claude:viewport-fit-sides" content="cover">\n<style>\n${r('style.css')}\n</style>\n<div id="app"></div>\n<script>\n${assetsJs}\n</script>\n<script>\n${core}\nwindow.SL=SL;\n</script>\n<script>\n${r('ui.js')}\nwindow.UI=UI;\n</script>`;fs.writeFileSync('stoveleague_artifact.html',art);console.log('built',(html.length/1024).toFixed(0),'KB');

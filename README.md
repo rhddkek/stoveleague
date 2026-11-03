@@ -1,7 +1,10 @@
 # 스토브리그 — 작은 구단의 기적
 
 가상 야구 구단을 맡아 유망주를 발굴·육성·판매하고, 승강제를 거쳐 1부와 해외 무대까지 키워 가는 싱글플레이 구단 경영 게임입니다.
-결과물은 HTML 파일 하나(`stoveleague.html`)이며 서버 없이 브라우저에서 바로 실행됩니다.
+결과물은 HTML 파일 하나(`stoveleague.html`, 같은 내용 `index.html`)이며 서버 없이 브라우저에서 바로 실행됩니다.
+
+- **플레이**: https://rhddkek.github.io/stoveleague/ (테스트 모드 `?test=1`)
+- **GPT·Claude 공동 작업**: [`review/README.md`](review/README.md) · 상태판 [`review/STATUS.md`](review/STATUS.md)
 
 ## 폴더 구조
 
@@ -31,7 +34,9 @@ npm test             # 빌드 후 전체 검증
 | `phase2.js` | 감독 평판·이직·복귀·옛 제자, 주전 대량 매각 평판 악용 방지, v1/v2 세이브 변환 |
 | `leagues.js` | 해외 리그 실제 규모(일본 12·미국 30·대만 6·멕시코 20·호주 4·도미니카 6), 지구별 순위, v3 세이브 변환(일본 감독 시즌 중 포함) |
 | `staff.js` | 코치진 효과·계약·해임·재계약·인건비·저장 |
+| `story.js` | 정보 신뢰성·구단 유형·이야기/보고서/결산·겨울 휴식·출신 코치·감독 제의 이유 |
 | `ui_smoke.js` | jsdom으로 실제 화면 클릭 흐름 |
+| `ui_layout.js` | Playwright 360px 폰 화면: 가로 넘침·하단 메뉴 가림·주요 흐름 (Playwright 없으면 건너뜀) |
 
 ## 고정 규칙
 

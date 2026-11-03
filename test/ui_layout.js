@@ -31,5 +31,11 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{const ut=SL.userTeam();const v=ut.roster.map(id=>SL.state().players[id]).sort((a,b)=>b.age-a.age)[0];UI.openPlayer(v.id);});await has('이번 겨울');await p.evaluate(()=>{const id=SL.userTeam().roster.map(i=>SL.state().players[i]).sort((a,b)=>b.age-a.age)[0].id;UI.winterPlan(id,'rest');});
   (await p.evaluate(()=>SL.userTeam().roster.some(i=>SL.state().players[i].winterPlan==='rest')))?ok('겨울 휴식 선택'):bad('휴식 선택 실패');
   await p.evaluate(()=>{UI.back();UI.go('club','data');UI.setPref('font','xl');});await sweep('아주 큰 글자');ok('글자 크기 「아주 크게」에서도 화면 검사');await p.evaluate(()=>UI.setPref('font','m'));
+  // 테스터용 주소: ?test=1&new=1&team=2&seed=1234 → 바로 새 게임, 테스트 도구·버전 표시
+  await p.goto(FILE+'?test=1&new=1&team=2&seed=1234');await p.waitForTimeout(400);
+  const tb=await p.evaluate(()=>({arch:SL.userTeam().arch,seed:SL.state().seed,ver:SL.GAME_VER}));
+  tb.arch==='poor'&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed}, 재정난)`):bad('테스트 주소 시작 '+JSON.stringify(tb));
+  await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await has('요청서용 정보 복사');await has(tb.ver);
+  await p.evaluate(()=>UI.test('nextSeason'));(await p.evaluate(()=>SL.state().season))===2?ok('테스트 도구: 다음 시즌 개막까지'):bad('다음 시즌 이동 실패');
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

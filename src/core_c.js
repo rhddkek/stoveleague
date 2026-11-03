@@ -764,6 +764,15 @@ function reportEnd(r0){const ut=userTeam();if(!r0||r0.s!==S.season)return null;c
     const d=calcOvr(p)-a.ovr;if(Math.abs(d)>=0.5)rep.grow.push({p,d:r1(d),val:calcValue(p)-a.val});}
   rep.bat=bb;rep.pit=bp;rep.grow.sort((x,y)=>y.d-x.d);return rep;}
 
+// ---------- 테스트 도구 (주소에 ?test=1 일 때만 화면에 노출) ----------
+function testInfo(){const ut=userTeam();return [`게임 ${GAME_VER} (저장 형식 ${VERSION})`,`시드 ${S.seed} · 구단 ${ut.name}${ut.arch?' ('+BAL.ARCH[ut.arch].name+')':''}`,`${S.season}시즌 ${S.phase==='season'?S.day+'일차':'스토브리그 '+S.week+'주차'} · ${compName(compOf(ut))}`,`현금 ${money(ut.cash)} · 선수 ${ut.roster.length}명 + 육성군 ${ut.dev.length}명 · 코치 ${(ut.staff||[]).length}명`].join('\n');}
+function testCmd(k){const ut=userTeam();
+  if(k==='cash'){ut.cash+=100000;return '현금 +10억';}
+  if(k==='reveal'){for(const id in S.players){const p=S.players[id];if(p.scout)p.scout={est:Math.round(p.pot),lo:Math.round(p.pot),hi:Math.round(p.pot),conf:0.95};}return '모든 선수 잠재력 공개';}
+  if(k==='endSeason'){if(S.liveGame){stepGame(S.liveGame);endUserGame();}let g=0;while(S.phase==='season'&&g++<60){const lg=startDay();if(lg){stepGame(lg);endUserGame();}else finishDay();}return '시즌 종료';}
+  if(k==='nextSeason'){if(S.phase==='season')testCmd('endSeason');while(S.week<=BAL.OFFSEASON_WEEKS)advanceWeek();let r=startNewSeason();if(!r.ok){autoFillUser();r=startNewSeason();}return r.ok?`${S.season}시즌 개막`:r.msg;}
+  return '알 수 없는 명령';}
+
 // ---------- 코치진 ----------
 // 부서 역량 P: 상위 코치부터 가중 합산(1, .7, .5, .35, .25) × (평점-40)/40. 효과는 포화형 곡선, 기준 역량(STAFF_REF) 대비 상대값.
 // AI 구단은 코치 목록이 없고 기준 역량(효과 ±0)으로 간주 → 기존 밸런스 유지, 유저만 투자에 따라 차이가 생김.
@@ -939,7 +948,7 @@ function growthReport(n){const ut=userTeam();const rows=[];for(const pid of ut.r
 function togglePin(pid){if(S.pins.includes(pid))S.pins=S.pins.filter(x=>x!==pid);else{S.pins.unshift(pid);if(S.pins.length>5)S.pins.length=5;}}
 function interestText(p){if(!p.interest)return null;const t=S.teams[p.interest.team];if(!t)return null;const st=['관심 없음','관찰 중','영입 검토','공식 제안'][p.interest.stage]||'관찰 중';return `${t.name} — ${st}`;}
 
-return {BAL,VERSION,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
@@ -950,7 +959,7 @@ return {BAL,VERSION,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS
   promoteDev,demoteDev,devCap,draftAvail,draftPick,draftAuto,draftTurn,draftStep,
   willingInfo,contractText,advice,growthTop,togglePin,openTable,tableOffer,tableLeave,tableLeft,report,growthReport,
   diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
-  compOf,compTeams,leagueComps,lgOf,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
+  compOf,compTeams,leagueComps,lgOf,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
   P:P_,krTeams,overseasTeams,rnd};
 })();

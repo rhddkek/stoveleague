@@ -291,7 +291,8 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 // ===================== 스토브리그 — 코어 (A: 데이터/선수/구단/가치/편성) =====================
 const SL=(function(){
 'use strict';
-const VERSION=4;
+const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
+const GAME_VER='v12';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
@@ -1531,6 +1532,15 @@ function reportEnd(r0){const ut=userTeam();if(!r0||r0.s!==S.season)return null;c
     const d=calcOvr(p)-a.ovr;if(Math.abs(d)>=0.5)rep.grow.push({p,d:r1(d),val:calcValue(p)-a.val});}
   rep.bat=bb;rep.pit=bp;rep.grow.sort((x,y)=>y.d-x.d);return rep;}
 
+// ---------- 테스트 도구 (주소에 ?test=1 일 때만 화면에 노출) ----------
+function testInfo(){const ut=userTeam();return [`게임 ${GAME_VER} (저장 형식 ${VERSION})`,`시드 ${S.seed} · 구단 ${ut.name}${ut.arch?' ('+BAL.ARCH[ut.arch].name+')':''}`,`${S.season}시즌 ${S.phase==='season'?S.day+'일차':'스토브리그 '+S.week+'주차'} · ${compName(compOf(ut))}`,`현금 ${money(ut.cash)} · 선수 ${ut.roster.length}명 + 육성군 ${ut.dev.length}명 · 코치 ${(ut.staff||[]).length}명`].join('\n');}
+function testCmd(k){const ut=userTeam();
+  if(k==='cash'){ut.cash+=100000;return '현금 +10억';}
+  if(k==='reveal'){for(const id in S.players){const p=S.players[id];if(p.scout)p.scout={est:Math.round(p.pot),lo:Math.round(p.pot),hi:Math.round(p.pot),conf:0.95};}return '모든 선수 잠재력 공개';}
+  if(k==='endSeason'){if(S.liveGame){stepGame(S.liveGame);endUserGame();}let g=0;while(S.phase==='season'&&g++<60){const lg=startDay();if(lg){stepGame(lg);endUserGame();}else finishDay();}return '시즌 종료';}
+  if(k==='nextSeason'){if(S.phase==='season')testCmd('endSeason');while(S.week<=BAL.OFFSEASON_WEEKS)advanceWeek();let r=startNewSeason();if(!r.ok){autoFillUser();r=startNewSeason();}return r.ok?`${S.season}시즌 개막`:r.msg;}
+  return '알 수 없는 명령';}
+
 // ---------- 코치진 ----------
 // 부서 역량 P: 상위 코치부터 가중 합산(1, .7, .5, .35, .25) × (평점-40)/40. 효과는 포화형 곡선, 기준 역량(STAFF_REF) 대비 상대값.
 // AI 구단은 코치 목록이 없고 기준 역량(효과 ±0)으로 간주 → 기존 밸런스 유지, 유저만 투자에 따라 차이가 생김.
@@ -1706,7 +1716,7 @@ function growthReport(n){const ut=userTeam();const rows=[];for(const pid of ut.r
 function togglePin(pid){if(S.pins.includes(pid))S.pins=S.pins.filter(x=>x!==pid);else{S.pins.unshift(pid);if(S.pins.length>5)S.pins.length=5;}}
 function interestText(p){if(!p.interest)return null;const t=S.teams[p.interest.team];if(!t)return null;const st=['관심 없음','관찰 중','영입 검토','공식 제안'][p.interest.stage]||'관찰 중';return `${t.name} — ${st}`;}
 
-return {BAL,VERSION,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
@@ -1717,7 +1727,7 @@ return {BAL,VERSION,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS
   promoteDev,demoteDev,devCap,draftAvail,draftPick,draftAuto,draftTurn,draftStep,
   willingInfo,contractText,advice,growthTop,togglePin,openTable,tableOffer,tableLeave,tableLeft,report,growthReport,
   diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
-  compOf,compTeams,leagueComps,lgOf,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
+  compOf,compTeams,leagueComps,lgOf,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
   P:P_,krTeams,overseasTeams,rnd};
 })();
@@ -1890,7 +1900,7 @@ function renderTitle(){
   if(mode==='load')h+=`<div class="panel"><div class="b" style="margin-bottom:8px">저장 파일 불러오기</div><input type="file" id="impfile" accept=".json,application/json" style="width:100%"><div style="height:8px"></div><button onclick="UI.importFile()">파일 불러오기</button>
     <details class="adv"><summary>JSON 직접 붙여넣기</summary><textarea id="imp_json0" placeholder="저장 JSON 붙여넣기" style="width:100%;height:70px;font-size:11px"></textarea><div style="height:6px"></div><button onclick="UI.importText('imp_json0')">붙여넣은 JSON 불러오기</button></details></div>`;
   if(mode==='set')h+=`<div class="panel">${settingsHtml()}</div>`;
-  return h+`</div></div>`;
+  return h+`<div class="small dim" style="text-align:center;margin:18px 0 8px">${SL.GAME_VER}${ui.testMode?' · 테스트 모드':''}</div></div></div>`;
 }
 function renderClubBar(){const ut=SL.userTeam();const cp=SL.compOf(ut);const st=SL.standings(cp);const rank=st.findIndex(t=>t.id===ut.id)+1;const sum=S.lastSummary;
   const r2=S.phase==='season'?`<span>${esc(SL.compName(cp))} ${rank}위</span><span>${ut.rec.w}승 ${ut.rec.l}패</span><span>${S.day}/${SL.BAL.SEASON_GAMES}일차</span>`:`<span>${sum?'지난 '+esc(SL.compName(sum.div))+' '+sum.rank+'위':'-'}</span><span>${sum?sum.w+'승 '+sum.l+'패':''}</span><span>스토브 ${Math.min(S.week,SL.BAL.OFFSEASON_WEEKS)}주차</span>`;
@@ -2135,6 +2145,9 @@ function renderClub(){
     if(ms.length)h+=`<div class="card">${hd('시즌별 감독 실적','평판 계산의 근거')}<div class="tw"><table><tr><th>시즌</th><th>예상→실제</th><th>결과</th><th>전력 시작→끝</th><th>판매</th><th>육성 성공</th><th>해외 정착</th></tr>${ms.slice().reverse().map(m=>`<tr><td>${m.s} ${esc(m.tn?m.tn.split(' ')[0]:'')} (${esc(SL.compName(m.div))})</td><td>${m.expRank?m.expRank+'위 → ':''}${m.rank}위${m.expRank&&m.expRank-m.rank>=2?' <span class="up">↑</span>':''}</td><td>${m.promoted?'<b class="ok">승격</b>':m.relegated?'<b class="bad">강등</b>':'잔류'}</td><td>${m.powerStart!=null?m.powerStart+' → '+m.powerEnd:'-'}</td><td>${m.sales?m.sales+'명 '+Ms(m.salesFee):'-'}</td><td>${m.devHits||0}</td><td>${m.abroad||0}</td></tr>`).join('')}</table></div><div class="muted small" style="margin-top:6px">주전을 팔아 전력이 무너지면 '전력 시작→끝'에서 드러납니다. 판매 이익만으로는 좋은 평가를 받지 못합니다.</div></div>`;
     h+=S.history.slice().reverse().map(r=>`<div class="card">${hd(r.s+'시즌',`${esc(SL.compName(r.user.div))} ${r.user.rank}위 (${r.user.w}-${r.user.l})`)}<div class="small">승격: ${esc(r.promoted.join(', ')||'-')}<br>강등: ${esc(r.relegated.join(', ')||'-')}<br>우승: 1부 ${esc(r.tables[1][0].name)} · 2부 ${esc(r.tables[2][0].name)} · 3부 ${esc(r.tables[3][0].name)}</div></div>`).join('')||'<div class="card muted">아직 끝난 시즌이 없습니다.</div>';}
   else{h+=`<div class="card">${hd('화면·소리','이 기기에만 저장')}${settingsHtml()}</div>`;
+    if(ui.testMode)h+=`<div class="card" style="border:2px dashed var(--orange)">${hd('테스트 도구','주소에 ?test=1 일 때만 보임')}<pre class="small" id="tinfo" style="white-space:pre-wrap;background:var(--sunk);padding:8px;border-radius:8px">${esc(SL.testInfo())}</pre>
+      <div class="row wrap" style="gap:6px"><button class="sm" onclick="UI.testCopy()">요청서용 정보 복사</button><button class="sm" onclick="UI.test('endSeason')">시즌 끝내기</button><button class="sm" onclick="UI.test('nextSeason')">다음 시즌 개막까지</button><button class="sm" onclick="UI.test('cash')">현금 +10억</button><button class="sm" onclick="UI.test('reveal')">잠재력 전부 공개</button></div></div>`;
+    h+=`<div class="muted small" style="text-align:center">게임 ${SL.GAME_VER} · 저장 형식 ${SL.VERSION}</div>`;
     h+=`<div class="card">${hd('저장','모든 진행 후 자동 저장')}<div class="btns"><button class="primary" onclick="UI.saveNow()">수동 저장</button><button onclick="UI.exportSave()">JSON 내보내기</button></div>
     <div style="height:12px"></div><input type="file" id="impfile2" accept=".json,application/json" style="width:100%"><div style="height:6px"></div><button onclick="UI.importFile(2)">파일로 불러오기</button><div style="height:8px"></div><textarea id="imp_json" placeholder="또는 JSON 내용을 붙여넣기" style="width:100%;height:60px;font-size:11px"></textarea><div style="height:6px"></div><button onclick="UI.importText('imp_json')">붙여넣은 JSON 불러오기</button>
     <div class="muted small" style="margin-top:8px">잘못된 파일은 현재 진행을 덮어쓰지 않습니다.</div></div>
@@ -2366,6 +2379,8 @@ const A={
   setBuyF(k,v){ui.buyF[k]=v;if(k!=='n')ui.buyF.n=40;ui.keepScroll=true;render();},
   seasonRecap(){recapModal(SL.state().lastRecap);},
   winterPlan(pid,v){const p=SL.P(pid);if(p){p.winterPlan=v;autosave();toast(v==='rest'?`${p.name}: 이번 겨울은 휴식합니다.`:`${p.name}: 국내 동계훈련을 합니다.`);}ui.keepScroll=true;render();},
+  test(k){const m=SL.testCmd(k);toast(m);autosave();ui.keepScroll=true;render();},
+  testCopy(){const t=SL.testInfo();try{navigator.clipboard.writeText(t).then(()=>toast('복사했습니다. 요청서 「환경」 칸에 붙여 넣으세요.'),()=>toast('복사 실패 — 위 상자를 직접 선택해 복사하세요.'));}catch(e){toast('복사 실패 — 위 상자를 직접 선택해 복사하세요.');}},
   setPref(k,v){PREF[k]=v;prefSave();ui.keepScroll=true;render();if(k==='vol')sfx('click',0.6);},
   clearResult(){ui.gameResult=null;ui.weekReport=null;render();},
   openPlayer(pid){S=SL.state();if(!S.players[pid]){toast('선수 정보를 찾을 수 없습니다.');return;}go({type:'player',id:pid,tab:'ability'});},
@@ -2451,7 +2466,10 @@ const A={
   tutSkip(){SL.state().tutorialDone=true;autosave();render();},
 };
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(b&&!b.disabled)sfx('click',0.25);},true);
-let lastWide=null;window.addEventListener('load',()=>{lastWide=isWide();render();Store.get().then(j=>{if(j&&!Store.has){Store.has=true;if(!SL.state())render();}});});window.addEventListener('resize',()=>{const w=isWide();if(w!==lastWide){lastWide=w;render();}});
+// 주소 옵션: ?test=1 테스트 도구 · ?new=1&team=0~7&seed=N 새 게임 바로 시작 (테스터용)
+const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams('');}})();ui.testMode=QS.get('test')==='1';
+function qsBoot(){if(QS.get('new')!=='1'||ui._booted)return;ui._booted=true;const seed=+QS.get('seed')||Math.floor(Math.random()*90000)+1000;const team=Math.max(0,Math.min(7,+QS.get('team')||0));SL.newGame(seed,team,{arch:true});SL.state().tutorialDone=QS.get('tut')!=='1';ui.tab='home';autosave();}
+let lastWide=null;window.addEventListener('load',()=>{lastWide=isWide();qsBoot();render();Store.get().then(j=>{if(j&&!Store.has){Store.has=true;if(!SL.state())render();}});});window.addEventListener('resize',()=>{const w=isWide();if(w!==lastWide){lastWide=w;render();}});
 return A;
 })();
 

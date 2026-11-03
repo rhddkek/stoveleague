@@ -162,7 +162,7 @@ function renderTitle(){
   if(mode==='load')h+=`<div class="panel"><div class="b" style="margin-bottom:8px">저장 파일 불러오기</div><input type="file" id="impfile" accept=".json,application/json" style="width:100%"><div style="height:8px"></div><button onclick="UI.importFile()">파일 불러오기</button>
     <details class="adv"><summary>JSON 직접 붙여넣기</summary><textarea id="imp_json0" placeholder="저장 JSON 붙여넣기" style="width:100%;height:70px;font-size:11px"></textarea><div style="height:6px"></div><button onclick="UI.importText('imp_json0')">붙여넣은 JSON 불러오기</button></details></div>`;
   if(mode==='set')h+=`<div class="panel">${settingsHtml()}</div>`;
-  return h+`</div></div>`;
+  return h+`<div class="small dim" style="text-align:center;margin:18px 0 8px">${SL.GAME_VER}${ui.testMode?' · 테스트 모드':''}</div></div></div>`;
 }
 function renderClubBar(){const ut=SL.userTeam();const cp=SL.compOf(ut);const st=SL.standings(cp);const rank=st.findIndex(t=>t.id===ut.id)+1;const sum=S.lastSummary;
   const r2=S.phase==='season'?`<span>${esc(SL.compName(cp))} ${rank}위</span><span>${ut.rec.w}승 ${ut.rec.l}패</span><span>${S.day}/${SL.BAL.SEASON_GAMES}일차</span>`:`<span>${sum?'지난 '+esc(SL.compName(sum.div))+' '+sum.rank+'위':'-'}</span><span>${sum?sum.w+'승 '+sum.l+'패':''}</span><span>스토브 ${Math.min(S.week,SL.BAL.OFFSEASON_WEEKS)}주차</span>`;
@@ -407,6 +407,9 @@ function renderClub(){
     if(ms.length)h+=`<div class="card">${hd('시즌별 감독 실적','평판 계산의 근거')}<div class="tw"><table><tr><th>시즌</th><th>예상→실제</th><th>결과</th><th>전력 시작→끝</th><th>판매</th><th>육성 성공</th><th>해외 정착</th></tr>${ms.slice().reverse().map(m=>`<tr><td>${m.s} ${esc(m.tn?m.tn.split(' ')[0]:'')} (${esc(SL.compName(m.div))})</td><td>${m.expRank?m.expRank+'위 → ':''}${m.rank}위${m.expRank&&m.expRank-m.rank>=2?' <span class="up">↑</span>':''}</td><td>${m.promoted?'<b class="ok">승격</b>':m.relegated?'<b class="bad">강등</b>':'잔류'}</td><td>${m.powerStart!=null?m.powerStart+' → '+m.powerEnd:'-'}</td><td>${m.sales?m.sales+'명 '+Ms(m.salesFee):'-'}</td><td>${m.devHits||0}</td><td>${m.abroad||0}</td></tr>`).join('')}</table></div><div class="muted small" style="margin-top:6px">주전을 팔아 전력이 무너지면 '전력 시작→끝'에서 드러납니다. 판매 이익만으로는 좋은 평가를 받지 못합니다.</div></div>`;
     h+=S.history.slice().reverse().map(r=>`<div class="card">${hd(r.s+'시즌',`${esc(SL.compName(r.user.div))} ${r.user.rank}위 (${r.user.w}-${r.user.l})`)}<div class="small">승격: ${esc(r.promoted.join(', ')||'-')}<br>강등: ${esc(r.relegated.join(', ')||'-')}<br>우승: 1부 ${esc(r.tables[1][0].name)} · 2부 ${esc(r.tables[2][0].name)} · 3부 ${esc(r.tables[3][0].name)}</div></div>`).join('')||'<div class="card muted">아직 끝난 시즌이 없습니다.</div>';}
   else{h+=`<div class="card">${hd('화면·소리','이 기기에만 저장')}${settingsHtml()}</div>`;
+    if(ui.testMode)h+=`<div class="card" style="border:2px dashed var(--orange)">${hd('테스트 도구','주소에 ?test=1 일 때만 보임')}<pre class="small" id="tinfo" style="white-space:pre-wrap;background:var(--sunk);padding:8px;border-radius:8px">${esc(SL.testInfo())}</pre>
+      <div class="row wrap" style="gap:6px"><button class="sm" onclick="UI.testCopy()">요청서용 정보 복사</button><button class="sm" onclick="UI.test('endSeason')">시즌 끝내기</button><button class="sm" onclick="UI.test('nextSeason')">다음 시즌 개막까지</button><button class="sm" onclick="UI.test('cash')">현금 +10억</button><button class="sm" onclick="UI.test('reveal')">잠재력 전부 공개</button></div></div>`;
+    h+=`<div class="muted small" style="text-align:center">게임 ${SL.GAME_VER} · 저장 형식 ${SL.VERSION}</div>`;
     h+=`<div class="card">${hd('저장','모든 진행 후 자동 저장')}<div class="btns"><button class="primary" onclick="UI.saveNow()">수동 저장</button><button onclick="UI.exportSave()">JSON 내보내기</button></div>
     <div style="height:12px"></div><input type="file" id="impfile2" accept=".json,application/json" style="width:100%"><div style="height:6px"></div><button onclick="UI.importFile(2)">파일로 불러오기</button><div style="height:8px"></div><textarea id="imp_json" placeholder="또는 JSON 내용을 붙여넣기" style="width:100%;height:60px;font-size:11px"></textarea><div style="height:6px"></div><button onclick="UI.importText('imp_json')">붙여넣은 JSON 불러오기</button>
     <div class="muted small" style="margin-top:8px">잘못된 파일은 현재 진행을 덮어쓰지 않습니다.</div></div>
@@ -638,6 +641,8 @@ const A={
   setBuyF(k,v){ui.buyF[k]=v;if(k!=='n')ui.buyF.n=40;ui.keepScroll=true;render();},
   seasonRecap(){recapModal(SL.state().lastRecap);},
   winterPlan(pid,v){const p=SL.P(pid);if(p){p.winterPlan=v;autosave();toast(v==='rest'?`${p.name}: 이번 겨울은 휴식합니다.`:`${p.name}: 국내 동계훈련을 합니다.`);}ui.keepScroll=true;render();},
+  test(k){const m=SL.testCmd(k);toast(m);autosave();ui.keepScroll=true;render();},
+  testCopy(){const t=SL.testInfo();try{navigator.clipboard.writeText(t).then(()=>toast('복사했습니다. 요청서 「환경」 칸에 붙여 넣으세요.'),()=>toast('복사 실패 — 위 상자를 직접 선택해 복사하세요.'));}catch(e){toast('복사 실패 — 위 상자를 직접 선택해 복사하세요.');}},
   setPref(k,v){PREF[k]=v;prefSave();ui.keepScroll=true;render();if(k==='vol')sfx('click',0.6);},
   clearResult(){ui.gameResult=null;ui.weekReport=null;render();},
   openPlayer(pid){S=SL.state();if(!S.players[pid]){toast('선수 정보를 찾을 수 없습니다.');return;}go({type:'player',id:pid,tab:'ability'});},
@@ -723,6 +728,9 @@ const A={
   tutSkip(){SL.state().tutorialDone=true;autosave();render();},
 };
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(b&&!b.disabled)sfx('click',0.25);},true);
-let lastWide=null;window.addEventListener('load',()=>{lastWide=isWide();render();Store.get().then(j=>{if(j&&!Store.has){Store.has=true;if(!SL.state())render();}});});window.addEventListener('resize',()=>{const w=isWide();if(w!==lastWide){lastWide=w;render();}});
+// 주소 옵션: ?test=1 테스트 도구 · ?new=1&team=0~7&seed=N 새 게임 바로 시작 (테스터용)
+const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams('');}})();ui.testMode=QS.get('test')==='1';
+function qsBoot(){if(QS.get('new')!=='1'||ui._booted)return;ui._booted=true;const seed=+QS.get('seed')||Math.floor(Math.random()*90000)+1000;const team=Math.max(0,Math.min(7,+QS.get('team')||0));SL.newGame(seed,team,{arch:true});SL.state().tutorialDone=QS.get('tut')!=='1';ui.tab='home';autosave();}
+let lastWide=null;window.addEventListener('load',()=>{lastWide=isWide();qsBoot();render();Store.get().then(j=>{if(j&&!Store.has){Store.has=true;if(!SL.state())render();}});});window.addEventListener('resize',()=>{const w=isWide();if(w!==lastWide){lastWide=w;render();}});
 return A;
 })();
