@@ -293,7 +293,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v14';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v15';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
@@ -1029,7 +1029,6 @@ function tableOffer(pid,offer){
     if(promise){p.promise={s:S.phase==='season'?S.season:S.season+1,day:14};}
     if(neg.mode==='renew'){p.contract={salary,years:years+(S.phase==='season'?1:0)};p.renewed=S.season;S.pendingFA=S.pendingFA.filter(x=>x!==pid);if(bonus){ut.cash-=bonus;ut.fin.buys+=bonus;}p.morale=Math.min(100,p.morale+8);news(`${p.name} 재계약 (${years}년, ${money(salary)}${bonus?', 계약금 '+money(bonus):''})`,'contract');return {ok:true,done:true,neg,log:neg.log,msg:`${p.name} 선수와 ${years}년 재계약했습니다.`};}
     const sb=(neg.mode==='sign'?Math.round(calcValue(p)*0.1):0)+bonus;transferPlayer(pid,ut.id,neg.fee+sb,{salary,years},neg.mode==='sign'?'FA 영입':'영입');
-    if(p.promise)keepPromise(ut,p);
     return {ok:true,done:true,neg,log:neg.log,msg:`${p.name} 선수와 계약했습니다. (${years}년, 연봉 ${money(salary)}${neg.fee?`, 이적료 ${money(neg.fee)}`:''}${sb?`, 계약금 ${money(sb)}`:''})`};}
   if(eff>=dem*0.85){neg.mood=clamp(neg.mood-4,0,100);neg.revealed=dem;neg.log.push(...tableLines(p,neg,'counter',{dem,wantPromise:neg.wantPromise,promise}));}
   else{neg.mood=clamp(neg.mood-18,0,100);neg.log.push(...tableLines(p,neg,'low',{mood:neg.mood}));}
@@ -1045,13 +1044,8 @@ function tableLeft(neg){const key=neg.mode==='renew'?'renew'+neg.pid+':'+S.seaso
 function negotiate(pid,offer){const o=openTable(pid);if(!o.ok)return o;return tableOffer(pid,offer);}
 function cancelNeg(pid){tableLeave(pid);}
 function renewContract(pid,salary,years){const o=openTable(pid);if(!o.ok)return o;const r=tableOffer(pid,{salary,years});return r;}
-// 주전 약속: 계약 즉시 주전 자리에 넣고(야수는 라인업 고정, 선발은 로테이션, 불펜은 필승조), 14일차에 지켜졌는지 점검
+// 주전 약속: 기용은 감독이 정한다. 14일차에 주전(라인업·로테이션·마무리·필승조)으로 쓰고 있는지 점검해 사기에 반영
 function promiseKept(t,p){return t.lineup.includes(p.id)||t.rotation.includes(p.id)||t.closer===p.id||(p.pos==='RP'&&t.bullpen.indexOf(p.id)>=0&&t.bullpen.indexOf(p.id)<4);}
-function keepPromise(t,p){if(promiseKept(t,p))return;if(t.dev.includes(p.id)){t.dev=t.dev.filter(x=>x!==p.id);t.roster.push(p.id);}
-  if(!isPitcher(p)){t.locks=t.locks||{};for(const id in t.locks)if(t.locks[id]===p.pos)delete t.locks[id];t.locks[p.id]=p.pos;autoLineup(t);}
-  else if(p.pos==='SP'){t.bullpen=t.bullpen.filter(x=>x!==p.id);if(t.rotation.length<5)t.rotation.push(p.id);else{const w=t.rotation.slice().sort((a,b)=>calcOvr(P_(a))-calcOvr(P_(b)))[0];t.rotation[t.rotation.indexOf(w)]=p.id;t.bullpen.push(w);}}
-  else{t.bullpen=t.bullpen.filter(x=>x!==p.id);t.bullpen.unshift(p.id);}
-  news(`${p.name}: 주전 약속에 따라 ${isPitcher(p)?(p.pos==='SP'?'선발 로테이션':'필승조'):POS_KO[p.pos]+' 주전(고정)'}에 넣었습니다.`,'contract');}
 function checkPromises(){const ut=userTeam();for(const pid of ut.roster.concat(ut.dev)){const p=P_(pid);if(!p||!p.promise||p.promise.s!==S.season)continue;const kept=promiseKept(ut,p);
   if(kept){p.morale=Math.min(100,p.morale+10);news(`${p.name}: 주전 약속이 지켜져 사기가 올랐습니다.`,'contract');}else{p.morale=Math.max(0,p.morale-25);news(`${p.name}: 주전 출장 약속이 지켜지지 않아 사기가 크게 떨어졌습니다.`,'contract');}p.promise=null;}}
 function releasePlayer(pid){const p=P_(pid);const ut=userTeam();if(!p||p.teamId!==S.userTeamId)return '우리 구단 선수가 아닙니다.';if(p.dispatch)return '파견 중인 선수는 방출할 수 없습니다.';if(ut.roster.length<=BAL.MIN_ROSTER)return `최소 인원(${BAL.MIN_ROSTER}명) 이하로 줄일 수 없습니다.`;

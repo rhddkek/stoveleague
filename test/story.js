@@ -48,7 +48,7 @@ mism===0?ok(`의향 표시 = 협상 판정 (부정적 ${nNeg}명 거절, 그 외
 // R004-3 주전 약속 영입은 바로 주전 자리에
 SL.newGame(77,0);S=SL.state();ut4=SL.userTeam();ut4.cash=500000;const faP=S.fa.map(id=>S.players[id]).filter(p=>SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0]||S.fa.map(id=>S.players[id])[0];
 let o4=SL.openTable(faP.id);let neg4=o4.neg;neg4.wantPromise=true;let res=null;for(let i=0;i<4&&!(res&&(res.done||res.ended));i++)res=SL.tableOffer(faP.id,{salary:Math.round(neg4.demand*1.3),years:2,bonus:0,promise:true});
-res&&res.done?(SL.promiseKept(ut4,faP)&&!/추격조/.test(SL.rosterRole(ut4,faP.id).text)?ok(`주전 약속 영입 ${faP.name}(${faP.pos}) → 현재 배치 「${SL.rosterRole(ut4,faP.id).text}」`):bad('약속 영입 배치 '+SL.rosterRole(ut4,faP.id).text)):bad('약속 영입 실패 '+(res&&res.msg));
+res&&res.done?(faP.promise&&!SL.promiseKept(ut4,faP)?ok(`주전 약속 영입 ${faP.name}(${faP.pos}): 자동 배치 없음 — 현재 「${SL.rosterRole(ut4,faP.id).text}」, 기용은 감독 판단`):bad('약속 영입이 자동 배치됨 '+SL.rosterRole(ut4,faP.id).text)):bad('약속 영입 실패 '+(res&&res.msg));
 // R004-4 자리를 떴다 다시 앉으면 이어서 (분위기·제시 횟수 유지)
 const fa2=S.fa.map(id=>S.players[id]).find(p=>p.id!==faP.id);let a1=SL.openTable(fa2.id);const n1=a1.neg;SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});const mood1=(S.market.negs.find(n=>n.pid===fa2.id)||{}).mood;
 if(S.market.negs.find(n=>n.pid===fa2.id))SL.tableLeave(fa2.id);const a2=SL.openTable(fa2.id);
