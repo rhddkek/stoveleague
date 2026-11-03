@@ -98,7 +98,7 @@ function prow(p,extra){const ovr=SL.calcOvr(p);const r=role(p);
 function valDelta(p){const sd=SL.seasonDelta(p);if(!sd||sd.v==null||Math.abs(sd.v)<100)return '';return ` <span class="${sd.v>0?'up':'dn'}">${sd.v>0?'+':''}${Ms(sd.v)}</span>`;}
 function lgName(t){return t.league==='KR'?t.div+'부':SL.BAL.LEAGUES[t.league].name;}
 function standChips(p,t){t=t||(p.teamId!=null?S.teams[p.teamId]:null);if(!t)return '';const ls=SL.leagueStanding(p,SL.leagueKey(t));const role=SL.expectedRole(p,t);
-  if(t.isUser){const cur=SL.rosterRole(t,p.id);return `<span class="chip ${ls.cls}">${ls.label}</span> <span class="chip">현재 ${esc(cur.text)}</span> <span class="chip ${role==='주전'?'g':role==='벤치'?'r':''}">실력상 ${role}급</span>${p.promise?` <span class="chip o">주전 약속${SL.promiseKept(t,p)?' 지키는 중':' — 아직 미기용'}</span>`:''}`;}
+  if(t.isUser){const cur=SL.rosterRole(t,p.id);return `<span class="chip ${ls.cls}">${ls.label}</span> <span class="chip">현재 ${esc(cur.text)}</span> <span class="chip ${role==='주전'?'g':role==='벤치'?'r':''}">실력상 ${role}급</span>${(()=>{const ps=SL.promiseStatus(p);if(!ps)return p.grudge?' <span class="chip r">약속 불이행 서운함</span>':'';return ` <span class="chip o">${ps.kind==='apology'?'사과 후 기회':'주전 약속'} ${ps.pending?'· 다음 시즌부터':`${ps.on}/${ps.n}경기 주전 (${ps.of}경기 중 ${ps.need} 필요)`}${SL.promiseKept(t,p)?'':' · 지금 미기용'}</span>`;})()}`;}
   return `<span class="chip ${ls.cls}">${ls.label}</span> <span class="chip ${role==='주전'?'g':role==='벤치'?'r':''}">${esc(t.name.split(' ').pop())} ${role}</span>`;}
 // ----- 코치진 -----
 function coachFace(c,size){return face({id:900000+c.id,nat:c.nat,age:Math.max(40,c.age),teamId:null},size);}
@@ -203,7 +203,9 @@ function decisionItems(){const ut=SL.userTeam();const it=[];const lgShort=t=>t.l
   if(S.phase==='offseason')for(const id of S.pendingFA){const p=S.players[id];if(!p)continue;it.push({tag:'재계약 · 2주차까지',title:`${p.name} 계약 만료`,sub:`${p.pos} · ${p.age}세 · 종합 ${Math.round(SL.calcOvr(p))} · 연봉 ${Ms(p.contract.salary)}`,btn:'협상',on:`UI.openTable(${p.id})`,face:p});}
   {const ex=(ut.staff||[]).filter(c=>c.years<=0);if(S.phase==='offseason'&&ex.length&&S.week<=2)it.push({tag:'코치 재계약 · 2주차까지',title:`코치 계약 만료 ${ex.length}명`,sub:ex.map(c=>SL.BAL.STAFF[c.dept].name+' '+c.name).join(', '),btn:'코치진',on:"UI.go('club','staff')"});}
   if(S.phase==='offseason'){const iss=SL.rosterCheck(ut);if(iss.length)it.push({tag:'개막 요건',title:'선수단 요건 미달',sub:iss.join(', '),btn:'자동 보충',on:'UI.autoFill()'});}
-  if(S.phase==='season')for(const id of ut.roster.concat(ut.dev)){const p=S.players[id];if(p&&p.promise&&p.promise.s===S.season&&S.day<=14&&!SL.promiseKept(ut,p))it.push({tag:`주전 약속 · ${p.promise.day||14}일차 점검`,title:`${p.name}을 아직 주전으로 쓰지 않았습니다`.replace(p.name+'을',SL.josa(p.name,'을','를')),sub:'지키지 않으면 사기가 크게 떨어집니다',btn:'라인업',on:"UI.go('roster','lineup')",face:p});}
+  for(const g of (S.grievances||[])){const p=S.players[g.pid];if(p)it.unshift({tag:'면담 요청 · 3일 안에',title:`${p.name}: "주전 약속은 어떻게 된 건가요?"`,sub:`약속 뒤 ${g.n}경기 중 ${g.on}경기만 주전`,btn:'면담',on:`UI.grievance(${p.id})`,face:p});}
+  if(S.phase==='season')for(const id of ut.roster.concat(ut.dev)){const p=S.players[id];const ps=p&&SL.promiseStatus(p);if(!ps||ps.pending||SL.promiseKept(ut,p))continue;const left=ps.of-ps.n,needMore=ps.need-ps.on;
+    it.push({tag:ps.kind==='apology'?'사과 후 기회 약속':'주전 약속 이행 중',title:`${SL.josa(p.name,'이','가')} 지금 주전이 아닙니다`,sub:`${ps.of}경기 중 ${ps.need}경기 이상 주전 필요 · 지금 ${ps.n}경기 중 ${ps.on}경기${needMore>left?' · 이미 어려움':needMore>0?` · 남은 ${left}경기 중 ${needMore}경기 더`:''}`,btn:'라인업',on:"UI.go('roster','lineup')",face:p});}
   if(S.phase==='season'&&S.day>=14){const exp=ut.roster.concat(ut.dev).map(id=>S.players[id]).filter(p=>p&&p.contract&&p.contract.years<=1);if(exp.length)it.push({tag:'미리 챙길 일',title:`이번 시즌 후 FA ${exp.length}명`,sub:exp.slice(0,3).map(p=>p.name).join(', ')+(exp.length>3?' 외':''),btn:'재계약',on:`UI.openTable(${exp[0].id})`,face:exp[0]});}
   return it;}
 function decisionCard(){const it=decisionItems();if(!it.length)return '';const show=ui.decAll?it:it.slice(0,3);
@@ -604,7 +606,7 @@ function draftCeremony(r){const p=S.players[r.pid];if(!p)return;const ut=SL.user
 function contractCeremony(pid,neg,f){const p=S.players[pid];if(!p||!p.contract)return;const ut=SL.userTeam();const renew=neg.mode==='renew';const yrs=renew?(f.years||p.contract.years):p.contract.years;const sal=p.contract.salary;const tot=sal*yrs+(f.bonus||0)+(neg.mode==='sign'?0:0);
   const line=[...neg.log].reverse().find(l=>l.who==='player'||l.who==='agent');const role=SL.rosterRole(ut,pid);const pay=SL.payroll(ut);const sp=SL.econ(ut).sponsor;
   modal(`<div class="cere" style="--tc:${ut.color}"><div class="ctag">${renew?'재계약 체결':'입단 계약 체결'}</div><div class="cface">${face(p,96)}</div><div class="ctitle"><b>${esc(p.name)}</b> ${renew?'재계약':'입단'}</div><div class="muted">${p.age}세 · ${SL.POS_KO[p.pos]||p.pos} · 종합 ${Math.round(SL.calcOvr(p))}</div>
-    <div class="cgrid"><div><div class="k">계약</div><div>${yrs}년 · 연봉 ${Ms(sal)}</div></div><div><div class="k">총 보장액</div><div>${Ms(tot)}${f.bonus?` (계약금 ${Ms(f.bonus)} 포함)`:''}</div></div><div><div class="k">현재 배치</div><div>${esc(role.text)}${p.promise?` · <span class="chip o">주전 약속 ${p.promise.s}시즌 ${p.promise.day||14}일차 점검</span>`:''}</div></div><div><div class="k">구단 연봉 총액</div><div>${Ms(pay)} <span class="muted small">(스폰서 수입의 ${Math.round(pay/Math.max(1,sp)*100)}%)</span></div></div></div>
+    <div class="cgrid"><div><div class="k">계약</div><div>${yrs}년 · 연봉 ${Ms(sal)}</div></div><div><div class="k">총 보장액</div><div>${Ms(tot)}${f.bonus?` (계약금 ${Ms(f.bonus)} 포함)`:''}</div></div><div><div class="k">현재 배치</div><div>${esc(role.text)}${p.promise?` · <span class="chip o">주전 약속: 13경기 중 8경기 이상 주전 기용</span>`:''}</div></div><div><div class="k">구단 연봉 총액</div><div>${Ms(pay)} <span class="muted small">(스폰서 수입의 ${Math.round(pay/Math.max(1,sp)*100)}%)</span></div></div></div>
     ${line?`<div class="cquote"><b>${esc(line.who==='agent'?(neg.agent||'에이전트'):p.name)}</b> "${esc(line.text)}"</div>`:''}<button class="primary" style="margin-top:12px;width:100%" onclick="UI.closeModal()">확인</button></div>`);}
 function farewellCard(pid){const p=S.players[pid];if(!p)return;const ut=SL.userTeam();const t=S.teams[p.teamId];const tr=(p.transfers||[]).slice(-1)[0]||{};const seasons=new Set((p.hist||[]).filter(h=>h.team===ut.id).map(h=>h.s)).size+(p.cur&&(p.cur.g||p.cur.pG)?1:0);const B=SL.growthBase(p);const j=p.joinSnap;
   modal(`<div class="cere" style="--tc:${t?t.color:ut.color}"><div class="ctag">이적 성사</div><div class="cface">${face(p,96)}</div><div class="ctitle"><b>${esc(p.name)}</b>, ${t?esc(SL.josa(t.name,'으로')):''}${t&&t.league!=='KR'?' ('+SL.BAL.LEAGUES[t.league].short+' 무대)':''} 떠납니다</div>
@@ -614,6 +616,14 @@ function alumniCoachCard(c){const op=S.players[c.alumni];const ut=SL.userTeam();
   modal(`<div class="cere" style="--tc:${ut.color}"><div class="ctag">돌아온 얼굴</div><div class="cface">${op?face(op,96):coachFace(c,96)}</div><div class="ctitle"><b>${esc(c.name)}</b>, ${esc(SL.BAL.STAFF[c.dept].name)}로 돌아왔습니다</div>
     <div class="cgrid"><div><div class="k">현역 시절</div><div>${op?`${op.pos} · 통산 ${(op.hist||[]).length}시즌`:'우리 구단 출신'}</div></div><div><div class="k">코치 평점</div><div>${G(c.rating)} ${c.rating}</div></div><div><div class="k">맡는 일</div><div>${esc(SL.BAL.STAFF[c.dept].what)}</div></div><div><div class="k">계약</div><div>${c.years}년 · 연봉 ${Ms(c.salary)}</div></div></div>
     <div class="cquote"><b>${esc(c.name)}</b> "이 유니폼을 다시 입게 될 줄 몰랐습니다. 후배들 잘 키워 보겠습니다."</div><button class="primary" style="margin-top:12px;width:100%" onclick="UI.closeModal()">확인</button></div>`);}
+function grievanceModal(pid){const p=S.players[pid];const g=(S.grievances||[]).find(x=>x.pid===pid);if(!p||!g)return;const ut=SL.userTeam();
+  modal(`<div class="cere" style="--tc:var(--orange)"><div class="ctag">면담 요청</div><div class="cface">${face(p,96)}</div><div class="ctitle"><b>${esc(p.name)}</b></div><div class="muted">${SL.POS_KO[p.pos]||p.pos} · 종합 ${Math.round(SL.calcOvr(p))} · 사기 ${Math.round(p.morale)} · 현재 ${esc(SL.rosterRole(ut,p.id).text)}</div>
+    <div class="cquote"><b>${esc(p.name)}</b> "주전으로 뛸 수 있다고 하셔서 왔습니다. 그런데 ${g.n}경기 중 ${g.on}경기만 나갔어요. 어떻게 하실 건가요?"</div>
+    <div class="glist">
+      <button class="gopt" onclick="UI.grievanceAns(${pid},'apology')"><b>사과하고 기회를 약속한다</b><span>사기 +8 · 다음 7경기 중 4경기 이상 주전으로 써야 함 (못 지키면 사기 −15, 서운함)</span></button>
+      <button class="gopt" onclick="UI.grievanceAns(${pid},'trade')"><b>트레이드 요청을 받아들인다</b><span>사기 +5 · 판매 목록에 오름 · 사정을 아는 구단들이 이적료를 12% 낮게 부름</span></button>
+      <button class="gopt" onclick="UI.grievanceAns(${pid},'ignore')"><b>그냥 넘긴다</b><span>사기 −10 · 서운함: 재계약 때 연봉 15% 더 요구</span></button>
+    </div><div class="muted small" style="margin-top:8px">3일 안에 답하지 않으면 「그냥 넘긴다」로 처리됩니다.</div></div>`);}
 function recapModal(R){if(!R)return;const ut=SL.userTeam();R.seen=true;const G=R.grow;
   modal(`<div class="cere" style="--tc:${ut.color}"><div class="ctag">${R.s}시즌 결산</div><div class="cface">${emblem(ut,84)}</div><div class="ctitle">${esc(SL.compName(R.comp))} <b>${R.rank}위</b> · ${R.w}승 ${R.l}패</div>
     <div class="cbig ${R.promoted?'up':R.relegated?'dn':''}">${R.promoted?'승격!':R.relegated?'강등':'잔류'}${R.goal?` · 목표 「${esc(R.goal)}」 ${R.goalMet?'<span class="up">달성</span>':'<span class="dn">미달</span>'}`:''}</div>
@@ -684,6 +694,8 @@ const A={
     if(myTurn)t+=`<div class="row wrap" style="gap:6px;margin-top:10px">${ps.map(p=>`<button class="sm primary" onclick="UI.closeModal();UI.draftPick(${p.id},'dev')">${esc(p.name)} 지명</button>`).join('')}</div>`;
     if(!opt.draft)t+=`<div class="btns" style="margin-top:10px"><button class="primary" onclick="UI.closeModal();UI.go('roster','lineup')">라인업에서 바꾸기</button></div>`;
     t+=`<div class="muted small" style="margin-top:8px">초록색은 비교한 선수 중 가장 높은 값입니다.${opt.draft?' 잠재력은 스카우트 추정이라 신뢰도가 낮으면 크게 틀릴 수 있습니다.':''}</div>`;modal(t);},
+  grievance(pid){grievanceModal(pid);},
+  grievanceAns(pid,c){const e=SL.grievanceAnswer(pid,c);closeModal();toast(e||({apology:'사과하고 기회를 약속했습니다.',trade:'판매 목록에 올렸습니다.',ignore:'면담을 넘겼습니다.'}[c]),3000);autosave();render();},
   setPref(k,v){PREF[k]=v;prefSave();ui.keepScroll=true;render();if(k==='vol')sfx('click',0.6);},
   clearResult(){ui.gameResult=null;ui.weekReport=null;render();},
   openPlayer(pid){S=SL.state();if(!S.players[pid]){toast('선수 정보를 찾을 수 없습니다.');return;}go({type:'player',id:pid,tab:'ability'});},

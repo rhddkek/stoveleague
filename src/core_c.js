@@ -83,7 +83,8 @@ function finishDay(){
   marketTick(0.12);
   if(d%7===0){for(const t of liveTeams()){for(const pid of t.roster)growthTick(P_(pid),{kind:'season',label:`${S.season}시즌 ${d}일차`,team:t});for(const pid of t.dev)growthTick(P_(pid),{kind:'season',label:`${S.season}시즌 ${d}일차`,team:t,dev:true});}
     for(const pid of userTeam().roster)improveScout(P_(pid),0.06);scoutWatch();}
-  if(d===14){checkPromises();interestCheck();}
+  promiseTick();grievanceTick();
+  if(d===14){interestCheck();}
   S.day++;S.clock++;
   const ut=userTeam();if(ut.cash<0)warn(`현금이 ${money(ut.cash)}입니다. 선수 판매, 긴급 대출(재정 탭) 등 회복 조치가 필요합니다.`);
   if(S.day>BAL.SEASON_GAMES)endSeason();
@@ -163,7 +164,7 @@ function makeAIOffer(t,p,unsolicited){
   const upgrade=!starter||calcOvr(p)>calcOvr(starter)+3;
   if(!need&&!upgrade&&!unsolicited)return null;
   if(t.cash<payroll(t)*0.25+v*0.7)return null;
-  let fee=v*(0.8+rnd()*0.3)*(need?1.08:1)*(t.div<userTeam().div?1.05:1);
+  let fee=v*(0.8+rnd()*0.3)*(need?1.08:1)*(t.div<userTeam().div?1.05:1)*(p.wantsOut===S.season?0.88:1);
   if((p.acquired&&p.acquired.s===S.season))fee*=0.85;
   fee=Math.min(fee,t.cash*0.5);fee=Math.round(fee/100)*100;if(fee<500)return null;
   const wi=willingInfo(p,t);const o={id:S.nextOfferId++,type:'buy',pid:p.id,team:t.id,fee,max:Math.round(fee*(1.15+rnd()*0.2)/100)*100,expires:S.clock+BAL.OFFER_EXPIRE,counters:0,status:'open',willing:rnd()<wi.pw,pw:wi.pw,reasons:wi.reasons,unsolicited:!!unsolicited};
@@ -222,7 +223,7 @@ function openTable(pid){
   const mine=p.teamId===S.userTeamId;const from=p.teamId!=null?S.teams[p.teamId]:null;const isFA=!from;
   let neg=S.market.negs.find(n=>n.pid===pid);if(neg)return {ok:true,neg};
   if(mine){const key='renew'+pid+':'+S.season;if((S.market.attempts[key]||0)>=3)return {ok:false,msg:'이번 시즌 재계약 협상 기회(3회)를 모두 사용했습니다.'};
-    let dem=Math.max(salaryFor(p),(p.contract?p.contract.salary:0)*1.05);if(calcOvr(p)>=68&&ut.div===3&&p.age<=29)dem*=1.25;if(p.age>=33)dem*=0.85;
+    let dem=Math.max(salaryFor(p),(p.contract?p.contract.salary:0)*1.05);if(calcOvr(p)>=68&&ut.div===3&&p.age<=29)dem*=1.25;if(p.age>=33)dem*=0.85;if(p.grudge)dem*=1.15;
     neg={id:S.nextOfferId++,pid,mode:'renew',stage:'player',demand:Math.round(dem/10)*10,fee:0,ask:0,rounds:0,maxRounds:3,expires:S.clock+3,log:[],promise:false};}
   else{if(ut.roster.length>=BAL.MAX_ROSTER)return {ok:false,msg:`선수단이 가득 찼습니다 (최대 ${BAL.MAX_ROSTER}명).`};
     const key=pid+':'+S.season;if((S.market.attempts[key]||0)>=2)return {ok:false,msg:'이번 시즌 이 선수와의 협상 기회(2회)를 모두 사용했습니다.'};
@@ -235,7 +236,7 @@ function openTable(pid){
   const wi=mine?null:willingInfo(p,ut);neg.wantPromise=!!(wi&&wi.reasons.some(r=>r.startsWith('출장')))||p.age<=23;
   neg.hint=[Math.round(neg.demand*0.85/10)*10,Math.round(neg.demand*1.15/10)*10];
   const key=from?from.roster.map(P_).sort((a,b)=>calcOvr(b)-calcOvr(a)).findIndex(x=>x.id===pid)<5:false;
-  neg.log=tableLines(p,neg,'greet',{key,poor:from&&from.cash<0});
+  neg.log=tableLines(p,neg,'greet',{key,poor:from&&from.cash<0});if(mine&&p.grudge)neg.log.push({who:neg.agent?'agent':'player',text:'솔직히 말씀드리면, 그때 주전 약속 안 지키신 거 아직 마음에 걸립니다. 이번엔 조건으로 보여 주셔야 합니다.'});
   S.market.negs.push(neg);return {ok:true,neg};
 }
 function tableOffer(pid,offer){
@@ -257,8 +258,8 @@ function tableOffer(pid,offer){
   if(eff>=dem){
     const key=neg.mode==='renew'?'renew'+pid+':'+S.season:pid+':'+S.season;S.market.attempts[key]=(S.market.attempts[key]||0)+1;
     neg.log.push(...tableLines(p,neg,'accept',{promise}));end();
-    if(promise){p.promise={s:S.phase==='season'?S.season:S.season+1,day:14};}
-    if(neg.mode==='renew'){p.contract={salary,years:years+(S.phase==='season'?1:0)};p.renewed=S.season;S.pendingFA=S.pendingFA.filter(x=>x!==pid);if(bonus){ut.cash-=bonus;ut.fin.buys+=bonus;}p.morale=Math.min(100,p.morale+8);news(`${p.name} 재계약 (${years}년, ${money(salary)}${bonus?', 계약금 '+money(bonus):''})`,'contract');return {ok:true,done:true,neg,log:neg.log,msg:`${p.name} 선수와 ${years}년 재계약했습니다.`};}
+    if(promise){p.promise={s:S.phase==='season'?S.season:S.season+1,n:0,on:0};p.apology=null;}
+    if(neg.mode==='renew'){p.grudge=null;p.contract={salary,years:years+(S.phase==='season'?1:0)};p.renewed=S.season;S.pendingFA=S.pendingFA.filter(x=>x!==pid);if(bonus){ut.cash-=bonus;ut.fin.buys+=bonus;}p.morale=Math.min(100,p.morale+8);news(`${p.name} 재계약 (${years}년, ${money(salary)}${bonus?', 계약금 '+money(bonus):''})`,'contract');return {ok:true,done:true,neg,log:neg.log,msg:`${p.name} 선수와 ${years}년 재계약했습니다.`};}
     const sb=(neg.mode==='sign'?Math.round(calcValue(p)*0.1):0)+bonus;transferPlayer(pid,ut.id,neg.fee+sb,{salary,years},neg.mode==='sign'?'FA 영입':'영입');
     return {ok:true,done:true,neg,log:neg.log,msg:`${p.name} 선수와 계약했습니다. (${years}년, 연봉 ${money(salary)}${neg.fee?`, 이적료 ${money(neg.fee)}`:''}${sb?`, 계약금 ${money(sb)}`:''})`};}
   if(eff>=dem*0.85){neg.mood=clamp(neg.mood-4,0,100);neg.revealed=dem;neg.log.push(...tableLines(p,neg,'counter',{dem,wantPromise:neg.wantPromise,promise}));}
@@ -277,8 +278,24 @@ function cancelNeg(pid){tableLeave(pid);}
 function renewContract(pid,salary,years){const o=openTable(pid);if(!o.ok)return o;const r=tableOffer(pid,{salary,years});return r;}
 // 주전 약속: 기용은 감독이 정한다. 14일차에 주전(라인업·로테이션·마무리·필승조)으로 쓰고 있는지 점검해 사기에 반영
 function promiseKept(t,p){return t.lineup.includes(p.id)||t.rotation.includes(p.id)||t.closer===p.id||(p.pos==='RP'&&t.bullpen.indexOf(p.id)>=0&&t.bullpen.indexOf(p.id)<4);}
-function checkPromises(){const ut=userTeam();for(const pid of ut.roster.concat(ut.dev)){const p=P_(pid);if(!p||!p.promise||p.promise.s!==S.season)continue;const kept=promiseKept(ut,p);
-  if(kept){p.morale=Math.min(100,p.morale+10);news(`${p.name}: 주전 약속이 지켜져 사기가 올랐습니다.`,'contract');}else{p.morale=Math.max(0,p.morale-25);news(`${p.name}: 주전 출장 약속이 지켜지지 않아 사기가 크게 떨어졌습니다.`,'contract');}p.promise=null;}}
+// 주전 약속 이행: 약속 이후 우리 경기에서 주전으로 쓴 비율로 판정 (13경기째 또는 시즌 끝, 60% 이상이면 지킴)
+// 못 지키면 선수가 면담을 요청 → 감독이 사과(기회 약속) / 트레이드 요청 수용 / 무시 중 선택
+const PROMISE_N=13,PROMISE_RATE=0.6;
+function promiseTick(){const ut=userTeam();if(!userGameToday())return;
+  for(const pid of ut.roster.concat(ut.dev)){const p=P_(pid);if(!p)continue;
+    const pr=p.promise;if(pr&&pr.s===S.season){pr.n=(pr.n||0)+1;pr.on=(pr.on||0)+(promiseKept(ut,p)?1:0);if(pr.n>=PROMISE_N||S.day>=BAL.SEASON_GAMES)promiseJudge(p);}
+    const ap=p.apology;if(ap&&ap.s===S.season){ap.n++;ap.on+=promiseKept(ut,p)?1:0;if(ap.n>=7||S.day>=BAL.SEASON_GAMES){if(ap.on>=4){p.morale=clamp(p.morale+8,0,100);news(`${p.name}: 약속대로 기회를 줘서 마음이 풀렸습니다.`,'contract');}else{p.morale=clamp(p.morale-15,0,100);p.grudge=S.season;news(`${p.name}: 사과 뒤에도 기회가 없어 감독을 믿지 않게 됐습니다.`,'contract');}p.apology=null;}}}}
+function promiseJudge(p){const pr=p.promise;if(!pr)return;const rate=pr.n?pr.on/pr.n:0;p.promise=null;
+  if(rate>=PROMISE_RATE){p.morale=clamp(p.morale+10,0,100);news(`${p.name}: 주전 약속이 지켜졌습니다 (${pr.n}경기 중 ${pr.on}경기 주전). 사기 상승.`,'contract');return;}
+  p.morale=clamp(p.morale-15,0,100);S.grievances=(S.grievances||[]).filter(g=>g.pid!==p.id);S.grievances.push({pid:p.id,s:S.season,on:pr.on,n:pr.n,exp:S.clock+3});
+  news(`${p.name}: 주전 약속이 지켜지지 않았습니다 (${pr.n}경기 중 ${pr.on}경기 주전). 감독 면담을 요청합니다.`,'contract');}
+function promiseStatus(p){const pr=p.promise;if(pr&&pr.s===S.season&&S.phase==='season')return {kind:'promise',on:pr.on||0,n:pr.n||0,need:Math.ceil(PROMISE_N*PROMISE_RATE),of:PROMISE_N};if(pr)return {kind:'promise',on:0,n:0,need:Math.ceil(PROMISE_N*PROMISE_RATE),of:PROMISE_N,pending:true};
+  const ap=p.apology;if(ap)return {kind:'apology',on:ap.on,n:ap.n,need:4,of:7};return null;}
+function grievanceAnswer(pid,choice){const g=(S.grievances||[]).find(x=>x.pid===pid);const p=P_(pid);if(!g||!p)return '면담 요청이 없습니다.';S.grievances=S.grievances.filter(x=>x!==g);
+  if(choice==='apology'){p.morale=clamp(p.morale+8,0,100);p.apology={s:S.season,n:0,on:0};news(`${p.name}에게 사과하고 기회를 약속했습니다 (7경기 중 4경기 이상 주전 기용).`,'contract');return null;}
+  if(choice==='trade'){p.wantsOut=S.season;p.morale=clamp(p.morale+5,0,100);p.lockUntil=0;if(!S.market.listed.includes(pid))S.market.listed.push(pid);news(`${p.name}의 트레이드 요청을 받아들여 판매 목록에 올렸습니다. 사정을 아는 구단들이 값을 조금 낮게 부를 수 있습니다.`,'contract');return null;}
+  p.morale=clamp(p.morale-10,0,100);p.grudge=S.season;news(`${p.name}의 면담 요청을 무시했습니다. 선수가 서운함을 품었습니다.`,'contract');return null;}
+function grievanceTick(){for(const g of [...(S.grievances||[])])if(S.clock>=g.exp){const p=P_(g.pid);S.grievances=S.grievances.filter(x=>x!==g);if(p&&p.teamId===S.userTeamId){p.morale=clamp(p.morale-10,0,100);p.grudge=S.season;news(`${p.name}: 면담 요청에 답이 없어 서운함을 품었습니다.`,'contract');}}}
 function releasePlayer(pid){const p=P_(pid);const ut=userTeam();if(!p||p.teamId!==S.userTeamId)return '우리 구단 선수가 아닙니다.';if(p.dispatch)return '파견 중인 선수는 방출할 수 없습니다.';if(ut.roster.length<=BAL.MIN_ROSTER)return `최소 인원(${BAL.MIN_ROSTER}명) 이하로 줄일 수 없습니다.`;
   const sev=Math.round((p.contract?p.contract.salary*Math.max(1,p.contract.years)*0.3:0)/10)*10;ut.cash-=sev;ut.fin.other+=sev;removeFromTeam(ut,p);S.fa.push(pid);p.exUser=true;p.transfers.push({s:S.season,from:ut.name,to:'FA',fee:0,kind:'방출'});fixLineup(ut);news(`${p.name} 방출 (위약금 ${money(sev)})`,'contract');return null;}
 function removeFromTeam(t,p){t.roster=t.roster.filter(id=>id!==p.id);t.dev=(t.dev||[]).filter(id=>id!==p.id);t.lineup=t.lineup.filter(id=>id!==p.id);delete t.pos[p.id];t.rotation=t.rotation.filter(id=>id!==p.id);t.bullpen=t.bullpen.filter(id=>id!==p.id);if(t.closer===p.id)t.closer=null;p.teamId=null;p.contract=null;
@@ -658,7 +675,7 @@ function endSeason(){
     t.cash=Math.min(BAL.OVERSEAS_CASH[t.league],t.cash+BAL.OVERSEAS_CASH[t.league]*0.5);autoLineup(t);}
   // FA 풀 정리: 2시즌 이상 미계약자 제거
   S.fa=S.fa.filter(id=>{const p=P_(id);if(!p)return false;p.faSeasons=(p.faSeasons||0)+1;if(p.faSeasons>=2&&!p.userLink&&!p.homecoming){delete S.players[id];return false;}return true;});
-  S.market.attempts={};S.market.negMem={};S.market.negs=[];S.market.listed=[];
+  S.grievances=[];S.market.attempts={};S.market.negMem={};S.market.negs=[];S.market.listed=[];
   S.market.offers=S.market.offers.filter(o=>o.type==='overseas');
   interestCheck();
   S.phase='offseason';S.week=1;S.clock++;
@@ -673,7 +690,7 @@ function advanceWeek(){
   if(S.phase!=='offseason')return false;S.warn=[];
   const ut=userTeam();
   if(S.draft&&!S.draft.done){if(draftTurn())draftAuto();draftStep();}
-  dispatchWeek();scoutWatch();if(S.week===3)staffWeek3();
+  dispatchWeek();scoutWatch();grievanceTick();if(S.week===3)staffWeek3();
   if(S.jobOffers&&S.jobOffers.length&&S.week>=2){for(const o of S.jobOffers)news(`${S.teams[o.team].name}의 감독 제의가 만료되었습니다.`,'sys');S.jobOffers=[];}
   if(S.week===3){for(const pid of [...S.pendingFA]){const p=P_(pid);if(!p||p.teamId!==ut.id)continue;removeFromTeam(ut,p);S.fa.push(pid);p.transfers.push({s:S.season,from:ut.name,to:'FA',fee:0,kind:'계약 만료'});news(`${josa(p.name,'이','가')} FA로 떠났습니다.`,'contract');}S.pendingFA=[];fixLineup(ut);}
   for(const t of shuffle(krTeams().filter(t=>!t.isUser)))aiWeek(t);
@@ -901,7 +918,7 @@ function migrate(){const from=S.version;
     if(S.phase==='season'){const ut=userTeam();S.mgr.cur={s:S.season,div:ut.div,expRank:null,powerStart:teamPower(ut).power,sales:[]};}}
   const ut=userTeam();for(const id of ut.roster.concat(ut.dev)){const p=S.players[id];if(p&&p.devStart==null&&p.age<=24&&p.base){const b={...p,attrs:p.base};p.devStart=r1(calcOvr(b));}}
   {const u=userTeam();if(!u.staff)u.staff=starterStaff(u);for(const c of u.staff)if(c.years==null)c.years=1;if(!S.staffPool)refreshStaffPool();}
-  S.jobOffers=S.jobOffers||[];if(S.mgr){S.mgr.loyalty=S.mgr.loyalty||0;if(S.mgr.rep==null)S.mgr.rep=calcRep();S.mgr.repHist=S.mgr.repHist||[];ensureCareer();if(S.mgr.cur&&!S.mgr.cur.goal){const o=teamOutlook(userTeam());S.mgr.cur.goal=o.goal;}}
+  S.jobOffers=S.jobOffers||[];S.grievances=S.grievances||[];if(S.mgr){S.mgr.loyalty=S.mgr.loyalty||0;if(S.mgr.rep==null)S.mgr.rep=calcRep();S.mgr.repHist=S.mgr.repHist||[];ensureCareer();if(S.mgr.cur&&!S.mgr.cur.goal){const o=teamOutlook(userTeam());S.mgr.cur.goal=o.goal;}}
   for(const id of userTeam().roster.concat(userTeam().dev)){const p=S.players[id];if(p)p.coached=true;}for(const id in S.players){const p=S.players[id];if(p.exUser)p.coached=true;}
   // 구버전 기록 복원: 판매 이력·옛 제자를 선수 이적 기록에서 다시 연결
   {const ut0=userTeam();const nm=ut0.name;for(const id in S.players){const p=S.players[id];if(p.teamId!==ut0.id&&(p.transfers||[]).some(t=>t.from===nm)){p.coached=true;if(!p.retired&&p.teamId!=null)p.exUser=true;}}
@@ -999,7 +1016,7 @@ return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS
   endSeason,advanceWeek,startNewSeason,growthTick,interestCheck,
   promoteDev,demoteDev,devCap,draftAvail,draftPick,draftAuto,draftTurn,draftStep,
   willingInfo,contractText,advice,growthTop,togglePin,openTable,tableOffer,tableLeave,tableLeft,report,growthReport,
-  diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,growthBase,promiseKept,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,winterResults,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
+  diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,growthBase,promiseKept,promiseStatus,grievanceAnswer,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,winterResults,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
   compOf,compTeams,leagueComps,lgOf,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
   P:P_,krTeams,overseasTeams,rnd};

@@ -60,4 +60,17 @@ for(let i=0;i<8;i++)SL.playDayAuto();const gb=SL.growthBase(tgt);gb&&gb.join&&gb
 SL.newGame(1234,0,{arch:true});S=SL.state();while(S.phase==='season')SL.playDayAuto();ut4=SL.userTeam();while(S.week<=2&&!(S.dispatch&&S.dispatch.phase==='open'))SL.advanceWeek();const el=ut4.roster.map(id=>S.players[id]).filter(SL.dispatchEligible)[0];
 if(el){const op=SL.dispatchOptions(el)[0];SL.dispatchPlayer(el.id,op.team.id);}while(S.week<=6)SL.advanceWeek();SL.startNewSeason();const ws=SL.weeklyStory();
 el?(ws.kind==='winter'&&/돌아온/.test(ws.title)&&ws.acts&&ws.acts.some(a=>a.label==='개막 편성하기')?ok('개막 이야기: '+ws.title+' / '+ws.lines[0]):bad('개막 이야기 '+ws.kind+' '+ws.title)):console.log('  (파견 대상 없음)');
+console.log('[7] 주전 약속 이행 비율 · 면담');
+function promSetup(seed){SL.newGame(seed,0);S=SL.state();const u=SL.userTeam();const b=u.roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&!u.lineup.includes(p.id));b.promise={s:S.season,n:0,on:0};b.morale=60;return {u,b};}
+let {u:u7,b:b7}=promSetup(41);const m0=b7.morale;u7.locks={};u7.locks[b7.id]=b7.pos;SL.autoLineup(u7);for(let i=0;i<14&&b7.promise;i++)SL.playDayAuto();
+!b7.promise&&b7.morale>m0&&!(S.grievances||[]).length?ok(`13경기 중 대부분 주전 → 약속 이행, 사기 ${m0}→${Math.round(b7.morale)}`):bad('이행 판정 '+JSON.stringify(b7.promise)+' '+b7.morale);
+({u:u7,b:b7}=promSetup(42));for(let i=0;i<14&&b7.promise;i++){SL.playDayAuto();u7.lineup=u7.lineup.filter(id=>id!==b7.id);delete u7.pos[b7.id];}
+const g7=(S.grievances||[]).find(g=>g.pid===b7.id);g7&&b7.morale<=45?ok(`약속 불이행 → 면담 요청 (${g7.n}경기 중 ${g7.on}경기 주전, 사기 60→${Math.round(b7.morale)})`):bad('불이행 처리 '+JSON.stringify(g7)+' '+b7.morale);
+const snap7=SL.serialize();
+SL.grievanceAnswer(b7.id,'apology');b7.apology&&!(S.grievances||[]).length?ok('면담: 사과 → 7경기 중 4경기 기회 약속'):bad('사과 처리');
+for(let i=0;i<8&&b7.apology;i++){SL.playDayAuto();u7.lineup=u7.lineup.filter(id=>id!==b7.id);}b7.grudge?ok('사과 뒤에도 기회 안 줌 → 서운함'):bad('사과 불이행');
+SL.load(snap7);S=SL.state();let bb=S.players[b7.id];SL.grievanceAnswer(bb.id,'trade');S.market.listed.includes(bb.id)&&bb.wantsOut===S.season?ok('면담: 트레이드 요청 수용 → 판매 목록'):bad('트레이드 처리');
+SL.load(snap7);S=SL.state();bb=S.players[bb.id];const dem0=(()=>{const o=SL.openTable(bb.id);const d=o.neg&&o.neg.demand;SL.tableLeave(bb.id);return d;})();SL.load(snap7);S=SL.state();bb=S.players[bb.id];SL.grievanceAnswer(bb.id,'ignore');S.market.attempts={};S.market.negMem={};
+const o7=SL.openTable(bb.id);o7.ok&&o7.neg.demand>dem0*1.1&&o7.neg.log.some(l=>/약속 안 지키신/.test(l.text))?ok(`면담 무시 → 재계약 요구 ${SL.money(dem0)}→${SL.money(o7.neg.demand)}, 대사 언급`):bad('무시 후 재계약 '+(o7.neg&&o7.neg.demand)+' vs '+dem0);
+SL.load(snap7);S=SL.state();bb=S.players[bb.id];for(let i=0;i<4;i++)SL.playDayAuto();!(S.grievances||[]).length&&bb.grudge?ok('3일 안에 답하지 않으면 「그냥 넘김」 처리'):bad('면담 만료');
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

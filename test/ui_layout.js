@@ -51,5 +51,9 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.waitForTimeout(200);await has('이적 성사');await has('떠납니다');ok('판매 성사 → 작별 카드');await p.evaluate(()=>UI.closeModal());
   await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const old=Object.values(S.players).find(x=>x.teamId!=null&&x.teamId!==ut.id);S.staffPool.unshift({id:99999,name:old.name,nat:'KR',age:40,dept:'bat',rating:58,trait:null,salary:2000,years:0,bio:'우리 구단 출신',alumni:old.id});UI.go('club','staff');UI.hireCoach(99999);});
   await p.waitForTimeout(200);await has('돌아온 얼굴');ok('출신 코치 영입 → 복귀 카드');await p.evaluate(()=>UI.closeModal());
+  // 주전 약속 불이행 면담
+  await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const b=ut.roster.map(id=>S.players[id]).find(x=>!SL.isPitcher(x)&&!ut.lineup.includes(x.id));S.grievances=[{pid:b.id,s:S.season,on:2,n:13,exp:S.clock+3}];UI.setTab('home');});
+  await has('면담 요청');await p.evaluate(()=>UI.grievance(SL.state().grievances[0].pid));await has('사과하고 기회를 약속한다');await has('트레이드 요청을 받아들인다');await has('그냥 넘긴다');await over('면담 화면');
+  await p.evaluate(()=>UI.grievanceAns(SL.state().grievances[0].pid,'apology'));(await p.evaluate(()=>!SL.state().grievances.length))?ok('주전 약속 면담: 홈 결정 → 세 가지 선택 → 처리'):bad('면담 처리');
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

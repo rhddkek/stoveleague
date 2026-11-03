@@ -278,3 +278,5 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 .lastplay .lpb{font-family:var(--f-display);font-size:28px;line-height:1.1}.lastplay .lpt{font-size:15px;margin-top:2px}
 @keyframes lp{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
 .cmpt th,.cmpt td{text-align:center;vertical-align:middle;padding:6px 8px}.cmpt th:first-child{white-space:nowrap}
+.glist{display:grid;gap:8px;margin-top:12px;text-align:left}.gopt{display:block;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:0;font-weight:400;color:var(--ink,inherit)}
+.gopt b{display:block;font-size:15px;margin-bottom:2px}.gopt span{font-size:13px;color:var(--muted)}.gopt:hover{border-color:var(--navy)}

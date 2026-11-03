@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v15';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v16';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
