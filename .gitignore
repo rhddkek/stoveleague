@@ -1,0 +1,15 @@
+# 프로젝트 파일만 추적 (홈 폴더의 다른 파일 제외)
+/*
+!/.gitignore
+!/README.md
+!/package.json
+!/package-lock.json
+!/build.js
+!/src/
+!/src_v1/
+!/src_v2/
+!/src_v3/
+!/assets/
+!/test/
+!/stoveleague.html
+!/stoveleague_artifact.html
