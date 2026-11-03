@@ -277,3 +277,4 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 .lastplay.good.ours,.lastplay.bad.theirs{border-left-color:var(--green)}.lastplay.bad.ours,.lastplay.good.theirs{border-left-color:var(--red)}
 .lastplay .lpb{font-family:var(--f-display);font-size:28px;line-height:1.1}.lastplay .lpt{font-size:15px;margin-top:2px}
 @keyframes lp{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
+.cmpt th,.cmpt td{text-align:center;vertical-align:middle;padding:6px 8px}.cmpt th:first-child{white-space:nowrap}

@@ -11,6 +11,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{UI.pickTeam(2);UI.newGame();SL.state().tutorialDone=true;UI.setTab('home');});await p.waitForTimeout(150);
   (await p.evaluate(()=>SL.userTeam().arch))==='poor'?ok('재정난 구단으로 시작 (유형 반영)'):bad('구단 유형 미반영');
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
+  await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
+  /다음 타석/.test(tt)&&/하이라이트/.test(tt)&&/이번 주 이야기/.test(tt)&&/코치진/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내가 현재 화면(이번 주 이야기·다음 타석·하이라이트·코치진)과 일치'):bad('튜토리얼 문구');
   const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','table'],['club','fin'],['club','fac'],['club','staff'],['club','overseas'],['club','alumni'],['club','hist'],['club','data']];
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
   await sweep('시즌 중');ok('시즌 중 18개 화면 가로 넘침·하단 가림 검사');
@@ -23,8 +25,12 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await has('시즌 결산');await has('감독 평판');await over('시즌 결산');ok('시즌 종료 → 결산 화면');
   await p.evaluate(()=>UI.closeModal());await sweep('스토브리그');ok('스토브리그 18개 화면 검사');
   await p.evaluate(()=>UI.go('club','table'));await has('최종 순위');await has('다음 시즌 편성');ok('스토브리그 순위: 지난 시즌 최종 + 다음 시즌 편성 분리');
+  // R003: 드래프트 보드 필터·비교
+  const dok=await p.evaluate(()=>{let g=0;while(!(SL.state().draft&&!SL.state().draft.done)&&g++<3)SL.advanceWeek();if(!SL.state().draft||SL.state().draft.done)return null;UI.go('dev','draft');UI.draftF('g','P');const ids=SL.draftAvail().filter(SL.isPitcher).slice(0,3).map(p=>p.id);ids.forEach(id=>UI.draftToggle(id));UI.draftCompare();return ids.length;});
+  if(dok){await has('드래프트 후보 비교');await has('예상 잠재');await has('부족 포지션');await over('드래프트 비교');ok(`드래프트: 투수 필터 + ${dok}명 비교 표`);await p.evaluate(()=>{UI.closeModal();UI.set('draftCmp',[]);UI.draftF('g','all');});}
   const pick=await p.evaluate(()=>{let g=0;while(!SL.draftTurn()&&SL.state().draft&&!SL.state().draft.done&&g++<10)SL.advanceWeek();if(!SL.draftTurn())return null;const id=SL.state().draft.pool.find(x=>SL.state().players[x].teamId==null);UI.draftPick(id,'auto');return id;});
-  if(pick){await p.waitForTimeout(100);await has('지명');await has('첫 육성 계획');await over('지명 연출');ok('드래프트 지명 연출');await p.evaluate(()=>UI.closeModal());}else console.log('  (이번 시드는 우리 지명 차례 없음)');
+  if(pick){await p.waitForTimeout(100);await has('지명');await has('첫 육성 계획');await over('지명 연출');ok('드래프트 지명 연출');await p.evaluate(()=>UI.closeModal());
+    await p.evaluate(id=>UI.openPlayer(id),pick);const bt=await p.evaluate(()=>document.body.innerText);(!/\d시즌 시작/.test(bt.split('비교 기준')[1]||bt.split('비교할 과거')[0]||''))&&/입단 당시|비교할 과거/.test(bt)?ok('지명 신인 비교 기준 = 입단 당시 (「1시즌 시작」 없음)'):bad('신인 비교 기준 표시');await p.evaluate(()=>UI.back());}else console.log('  (이번 시드는 우리 지명 차례 없음)');
   const fa=await p.evaluate(()=>SL.state().pendingFA[0]||null);
   if(fa){await p.evaluate(id=>{UI.openTable(id);},fa);for(let i=0;i<4;i++){const done=await p.evaluate(()=>!!document.querySelector('.cere'));if(done)break;await p.evaluate(()=>{const f=document.querySelector('#tf_sal')||document.querySelector('input[type=number]');if(f){f.value=Math.round(+f.value*1.6);f.dispatchEvent(new Event('change'));}UI.tableSubmit();});await p.waitForTimeout(80);}
     (await p.evaluate(()=>!!document.querySelector('.cere')))?ok('재계약 체결 연출'):console.log('  (재계약이 성사되지 않아 연출 미확인)');await p.evaluate(()=>UI.closeModal());}
