@@ -38,4 +38,26 @@ SL.newGame(1234,3,{arch:true});G=SL.state().mgr.cur.goal;!G.kind||G.kind==='rank
 SL.newGame(1234,0);G=SL.state().mgr.cur.goal;!G.kind?ok('유형 없는 게임은 기존 목표 유지: '+G.text):bad('기본 목표 변경됨');
 SL.newGame(9,1);S=SL.state();const bat=SL.userTeam().roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&p.pos==='1B');bat.attrs.speed=15;bat.attrs.defense=29;bat.attrs.contact=60;bat.attrs.power=58;bat.attrs.eye=57;
 const dgx=SL.diagnose(bat),srx=SL.scoutReport(bat).join(' ');dgx.lines.some(l=>l.k==='수비·주루'&&/주력 15/.test(l.t))&&!/뚜렷한 약점은 없습니다/.test(srx)&&/수비·주루가 크게 부족/.test(srx)?ok('주력 15·수비 29 선수: 「타격 쪽으로는 약점 없음 + 수비·주루 크게 부족」'):bad('약점 범위 '+srx);
+console.log('[6] R004');
+// R004-1 보고서는 그 시즌 기록으로 고정
+SL.newGame(1234,0,{arch:true});S=SL.state();while(S.day<22)SL.playDayAuto();let r04=SL.reportStart();while(S.phase==='season')SL.playDayAuto();let rp4=SL.reportEnd(r04);
+rp4&&rp4.ended&&rp4.rankTo===S.lastSummary.rank?ok(`시즌 마지막 주 보고서 순위 = 결산 순위 (${rp4.rankFrom}→${rp4.rankTo}위, 결산 ${S.lastSummary.rank}위)`):bad('보고서 시즌 고정 '+JSON.stringify(rp4&&{to:rp4.rankTo,e:rp4.ended,ls:S.lastSummary.rank}));
+// R004-2 영입 의향 표시와 협상 시작 판정 일치
+SL.newGame(77,0,{arch:true});S=SL.state();let ut4=SL.userTeam();let mism=0,nNeg=0,nOk=0;for(const t of SL.krTeams().filter(x=>!x.isUser))for(const id of t.roster.slice(0,6)){const p=S.players[id];const lv=SL.willingInfo(p,ut4).level;const o=SL.openTable(id);if(o.ok)SL.tableLeave(id);if(lv==='부정적'){nNeg++;if(o.ok)mism++;}else{if(!o.ok&&/관심이 없/.test(o.msg))mism++;else nOk++;}}
+mism===0?ok(`의향 표시 = 협상 판정 (부정적 ${nNeg}명 거절, 그 외 ${nOk}명 착석)`):bad('의향 불일치 '+mism);
+// R004-3 주전 약속 영입은 바로 주전 자리에
+SL.newGame(77,0);S=SL.state();ut4=SL.userTeam();ut4.cash=500000;const faP=S.fa.map(id=>S.players[id]).filter(p=>SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0]||S.fa.map(id=>S.players[id])[0];
+let o4=SL.openTable(faP.id);let neg4=o4.neg;neg4.wantPromise=true;let res=null;for(let i=0;i<4&&!(res&&(res.done||res.ended));i++)res=SL.tableOffer(faP.id,{salary:Math.round(neg4.demand*1.3),years:2,bonus:0,promise:true});
+res&&res.done?(SL.promiseKept(ut4,faP)&&!/추격조/.test(SL.rosterRole(ut4,faP.id).text)?ok(`주전 약속 영입 ${faP.name}(${faP.pos}) → 현재 배치 「${SL.rosterRole(ut4,faP.id).text}」`):bad('약속 영입 배치 '+SL.rosterRole(ut4,faP.id).text)):bad('약속 영입 실패 '+(res&&res.msg));
+// R004-4 자리를 떴다 다시 앉으면 이어서 (분위기·제시 횟수 유지)
+const fa2=S.fa.map(id=>S.players[id]).find(p=>p.id!==faP.id);let a1=SL.openTable(fa2.id);const n1=a1.neg;SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});const mood1=(S.market.negs.find(n=>n.pid===fa2.id)||{}).mood;
+if(S.market.negs.find(n=>n.pid===fa2.id))SL.tableLeave(fa2.id);const a2=SL.openTable(fa2.id);
+a2.ok?(a2.neg.second&&a2.neg.maxRounds<=2&&a2.neg.mood<=mood1?ok(`두 번째 자리: 분위기 ${mood1}→${a2.neg.mood} 유지, 남은 제시 ${a2.neg.maxRounds}회 (처음 4회)`):bad('재착석 상태 '+JSON.stringify({s:a2.neg.second,m:a2.neg.maxRounds,mood:a2.neg.mood,mood1}))):ok('결렬 후 재협상 차단: '+a2.msg);
+// R004-6 시즌 중 영입 선수는 홈·상세 모두 「입단 대비」
+SL.newGame(77,0);S=SL.state();for(let i=0;i<10;i++)SL.playDayAuto();ut4=SL.userTeam();ut4.cash=900000;const tgt=S.fa.map(id=>S.players[id])[0];const o6=SL.openTable(tgt.id);let r6=null;for(let i=0;i<4&&!(r6&&(r6.done||r6.ended));i++)r6=SL.tableOffer(tgt.id,{salary:Math.round(o6.neg.demand*1.4),years:2});
+for(let i=0;i<8;i++)SL.playDayAuto();const gb=SL.growthBase(tgt);gb&&gb.join&&gb.label==='입단 대비'&&Math.abs(gb.ovr-tgt.joinSnap.ovr)<0.01?ok(`시즌 중 영입 ${tgt.name}: 성장 기준 「입단 대비」 (${gb.ovr} → ${Math.round(SL.calcOvr(tgt))})`):bad('합류 기준 '+JSON.stringify(gb));
+// R004-7 개막 홈: 겨울의 결과
+SL.newGame(1234,0,{arch:true});S=SL.state();while(S.phase==='season')SL.playDayAuto();ut4=SL.userTeam();while(S.week<=2&&!(S.dispatch&&S.dispatch.phase==='open'))SL.advanceWeek();const el=ut4.roster.map(id=>S.players[id]).filter(SL.dispatchEligible)[0];
+if(el){const op=SL.dispatchOptions(el)[0];SL.dispatchPlayer(el.id,op.team.id);}while(S.week<=6)SL.advanceWeek();SL.startNewSeason();const ws=SL.weeklyStory();
+el?(ws.kind==='winter'&&/돌아온/.test(ws.title)&&ws.acts&&ws.acts.some(a=>a.label==='개막 편성하기')?ok('개막 이야기: '+ws.title+' / '+ws.lines[0]):bad('개막 이야기 '+ws.kind+' '+ws.title)):console.log('  (파견 대상 없음)');
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

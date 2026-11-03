@@ -43,5 +43,13 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   tb.arch==='poor'&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed}, 재정난)`):bad('테스트 주소 시작 '+JSON.stringify(tb));
   await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await has('요청서용 정보 복사');await has(tb.ver);
   await p.evaluate(()=>UI.test('nextSeason'));(await p.evaluate(()=>SL.state().season))===2?ok('테스트 도구: 다음 시즌 개막까지'):bad('다음 시즌 이동 실패');
+  // R004: 직전 타석 결과 유지 · 판매 작별 카드 · 출신 코치 복귀 카드
+  await p.goto(FILE+'?test=1&new=1&team=0&seed=1234');await p.waitForTimeout(300);
+  await p.evaluate(()=>{UI.startGame();UI.step('half');});await has('직전 타석');const lpt=await p.evaluate(()=>document.querySelector('.lastplay .lpt').textContent);/회(초|말)/.test(lpt)&&!/—/.test(lpt)?ok('이닝이 바뀌어도 직전 타석 결과 유지: '+lpt.slice(0,40)):bad('직전 타석 '+lpt);
+  await p.evaluate(()=>{UI.step('game');UI.endGame();});
+  await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const pid=ut.roster.find(id=>!ut.lineup.includes(id)&&!SL.isPitcher(S.players[id]));const b=SL.krTeams().find(t=>!t.isUser&&t.div===1);b.cash=9e6;const o={id:S.nextOfferId++,type:'buy',pid,team:b.id,fee:Math.round(SL.calcValue(S.players[pid])*1.2),max:0,expires:S.clock+3,counters:0,status:'agreed',willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(pid);UI.respond(o.id,'accept');});
+  await p.waitForTimeout(200);await has('이적 성사');await has('떠납니다');ok('판매 성사 → 작별 카드');await p.evaluate(()=>UI.closeModal());
+  await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const old=Object.values(S.players).find(x=>x.teamId!=null&&x.teamId!==ut.id);S.staffPool.unshift({id:99999,name:old.name,nat:'KR',age:40,dept:'bat',rating:58,trait:null,salary:2000,years:0,bio:'우리 구단 출신',alumni:old.id});UI.go('club','staff');UI.hireCoach(99999);});
+  await p.waitForTimeout(200);await has('돌아온 얼굴');ok('출신 코치 영입 → 복귀 카드');await p.evaluate(()=>UI.closeModal());
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});
