@@ -1,7 +1,7 @@
 /* 레이아웃: 모바일 세로 단일 컬럼(최대 560px), 상단 구단 바 + 하단 5탭. 결정(주황) → 성장(초록) → 진행(네이비) 순 */
 :root{
   --navy:#13254a;--navy2:#1d3462;--navy3:#2a4680;--on-navy:#ffffff;--on-navy-dim:#b9c3da;
-  --bg:#f2eee5;--card:#ffffff;--sunk:#ebe6da;--text:#18213a;--muted:#5c6478;--line:#ddd6c7;
+  --bg:#f2eee5;--card:#ffffff;--sunk:#ebe6da;--text:#18213a;--muted:#4f5869;--line:#ddd6c7;
   --green:#1f8a55;--green-bg:#e3f4ea;--green-ink:#17704a;
   --orange:#d9711c;--orange-bg:#fdeedd;--orange-ink:#a8520c;
   --red:#cc3f36;--red-bg:#fbe5e3;--red-ink:#a92f27;
@@ -65,7 +65,7 @@ input[type=number]{width:100%}
 .hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 10px}
 .hd h3{margin:0;font-size:17px;font-weight:700;text-wrap:balance}
 .hd small{color:var(--muted);font-size:12px}
-.muted{color:var(--muted);font-size:13px}.small{font-size:12px}.b{font-weight:700}
+.muted{color:var(--muted);font-size:13.5px}.small{font-size:13px}.b{font-weight:700}
 .row{display:flex;align-items:center;gap:8px}.sb{justify-content:space-between}.wrap{flex-wrap:wrap}
 .grow{flex:1;min-width:0}
 
@@ -231,3 +231,49 @@ img.av{border-radius:50%;object-fit:cover}
 .field .r1{left:84.4%;top:55.5%}.field .r2{left:50%;top:23.4%}.field .r3{left:14.8%;top:55.5%}
 @media (prefers-reduced-motion:reduce){.field i{transition:none}}
 .ovseg{overflow-x:auto;scrollbar-width:none}.ovseg::-webkit-scrollbar{display:none}.ovseg button{flex:1 0 auto;padding:0 10px;white-space:nowrap}.ovseg .chip{font-size:10px;padding:1px 5px}
+/* 홈: 이번 주 이야기 · 결정할 일 · 보고서 */
+.story{display:flex;gap:14px;align-items:flex-start;background:var(--navy);color:#f6f1e4;border-radius:18px;padding:16px;margin-bottom:12px}
+.story .sface img,.story .sface svg{border-radius:14px}
+.story .tagline{color:#f3c76b}.story .ttl{font-size:18px;font-weight:800;line-height:1.35;margin:4px 0 6px}
+.story .lines{font-size:15px;line-height:1.6;font-weight:600}.story .sub{font-size:13px;opacity:.85;margin-top:6px}.story .since{font-size:12px;opacity:.6;margin-top:4px}
+.story .sbody{min-width:0;flex:1}.story button.ghost{color:#f6f1e4;border-color:#f6f1e455}
+.dec .drow{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.dec .drow:last-of-type{border-bottom:none}
+.dtag{font-size:11px;font-weight:700;color:var(--orange)}.dec .nm{font-weight:700}.dec .sub{font-size:12.5px;color:var(--muted)}
+.report .v.small2,.stat3 .v.small2{font-size:16px}
+.result .rline{padding:3px 0}.result.win{border-left:4px solid var(--green)}.result.loss{border-left:4px solid var(--red)}
+.nrow{padding:6px 0;border-bottom:1px dashed var(--line)}.nrow.al::before{content:'● ';color:var(--green)}.nrow.os::before{content:'● ';color:var(--orange)}
+.rp-home{padding-top:16px}
+/* 작은 행사 카드 */
+.cere{text-align:center;padding:4px 2px}.cere .ctag{display:inline-block;background:var(--tc,var(--navy));color:#fff;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700}
+.cere .cface{margin:12px auto 6px;display:flex;justify-content:center}.cere .cface img,.cere .cface svg{border-radius:20px;box-shadow:0 0 0 4px var(--tc,var(--navy))}
+.cere .ctitle{font-size:18px;line-height:1.45;margin-bottom:4px}.cere .ctitle b{font-size:22px}
+.cere .cbig{font-size:17px;font-weight:800;margin:6px 0}
+.cere .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin:12px 0;background:var(--sunk);border-radius:12px;padding:12px}
+.cere .cgrid .k{font-size:12px;color:var(--muted);margin-bottom:2px}
+.cere .cquote{text-align:left;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--tc,var(--navy));border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.6}
+@media (max-width:380px){.cere .cgrid{grid-template-columns:1fr}}
+/* 시작 화면 */
+.title{padding-block:0}
+.title .hero{min-height:230px;background:var(--navy) center/cover no-repeat;image-rendering:pixelated;display:flex;align-items:flex-end;padding:28px 0 18px}
+.title .hero h1{font-size:44px;text-shadow:0 2px 0 #0008}.title .hero p{color:#f6f1e4;margin:6px 0 0;text-shadow:0 1px 2px #000a}
+.title .dim{color:var(--on-navy-dim)}
+.contcard{background:var(--navy2);border:1px solid #ffffff22;border-radius:18px;padding:16px;margin:4px 0 12px}
+.tbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}.tbtns button{background:var(--navy2);color:#fff;border:2px solid transparent}.tbtns button.on{border-color:#4fd18e}
+.archsel{display:grid;grid-template-columns:1fr 1fr;gap:8px}.archsel button{background:var(--navy);color:#fff;text-align:left;padding:12px;border:2px solid transparent;border-radius:14px;display:block;min-height:0;font-weight:400}
+.archsel button.on{border-color:#4fd18e;background:#1b2a5c}.atag{display:inline-block;font-size:11px;font-weight:700;color:#f3c76b;margin-top:2px}
+.title details.adv{margin-top:12px}.title details.adv summary{cursor:pointer;color:var(--on-navy-dim);font-size:13px}
+@media (max-width:560px){.archsel{grid-template-columns:1fr}}
+/* 설정 */
+.setrow{padding:10px 0;border-bottom:1px solid var(--line)}.setrow:last-child{border-bottom:none}.chk{width:22px;height:22px;min-height:0}
+.title .setrow{border-color:#ffffff1a}
+html.fz-l{font-size:17.5px}html.fz-xl{font-size:19.5px}
+html.fz-l body{font-size:17.5px}html.fz-xl body{font-size:19.5px}
+html.fz-l .small,html.fz-l .sub{font-size:14px!important}html.fz-xl .small,html.fz-xl .sub{font-size:15.5px!important}
+html.calm *,html.calm *::before,html.calm *::after{animation:none!important;transition:none!important}
+.story button.primary{background:#f3c76b;color:#14204a;border-color:#f3c76b}
+/* 경기: 방금 일어난 일 */
+.score .atk .tn{color:var(--orange);font-weight:800}.score .atk .tn::before{content:'▶ '}
+.lastplay{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--gray);border-radius:14px;padding:12px 14px;margin:10px 0;animation:lp .35s ease-out}
+.lastplay.good.ours,.lastplay.bad.theirs{border-left-color:var(--green)}.lastplay.bad.ours,.lastplay.good.theirs{border-left-color:var(--red)}
+.lastplay .lpb{font-family:var(--f-display);font-size:28px;line-height:1.1}.lastplay .lpt{font-size:15px;margin-top:2px}
+@keyframes lp{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}

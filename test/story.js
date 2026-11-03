@@ -1,0 +1,32 @@
+// 리뷰 반영 검증: 정보 신뢰성 · 구단 유형 · 이야기/보고서/결산 · 겨울 휴식 · 출신 선수 코치 · 감독 제의 이유
+const SL=require('./run.js');let S;let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
+console.log('[1] 정보 신뢰성');SL.newGame(31,2);S=SL.state();let ut=SL.userTeam();
+const sp=SL.saleImpact(ut.rotation[0]);sp.role==='선발 1번'&&sp.newcomers.length?ok(`선발 1번 판매 영향: 역할 「${sp.role}」, 대체 ${sp.newcomers[0].p.name} → ${sp.newcomers[0].pos}`):bad('선발 판매 영향 '+JSON.stringify({r:sp.role,n:sp.newcomers.length}));
+const cl=SL.saleImpact(ut.closer);cl.role==='마무리'?ok('마무리 판매 영향 역할 판정'):bad('마무리 '+cl.role);
+let g=true;for(let v=40;v<=90;v+=0.1){if(SL.gradeOf(v)!==SL.gradeOf(Math.round(v)))g=false;}g?ok('등급 = 화면 반올림 수치 기준 (69.6 → '+SL.gradeOf(69.6)+')'):bad('등급 반올림 불일치');
+for(let i=0;i<20;i++)SL.playDayAuto();let contra=0;for(const id of ut.roster){const p=S.players[id];if(SL.isPitcher(p))continue;const d=SL.diagnose(p);const st=p.cur;const avg=st.ab?st.h/st.ab:0;const t=d.lines.map(l=>l.t).join(' ');if(avg>=.300&&st.pa>=40&&/타율이 낮아/.test(t))contra++;if(st.pa<100&&/표본 충분/.test(t))contra++;}
+contra?bad('성적과 모순되는 진단 '+contra):ok('고타율 선수에게 「타율이 낮아집니다」 없음 · 100타석 미만은 「참고 수준」');
+while(S.phase==='season')SL.playDayAuto();const last=S.history[S.history.length-1];const myRow=Object.values(last.tables).flat().find(r=>r.id===S.userTeamId);
+myRow&&myRow.rank===S.lastSummary.rank?ok(`시즌 종료 순위 일치: 결산 ${S.lastSummary.rank}위 = 최종 순위표 ${myRow.rank}위`):bad('최종 순위 불일치');
+const R=S.lastRecap;R&&R.s===last.s&&R.rank===S.lastSummary.rank&&R.fanText&&R.owner?ok(`시즌 결산: ${R.rank}위, 팬 「${R.fans}」, 최고 성장 ${R.grow?R.grow.name+' +'+R.grow.d:'-'}, 평판 ${R.repFrom}→${R.repTo}`):bad('결산 '+JSON.stringify(R));
+console.log('[2] 구단 유형');const arch={};for(let i=0;i<4;i++){SL.newGame(500,i,{arch:true});S=SL.state();ut=SL.userTeam();const ps=ut.roster.map(id=>S.players[id]);arch[ut.arch]={cash:ut.cash,rep:ut.rep,age:ps.reduce((a,p)=>a+p.age,0)/ps.length,pw:SL.teamPower(ut).power,pay:SL.payroll(ut)};}
+SL.newGame(500,0);const base={cash:SL.userTeam().cash,rep:SL.userTeam().rep};
+arch.youth.age<arch.vet.age-3?ok(`유망주 중심 평균 ${arch.youth.age.toFixed(1)}세 vs 노장 중심 ${arch.vet.age.toFixed(1)}세`):bad('나이 차 없음');
+arch.vet.pw>arch.youth.pw?ok(`노장 중심 전력 ${arch.vet.pw} > 유망주 중심 ${arch.youth.pw}`):bad('전력 차 없음');
+arch.poor.cash<arch.popular.cash*0.5?ok(`재정난 현금 ${SL.money(arch.poor.cash)} vs 인기 구단 ${SL.money(arch.popular.cash)}`):bad('현금 차 없음');
+arch.popular.rep>arch.poor.rep+20?ok(`인기 구단 명성 ${arch.popular.rep} (재정난 ${arch.poor.rep})`):bad('명성 차');
+SL.newGame(500,1,{arch:true});S=SL.state();const gp=S.mgr.cur.goal.target;SL.newGame(500,1);const gn=SL.state().mgr.cur.goal.target;gp<gn?ok(`인기 구단은 목표가 더 빡빡함 (${gp}위 이내 vs 일반 ${gn}위 이내)`):bad('인기 구단 목표');
+console.log('[3] 이야기 · 보고서');SL.newGame(31,2,{arch:true});S=SL.state();const st0=SL.weeklyStory();st0.kind==='start'?ok('첫 시즌 이야기: '+st0.title):bad('첫 이야기 '+st0.kind);
+const r0=SL.reportStart();for(let i=0;i<7;i++)SL.playDayAuto();const rp=SL.reportEnd(r0);rp&&rp.games===7&&rp.w+rp.l===7&&rp.bat&&rp.pit?ok(`주간 보고서 ${rp.w}승 ${rp.l}패, 최고 타자 ${rp.bat.p.name} (${rp.bat.line})`):bad('보고서 '+JSON.stringify(rp&&{g:rp.games}));
+for(let i=0;i<10;i++)SL.playDayAuto();const st1=SL.weeklyStory();st1.title&&st1.kind!=='start'?ok(`이번 주 이야기(${st1.kind}): ${st1.title}`):bad('이야기 '+st1.kind);
+const notes=SL.coachNotes();notes.every(n=>n.who&&n.text&&S.players[n.pid])?ok('코치 한마디 '+notes.length+'건'):bad('코치 한마디');
+console.log('[4] 겨울 휴식 · 출신 코치 · 감독 제의 이유');
+SL.newGame(77,2);S=SL.state();while(S.phase==='season')SL.playDayAuto();ut=SL.userTeam();const vets=ut.roster.map(id=>S.players[id]).filter(p=>p.age>=31).sort((a,b)=>b.age-a.age);
+const snap=SL.serialize();const ov=vets.slice(0,4).map(p=>p.id);const run=rest=>{SL.load(snap);S=SL.state();for(const id of ov){if(rest)S.players[id].winterPlan='rest';}while(S.week<=6)SL.advanceWeek();SL.startNewSeason();return ov.map(id=>{const p=S.players[id];return p?p.log[0]:null;});};
+const a=run(false),b2=run(true);const da=a.filter(Boolean).reduce((s,l)=>s+l.d,0),db=b2.filter(Boolean).reduce((s,l)=>s+l.d,0);
+b2.every(l=>!l||/휴식/.test(l.f.join()))&&S.players[ov[0]].cond===3?ok(`휴식 선택 베테랑: 기록 「겨울 휴식」, 개막 컨디션 +3 (변화 합 훈련 ${da.toFixed(1)} / 휴식 ${db.toFixed(1)})`):bad('휴식 처리 '+JSON.stringify(b2[0]));
+SL.newGame(77,2);S=SL.state();const old=SL.userTeam().roster.map(id=>S.players[id]).sort((a,b)=>b.age-a.age)[0];old.age=40;old.exUser=true;while(S.phase==='season')SL.playDayAuto();
+S.staffPool.some(c=>c.alumni===old.id)?ok(`은퇴한 우리 출신 ${old.name} → 코치 시장 등장`):bad('출신 코치 없음');
+S.mgr.rep=90;S.mgr.seasons.forEach(m=>{m.devHits=3;m.goalMet=true;});SL.genJobOffers();
+if(S.jobOffers.length){const r=S.jobOffers[0].reason;/원합니다|요청합니다/.test(r)?ok('감독 제의 이유: '+r):bad('제의 이유 '+r);}else console.log('  (제의 없음 — 이유 문구 미확인)');
+console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

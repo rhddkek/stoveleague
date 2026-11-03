@@ -34,6 +34,12 @@ const BAL={
   MIN_ROSTER:20, MAX_ROSTER:30, MIN_PITCHERS:9,
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
+  // 시작 구단 유형 (3부 8개 구단에 2개씩) — 난이도가 아니라 '다른 고민'
+  ARCH:{youth:{name:'유망주 중심',pitch:'어린 선수가 많아 「내가 키운다」는 맛이 큽니다.',worry:'당장은 이기기 어렵습니다.',tip:'출장 기회를 주며 1~2시즌 뒤를 노리세요.'},
+    popular:{name:'지역 인기 구단',pitch:'관중이 많아 입장 수입과 스폰서가 안정적입니다.',worry:'팬과 구단주의 기대가 높아 목표가 빡빡합니다.',tip:'수입을 영입에 써서 기대에 맞추세요.'},
+    poor:{name:'재정난 구단',pitch:'싼 선수를 찾아 되살리는 재미가 있습니다.',worry:'돈이 거의 없고 비싼 주축 2명의 연봉이 무겁습니다.',tip:'주축을 팔지, 버틸지 첫 결정이 중요합니다.'},
+    vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌 승격을 노릴 수 있습니다.',worry:'2~3년 안에 세대교체가 급합니다.',tip:'좋을 때 팔고 젊은 선수를 모으세요.'}},
+  ARCH_OF:['youth','popular','poor','vet','youth','popular','poor','vet'],
   // 코치진: 부서별 정원, 등급별 기준 연봉(만원/시즌), 부서 특기
   STAFF:{bat:{name:'타격코치',max:3,what:'타자 컨택·파워·선구안 성장'},pit:{name:'투수코치',max:3,what:'투수 구위·제구·변화구·체력 성장'},def:{name:'수비·주루코치',max:2,what:'야수 주력·수비·송구 성장'},
     dev:{name:'육성코치',max:2,what:'23세 이하·육성군 성장, 육성군 정원'},scout:{name:'스카우트',max:5,what:'잠재력 판별 정확도, 유망주·드래프트 발굴'},med:{name:'트레이너·의무',max:5,what:'피로 회복, 노화 지연'}},
@@ -106,7 +112,8 @@ const TEAM_NAMES={
 
 // ---------- 등급/능력 ----------
 function isPitcher(p){return p.pos==='SP'||p.pos==='RP';}
-function gradeOf(v){return v>=80?'S':v>=70?'A':v>=60?'B':v>=50?'C':'D';}
+// 화면에 보이는 반올림 수치와 등급이 항상 일치하도록 반올림 후 판정
+function gradeOf(v){v=Math.round(v);return v>=80?'S':v>=70?'A':v>=60?'B':v>=50?'C':'D';}
 function calcOvr(p){
   const a=p.attrs;
   if(isPitcher(p)){return p.pos==='SP'?a.stuff*.33+a.control*.3+a.movement*.25+a.stamina*.12:a.stuff*.4+a.control*.3+a.movement*.25+a.stamina*.05;}
@@ -259,9 +266,8 @@ function teamPower(t,exclude){
   const ps=t.roster.filter(id=>id!==exclude).map(id=>S.players[id]).filter(p=>p&&!p.retired);
   const bats=ps.filter(p=>!isPitcher(p)),pits=ps.filter(isPitcher);const r=bestLineup(bats,{});
   let la=0,n=0;for(const id in r.pos){const p=S.players[id];la+=r.pos[id]==='DH'?offVal(p):posOvr(p,r.pos[id]);n++;}la=n?la/n:40;
-  const sp=pits.filter(p=>p.pos==='SP').map(calcOvr).sort((a,b)=>b-a);const allp=pits.map(calcOvr).sort((a,b)=>b-a);
-  const spA=sp.length>=5?sp.slice(0,5):sp.concat(allp.filter(x=>!sp.includes(x)).slice(0,5-sp.length));const spAvg=spA.length?spA.reduce((a,b)=>a+b,0)/spA.length:40;
-  const rp=pits.filter(p=>p.pos==='RP').map(calcOvr).sort((a,b)=>b-a).slice(0,5);const rpAvg=rp.length?rp.reduce((a,b)=>a+b,0)/rp.length:40;
+  const byO=(a,b)=>calcOvr(b)-calcOvr(a);const spP=pits.filter(p=>p.pos==='SP').sort(byO).slice(0,5);if(spP.length<5)spP.push(...pits.filter(p=>p.pos!=='SP').sort(byO).slice(0,5-spP.length));
+  const spAvg=spP.length?spP.reduce((s,p)=>s+calcOvr(p),0)/spP.length:40;const rpP=pits.filter(p=>!spP.includes(p)).sort(byO).slice(0,5);const rpAvg=rpP.length?rpP.reduce((s,p)=>s+calcOvr(p),0)/rpP.length:40;
   return {power:r1(la*0.55+spAvg*0.3+rpAvg*0.15),lineup:r,spIds:pits.filter(p=>p.pos==='SP').sort((a,b)=>calcOvr(b)-calcOvr(a)).slice(0,5).map(p=>p.id)};
 }
 // 유저 팀: 빠진 선수만 교체(기존 편성 유지)
