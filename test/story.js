@@ -199,4 +199,24 @@ console.log('[15] 수상 기록 보기');
  (S.awardLog||[]).length===mine.length?ok(`우리 구단 수상 기록 ${mine.length}건 저장 (시상식 결과와 일치)`):bad('awardLog '+(S.awardLog||[]).length+' vs '+mine.length);
  const js=JSON.parse(SL.serialize());delete js.awardLog;SL.load(JSON.stringify(js));S=SL.state();(S.awardLog||[]).length===mine.length?ok('구버전 저장: 시상식 기록에서 우리 구단 수상 기록 복원'):bad('awardLog 복원 '+(S.awardLog||[]).length);
  const w=Object.values(S.players).find(p=>p.awards&&p.awards.length);w&&w.awards[0].lab&&w.awards[0].s===1?ok(`선수 수상 기록: ${w.name} — ${w.awards.map(a=>a.lab).join(', ')}`):bad('선수 수상 기록');}
+console.log('[16] R017 육성·운영 설계서 반영');
+{SL.newGame(1717,9,{arch:true,games:72});S=SL.state();const u=SL.userTeam();
+ const ai=SL.krTeams().filter(t=>!t.isUser);ai.every(t=>SL.AIM_KO[t.aim])?ok('AI 구단 운영 목표: '+ai.map(t=>t.name.split(' ')[1]+' '+SL.AIM_KO[t.aim]).join(' · ')):bad('AI 목표 없음');
+ {const t=ai.find(x=>x.aim==='contend');const old=t.roster.map(id=>S.players[id]).find(p=>p.age>=31)||S.players[t.roster[0]];const a0=SL.aiAsk(t,old);t.aim='rebuild';const a1=SL.aiAsk(t,old);t.aim='contend';
+  old.age>=30?(a1<a0?ok(`리빌딩 구단은 노장을 싸게: ${old.name}(${old.age}세) ${SL.money(a0)} → ${SL.money(a1)}`):bad('리빌딩 노장 가격 '+a0+' '+a1)):ok('(노장 없음 — 생략)');}
+ const pool=SL.reserveIds(u).map(id=>S.players[id]).filter(p=>!SL.isPitcher(p));const f3=pool.slice(0,4).map(p=>SL.setResFocus(p.id,true));
+ f3.slice(0,3).every(x=>x===null)&&/최대 3명/.test(f3[3]||'')?ok('2군 집중 육성 3명 지정, 4번째는 거절'):bad('집중 지정 '+f3);
+ const starter=S.players[u.lineup[0]];/1군 주전/.test(SL.setResFocus(starter.id,true)||'')?ok('1군 주전은 2군 집중 대상이 아님'):bad('주전 집중 허용');
+ while(S.day<=7)SL.playDayAuto();const fp=pool.slice(0,3);fp.every(p=>p.resRole==='focus'&&p.res&&p.res.pa>0)?ok('집중 선수는 2군 주전 몫으로 출장: '+fp.map(p=>`${p.name} ${p.res.pa}타석`).join(', ')):bad('집중 출장 '+fp.map(p=>p.resRole));
+ fp.every(p=>p.log[0]&&p.log[0].f.some(x=>/2군 집중/.test(x)))?ok('성장 요인에 「2군 집중 육성」 기록'):bad('집중 요인 '+fp.map(p=>p.log[0]&&p.log[0].f));
+ const bench=SL.reserveIds(u).map(id=>S.players[id]).find(p=>p.resRole==='bench');bench&&bench.log[0]&&bench.log[0].f.some(x=>/2군 벤치/.test(x))?ok('2군 벤치는 「출장 적음」으로 구분'):ok('(2군 벤치 선수 없음)');
+ const cu=SL.callupCands(3);cu.every(x=>x.rival&&x.rival.id!==x.p.id&&!u.lineup.includes(x.p.id))?ok(`콜업 후보 ${cu.length}명 (2군 선수 vs 1군 같은 자리, 본인과 비교 없음)`):bad('콜업 후보');
+ let neg=0;for(const id in S.players){const p=S.players[id];const b=SL.perfBonus(p);if(b&&b.v<0)neg++;}neg===0?ok('성과 보너스는 좋은 기록일 때만 (음수 없음)'):bad('성과 보너스 음수 '+neg);
+ const rk=u.roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&!u.lineup.includes(p.id));const R=JSON.parse(JSON.stringify(rk));
+ const nb={...rk};delete rk.deb;rk.hist=[];rk.age=19;rk.cur.g=0;rk.cur.pa=0;rk.cur.ab=0;u.lineup[8]=rk.id;u.pos[rk.id]=u.pos[u.lineup[8]]||rk.pos;u.locks=u.locks||{};
+ {const lg=SL.startDay();if(lg){SL.stepGame(lg);SL.endUserGame();}}rk.deb&&rk.deb.s===S.season&&S.news.some(n=>/1군 데뷔/.test(n.text)&&n.text.includes(rk.name))?ok(`1군 데뷔 기록: ${rk.name} — ${rk.deb.line}`):bad('데뷔 '+JSON.stringify(rk.deb));
+ const d2=JSON.stringify(rk.deb);{const lg=SL.startDay();if(lg){SL.stepGame(lg);SL.endUserGame();}}JSON.stringify(rk.deb)===d2?ok('데뷔는 한 번만 기록'):bad('데뷔 중복');
+ const st=SL.stallList(3);st.every(x=>x.why&&x.why.t&&x.why.a)?ok(`정체 주의 ${st.length}명 (원인·권장 행동)`):bad('정체 목록');}
+{SL.load(require('fs').readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const okA=SL.krTeams().filter(t=>!t.isUser).every(t=>SL.AIM_KO[t.aim]);let g=0;while(S.phase==='season'&&g++<80)SL.playDayAuto();
+ okA&&S.phase==='offseason'&&!S.news.some(n=>/1군 데뷔/.test(n.text))?ok('v29 저장(시즌 중) 불러오기 → AI 목표 채움 · 시즌 완주 · 기존 선수 가짜 데뷔 없음'):bad('v29 저장 호환');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
