@@ -369,3 +369,22 @@ button.gold:active{transform:translateY(1px);box-shadow:none}
 /* v29 구단 선택: 10개 구단 2열 목록 + 선택한 구단 설명 */
 .tsel{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.tsel button{padding:9px 10px;min-width:0;overflow:hidden}.tsel .row{min-width:0}.tsel .b,.tsel .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsel .b{font-size:14px}
 .tdetail{margin-top:10px;background:#1b2a5c;border:2px solid #4fd18e;border-radius:14px;padding:12px;color:#fff}
+
+/* v31 공통 선수 카드 · 배지 · 1군/2군 비교 · 영입 제안서 · 입단 이후 */
+.pcard{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;align-items:flex-start}.pcard:last-of-type{border-bottom:none}
+.pcard .pc1{font-size:15px}.pcard .pc2{font-size:13px;margin-top:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}.pcard .pc2 .ov{font-weight:800}
+.pcard .pc3{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin-top:3px}.pcard .pc3 em{font-style:normal;font-weight:700;margin-left:2px;font-size:12px}
+.pcard .pc4{margin-top:3px;color:var(--muted)}.pcard .pc5{margin-top:4px;background:var(--sunk);border-radius:8px;padding:5px 8px}.pcard .pcb{margin-top:6px;grid-template-columns:auto auto;justify-content:start}
+.pinst{color:var(--gold)}
+.mschips{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}.msc{display:inline-flex;align-items:center;gap:4px;background:var(--sunk);border-radius:999px;padding:2px 8px 2px 3px;font-size:12px}.msc em{font-style:normal;color:var(--muted)}
+img.bdg{image-rendering:pixelated;flex:0 0 auto}
+.mu3 .mc .wtag img,.mu3 .mc .wtag img,.wtag img{width:14px!important;height:14px!important;border-radius:0!important;box-shadow:none!important}.wtag{white-space:nowrap;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#8a6a00;background:#fff3c4;border-radius:999px;padding:1px 7px;margin:1px 0}
+.cu2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cuside{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.cuside:first-child{border-color:var(--green)}.cutag{font-size:12px;font-weight:800;color:var(--muted)}.cuside:first-child .cutag{color:var(--green)}.cuov{font-size:15px;display:flex;align-items:center;gap:4px}.cuov em{font-style:normal;font-size:12px}
+.curole{margin-top:4px;background:var(--sunk);border-radius:8px;padding:6px;width:100%;font-size:13px}
+.proposal{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:12px 16px 4px;padding:14px;position:relative;box-shadow:0 2px 0 var(--line);animation:prin .35s ease-out}
+@keyframes prin{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.prib{display:inline-block;background:var(--navy);color:#fff;font-weight:800;font-size:12px;border-radius:6px;padding:3px 10px;margin-bottom:10px;letter-spacing:.5px}
+.prhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}.prarr{font-size:22px;color:var(--muted)}
+.prterms>div{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-top:1px dashed var(--line);font-size:14px}.prterms span{color:var(--muted);font-size:13px}.prterms em{font-style:normal;font-size:12px;grid-column:2}.prterms .amt{font-family:var(--f-display);font-size:20px}
+.sj .sjrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.sj .sjrow span{color:var(--muted)}.sj .sjrow em{font-style:normal}

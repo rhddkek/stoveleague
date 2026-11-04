@@ -90,5 +90,15 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    r==='ourwin'?ok('시상식: 우리 선수 수상이 맨 위에 축하 카드로'):bad('시상식 순서 '+r);await p.evaluate(()=>UI.closeModal());}
   {const ok2=await p.evaluate(()=>{const S=SL.state();const u=SL.userTeam();const x=u.roster.map(id=>S.players[id]).find(q=>!SL.isPitcher(q)&&q.age<=26);x.hist=x.hist.filter(h=>h.s!==S.season);x.rhist=[{s:S.season,tn:u.name,st:Object.assign({g:12,pa:44,ab:40,h:12,hr:2,rbi:7,bb:4,so:8},{})}];UI.go('roster','list');return document.body.innerText.includes(S.season+'시즌 2군');});
    ok2?ok('스토브리그: 1군 기록 없는 선수는 지난 시즌 2군 기록 표시'):bad('2군 기록 표시');}
+  // R018: 공통 선수 카드 · 1군/2군 비교 화면 · 영입 제안서 · 입단 이후 · 경기 관심 표시
+  await p.goto(FILE+'?test=1&new=1&team=9&seed=1717&games=72');await p.waitForTimeout(300);
+  {const r=await p.evaluate(()=>{const S=SL.state();S.settings.stopOnOffer=false;while(S.day<=14)SL.playDayAuto();const u=SL.userTeam();const c=SL.callupCands(1)[0]||{p:S.players[SL.reserveIds(u).find(id=>!SL.isPitcher(S.players[id]))]};S.pins=[c.p.id];UI.setTab('home');UI.sheet('growth');return {n:document.querySelectorAll('.pcard').length,id:c.p.id,down:c.rival?c.rival.id:null};});
+   r.n>0?ok(`육성 리포트: 공통 선수 카드 ${r.n}장 (실력·변화·역할·코치 한마디·버튼)`):bad('선수 카드 없음');await over('육성 리포트 선수 카드');
+   await p.evaluate(x=>{UI.closeModal();UI.callupView(x.id,x.down);},r);await has('1군·2군 이동 비교');await has('올릴 선수');await has('내려갈 선수');await has('예상 역할');await has('바꾸면');await over('1군·2군 비교 화면');ok('1군·2군 비교 화면: 올릴/내려갈 선수 · 예상 역할 · 바꾸면 점검');
+   await p.evaluate(x=>{UI.back();UI.openPlayer(x.id);},r);await has('입단 이후');await over('선수 화면 입단 이후');ok('선수 화면 「입단 이후」 카드');
+   await p.evaluate(()=>{UI.back();const S=SL.state();const u=SL.userTeam();const pid=u.lineup[2];const t=SL.overseasTeams().find(x=>x.league==='JP');const o={id:S.nextOfferId++,type:'overseas',pid,team:t.id,fee:Math.round(SL.calcValue(S.players[pid])*1.3),salary:30000,years:2,max:0,expires:S.clock+3,counters:0,status:'open',pw:0.7,reasons:[]};S.market.offers.push(o);UI.openOffer(o.id);});
+   await has('공식 영입 제안');await has('대체 후보');await has('선수 의견 확인');await over('영입 제안서');ok('이적 제안 = 공식 영입 제안서 (이적료·예상 역할·의향·기한·우리 팀 영향·대체 후보)');
+   const w=await p.evaluate(x=>{UI.back();const S=SL.state();const u=SL.userTeam();const id=u.lineup[0];S.pins=[id];UI.setTab('home');UI.startGame();let g=0;const lg=()=>SL.state().liveGame;while(lg()&&lg().lineup[lg().half][lg().bat[lg().half]%9]!==id&&g++<60)UI.step('pa');return !!document.querySelector('.wtag');},r);
+   w?ok('경기 화면: 관심 선수 타석에 ★ 표시'):bad('관심 선수 표시 없음');await over('경기 화면 관심 표시');}
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

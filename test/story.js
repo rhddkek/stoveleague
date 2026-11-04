@@ -219,4 +219,21 @@ console.log('[16] R017 육성·운영 설계서 반영');
  const st=SL.stallList(3);st.every(x=>x.why&&x.why.t&&x.why.a)?ok(`정체 주의 ${st.length}명 (원인·권장 행동)`):bad('정체 목록');}
 {SL.load(require('fs').readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const okA=SL.krTeams().filter(t=>!t.isUser).every(t=>SL.AIM_KO[t.aim]);let g=0;while(S.phase==='season'&&g++<80)SL.playDayAuto();
  okA&&S.phase==='offseason'&&!S.news.some(n=>/1군 데뷔/.test(n.text))?ok('v29 저장(시즌 중) 불러오기 → AI 목표 채움 · 시즌 완주 · 기존 선수 가짜 데뷔 없음'):bad('v29 저장 호환');}
+console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
+{SL.newGame(1818,9,{arch:true,games:36});S=SL.state();const u=SL.userTeam();
+ u.roster.every(id=>S.players[id].joinSnap&&S.players[id].joinSnap.role)?ok('시작 선수단에 입단 당시 역할 기록 (「입단 이후」 화면용)'):bad('입단 역할 없음');
+ const up=SL.reserveIds(u).map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&u.roster.includes(p.id));const down=u.lineup.find(id=>u.pos[id]===up.pos)||u.lineup[0];const pos=u.pos[down];const idx=u.lineup.indexOf(down);
+ const pl=SL.callupPlan(up.id,down);pl.ok&&pl.notes.length&&pl.upRole&&pl.downRole?ok(`비교 계획: ${up.name} → ${pl.upRole} / ${S.players[down].name} → ${pl.downRole} (${pl.notes.map(n=>n.text).join(', ')})`):bad('콜업 계획 '+JSON.stringify(pl&&pl.notes));
+ const n0=u.roster.length,tr0=up.transfers.length,ct0=JSON.stringify(up.contract);const e=SL.callupSwap(up.id,down);
+ !e&&u.lineup[idx]===up.id&&u.pos[up.id]===pos&&!u.lineup.includes(down)&&u.roster.includes(down)&&u.roster.length===n0&&up.transfers.length===tr0&&JSON.stringify(up.contract)===ct0?ok('맞바꾸기: 같은 타순·수비 위치, 내려간 선수는 1군 벤치(2군 출장), 이적·계약 기록 변화 없음'):bad('맞바꾸기 '+e);
+ const sp=u.rotation[4],rp=u.roster.map(id=>S.players[id]).find(p=>SL.isPitcher(p)&&!u.rotation.includes(p.id)&&u.closer!==p.id&&u.bullpen.indexOf(p.id)>=4);
+ if(rp){const e2=SL.callupSwap(rp.id,sp);!e2&&u.rotation[4]===rp.id&&u.bullpen.includes(sp)?ok(`투수 맞바꾸기: ${rp.name} 선발 5번, ${S.players[sp].name} 불펜 대기`):bad('투수 맞바꾸기 '+e2);}
+ /투수는 투수와/.test(SL.callupPlan(up.id,u.rotation[0]).msg||'')?ok('투수-야수 맞바꾸기는 거절'):bad('투수-야수 허용');
+ // 첫 홈런 배지: 데뷔한 신인이 처음 홈런을 치면 한 번만
+ const rk=S.players[up.id];rk.deb={s:1,d:1,vs:'x',line:'-'};rk.cur.hr=0;rk.hist=[];rk.attrs.power=99;rk.attrs.contact=99;let g=0;while(!(rk.ms&&rk.ms.hr1)&&g++<30&&S.phase==='season')SL.playDayAuto();
+ rk.ms&&rk.ms.hr1&&S.news.filter(n=>/\[첫 홈런\]/.test(n.text)&&n.text.includes(rk.name)).length===1?ok(`첫 홈런 배지: ${rk.name} ${rk.ms.hr1.s}시즌 ${rk.ms.hr1.d}일차`):bad('첫 홈런 '+JSON.stringify(rk.ms));
+ const n1=S.news.filter(n=>/\[첫 홈런\]/.test(n.text)).length;for(let i=0;i<4&&S.phase==='season';i++)SL.playDayAuto();S.news.filter(n=>/\[첫 홈런\]/.test(n.text)).length===n1?ok('첫 홈런은 한 번만 기록'):bad('첫 홈런 중복');
+ const ab=S.players[u.roster.find(id=>id!==rk.id)];const jp=SL.overseasTeams().find(t=>t.league==='JP');SL.transferPlayer?0:0;
+ {const keep=S.phase;const o={id:S.nextOfferId++,type:'overseas',pid:ab.id,team:jp.id,fee:Math.round(SL.calcValue(ab)*1.2),salary:20000,years:2,max:0,expires:S.clock+3,counters:0,status:'agreed',pw:0.9,willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(ab.id);SL.respondOffer(o.id,'accept');}
+ ab.teamId===jp.id&&ab.ms&&ab.ms.ab&&ab.ms.ab.lg==='JP'?ok(`해외 진출 배지: ${ab.name} → ${ab.ms.ab.tn}`):bad('해외 배지 '+JSON.stringify(ab.ms)+' team '+(S.teams[ab.teamId]||{}).league);}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
