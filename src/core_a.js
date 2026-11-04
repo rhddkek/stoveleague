@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v32';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v33';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -34,6 +34,8 @@ const BAL={
   MIN_ROSTER:20, MAX_ROSTER:30, MIN_PITCHERS:9,
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
+  FGN:{max:3,asiaCap:28000,genMin:6000,genMax:60000,genMul:1.0,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년
+  FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 3,000만 원 (준우승 1/3)
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
   // 포스트시즌(5팀 계단식): 와일드카드(4위 1승 안고 시작, 최대 2경기) → 준플레이오프(5전 3선승) → 플레이오프(5전 3선승) → 한국시리즈(7전 4선승)
@@ -241,9 +243,13 @@ function fillRoster(t){
   const lvl=levelOf(t);const nat=t.league==='KR'?'KR':t.league;
   const have={};for(const pid of t.roster)have[S.players[pid].pos]=(have[S.players[pid].pos]||0)+1;
   const size=t.league==='KR'?26:(BAL.LEAGUES[t.league]?BAL.LEAGUES[t.league].roster:26);
+  // 이미 있는 외국인 수만큼 자리를 빼고 시작 (다시 채울 때 3+1을 넘지 않게)
+  let F=null;if(t.league==='KR'){const L0=t.roster.map(id=>S.players[id]).filter(x=>x&&x.nat!=='KR');F=L0.length>=4?{sp:2,bat:1,asia:1}:{sp:Math.min(2,L0.filter(x=>x.pos==='SP').length),bat:Math.min(1,L0.filter(x=>x.pos!=='SP'&&x.pos!=='RP').length),asia:Math.min(1,L0.filter(x=>x.pos==='RP').length)};}
   for(const pos of ROSTER_TEMPLATE){if(t.roster.length>=size)break;if(have[pos]>0){have[pos]--;continue;}
-    const p=genPlayer({pos,lvl,nat:(t.league==='KR'?(rnd()<0.08?pick(['US','JP','TW','MX']):'KR'):(rnd()<0.1?pick(['KR','US','MX']):nat))});
-    addToTeam(p,t,{salary:Math.round(salaryFor(p)*(0.85+rnd()*0.3)/10)*10,years:ri(1,4)});
+    // 국내 구단: 선발 2명·야수 1명은 외국인, 불펜 1명은 아시아쿼터 (KBO 2026처럼 구단마다 3+1)
+    let fg=null;if(F){if(pos==='SP'&&F.sp<2){F.sp++;fg='gen';}else if(['1B','LF','RF','DH'].includes(pos)&&F.bat<1){F.bat++;fg='gen';}else if(pos==='RP'&&F.asia<1){F.asia++;fg='asia';}}
+    const p=fg?genPlayer({pos,lvl:lvl+(fg==='gen'?BAL.FGN.lvl:0),nat:fg==='asia'?pick(['JP','TW','AU']):pick(['US','US','US','MX','CB']),age:ri(25,31)}):genPlayer({pos,lvl,nat:(t.league==='KR'?'KR':(rnd()<0.1?pick(['KR','US','MX']):nat))});
+    addToTeam(p,t,fg?{salary:fg==='asia'?Math.min(BAL.FGN.asiaCap,Math.max(BAL.SALARY_MIN*2,Math.round(salaryFor(p)*0.9/10)*10)):Math.min(BAL.FGN.genMax,Math.max(BAL.FGN.genMin,Math.round(salaryFor(p)*BAL.FGN.genMul/100)*100)),years:1}:{salary:Math.round(salaryFor(p)*(0.85+rnd()*0.3)/10)*10,years:ri(1,4)});
   }
 }
 function countPos(t,pos){let n=0;for(const pid of t.roster)if(S.players[pid].pos===pos)n++;return n;}

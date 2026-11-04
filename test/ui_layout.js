@@ -62,7 +62,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    gi.sb&&gi.bso===7&&gi.stad&&gi.fd===9&&gi.out===gi.outs?ok(`경기 화면: 전광판·B/S/O 불빛(아웃 ${gi.outs} = 빨간 불 ${gi.out})·구장 배경·수비 9명`):bad('경기 화면 '+JSON.stringify(gi));await over('새 경기 화면');{const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 경기 화면 한 화면 (${fit.sh}/${fit.ch}px)`):bad('경기 화면 스크롤 '+JSON.stringify(fit));}await p.evaluate(()=>{UI.step('game');UI.endGame();UI.closeModal();});}}
   // 2군 · 임대 · 포스트시즌
   await p.evaluate(()=>{UI.closeModal();for(let i=0;i<7&&SL.state().phase==='season'&&SL.state().day<=7;i++)SL.playDayAuto();UI.go('dev','res');});
-  if(await p.evaluate(()=>SL.state().phase==='season'&&SL.state().day<=14)){await has('퓨처스(2군) 리그');await has('2군 순위');await has('임대 후보');await over('2군·임대 탭');
+  if(await p.evaluate(()=>SL.state().phase==='season'&&SL.state().day<=14)){await has('퓨처스리그 (2군)');await has('북부리그');await has('남부리그');await has('우리 2군 경기');await has('임대 후보');await over('2군·임대 탭');
     const lp=await p.evaluate(()=>{const ut=SL.userTeam();const S=SL.state();const c=ut.roster.concat(ut.dev).map(id=>S.players[id]).find(x=>x.age<=28&&!ut.lineup.includes(x.id)&&!ut.rotation.includes(x.id)&&x.id!==ut.closer&&!SL.loanCheck(x));if(!c)return null;UI.loanView(c.id);return c.id;});
     if(lp!=null){await has('출장 기회를 만드는 세 가지 방법');await over('임대 화면');      await p.evaluate(pid=>{const o=SL.loanOptions(pid)[0];UI.loanOut(pid,o.team.id);UI.openPlayer(pid);},lp);await has('임대 중');await p.evaluate(()=>UI.pTab('contract'));await has('원소속');await over('임대 선수 화면');
       ok('2군·임대 탭 → 임대 화면 → 임대 확정 → 선수 화면 임대 표시');}else ok('(임대 후보 없음 — 2군 탭만 확인)');}

@@ -83,7 +83,7 @@ Math.abs((pay0-SL.payroll(u8))-Math.round(sal8*lo8[0].pay))<=2?ok(`연봉 분담
 SL.openTable(ly.id).ok?bad('임대 선수 협상 열림'):ok('임대 중 선수는 협상 불가');
 const bench8=u8.roster.map(id=>S.players[id]).find(p=>!u8.lineup.includes(p.id)&&!SL.isPitcher(p));
 for(let i=0;i<7;i++)SL.playDayAuto();
-const tb8=SL.reserveTable();tb8.length===10&&tb8.every(x=>x.w+x.l===7)?ok(`2군 순위: 10개 구단 7경기씩, 1위 ${tb8[0].t.name} ${tb8[0].w}승`):bad('2군 순위 '+tb8.length);
+const tb8=SL.reserveTable();const gp8=tb8.map(x=>x.w+x.l+x.tie);tb8.length===12&&gp8.every(g=>g===gp8[0]&&g>0)?ok(`퓨처스 순위: 12개 팀 ${gp8[0]}경기씩, 1위 ${tb8[0].t.name} ${tb8[0].w}승`):bad('2군 순위 '+tb8.length+' '+gp8);
 bench8.res&&(bench8.res.pa>0)&&bench8.resWeek?ok(`1군 벤치 ${bench8.name} 2군 ${bench8.res.pa}타석`):bad('벤치 2군 기록 없음');
 const lg8=bench8.log[0];lg8&&lg8.f.some(x=>/2군/.test(x))?ok('성장 요인에 2군 경기 반영: '+lg8.f.join('·')):bad('성장 요인 '+(lg8&&lg8.f.join('·')));
 const js8=SL.serialize();SL.load(js8);S=SL.state();u8=SL.userTeam();S.players[bench8.id].res&&S.players[bench8.id].res.pa===bench8.res.pa?ok('저장·불러오기 후 2군 기록 유지'):bad('2군 기록 저장');
@@ -245,4 +245,36 @@ console.log('[18] v32 국내 구단 2곳 개명 (다른 게임 가상 구단명�
  !raw.includes('시걸스')&&!raw.includes('팰컨스')?ok('v29 저장을 불러오면 이름·이적 기록·소식이 모두 새 이름으로'):bad('옛 이름 남음');
  const ms=kr.find(t=>t.name==='서울 머스탱스'),dp=kr.find(t=>t.name==='부산 돌핀스');ms&&dp&&ms.color==='#b45309'&&dp.color==='#0e7490'?ok('새 이름과 색으로 바뀜: 서울 머스탱스 · 부산 돌핀스'):bad('개명 실패');
  const emb=JSON.parse(fs.readFileSync(__dirname+'/../assets/emblems/index.json','utf8'));KR.every(n=>emb[n]&&fs.existsSync(__dirname+'/../assets/emblems/'+emb[n]+'.png'))?ok('10개 구단 모두 엠블럼 있음'):bad('엠블럼 누락');}
+console.log('[19] v33 퓨처스 12팀 일정 · 올스타전 · 외국인 선수');
+{SL.newGame(3333,9,{games:36});S=SL.state();const u=SL.userTeam();
+ const N=SL.futStand('N'),So=SL.futStand('S');N.length===6&&So.length===6&&So.some(x=>x.t.indep&&x.t.kind==='군 팀')&&So.some(x=>x.t.indep&&x.t.kind==='시민 구단')?ok('퓨처스 12팀: 북부 6 · 남부 6 (시민 구단·군 팀 포함)'):bad('퓨처스 구성 '+N.length+'/'+So.length);
+ const sch=S.res.sched;const per={};for(const g of sch){per[g.home]=(per[g.home]||0)+1;per[g.away]=(per[g.away]||0)+1;}const days=new Set(sch.map(g=>g.d));Object.values(per).every(n=>n===SL.futGames())&&[...days].every(d=>sch.filter(g=>g.d===d).length===6)?ok(`퓨처스 일정: 팀당 ${SL.futGames()}경기, 경기일마다 6경기 (${days.size}일)`):bad('퓨처스 일정');
+ const hm={};for(const g of sch)hm[g.home]=(hm[g.home]||0)+1;Object.values(hm).every(n=>Math.abs(n-SL.futGames()/2)<=1)?ok('퓨처스 홈·원정 균형'):bad('홈 원정 '+JSON.stringify(hm));
+ // 외국인 3+1
+ const fs0=SL.krTeams().map(t=>SL.fgnStatus(t));fs0.every(x=>x.list.length===4&&x.quota&&!x.over)?ok('개막 시 국내 10개 구단 모두 외국인 3명 + 아시아쿼터 1명'):bad('외국인 구성 '+fs0.map(x=>x.list.length));
+ fs0.every(x=>x.quota.contract.salary<=SL.BAL.FGN.asiaCap)?ok(`아시아쿼터 연봉 상한 ${SL.money(SL.BAL.FGN.asiaCap)} 이하`):bad('아시아쿼터 연봉');
+ const fx=SL.overseasTeams().flatMap(t=>t.roster.map(id=>S.players[id])).find(p=>p.nat==='US');const blk=SL.fgnBlock(u,fx,20000);blk&&/외국인 선수 정원/.test(blk)?ok('정원이 차면 외국인 영입 차단: '+blk.slice(0,30)+'…'):bad('외국인 차단 안 됨');
+ const ai=SL.krTeams().find(t=>!t.isUser);const n0=ai.roster.length;SL.transferPlayer(fx.id,ai.id,0,{salary:20000,years:1},'이적');ai.roster.length===n0&&!ai.roster.includes(fx.id)?ok('AI 구단도 외국인 정원을 지킴'):bad('AI 정원 무시');
+ // 시즌 진행: 퓨처스 매일 경기, 우리 2군 경기 기록, 올스타전
+ let g=0;while(S.day<=SL.asDay()&&g++<60)SL.playDayAuto();const A=S.allstar;
+ A&&['blue','red'].every(k=>A.squads[k].best.length===12&&A.squads[k].picks.length===13)?ok('올스타: 청팀·홍팀 베스트 12 + 감독 추천 13명씩'):bad('올스타 인원 '+JSON.stringify(A&&Object.values(A.squads).map(x=>[x.best.length,x.picks.length])));
+ const ids=['blue','red'].flatMap(k=>A.squads[k].best.map(b=>b.pid).concat(A.squads[k].picks.map(x=>x.pid)));new Set(ids).size===ids.length?ok('올스타 중복 선발 없음'):bad('올스타 중복');
+ const sqOk=['blue','red'].every(k=>A.squads[k].best.concat(A.squads[k].picks).every(x=>SL.asSquadOf(S.teams[x.tid])===k));sqOk?ok('선수는 자기 구단 편(청·홍)으로만 선발'):bad('편 오류');
+ const tms=['blue','red'].every(k=>SL.krTeams().filter(t=>SL.asSquadOf(t)===k).every(t=>A.squads[k].best.concat(A.squads[k].picks).some(x=>x.tid===t.id)));tms?ok('구단마다 올스타 1명 이상'):bad('구단 누락');
+ const G=A.game,win=G[G.win],mv=S.players[G.mvp];mv&&SL.asSquadOf(S.teams[mv.teamId])===G.win&&G.line.rbi<=win&&G.line.hr<=win&&G.line.h<=G.line.ab&&G.blue!==G.red?ok(`올스타전 ${G.blue}:${G.red}, MVP ${mv.name} ${G.line.text} (점수와 모순 없음)`):bad('올스타 경기 '+JSON.stringify(G));
+ ids.every(id=>S.players[id].ms&&S.players[id].ms.as&&S.players[id].ms.as.s===S.season)?ok('올스타 배지 기록'):bad('올스타 배지');
+ A.fut&&A.fut.N.length&&A.fut.S.length&&A.fut.n!==A.fut.s?ok(`퓨처스 올스타전 북부 ${A.fut.n}:${A.fut.s} 남부 (${A.fut.N.length}+${A.fut.S.length}명)`):bad('퓨처스 올스타');
+ const L=S.res.log;L.length&&L[0].top.every(x=>S.players[x.pid])?ok(`우리 2군 경기 기록: ${L[0].d}일차 ${L[0].us}:${L[0].them} · ${L[0].top.map(x=>x.text).join(' / ')}`):bad('2군 경기 기록');
+ const fsum=SL.reserveTable();const tot=fsum.reduce((a,x)=>a+x.rs,0),tra=fsum.reduce((a,x)=>a+x.ra,0);tot===tra?ok('퓨처스 득점 합 = 실점 합'):bad('득실 불일치');
+ const wsum=fsum.reduce((a,x)=>a+x.w,0),lsum=fsum.reduce((a,x)=>a+x.l,0);wsum===lsum?ok('퓨처스 승 합 = 패 합'):bad('승패 불일치');
+ // 우리 2군 선수 기록 = 경기 기록과 맞는지 (안타 ≤ 타수, 홈런 ≤ 안타)
+ const rp=SL.reserveIds(u).map(id=>S.players[id]).filter(p=>p.res&&p.res.pa);rp.length&&rp.every(p=>p.res.h<=p.res.ab&&p.res.hr<=p.res.h&&p.res.ab<=p.res.pa)?ok(`2군 개인 기록 정합 (${rp.length}명)`):bad('2군 개인 기록');
+ while(S.phase==='season'&&g++<200)SL.playDayAuto();const RH=(S.resHist||[]).slice(-1)[0];RH&&RH.runner&&RH.n1&&RH.s1?ok(`퓨처스 챔피언결정전: ${RH.champ} 우승 (결승 상대 ${RH.runner})`):bad('퓨처스 챔프 '+JSON.stringify(RH));
+ // 외국인 지명: 우리 외국인 1명을 내보내 자리를 만든 뒤 3주차
+ const mine=SL.fgnList(u).find(p=>p.pos!=='RP');SL.releasePlayer(mine.id);while(S.week<3)SL.advanceWeek();SL.advanceWeek();const D=S.fdraft;
+ D&&D.pool.length?ok(`외국인 지명 열림: 후보 ${D.pool.length}명 (일반 ${SL.BAL.FGN.poolGen} · 아시아 ${SL.BAL.FGN.poolAsia})`):bad('외국인 지명 없음');
+ if(SL.fdTurn()){const c=SL.fdAvail().filter(p=>SL.fdFits(u,p)&&!p.fasia)[0];const r=SL.fdPick(c.id);r.ok&&u.roster.includes(c.id)&&c.contract.years===1&&c.contract.salary===c.fask?ok(`우리 차례 지명: ${c.name} 1년 ${SL.money(c.fask)}`):bad('지명 실패 '+r.msg);}else ok('우리 차례 전 AI가 진행 중 (다음 주 자동)');
+ let w=0;while(S.fdraft&&!S.fdraft.done&&w++<5)SL.advanceWeek();S.fdraft.done&&SL.krTeams().every(t=>!SL.fgnStatus(t).over)?ok('지명 종료 · 모든 구단 정원 이내'):bad('지명 종료 안 됨/정원 초과');
+ S.fdraft.pool.every(id=>!S.players[id]||S.players[id].teamId!=null)?ok('지명 안 된 후보 정리'):bad('후보 남음');}
+{const fs=require('fs');SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();S.res&&S.res.sched&&SL.futStand('N').length===6?ok(`v29 저장(시즌 ${S.day}일차) → 퓨처스 실제 일정으로 이어짐`):bad('v29 퓨처스 변환');let g=0;while(S.phase==='season'&&g++<60)SL.playDayAuto();S.phase==='offseason'?ok('v29 저장으로 시즌 끝까지 진행'):bad('v29 진행');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
