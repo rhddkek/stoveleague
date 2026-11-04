@@ -236,4 +236,13 @@ console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
  const ab=S.players[u.roster.find(id=>id!==rk.id)];const jp=SL.overseasTeams().find(t=>t.league==='JP');SL.transferPlayer?0:0;
  {const keep=S.phase;const o={id:S.nextOfferId++,type:'overseas',pid:ab.id,team:jp.id,fee:Math.round(SL.calcValue(ab)*1.2),salary:20000,years:2,max:0,expires:S.clock+3,counters:0,status:'agreed',pw:0.9,willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(ab.id);SL.respondOffer(o.id,'accept');}
  ab.teamId===jp.id&&ab.ms&&ab.ms.ab&&ab.ms.ab.lg==='JP'?ok(`해외 진출 배지: ${ab.name} → ${ab.ms.ab.tn}`):bad('해외 배지 '+JSON.stringify(ab.ms)+' team '+(S.teams[ab.teamId]||{}).league);}
+console.log('[18] v32 국내 구단 2곳 개명 (다른 게임 가상 구단명과 겹침 방지)');
+{const fs=require('fs');const KR=SL.TEAM_NAMES.KR.map(x=>x[0]);const avoid=['시걸스','시걸즈','팰컨스','팔콘스','팔콘즈','팬더스','팬더즈','클론즈','나이츠','드래곤즈','캣츠','라이거즈'];
+ KR.every(n=>!avoid.some(a=>n.includes(a)))?ok('국내 10개 구단 애칭이 겹치지 않음: '+KR.join(' · ')):bad('겹치는 이름 '+KR.join(','));
+ const nick=n=>n.split(' ').slice(1).join(' ');const all=Object.values(SL.TEAM_NAMES).flat().map(x=>nick(x[0]));KR.every(n=>all.filter(x=>x===nick(n)).length===1)?ok('국내 구단 애칭은 해외 구단과도 겹치지 않음'):bad('애칭 중복');
+ const j=fs.readFileSync(__dirname+'/v29_save.json','utf8');j.includes('부산 시걸스')&&j.includes('서울 팰컨스')?ok('v29 샘플에 옛 이름이 들어 있음 (변환 대상)'):bad('샘플에 옛 이름 없음');
+ SL.load(j);S=SL.state();const raw=JSON.stringify(S);const kr=Object.values(S.teams).filter(t=>t.league==='KR');
+ !raw.includes('시걸스')&&!raw.includes('팰컨스')?ok('v29 저장을 불러오면 이름·이적 기록·소식이 모두 새 이름으로'):bad('옛 이름 남음');
+ const ms=kr.find(t=>t.name==='서울 머스탱스'),dp=kr.find(t=>t.name==='부산 돌핀스');ms&&dp&&ms.color==='#b45309'&&dp.color==='#0e7490'?ok('새 이름과 색으로 바뀜: 서울 머스탱스 · 부산 돌핀스'):bad('개명 실패');
+ const emb=JSON.parse(fs.readFileSync(__dirname+'/../assets/emblems/index.json','utf8'));KR.every(n=>emb[n]&&fs.existsSync(__dirname+'/../assets/emblems/'+emb[n]+'.png'))?ok('10개 구단 모두 엠블럼 있음'):bad('엠블럼 누락');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

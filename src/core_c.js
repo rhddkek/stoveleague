@@ -1247,7 +1247,7 @@ function migrate(){const from=S.version;S.games=BAL.SEASON_OPTIONS.includes(S.ga
   if(S.draft===undefined)S.draft=null;S.settings=S.settings||{stopOnOffer:true};S.pins=S.pins||[];if(S.dispatch===undefined)S.dispatch=null;S.overseas=S.overseas||{hist:[]};
   const added=[],renamed=[];
   // v4: 실존 구단명과 겹치던 해외 구단 개명 + 소속 리그/지구 배정 + 실제 리그 규모로 구단 추가
-  for(const id in S.teams){const t=S.teams[id];if(t.league==='KR')continue;const nn=TEAM_RENAME[t.name];if(nn){renamed.push(t.name+'→'+nn);t.name=nn;}
+  for(const id in S.teams){const t=S.teams[id];if(t.league==='KR'){const d=TEAM_NAMES.KR.find(x=>x[0]===t.name);if(d)t.color=d[1];continue;}const nn=TEAM_RENAME[t.name];if(nn){renamed.push(t.name+'→'+nn);t.name=nn;}
     const def=(TEAM_NAMES[t.league]||[]).find(x=>x[0]===t.name);if(def){t.color=def[1];if(def[2]!=null)t.sub=def[2];}}
   const pl0=playLg();
   for(const lg in BAL.LEAGUES){const L=BAL.LEAGUES[lg];const mine=Object.values(S.teams).filter(t=>t.league===lg);const names=new Set(mine.map(t=>t.name));
@@ -1270,7 +1270,10 @@ function migrate(){const from=S.version;S.games=BAL.SEASON_OPTIONS.includes(S.ga
   {const ut0=userTeam();const nm=ut0.name;for(const id in S.players){const p=S.players[id];if(p.teamId!==ut0.id&&(p.transfers||[]).some(t=>t.from===nm)){p.coached=true;if(!p.retired&&p.teamId!=null)p.exUser=true;}}
     for(const m of (S.mgr&&S.mgr.seasons)||[])if(m.legacy&&!m.sales){const tr=[];for(const id in S.players)for(const t of S.players[id].transfers||[])if(t.s===m.s&&t.from===nm&&t.fee>0)tr.push(t);if(tr.length){m.sales=tr.length;m.salesFee=tr.reduce((a,t)=>a+t.fee,0);}}}
   if(from!==VERSION){S.version=VERSION;if(added.length)news(`해외 리그가 실제 규모로 개편되었습니다: ${added.join(', ')} 추가`,'sys');if(renamed.length)news(`해외 구단 명칭 변경: ${renamed.join(', ')}`,'sys');}}
-function load(json){let o;try{o=JSON.parse(json);}catch(err){throw new Error('JSON 형식이 아닙니다.');}const e=validateSave(o);if(e.length)throw new Error(e.join(', '));const prev=S;S=o;try{hydrate();migrate();}catch(err){S=prev;throw new Error('세이브 변환 실패: '+err.message);}return S;}
+// v32: 다른 게임의 가상 구단명과 겹치던 국내 구단 2곳 개명 — v29~v31 저장의 이름·이적 기록·소식까지 함께 바꾼다
+const KR_RENAME=[['서울 팰컨스','서울 머스탱스'],['팰컨스 야구장','머스탱스 야구장'],['부산 시걸스','부산 돌핀스']];
+function renameKR(json){if(typeof json!=='string')return json;for(const [a,b] of KR_RENAME)if(json.includes(a))json=json.split(a).join(b);return json;}
+function load(json){json=renameKR(json);let o;try{o=JSON.parse(json);}catch(err){throw new Error('JSON 형식이 아닙니다.');}const e=validateSave(o);if(e.length)throw new Error(e.join(', '));const prev=S;S=o;try{hydrate();migrate();}catch(err){S=prev;throw new Error('세이브 변환 실패: '+err.message);}return S;}
 function state(){return S;}
 function setState(o){S=o;if(S)setGames(S.games||BAL.SEASON_OPTIONS[2]);}
 
