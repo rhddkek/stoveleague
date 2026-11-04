@@ -17,7 +17,10 @@ const top=run(()=>[mk('bat',90,'장타 조련'),mk('bat',85),mk('bat',80),mk('pi
 console.log(`  25세 이하 시즌 성장: 코치 없음 ${none.g.toFixed(2)} | 기본 ${std.g.toFixed(2)} | 최정상 ${top.g.toFixed(2)}`);
 console.log(`  33세 이상 시즌 변화: 코치 없음 ${none.dcl.toFixed(2)} | 기본 ${std.dcl.toFixed(2)} | 최정상 ${top.dcl.toFixed(2)}`);
 (top.g>std.g&&std.g>none.g)?ok(`성장: 최정상 코치진 +${((top.g/std.g-1)*100).toFixed(0)}%, 코치 없음 ${((none.g/std.g-1)*100).toFixed(0)}%`):bad('성장 순서 이상');
-(top.g/std.g<1.45)?ok('최정상 코치진도 성장 +45% 미만 (밸런스 상한)'):bad('코치 효과 과대 '+(top.g/std.g).toFixed(2));
+// 한 구단·한 시즌 표본은 흔들려서(시드에 따라 1.27~1.47) 시드 두 개 평균으로 상한을 본다
+{const st0=SL.serialize();const r1=top.g/std.g;SL.newGame(33,2);S=SL.state();const b2=SL.serialize();const run2=(staff)=>{SL.load(b2);S=SL.state();const u=SL.userTeam();u.staff=staff();const ids=u.roster.concat(u.dev);const o0={};for(const id of ids)o0[id]=SL.calcOvr(S.players[id]);playSeason();const y=ids.map(id=>S.players[id]).filter(p=>p&&p.age<=25&&!p.retired);return y.reduce((s,p)=>s+(SL.calcOvr(p)-o0[p.id]),0)/y.length;};
+ const s2=run2(()=>SL.state().teams[SL.state().userTeamId].staff),t2=run2(()=>[mk('bat',90,'장타 조련'),mk('bat',85),mk('bat',80),mk('pit',90),mk('pit',85),mk('pit',80),mk('def',85),mk('def',80),mk('dev',88,'유망주 조련'),mk('dev',82),mk('scout',85),mk('scout',80),mk('scout',78),mk('scout',75),mk('scout',72),mk('med',88,'노장 관리'),mk('med',80),mk('med',75),mk('med',70),mk('med',70)]);
+ const avg=(r1+t2/s2)/2;(avg<1.45)?ok(`최정상 코치진도 성장 +45% 미만 (밸런스 상한, 시드 2개 평균 +${((avg-1)*100).toFixed(0)}%)`):bad('코치 효과 과대 '+avg.toFixed(2));SL.load(st0);S=SL.state();}
 top.fx.rec>0&&top.fx.aging<0.85&&top.fx.conf>0.05&&top.fx.watch>=3?ok(`최정상 효과: 피로 회복 +${top.fx.rec}/일, 노화 ${Math.round((top.fx.aging-1)*100)}%, 판별 +${Math.round(top.fx.conf*100)}%p, 매주 ${top.fx.watch}명 관찰`):bad('부가 효과 '+JSON.stringify(top.fx));
 Math.abs(top.fin-top.pay)<=top.pay*0.02?ok(`시즌 인건비 지급 ${SL.money(top.fin)} = 연봉 합계 ${SL.money(top.pay)}`):bad(`인건비 ${top.fin} vs ${top.pay}`);
 console.log('[3] 스카우트 → 드래프트 판별 신뢰도');

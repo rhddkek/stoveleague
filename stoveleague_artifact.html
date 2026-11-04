@@ -417,7 +417,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v35';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v36';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -1139,12 +1139,12 @@ function growthTick(p,ctx){
   if(ctx.kind==='winter'){expF=0.7;f.push('국내 동계 훈련');}
   else if(ctx.kind==='rest'){expF=0.25;f.push('겨울 휴식 (성장 대신 회복)');}
   else if(ctx.kind==='dispatch'){const dd=ctx.dd;const lvlF=clamp(1+((BAL.LEVEL_OVR[dd.lg]||55)-ovr0)*0.02,0.8,1.25);expF=0.3+0.8*dd.share*lvlF;f.push(`${BAL.LEAGUES[dd.lg].name} 파견 (${dd.role})`);if(dd.share<0.35)f.push('파견지 출장 부족');else if(lvlF>1.05)f.push('수준 높은 실전 경험');}
-  else if(ctx.dev){expF=BAL.DEV_EXP;f.push('육성군(2군) 경기 출장');}
+  else if(ctx.dev){expF=BAL.DEV_EXP;f.push('육성군(2군) 경기 출장');if(ctx.kind==='season'&&p.age>=23&&p.age<p.peakAge&&p.resRole==='bench'){p.pot=Math.max(ovr,p.pot-0.25);f.push('23세 이상 실전 부족 — 잠재력 조금 감소');}}
   else{const target=isP?BAL.XP_TARGET_PIT:BAL.XP_TARGET_BAT;const ratio=(p.xp||0)/target;expF=0.4+0.6*Math.pow(Math.min(1,ratio),0.7);
     if(ratio>1.7){expF-=0.15;f.push('과도한 출장(피로)');}else if(ratio>=0.8)f.push('주전 출장');else if(p.resWeek&&expF<BAL.RES_EXP){const rr=p.resRole||'start';expF=BAL.RES_EXP*(rr==='focus'?1.12:rr==='bench'?0.85:1.02);f.push(rr==='focus'?'2군 집중 육성 (매 경기 출장)':rr==='bench'?'2군 벤치 (출장 적음)':ratio>=0.3?'1군 일부 출장 + 2군 주전':'2군 주전 출장');}else if(ratio>=0.3)f.push('일부 출장');else f.push('출장 기회 부족');
     if(ctx.team&&ctx.team.locks&&ctx.team.locks[p.id]&&p.age<=24){expF+=0.05;f.push('출장 보장(육성 약속)');}
     {const pf=perfBonus(p);if(pf){expF+=pf.v;f.push(pf.text);}}
-    if(ratio<0.3&&p.age>=23&&p.age<peak)p.pot=Math.max(ovr,p.pot-0.25);}
+    if(ratio<0.3&&p.age>=23&&p.age<peak&&!(p.resWeek&&(p.resRole==='start'||p.resRole==='focus'))){p.pot=Math.max(ovr,p.pot-0.25);f.push('23세 이상 실전 부족 — 잠재력 조금 감소');}}
   const fat=p.fatigue||0;if(fat>80){expF*=0.8;f.push('피로 누적');}
   const gap=p.pot-ovr;const gapF=clamp(gap/18,0,1.3);const a=p.age;
   let ageF=a<peak-1?1:a<=peak+1?0.45:0;if(a<=21)ageF*=1.15;
@@ -3217,7 +3217,7 @@ function renderForeign(ut){let h='';const F=SL.BAL.FGN;const st=SL.fgnStatus(ut)
 // ---------- 2군 · 임대 ----------
 function renderReserve(ut){let h='';const L=SL.BAL.LOAN;const ids=SL.reserveIds(ut);const ps=ids.map(id=>S.players[id]).filter(Boolean);
   const R=S.res&&S.res.sched&&S.res.s===S.season?S.res:null;const NG=SL.futGames();
-  h+=`<div class="card">${hd('퓨처스리그 (2군)',S.phase==='season'?`${S.season}시즌 · 팀당 ${NG}경기`:'시즌 중 운영')}<div class="muted small">12개 팀이 <b>북부리그·남부리그</b> 6팀씩 나뉘어 1군 시즌 동안 실제 일정으로 경기합니다 — 국내 10개 구단 2군 + 시민 구단 「울산 시티즌스」 + 군 팀 「문경 솔저스」. 정규 일정이 끝나면 <b>챔피언결정전</b>(각 리그 1위 vs 상대 리그 2위 준결승 → 결승, 단판)을 엽니다. 1군 주전 9명·선발 5명·마무리·불펜 상위 4명을 뺀 1군 선수와 육성군이 2군 경기에 나가고, 2군 선수가 9명이 안 되면 이름 없는 2군 등록 선수가 빈자리를 채웁니다(기록 없음). 2군에서 뛰면 1군 출장이 적어도 성장 경험이 주전의 약 ${Math.round(SL.BAL.RES_EXP*100)}%로 유지됩니다. <b>2군 집중 육성</b>(최대 3명) 선수는 매 경기 주전으로 나갑니다 — 출장이 늘어 성장 계수가 조금 오를 뿐, 성장을 공짜로 주지는 않습니다.</div></div>`;
+  h+=`<div class="card">${hd('퓨처스리그 (2군)',S.phase==='season'?`${S.season}시즌 · 팀당 ${NG}경기`:'시즌 중 운영')}<div class="muted small">12개 팀이 <b>북부리그·남부리그</b> 6팀씩 나뉘어 1군 시즌 동안 실제 일정으로 경기합니다 — 국내 10개 구단 2군 + 시민 구단 「울산 시티즌스」 + 군 팀 「문경 솔저스」. 정규 일정이 끝나면 <b>챔피언결정전</b>(각 리그 1위 vs 상대 리그 2위 준결승 → 결승, 단판)을 엽니다. 1군 주전 9명·선발 5명·마무리·불펜 상위 4명을 뺀 1군 선수와 육성군이 2군 경기에 나가고, 2군 선수가 9명이 안 되면 이름 없는 2군 등록 선수가 빈자리를 채웁니다(기록 없음). 2군에서 뛰면 1군 출장이 적어도 성장 경험이 주전의 약 ${Math.round(SL.BAL.RES_EXP*100)}%로 유지됩니다. <b>2군 집중 육성</b>(최대 3명) 선수는 매 경기 주전으로 나갑니다 — 출장이 늘어 성장 계수가 조금 오를 뿐, 성장을 공짜로 주지는 않습니다. <b>23세 이상</b>은 1군이든 2군이든 주전으로 뛰어야 잠재력이 유지되고, 2군에서도 벤치에 머물면 잠재력이 조금씩 줄어듭니다.</div></div>`;
   {const F=SL.resFocusList();const W=SL.resFocusWarn();h+=`<div class="card">${hd('2군 집중 육성',`${F.length}/3명`)}<div class="muted small" style="margin-bottom:6px">집중 육성 선수에게는 코치가 매주 <b>단기 목표</b>를 줍니다 (예: 2군 안타 4개). 달성하면 관련 능력이 조금 오르고, 못 해도 불이익은 없습니다.</div>${F.map(p=>prow(p,`${p.wgoal?`<b>이번 주 목표</b> ${esc(p.wgoal.text)} (${(()=>{const W2=SL.WGOAL[p.wgoal.kind];const st=Object.assign({},p.res||{});return Math.max(0,W2.v(Object.assign({h:0,bb:0,hr:0,pOuts:0,pSO:0},st))-W2.v(p.wgoal.base));})()}/${p.wgoal.n}) · `:''}${(p.wgoals||[]).length?`목표 달성 ${(p.wgoals||[]).filter(x=>x.ok).length}/${p.wgoals.length} · `:''}${esc(p.resRole==='focus'?'2군 집중 출장 중':'다음 2군 경기부터 적용')} · <button class="sm ghost" onclick="event.stopPropagation();UI.resFocus(${p.id},false)">해제</button>`)).join('')||'<div class="muted small">아래 우리 2군 선수 목록에서 「집중」을 눌러 지정하세요.</div>'}${W.map(w=>`<div class="warnbox" style="margin-top:6px">${esc(w)}</div>`).join('')}</div>`;}
   if(R){const nx=SL.futNext();const tn=id=>{const t=SL.futTeam(id);return t?t.name:'-';};
     let g='';if(nx){const home=nx.home===ut.id;g+=`<div class="row" style="gap:10px;align-items:center">${emblem(SL.futTeam(home?nx.away:nx.home),34)}<div><div class="dim small">${nx.d===S.day?'오늘':nx.d+'일차'} 2군 경기 · ${home?'홈':'원정'}</div><b>vs ${esc(tn(home?nx.away:nx.home))}</b></div></div>`;}
