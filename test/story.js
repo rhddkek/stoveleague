@@ -186,4 +186,10 @@ console.log('[14] 시즌 길이 · 시상식 · 아시아 챔피언십');
  SL.setNextGames(70);while(S.week<=6)SL.advanceWeek();let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();SL.startNewSeason();}SL.BAL.SEASON_GAMES===70&&S.games===70&&S.schedule.filter(g=>g.div===3).length===70*4?ok('다음 시즌부터 70경기로 변경'):bad('시즌 길이 변경 '+S.games);
  const js=SL.serialize();SL.newGame(1,0);SL.load(js);SL.BAL.SEASON_GAMES===70?ok('불러오기 때 저장의 시즌 길이 복원'):bad('불러오기 시즌 길이 '+SL.BAL.SEASON_GAMES);
  const old=JSON.parse(js);delete old.games;SL.load(JSON.stringify(old));SL.BAL.SEASON_GAMES===28?ok('구버전 저장(시즌 길이 없음) = 28경기'):bad('구버전 시즌 길이');}
+console.log('[15] 수상 기록 보기');
+{SL.newGame(707,0,{games:28});S=SL.state();const u=SL.userTeam();while(S.phase==='season')SL.playDayAuto();
+ const mine=Object.values(S.awards[1]).flatMap(R=>[R.mvp,R.roy,...R.titles,...R.gg]).filter(e=>e&&e.tid===u.id);
+ (S.awardLog||[]).length===mine.length?ok(`우리 구단 수상 기록 ${mine.length}건 저장 (시상식 결과와 일치)`):bad('awardLog '+(S.awardLog||[]).length+' vs '+mine.length);
+ const js=JSON.parse(SL.serialize());delete js.awardLog;SL.load(JSON.stringify(js));S=SL.state();(S.awardLog||[]).length===mine.length?ok('구버전 저장: 시상식 기록에서 우리 구단 수상 기록 복원'):bad('awardLog 복원 '+(S.awardLog||[]).length);
+ const w=Object.values(S.players).find(p=>p.awards&&p.awards.length);w&&w.awards[0].lab&&w.awards[0].s===1?ok(`선수 수상 기록: ${w.name} — ${w.awards.map(a=>a.lab).join(', ')}`):bad('선수 수상 기록');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
