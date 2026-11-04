@@ -284,3 +284,4 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 .postc{border-left:4px solid var(--orange)}
 .postc .drow{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.postc .drow:last-of-type{border-bottom:none}
 .postc .drow .nm{font-weight:700;font-size:14px}.postc .drow.me{background:var(--green-bg);margin:0 -8px;padding:8px}
+.chip.y{background:#f6e7b0;color:#7a5600;font-weight:700}

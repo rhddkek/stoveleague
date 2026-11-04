@@ -13,9 +13,9 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
   await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
   /다음 타석/.test(tt)&&/하이라이트/.test(tt)&&/이번 주 이야기/.test(tt)&&/코치진/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내가 현재 화면(이번 주 이야기·다음 타석·하이라이트·코치진)과 일치'):bad('튜토리얼 문구');
-  const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','res'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','table'],['club','fin'],['club','fac'],['club','staff'],['club','overseas'],['club','alumni'],['club','hist'],['club','data']];
+  const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','res'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','pres'],['club','table'],['club','fin'],['club','fac'],['club','staff'],['club','overseas'],['club','alumni'],['club','hist'],['club','data']];
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
-  await sweep('시즌 중');ok('시즌 중 19개 화면 가로 넘침·하단 가림 검사');
+  await sweep('시즌 중');ok('시즌 중 20개 화면 가로 넘침·하단 가림 검사');
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');ok('7경기 자동 → 한 주간 보고서');
   await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('다음 타석');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');

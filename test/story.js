@@ -100,4 +100,24 @@ sw?ok('승강 결정전 결과대로 다음 시즌 부 배정: '+Object.entries(
 const f1=last8.post.final[1];(S.teams[f1.w].champ||[]).includes(last8.s)?ok(`1부 챔피언 ${S.teams[f1.w].name} (${f1.score})`):bad('챔피언 기록');
 const yb=S.players[ly.id];yb.teamId===u8.id&&!yb.loan&&yb.loanDone&&yb.loanDone.tn===bt.name&&!u8.loaned.length?ok(`임대 복귀: ${yb.name} — ${bt.name} ${yb.loanDone.role}, 종합 ${Math.round(yb.loanDone.from)}→${Math.round(yb.loanDone.to)}`):bad('임대 복귀 '+JSON.stringify(yb.loanDone));
 (yb.rhist||[]).length||(S.players[bench8.id].rhist||[]).length?ok('2군 시즌 기록 보존 (rhist)'):bad('rhist 없음');(S.resHist||[]).length===1?ok('2군 우승 기록: '+S.resHist[0].champ):bad('resHist');
+console.log('[9] 구단 위상(명문)');
+SL.newGame(2026,0,{arch:true});S=SL.state();let u9=SL.userTeam();
+const pt9=SL.presTable();const big9=pt9.filter(x=>x.tier==='명문');big9.length===3&&big9.every(x=>x.t.div===1)&&SL.presTier(u9)!=='명문'?ok(`시작 명문 3개(1부): ${big9.map(x=>x.t.name).join(', ')} · 우리 ${SL.presTier(u9)} ${u9.pres}`):bad('시작 위상 '+pt9.slice(0,4).map(x=>x.t.name+x.v).join(','));
+const fallen=pt9.find(x=>x.t.div===2&&x.tier==='강호');fallen?ok(`2부의 몰락한 명가: ${fallen.t.name} (${fallen.v})`):bad('2부 강호 없음');
+const hi=big9[0].t,lo=SL.krTeams().filter(t=>t.div===1).sort((a,b)=>a.pres-b.pres)[0];const pl9=S.players[SL.krTeams().find(t=>t.div===2&&t.pres<40).roster[0]];
+const wHi=SL.willingInfo(pl9,hi),wLo=SL.willingInfo(pl9,lo);wHi.pw>wLo.pw&&wHi.reasons.includes('명문 구단 입단 희망')?ok(`같은 선수의 이적 의향: 명문 ${hi.name} ${wHi.pw.toFixed(2)} > ${lo.name} ${wLo.pw.toFixed(2)}`):bad('명문 선호 '+wHi.pw+' '+wLo.pw+' '+wHi.reasons);
+SL.presIncome(hi)>1.05&&SL.presIncome(u9)<=1.01?ok(`수입 배율: ${hi.name} ×${SL.presIncome(hi).toFixed(2)}, 우리 ×${SL.presIncome(u9).toFixed(2)}`):bad('수입 배율');
+const ds=SL.playerDemand(pl9,hi),dl=SL.playerDemand(pl9,lo);ds<dl?ok(`명문 프리미엄: 연봉 요구 ${SL.money(ds)} < ${SL.money(dl)}`):bad('연봉 프리미엄 '+ds+' '+dl);
+// 우리가 1부에서 꾸준히 우승하면 명문이 된다
+{const keep={pres:u9.pres,div:u9.div,floor:u9.presFloor,log:u9.presLog,titles:u9.titles};u9.pres=36;u9.div=1;const seq=[];for(let k=0;k<5;k++){SL.presSeasonEnd(S.season+k,{1:[u9],2:[],3:[]},{post:{final:{1:{w:u9.id}}},promoted:[],relegated:[]});seq.push(Math.round(u9.pres));}
+  SL.presTier(u9)==='명문'&&u9.presFloor>=20?ok(`1부 우승을 이어 가면 명문: 36 → ${seq.join(' → ')} (전통 바닥 ${u9.presFloor})`):bad('명문 도달 '+seq);
+  const one=36;u9.pres=one;u9.presFloor=0;SL.presSeasonEnd(1,{1:[],2:[],3:[u9]},{post:{final:{3:{w:u9.id}}},promoted:[u9.name],relegated:[]});u9.pres<45?ok(`3부 우승 한 번으로는 명문이 안 됨: 36 → ${u9.pres}`):bad('너무 빠름');
+  Object.assign(u9,{pres:keep.pres,div:keep.div,presFloor:keep.floor,presLog:keep.log,titles:keep.titles});}
+// 명문 몰락은 천천히 + 전통 바닥
+{const t=hi;const p0=t.pres;SL.presSeasonEnd(9,{1:[...Array(7)].map(()=>({})).concat([t]).map((x,i)=>i===7?t:{pres:null}),2:[],3:[]},{promoted:[],relegated:[t.name]});t.pres>=60&&t.pres>p0-10?ok(`명문 강등 한 번: 위상 ${p0} → ${t.pres} (바로 무너지지 않음)`):bad('몰락 속도 '+t.pres);t.pres=p0;}
+// 강등 위기 긴급 투자
+for(let i=0;i<9;i++)SL.playDayAuto();const crisisT=big9[1].t;const c0=crisisT.cash;const ro9=crisisT.roster.slice();crisisT.rec.w=0;crisisT.rec.l=9;SL.playDayAuto();
+S.news.some(n=>n.text.includes(crisisT.name)&&/긴급 투자/.test(n.text))&&crisisT.roster.some(id=>!ro9.includes(id))?ok(`강등권 명문 ${crisisT.name}: 10일차 모기업 긴급 투자 + 보강 (${S.news.find(n=>/긴급 투자/.test(n.text)).text.split(' — ')[1]||''})`):bad('긴급 투자 없음');
+// 구버전 세이브 위상 채움
+{const js=JSON.parse(SL.serialize());for(const id in js.teams){delete js.teams[id].pres;delete js.teams[id].presFloor;}SL.load(JSON.stringify(js));S=SL.state();SL.krTeams().every(t=>typeof t.pres==='number')&&SL.presTable()[0].tier==='명문'?ok('구버전 세이브: 위상 자동 부여'):bad('위상 마이그레이션');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
