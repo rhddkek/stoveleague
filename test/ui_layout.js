@@ -7,8 +7,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   const over=async label=>{const r=await p.evaluate(()=>{const d=document.documentElement;const wide=[...document.querySelectorAll('body *')].filter(e=>{if(e.closest('.tw,.ovseg,.subtabs,.glog,table'))return false;const r=e.getBoundingClientRect();return r.width>0&&r.right>d.clientWidth+2;}).slice(0,3).map(e=>e.className||e.tagName);return {sw:d.scrollWidth,cw:d.clientWidth,wide};});if(r.sw>r.cw+1||r.wide.length)bad(`${label} 가로 넘침 ${r.sw}>${r.cw} ${r.wide.join(',')}`);return r;};
   const navCover=async label=>{const r=await p.evaluate(()=>{const nav=document.querySelector('.nav');const c=document.querySelector('.content');if(!nav||!c)return null;return {pad:parseFloat(getComputedStyle(c).paddingBottom)+parseFloat(getComputedStyle(c.parentElement).paddingBottom||0),nav:nav.getBoundingClientRect().height};});if(r&&r.pad+2<r.nav)bad(`${label} 하단 메뉴가 내용을 가림 (여백 ${r.pad} < 메뉴 ${r.nav})`);};
   const has=async s=>{const t=await p.evaluate(()=>document.body.innerText);if(!t.includes(s))throw new Error('화면에 없음: '+s);};
-  await over('시작 화면');await has('맡을 막내 구단');await has('144경기');await has('재정난 구단');ok('시작 화면: 구단 유형 8개 표시');
-  await p.evaluate(()=>{UI.pickTeam(2);UI.newGame();SL.state().tutorialDone=true;UI.setTab('home');});await p.waitForTimeout(150);
+  await over('시작 화면');await has('맡을 구단을 고르세요');await has('144경기');await has('서울 피닉스');await has('광주 레드폭스');await has('명문');await has('신흥');await has('재정난 구단');ok('시작 화면: 실제 연고 도시 10개 구단 · 기본 위상 · 유형');
+  await p.evaluate(()=>{UI.pickTeam(9);UI.newGame();SL.state().tutorialDone=true;UI.setTab('home');});await p.waitForTimeout(150);
   (await p.evaluate(()=>SL.userTeam().arch))==='poor'?ok('재정난 구단으로 시작 (유형 반영)'):bad('구단 유형 미반영');
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
   await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
@@ -38,8 +38,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{const ut=SL.userTeam();const v=ut.roster.map(id=>SL.state().players[id]).sort((a,b)=>b.age-a.age)[0];UI.openPlayer(v.id);});await has('이번 겨울');await p.evaluate(()=>{const id=SL.userTeam().roster.map(i=>SL.state().players[i]).sort((a,b)=>b.age-a.age)[0].id;UI.winterPlan(id,'rest');});
   (await p.evaluate(()=>SL.userTeam().roster.some(i=>SL.state().players[i].winterPlan==='rest')))?ok('겨울 휴식 선택'):bad('휴식 선택 실패');
   await p.evaluate(()=>{UI.back();UI.go('club','data');UI.setPref('font','xl');});await sweep('아주 큰 글자');ok('글자 크기 「아주 크게」에서도 화면 검사');await p.evaluate(()=>UI.setPref('font','m'));
-  // 테스터용 주소: ?test=1&new=1&team=2&seed=1234 → 바로 새 게임, 테스트 도구·버전 표시
-  await p.goto(FILE+'?test=1&new=1&team=2&seed=1234');await p.waitForTimeout(400);
+  // 테스터용 주소: ?test=1&new=1&team=9&seed=1234 → 바로 새 게임, 테스트 도구·버전 표시
+  await p.goto(FILE+'?test=1&new=1&team=9&seed=1234');await p.waitForTimeout(400);
   const tb=await p.evaluate(()=>({arch:SL.userTeam().arch,seed:SL.state().seed,ver:SL.GAME_VER}));
   tb.arch==='poor'&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed}, 재정난)`):bad('테스트 주소 시작 '+JSON.stringify(tb));
   await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await has('요청서용 정보 복사');await has(tb.ver);

@@ -25,9 +25,9 @@ function draftConf(staff){SL.load(base);S=SL.state();SL.userTeam().staff=staff()
 const c0=draftConf(()=>[]),c1=draftConf(()=>[mk('scout',85,'고교 네트워크'),mk('scout',80),mk('scout',78),mk('scout',75),mk('scout',72)]);c1>c0+0.1?ok(`드래프트 후보 평균 신뢰도 ${c0.toFixed(2)} → ${c1.toFixed(2)}`):bad('스카우트 효과 '+c0+' '+c1);
 console.log('[4] 영입·정원·등급 조건·해임·만료·재계약');
 SL.load(base);S=SL.state();ut=SL.userTeam();
-const sC=Object.assign(mk('pit',88),{years:0});S.staffPool.push(sC);const e1=SL.hireCoach(sC.id,2);e1&&/위상/.test(e1)?ok('S급 코치: '+e1):bad('S급이 약소 구단에 영입됨 '+e1);
+const pres0=ut.pres;ut.pres=15;const sC=Object.assign(mk('pit',88),{years:0});S.staffPool.push(sC);const e1=SL.hireCoach(sC.id,2);e1&&/위상/.test(e1)?ok('S급 코치: '+e1):bad('S급이 약소 구단에 영입됨 '+e1);
 const aC=Object.assign(mk('bat',74),{years:0,salary:8000});S.staffPool.push(aC);const tA=SL.coachTerms(aC);tA.ok&&tA.salary===10000?ok('A급 코치 약소 구단 요구 연봉 +25%: '+SL.money(tA.salary)):bad('A급 조건 '+JSON.stringify(tA));
-const cash0=ut.cash;SL.hireCoach(aC.id,1)===null&&ut.staff.includes(aC)?ok('A급 타격코치 1년 계약'):bad('영입 실패');
+ut.pres=pres0;const cash0=ut.cash;SL.hireCoach(aC.id,1)===null&&ut.staff.includes(aC)?ok('A급 타격코치 1년 계약'):bad('영입 실패');
 for(let i=0;i<3;i++){const x=Object.assign(mk('bat',55),{years:0});S.staffPool.push(x);var eCap=SL.hireCoach(x.id,1);}eCap&&/정원/.test(eCap)?ok('타격코치 정원 3명 초과 차단'):bad('정원 '+eCap);
 const sev=SL.severanceOf(aC);const c1b=ut.cash;SL.fireCoach(aC.id);(!ut.staff.includes(aC)&&c1b-ut.cash===sev&&sev>0)?ok('해임 보상금 '+SL.money(sev)+' (잔여 연봉 50%)'):bad('해임 '+sev);
 playSeason();const exp=ut.staff.filter(c=>c.years<=0);exp.length?ok('시즌 종료 계약 만료 코치 '+exp.length+'명'):bad('만료 없음');

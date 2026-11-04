@@ -9,13 +9,13 @@ contra?bad('성적과 모순되는 진단 '+contra):ok('고타율 선수에게 �
 while(S.phase==='season')SL.playDayAuto();const last=S.history[S.history.length-1];const myRow=Object.values(last.tables).flat().find(r=>r.id===S.userTeamId);
 myRow&&myRow.rank===S.lastSummary.rank?ok(`시즌 종료 순위 일치: 결산 ${S.lastSummary.rank}위 = 최종 순위표 ${myRow.rank}위`):bad('최종 순위 불일치');
 const R=S.lastRecap;R&&R.s===last.s&&R.rank===S.lastSummary.rank&&R.fanText&&R.owner?ok(`시즌 결산: ${R.rank}위, 팬 「${R.fans}」, 최고 성장 ${R.grow?R.grow.name+' +'+R.grow.d:'-'}, 평판 ${R.repFrom}→${R.repTo}`):bad('결산 '+JSON.stringify(R));
-console.log('[2] 구단 유형');const arch={};for(let i=0;i<4;i++){SL.newGame(500,i,{arch:true});S=SL.state();ut=SL.userTeam();const ps=ut.roster.map(id=>S.players[id]);arch[ut.arch]={cash:ut.cash,rep:ut.rep,age:ps.reduce((a,p)=>a+p.age,0)/ps.length,pw:SL.teamPower(ut).power,pay:SL.payroll(ut)};}
+console.log('[2] 구단 유형');const AIx=a=>SL.BAL.ARCH_OF.lastIndexOf(a);const arch={};for(const a of ['youth','popular','poor','vet']){SL.newGame(500,AIx(a),{arch:true});S=SL.state();ut=SL.userTeam();const ps=ut.roster.map(id=>S.players[id]);arch[ut.arch]={cash:ut.cash,rep:ut.rep,age:ps.reduce((a,p)=>a+p.age,0)/ps.length,pw:SL.teamPower(ut).power,pay:SL.payroll(ut)};}
 SL.newGame(500,0);const base={cash:SL.userTeam().cash,rep:SL.userTeam().rep};
 arch.youth.age<arch.vet.age-3?ok(`유망주 중심 평균 ${arch.youth.age.toFixed(1)}세 vs 노장 중심 ${arch.vet.age.toFixed(1)}세`):bad('나이 차 없음');
 arch.vet.pw>arch.youth.pw?ok(`노장 중심 전력 ${arch.vet.pw} > 유망주 중심 ${arch.youth.pw}`):bad('전력 차 없음');
 arch.poor.cash<arch.popular.cash*0.5?ok(`재정난 현금 ${SL.money(arch.poor.cash)} vs 인기 구단 ${SL.money(arch.popular.cash)}`):bad('현금 차 없음');
 arch.popular.rep>arch.poor.rep+20?ok(`인기 구단 명성 ${arch.popular.rep} (재정난 ${arch.poor.rep})`):bad('명성 차');
-SL.newGame(500,1,{arch:true});S=SL.state();const gp=S.mgr.cur.goal.target;SL.newGame(500,1);const gn=SL.state().mgr.cur.goal.target;gp<gn?ok(`인기 구단은 목표가 더 빡빡함 (${gp}위 이내 vs 일반 ${gn}위 이내)`):bad('인기 구단 목표');
+SL.newGame(500,AIx('popular'),{arch:true});S=SL.state();const gp=S.mgr.cur.goal.target;SL.newGame(500,AIx('popular'));const gn=SL.state().mgr.cur.goal.target;gp<gn?ok(`인기 구단은 목표가 더 빡빡함 (${gp}위 이내 vs 일반 ${gn}위 이내)`):bad('인기 구단 목표');
 console.log('[3] 이야기 · 보고서');SL.newGame(31,2,{arch:true});S=SL.state();const st0=SL.weeklyStory();st0.kind==='start'?ok('첫 시즌 이야기: '+st0.title):bad('첫 이야기 '+st0.kind);
 const r0=SL.reportStart();for(let i=0;i<7;i++)SL.playDayAuto();const rp=SL.reportEnd(r0);rp&&rp.games===7&&rp.w+rp.l===7&&rp.bat&&rp.pit?ok(`주간 보고서 ${rp.w}승 ${rp.l}패, 최고 타자 ${rp.bat.p.name} (${rp.bat.line})`):bad('보고서 '+JSON.stringify(rp&&{g:rp.games}));
 for(let i=0;i<10;i++)SL.playDayAuto();const st1=SL.weeklyStory();st1.title&&st1.kind!=='start'?ok(`이번 주 이야기(${st1.kind}): ${st1.title}`):bad('이야기 '+st1.kind);
@@ -30,11 +30,11 @@ S.staffPool.some(c=>c.alumni===old.id)?ok(`은퇴한 우리 출신 ${old.name} �
 S.mgr.rep=90;S.mgr.seasons.forEach(m=>{m.devHits=3;m.goalMet=true;});SL.genJobOffers();
 if(S.jobOffers.length){const r=S.jobOffers[0].reason;/원합니다|요청합니다/.test(r)?ok('감독 제의 이유: '+r):bad('제의 이유 '+r);}else console.log('  (제의 없음 — 이유 문구 미확인)');
 console.log('[5] R003: 유형별 목표 · 약점 설명 범위');
-SL.newGame(1234,0,{arch:true});S=SL.state();let G=S.mgr.cur.goal;G.kind==='youth'&&/육성/.test(G.text)?ok('유망주 구단 첫 시즌 목표: '+G.text):bad('유망주 목표 '+JSON.stringify(G));
+SL.newGame(1234,AIx('youth'),{arch:true});S=SL.state();let G=S.mgr.cur.goal;G.kind==='youth'&&/육성/.test(G.text)?ok('유망주 구단 첫 시즌 목표: '+G.text):bad('유망주 목표 '+JSON.stringify(G));
 const gpr=SL.goalProgress();gpr&&gpr.parts.length===2?ok('목표 진행: '+gpr.parts.map(x=>x.text).join(' · ')):bad('진행 표시');
-while(S.phase==='season')SL.playDayAuto();const ms=S.mgr.seasons[S.mgr.seasons.length-1];ms.goalKind==='youth'&&typeof ms.young==='number'&&ms.goalMet===(ms.rank<=6&&ms.young>=3)?ok(`육성 목표 평가: ${ms.rank}위 · 육성 ${ms.young}명 → ${ms.goalMet?'달성':'미달'}`):bad('육성 평가 '+JSON.stringify(ms));
-SL.newGame(1234,2,{arch:true});G=SL.state().mgr.cur.goal;G.kind==='cash'?ok('재정난 구단 목표: '+G.text):bad('재정난 목표');
-SL.newGame(1234,3,{arch:true});G=SL.state().mgr.cur.goal;!G.kind||G.kind==='rank'?ok('노장 구단 목표: '+G.text):bad('노장 목표');
+while(S.phase==='season')SL.playDayAuto();const ms=S.mgr.seasons[S.mgr.seasons.length-1];ms.goalKind==='youth'&&typeof ms.young==='number'&&ms.goalMet===(ms.rank<=+(/(\d+)위 이내/.exec(ms.goal)||[0,6])[1]&&ms.young>=3)?ok(`육성 목표 평가: ${ms.rank}위 · 육성 ${ms.young}명 → ${ms.goalMet?'달성':'미달'}`):bad('육성 평가 '+JSON.stringify(ms));
+SL.newGame(1234,AIx('poor'),{arch:true});G=SL.state().mgr.cur.goal;G.kind==='cash'?ok('재정난 구단 목표: '+G.text):bad('재정난 목표');
+SL.newGame(1234,AIx('vet'),{arch:true});G=SL.state().mgr.cur.goal;!G.kind||G.kind==='rank'?ok('노장 구단 목표: '+G.text):bad('노장 목표');
 SL.newGame(1234,0);G=SL.state().mgr.cur.goal;!G.kind?ok('유형 없는 게임은 기존 목표 유지: '+G.text):bad('기본 목표 변경됨');
 SL.newGame(9,1);S=SL.state();const bat=SL.userTeam().roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&p.pos==='1B');bat.attrs.speed=15;bat.attrs.defense=29;bat.attrs.contact=60;bat.attrs.power=58;bat.attrs.eye=57;
 const dgx=SL.diagnose(bat),srx=SL.scoutReport(bat).join(' ');dgx.lines.some(l=>l.k==='수비·주루'&&/주력 15/.test(l.t))&&!/뚜렷한 약점은 없습니다/.test(srx)&&/수비·주루가 크게 부족/.test(srx)?ok('주력 15·수비 29 선수: 「타격 쪽으로는 약점 없음 + 수비·주루 크게 부족」'):bad('약점 범위 '+srx);
@@ -107,11 +107,11 @@ const hasPs=Object.values(S.players).some(p=>(p.hist||[]).some(h=>h.s===last8.s&
 const yb=S.players[ly.id];yb.teamId===u8.id&&!yb.loan&&yb.loanDone&&yb.loanDone.tn===bt.name&&!u8.loaned.length?ok(`임대 복귀: ${yb.name} — ${bt.name} ${yb.loanDone.role}, 종합 ${Math.round(yb.loanDone.from)}→${Math.round(yb.loanDone.to)}`):bad('임대 복귀 '+JSON.stringify(yb.loanDone));
 (yb.rhist||[]).length||(S.players[bench8.id].rhist||[]).length?ok('2군 시즌 기록 보존 (rhist)'):bad('rhist 없음');(S.resHist||[]).length===1?ok('2군 우승 기록: '+S.resHist[0].champ):bad('resHist');
 console.log('[9] 구단 위상(명문)');
-SL.newGame(2026,0,{arch:true});S=SL.state();let u9=SL.userTeam();
-const pt9=SL.presTable();const big9=pt9.filter(x=>x.tier==='명문');big9.length===3&&big9.every(x=>x.t.league==='KR'&&!x.t.isUser)&&SL.presOf(u9)<22?ok(`시작 명문 3개: ${big9.map(x=>x.t.name).join(', ')} · 우리 막내 구단 ${SL.presTier(u9)} ${u9.pres}`):bad('시작 위상 '+pt9.slice(0,4).map(x=>x.t.name+x.v).join(','));
+SL.newGame(2026,9,{arch:true});S=SL.state();let u9=SL.userTeam();
+const pt9=SL.presTable();const big9=pt9.filter(x=>x.tier==='명문');big9.length===4&&big9.every(x=>x.t.league==='KR'&&!x.t.isUser)&&SL.presOf(u9)<40&&SL.krTeams().every(t=>!t.titles)?ok(`시작 명문 4개 (지역 기본 위상): ${big9.map(x=>`${x.t.name} ${x.v}`).join(', ')} · 우리 ${SL.presTier(u9)} ${u9.pres} · 우승 기록은 모두 0`):bad('시작 위상 '+pt9.slice(0,4).map(x=>x.t.name+x.v).join(','));
 const midT=pt9.find(x=>x.tier==='중견'&&!x.t.isUser);midT?ok(`같은 1군 안의 위상 차이: 중견 ${midT.t.name} (${midT.v}) · 명문 ${big9[0].t.name} (${big9[0].v})`):bad('중견 구단 없음');
 const hi=big9[0].t,lo=u9;const pl9=S.players[midT.t.roster[0]];
-const wHi=SL.willingInfo(pl9,hi),wLo=SL.willingInfo(pl9,lo);wHi.pw>wLo.pw&&wHi.reasons.includes('명문 구단 입단 희망')?ok(`같은 선수의 이적 의향: 명문 ${hi.name} ${wHi.pw.toFixed(2)} > 막내 ${lo.name} ${wLo.pw.toFixed(2)}`):bad('명문 선호 '+wHi.pw+' '+wLo.pw+' '+wHi.reasons);
+const wHi=SL.willingInfo(pl9,hi),wLo=SL.willingInfo(pl9,lo);wHi.pw>wLo.pw&&wHi.reasons.includes('명문 구단 입단 희망')?ok(`같은 선수의 이적 의향: 명문 ${hi.name} ${wHi.pw.toFixed(2)} > 신흥 ${lo.name} ${wLo.pw.toFixed(2)}`):bad('명문 선호 '+wHi.pw+' '+wLo.pw+' '+wHi.reasons);
 SL.presIncome(hi)>1.05&&SL.presIncome(u9)<0.8?ok(`시장 크기 배율: ${hi.name} ×${SL.presIncome(hi).toFixed(2)}, 우리 ×${SL.presIncome(u9).toFixed(2)}`):bad('수입 배율 '+SL.presIncome(u9));
 const ds=SL.playerDemand(pl9,hi),dl=SL.playerDemand(pl9,lo);ds<dl?ok(`명문 프리미엄: 연봉 요구 ${SL.money(ds)} < ${SL.money(dl)}`):bad('연봉 프리미엄 '+ds+' '+dl);
 // 우리가 꾸준히 한국시리즈를 우승하면 명문이 된다
@@ -128,10 +128,10 @@ S.news.some(n=>n.text.includes(crisisT.name)&&/긴급 투자/.test(n.text))&&cri
 // 구버전 세이브 위상 채움
 {const js=JSON.parse(SL.serialize());for(const id in js.teams){delete js.teams[id].pres;delete js.teams[id].presFloor;}SL.load(JSON.stringify(js));S=SL.state();SL.krTeams().every(t=>typeof t.pres==='number')&&SL.presTable()[0].tier==='명문'?ok('구버전 세이브: 위상 자동 부여'):bad('위상 마이그레이션');}
 console.log('[10] 스폰서 · 광고판 · 선수 광고');
-SL.newGame(3030,0,{arch:true});S=SL.state();let u10=SL.userTeam();const B10=SL.sponBase(u10);
+SL.newGame(3030,9,{arch:true});S=SL.state();let u10=SL.userTeam();const B10=SL.sponBase(u10);
 u10.spon.main&&u10.spon.boards.length===SL.boardSlots(u10)&&u10.fin.sponsor===u10.spon.main.base&&u10.fin.ads>0?ok(`시작: 메인 ${u10.spon.main.co} ${SL.money(u10.spon.main.base)} + 광고판 ${u10.spon.boards.length}자리 ${SL.money(u10.fin.ads)} (예전 자동 스폰서 ${SL.money(Math.round(B10))} 대비 ${Math.round((u10.fin.sponsor+u10.fin.ads)/B10*100)}%)`):bad('시작 스폰서 '+JSON.stringify(u10.spon.main));
 while(S.phase==='season')SL.playDayAuto();const ks=u10.spon.offers.map(o=>o.kind);
-!u10.spon.main&&ks.includes('stable')&&ks.includes('perf')&&ks.includes('short')&&!ks.includes('big')?ok('시즌 뒤 계약 만료 → 제안 3종 (장기 안정·성적 연동·단기 고액), 약소 구단엔 대기업 없음'):bad('제안 '+ks);
+!u10.spon.main&&ks.includes('stable')&&ks.includes('perf')&&ks.includes('short')&&!ks.includes('big')?ok('시즌 뒤 계약 만료 → 제안 3종 (장기 안정·성적 연동·단기 고액), 위상 낮은 구단엔 대기업 없음'):bad('제안 '+ks);
 const perf=u10.spon.offers.find(o=>o.kind==='perf');SL.sponSign(perf.id);u10.spon.main.kind==='perf'&&!u10.spon.offers.length?ok(`성적 연동형 계약: ${perf.co}`):bad('계약 실패');
 const bo=u10.spon.boardOffers;const same=bo.find(b=>b.sector===perf.sector);if(same)/업종/.test(SL.boardSign(same.id)||'')?ok('메인 스폰서와 같은 업종 광고판 거절'):bad('업종 충돌 허용');
 const gate=bo.find(b=>b.type==='gate'&&b.sector!==perf.sector);if(gate)SL.boardSign(gate.id);

@@ -365,3 +365,7 @@ button.gold:active{transform:translateY(1px);box-shadow:none}
 .bk .bm>span:last-child{text-align:right}.bk .bm b{font-family:var(--f-display);font-size:17px;white-space:nowrap}
 .bk .bm .w{color:var(--green)}.bk .bm .l{color:var(--muted);font-weight:500;text-decoration:line-through}
 .bk.cur{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}.bk.me{background:var(--green-bg)}
+
+/* v29 구단 선택: 10개 구단 2열 목록 + 선택한 구단 설명 */
+.tsel{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.tsel button{padding:9px 10px;min-width:0;overflow:hidden}.tsel .row{min-width:0}.tsel .b,.tsel .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsel .b{font-size:14px}
+.tdetail{margin-top:10px;background:#1b2a5c;border:2px solid #4fd18e;border-radius:14px;padding:12px;color:#fff}
