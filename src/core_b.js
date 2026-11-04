@@ -19,7 +19,7 @@ function createGame(homeId,awayId,userGame){
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
 }
-function glog(lg,text,type){lg.log.push({inn:lg.inn,half:lg.half,text,type:type||'n'});if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
+function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(x){e.pid=x.pid;e.pit=x.pit;}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
 function curBatter(lg){return S.players[lg.lineup[lg.half][lg.bat[lg.half]]];}
 function curPitcher(lg){return S.players[lg.pitcher[1-lg.half]];}
 
@@ -152,9 +152,9 @@ function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};
 function parkNear(side,dist,homeId){const home=S.teams[homeId];const c=krTeams().filter(t=>t.id!==homeId).map(t=>({t,p:parkOf(t)})).filter(x=>x.p.dim[side]+(x.p.fence?1:0)<dist).sort((a,b)=>presOf(b.t)-presOf(a.t)||a.p.dim[side]-b.p.dim[side]);return c[0]?c[0].p:null;}
 const KO_POS={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수'};
 function endPA(lg,ev){
-  const bs=lg.half;const bb=ensureBox(lg,lg.lineup[bs][lg.bat[bs]]);bb.pa++;lg.paCount++;
+  const bs=lg.half;const bid=lg.lineup[bs][lg.bat[bs]];const bb=ensureBox(lg,bid);bb.pa++;lg.paCount++;
   lg.balls=0;lg.strikes=0;lg.bat[bs]=(lg.bat[bs]+1)%lg.lineup[bs].length;
-  glog(lg,ev.text,ev.type);
+  glog(lg,ev.text,ev.type,lg.userGame?{pid:bid,pit:lg.pitcher[1-bs]}:null);
   if(lg.half===1&&lg.inn>=9&&lg.score[1]>lg.score[0]){finishGameState(lg,true);return;}
   if(lg.outs>=3){endHalf(lg);return;}
   aiPitchCheck(lg,1-bs,false);

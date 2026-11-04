@@ -334,3 +334,9 @@ button.gold:active{transform:translateY(1px);box-shadow:none}
 .btns3{display:flex;gap:6px}.btns3 button{flex:1;padding-left:4px;padding-right:4px;white-space:nowrap}
 .pmeta{margin:6px 0 10px}.phero2 .pbig .av{background-color:transparent}
 @media(min-width:700px){.hero2{margin-left:0;margin-right:0;border-radius:14px}.stad{max-width:560px;margin-left:auto;margin-right:auto;border-radius:12px}}
+.pchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.pchips span{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:var(--card,#fff)}.pchips small{color:var(--muted)}.pchips em{font-style:normal;font-size:12px}
+.rz.g{color:var(--green)}.rz.o{color:var(--orange)}.rz.r{color:var(--red)}span.rz{font-weight:800}
+.lastplay.lph{display:flex;gap:12px;align-items:center}.lastplay .lpface{flex:0 0 auto}.lastplay .lpbody{min-width:0}.lastplay .lpwho{font-size:14px;margin:2px 0}.lastplay .lpwho span{font-size:12px;opacity:.75}
+.postband{background:linear-gradient(90deg,#b8862a,#f3c76b,#b8862a);color:#2a1f00;font-weight:800;text-align:center;padding:6px 0;font-size:13px}
+.post2 .pvs{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0}.post2 .pvs .vs{font-family:var(--f-display);font-size:24px;opacity:.7}.post2 .pstake{font-weight:800;color:#b8862a;margin-top:4px}
+.ourwin{background:linear-gradient(135deg,#fff3c4,#ffe08a);color:#3a2c00;border-radius:14px;padding:12px;margin:8px 0}.owrow{display:flex;gap:12px;align-items:center;padding:6px 0;cursor:pointer}.ourwin .chip{margin:2px 2px 0 0}
