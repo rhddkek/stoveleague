@@ -152,4 +152,16 @@ console.log('[11] 경기 중계 문구 · 효과음');
  const so=pa.filter(l=>l.type==='so');so.every(l=>/(헛스윙|루킹) 삼진/.test(l.text))?ok('삼진 종류 구분: '+(so[0]?so[0].text:'-')):bad('삼진 문구');}
 {SL.newGame(4242,0);S=SL.state();const lg=SL.startDay();SL.stepGame(lg);const a=lg.score.join(':');SL.newGame(4242,0);S=SL.state();const lg2=SL.startDay();SL.stepGame(lg2);a===lg2.score.join(':')?ok('중계 문구는 난수를 쓰지 않음 — 같은 시드 같은 결과 '+a):bad('결정성');}
 {const fs=require('fs');const need=['hit','hr','mitt','so','out'];const have=fs.readdirSync(__dirname+'/../assets/sfx').map(f=>f.replace(/\.mp3$/,''));need.every(k=>have.includes(k))?ok('효과음: 타격음·홈런 함성·미트·삼진·포구'):bad('효과음 파일 '+have);}
+console.log('[12] 세부 지표 · 능력치 반영');
+{SL.newGame(77,0);S=SL.state();while(S.day<=SL.BAL.SEASON_GAMES)SL.playDayAuto();
+ const B=Object.values(S.players).filter(p=>!SL.isPitcher(p)&&p.cur.pa>=60&&S.teams[p.teamId]&&S.teams[p.teamId].league==='KR').sort((a,b)=>a.attrs.eye-b.attrs.eye);const q=Math.floor(B.length/4);const bb=a=>a.reduce((x,p)=>x+p.cur.bb/p.cur.pa,0)/a.length;
+ const lo=bb(B.slice(0,q)),hi=bb(B.slice(-q));hi-lo>=0.03?ok(`선구안 상위 25% 볼넷 비율 ${(hi*100).toFixed(1)}% vs 하위 25% ${(lo*100).toFixed(1)}%`):bad('선구안 효과 약함 '+lo+' '+hi);
+ const ob=a=>a.reduce((x,p)=>x+SL.batLine(p.cur).obp,0)/a.length;ob(B.slice(-q))>ob(B.slice(0,q))+0.02?ok(`선구안 상위 출루율 ${ob(B.slice(-q)).toFixed(3)} > 하위 ${ob(B.slice(0,q)).toFixed(3)}`):bad('출루율 차이 없음');
+ const sp=B.slice().sort((a,b)=>a.attrs.speed-b.attrs.speed);const s1=a=>a.reduce((x,p)=>x+(p.cur.h-p.cur.d2-p.cur.d3-p.cur.hr)/p.cur.ab,0)/a.length;s1(sp.slice(-q))>s1(sp.slice(0,q))?ok(`발 빠른 타자 단타율 ${s1(sp.slice(-q)).toFixed(3)} > 느린 타자 ${s1(sp.slice(0,q)).toFixed(3)} (내야안타)`):bad('주력 효과');
+ const ctx=SL.lgCtx('KR1');ctx.avg>0.23&&ctx.avg<0.3&&ctx.obp>0.3&&ctx.obp<0.37&&ctx.era>3&&ctx.era<5.5?ok(`리그 평균 정상 범위: 1부 타율 ${ctx.avg} 출루율 ${ctx.obp} ERA ${ctx.era}`):bad('리그 평균 '+JSON.stringify(ctx));
+ const x=B[B.length-1];const a=SL.advStats(x);const L=SL.batLine(x.cur);Math.abs(a.b.obp-(x.cur.h+x.cur.bb)/(x.cur.ab+x.cur.bb))<1e-9&&a.pct&&a.war&&typeof a.war.war==='number'?ok(`세부 지표: ${x.name} 출루율 ${L.obp.toFixed(3)} OPS+ ${a.opsPlus} WAR ${a.war.war} (144경기 환산 ${a.war144}), 출루율 백분위 상위 ${a.pct.obp}%`):bad('세부 지표 계산');
+ const teamWar=SL.krTeams().map(t=>t.roster.reduce((s,id)=>{const p=S.players[id];const z=SL.advStats(p);return s+(z&&z.live?z.war.war:0);},0));const avgW=teamWar.reduce((a,b)=>a+b,0)/teamWar.length;avgW>1.5&&avgW<12?ok(`구단 평균 WAR ${avgW.toFixed(1)} (28경기 기준 — 144경기 환산 약 ${(avgW*144/28).toFixed(0)})`):bad('WAR 규모 '+avgW);
+ const ld=SL.leaders('KR1','ops',10);ld.length&&ld.every((o,i)=>i===0||o.v<=ld[i-1].v)?ok(`기록실 OPS 1위 ${ld[0].p.name} ${ld[0].v.toFixed(3)}`):bad('기록실 정렬');
+ const er=SL.leaders('KR1','era',5);er.every((o,i)=>i===0||o.v>=er[i-1].v)?ok('기록실 평균자책 낮은 순'):bad('ERA 정렬');
+ SL.playDayAuto();S=SL.state();const hp=x.hist[x.hist.length-1];const a2=SL.advStats(x);a2&&a2.s===hp.s&&S.lgCtx&&S.lgCtx[hp.s]?ok('시즌 종료 후에도 그 시즌 리그 평균으로 세부 지표 유지'):bad('지난 시즌 지표');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
