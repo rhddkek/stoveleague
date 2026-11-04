@@ -164,4 +164,12 @@ console.log('[12] 세부 지표 · 능력치 반영');
  const ld=SL.leaders('KR1','ops',10);ld.length&&ld.every((o,i)=>i===0||o.v<=ld[i-1].v)?ok(`기록실 OPS 1위 ${ld[0].p.name} ${ld[0].v.toFixed(3)}`):bad('기록실 정렬');
  const er=SL.leaders('KR1','era',5);er.every((o,i)=>i===0||o.v>=er[i-1].v)?ok('기록실 평균자책 낮은 순'):bad('ERA 정렬');
  SL.playDayAuto();S=SL.state();const hp=x.hist[x.hist.length-1];const a2=SL.advStats(x);a2&&a2.s===hp.s&&S.lgCtx&&S.lgCtx[hp.s]?ok('시즌 종료 후에도 그 시즌 리그 평균으로 세부 지표 유지'):bad('지난 시즌 지표');}
+console.log('[13] 구장 차이');
+{SL.newGame(88,0);S=SL.state();const ps=SL.krTeams().map(t=>SL.parkOf(t));const m=ps.reduce((a,p)=>a+p.hr,0)/ps.length,mx=ps.reduce((a,p)=>a+p.xb,0)/ps.length;
+ Math.abs(m-1)<0.015&&Math.abs(mx-1)<0.015&&ps.every(p=>p.hr>=0.92&&p.hr<=1.08&&p.xb>=0.96&&p.xb<=1.04)?ok(`구장 홈런 배율 ${Math.min(...ps.map(p=>p.hr))}~${Math.max(...ps.map(p=>p.hr))}, 평균 ${m.toFixed(3)} (리그 전체 균형 유지)`):bad('구장 배율 '+m);
+ SL.newGame(89,1);S=SL.state();SL.parkOf(SL.krTeams()[0]).name===ps[0].name?ok('구장 규격은 시드와 무관하게 구단마다 고정: '+ps[0].name):bad('구장 고정');
+ let hrN=0,badD=0,near=0,nearBad=0;for(let k=0;k<6;k++){const lg=SL.startDay();SL.stepGame(lg);SL.endUserGame();for(const l of lg.log){const m1=l.text.match(/비거리 (\d+)m · 펜스 (\d+)m/);if(l.type==='hr'&&m1){hrN++;if(+m1[1]<=+m1[2])badD++;}
+   const m2=l.text.match(/비거리 (\d+)m — (.+?)(이었다면|였다면)/);if(m2){near++;const side=/좌익수/.test(l.text)?'l':/우익수/.test(l.text)?'r':'c';const pk=SL.krTeams().map(t=>SL.parkOf(t)).find(p=>p.name===m2[2]);if(!pk||pk.dim[side]>=+m2[1])nearBad++;}}}
+ hrN&&!badD?ok(`홈런 비거리는 항상 그 방향 펜스보다 멀다 (${hrN}개)`):bad('비거리<펜스 '+badD);
+ !nearBad?ok(`「○○ 구장이었다면 넘어갔을 타구」 ${near}건 — 그 구장 펜스가 실제로 더 짧음`):bad('넘어갔을 타구 오류 '+nearBad);}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

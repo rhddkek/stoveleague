@@ -310,7 +310,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v21';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v22';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
@@ -708,14 +708,14 @@ function advRunners(lg,hitType,B,bb,def){
 }
 function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
   bb.ab++;const bs=lg.half,fs=1-bs;const def=teamDef(lg,fs);const before=lg.outs;
-  let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(B.traits.includes('장타본능'))hrP*=1.25;
+  let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;
   const ev={type:'',text:'',paEnd:true};
   const ro=()=>lg.outs>0?` (${lg.outs}아웃)`:'';
-  if(rnd()<hrP){bb.h++;bb.hr++;pb.pH++;pb.pHR++;const runs=advRunners(lg,'hr',B,bb,def);lg.hits[bs]++;ev.type='hr';const hd=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${hd.hr} ${runs===4?'만루':runs>1?runs+'점':'솔로'} 홈런! (비거리 ${Math.round(105+pow*0.3+hd.r*14)}m)`;return ev;}
+  if(rnd()<hrP){bb.h++;bb.hr++;pb.pH++;pb.pHR++;const runs=advRunners(lg,'hr',B,bb,def);lg.hits[bs]++;ev.type='hr';const hd=playDir(lg,B);const fz=PK.dim[hd.side];const dist=Math.round(fz+2+hd.r*16+Math.max(0,pow-50)*0.18);ev.text=`${B.name}, ${cntWord(lg)} ${hd.hr} ${runs===4?'만루':runs>1?runs+'점':'솔로'} 홈런! (비거리 ${dist}m · 펜스 ${fz}m)`;return ev;}
   const hitP=clamp(0.34+(con-50)*0.003+(sp-50)*0.001-(def-50)*0.003-(mov-50)*0.0018,0.15,0.5);
   if(rnd()<hitP){
     bb.h++;pb.pH++;lg.hits[bs]++;
-    const xb=clamp(0.17+(pow-50)*0.0035+(sp-50)*0.0012,0.05,0.45);const r=rnd();
+    const xb=clamp((0.17+(pow-50)*0.0035+(sp-50)*0.0012)*PK.xb,0.05,0.45);const r=rnd();
     let type='1b';if(r<xb*0.1+Math.max(0,(sp-50))*0.0006)type='3b';else if(r<xb)type='2b';
     if(type==='3b'){bb.d3++;}else if(type==='2b'){bb.d2++;}
     const runs=advRunners(lg,type,B,bb,def);
@@ -735,26 +735,41 @@ function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
   }
   addOut(lg,1);ev.type='fo';let extra='';
   if(before<2){const nb=[b[0],b[1],null];if(b[2]){if(rnd()<0.65){scoreRun(lg,bs,b[2],true,bb);extra=' sf';}else nb[2]=b[2];}if(b[1]&&!nb[2]&&rnd()<0.22){nb[2]=b[1];nb[1]=null;}lg.bases=nb;}
-  {const d=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${d.foW} ${extra?'희생플라이 (1득점)':'뜬공 아웃'} — ${d.foBy}${ro()}`;}return ev;
+  {const d=playDir(lg,B);let nm='';if(d.deep){const fz=PK.dim[d.side];const dist=Math.round(fz-1-hr01(lg,B,6)*5);const alt=parkNear(d.side,dist,lg.home);if(alt&&hr01(lg,B,7)<0.6)nm=` · 비거리 ${dist}m — ${josa(alt.name,'이었다면','였다면')} 넘어갔을 타구`;else nm=` · 비거리 ${dist}m`;}ev.text=`${B.name}, ${cntWord(lg)} ${d.foW} ${extra?'희생플라이 (1득점)':'뜬공 아웃'} — ${d.foBy}${nm}${ro()}`;}return ev;
 }
 // 타구 방향·잡은 수비수·볼카운트 문구 (난수 대신 타석 번호로 정해 경기 결과·밸런스에 영향 없음)
 function cntWord(lg){const c=lg.c0||[0,0];const [b,s]=c;if(!b&&!s)return '초구에';if(b===3&&s===2)return '풀카운트에서';return `${b}볼 ${s}스트라이크에서`;}
-function hr01(lg,B,k){let x=(lg.paCount*2654435761+B.id*40503+lg.inn*97+k*7919+(lg.pc[lg.pitcher[1-lg.half]]||0)*131)>>>0;x^=x>>>15;x=Math.imul(x,2246822519)>>>0;x^=x>>>13;return (x%10000)/10000;}
+function hr01(lg,B,k){let x=(lg.paCount*2654435761+B.id*40503+lg.inn*97+k*7919+(lg.pc[lg.pitcher[1-lg.half]]||0)*131)>>>0;x^=x>>>15;x=Math.imul(x,2246822519)>>>0;x=(x^(x>>>13))>>>0;return (x%10000)/10000;}
 function fielder(lg,pos){const fs=1-lg.half;if(pos==='P'){const p=S.players[lg.pitcher[fs]];return p?p.name:'';}const pid=lg.lineup[fs].find(id=>lg.pos[fs][id]===pos);return pid!=null&&S.players[pid]?S.players[pid].name:'';}
 function playDir(lg,B){const P=S.players[lg.pitcher[1-lg.half]];const bats=B.bats==='S'?(P&&P.throws==='L'?'R':'L'):B.bats;const r=hr01(lg,B,1),r2=hr01(lg,B,2);
   const dir=r<0.45?'pull':r<0.75?'mid':'oppo';const side=dir==='mid'?'C':(dir==='pull')===(bats!=='L')?'L':'R';  // L=좌측(3루 쪽), R=우측(1루 쪽)
   const F=k=>{const n=fielder(lg,k);return n?`${KO_POS[k]} ${n}`:KO_POS[k];};
   const goPos=side==='L'?(r2<0.5?'3B':'SS'):side==='R'?(r2<0.5?'2B':'1B'):(r2<0.25?'P':r2<0.65?'SS':'2B');
   const foPos=r2<0.22?(side==='L'?'3B':side==='R'?'1B':'SS'):side==='L'?'LF':side==='R'?'RF':'CF';
-  const out={r:hr01(lg,B,3)};
+  const out={r:hr01(lg,B,3),side:side==='L'?'l':side==='R'?'r':'c'};
   out.go=`${KO_POS[goPos]} ${goPos==='P'?'앞':'쪽'}`;out.goBy=goPos==='1B'?`${F('1B')} 직접 처리`:`${F(goPos)} → 1루 송구`;
-  out.foW=foPos.endsWith('F')?`${KO_POS[foPos]} ${r2<0.4?'앞':out.r>0.7?'펜스 앞까지 가는':'쪽'}`:`${KO_POS[foPos]} 쪽 내야`;out.foBy=`${F(foPos)} 포구`;
+  out.deep=foPos.endsWith('F')&&r2>=0.4&&out.r>0.7;out.foW=foPos.endsWith('F')?`${KO_POS[foPos]} ${r2<0.4?'앞':out.r>0.7?'펜스 앞까지 가는':'쪽'}`:`${KO_POS[foPos]} 쪽 내야`;out.foBy=`${F(foPos)} 포구`;
   out.dp=side==='L'?`${KO_POS[goPos==='3B'?'3B':'SS']} 땅볼 → 2루 → 1루로 이어지는`:side==='R'?'2루수 땅볼 → 유격수 → 1루로 이어지는':'유격수 땅볼 → 2루수 → 1루로 이어지는';
   out.inf=KO_POS[side==='R'?'2B':'SS'];
   out.x1=side==='L'?(r2<0.5?'3유간 빠지는 좌전 안타':'좌전 안타'):side==='R'?(r2<0.5?'1·2루간 빠지는 우전 안타':'우전 안타'):(r2<0.4?'투수 옆 빠지는 중전 안타':'중전 안타');
   out.x2=side==='L'?(r2<0.4?'좌익선상 2루타':'좌중간 가르는 2루타'):side==='R'?(r2<0.4?'우익선상 2루타':'우중간 가르는 2루타'):'중견수 키 넘기는 2루타';
   out.x3=side==='L'?'좌중간 깊숙한 3루타':side==='R'?(r2<0.5?'우익선상 3루타':'우중간 깊숙한 3루타'):'가운데 펜스 맞히는 3루타';
   out.hr=side==='L'?'좌측 담장 넘기는':side==='R'?'우측 담장 넘기는':'가운데 담장 넘기는';return out;}
+// ---------- 구장 ----------
+// 구단마다 홈구장 규격(좌·중·우 펜스)이 조금씩 다르다. 홈런은 평균보다 최대 ±8%, 2·3루타는 ±4% 정도로만 차이를 둔다 (국내 24개 구장 평균 = 1.00).
+// 규격은 구단 이름에서 정해져 저장이 필요 없고 시드와 무관하게 늘 같다.
+const PARK_SFX=['스타디움','볼파크','필드','야구장','파크','돔'];
+function strHash(str){let h=2166136261>>>0;for(const ch of String(str)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h;}
+function parkDim0(name){const h=strHash(name);const f=k=>((h>>>(k*5))&31)/31;const l=Math.round(95+f(0)*6),r=Math.round(95+f(1)*6),c=Math.round(117+f(2)*8);const sfx=PARK_SFX[(h>>>20)%PARK_SFX.length];const fence=f(3)>0.75?'높은 펜스':'';const wind=f(4)>0.8&&sfx!=='돔'?'강바람':'';return {l,c,r,sfx,fence,wind};}
+let PARK_REF=null;
+function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
+const PARK_MEMO={};
+function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.name);const R=parkRef();
+  const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
+  const city=t.name.split(' ')[0];const notes=[];if(d.l<=96)notes.push('좌측 펜스가 가깝습니다');if(d.r<=96)notes.push('우측 펜스가 가깝습니다');if(d.c>=123)notes.push('중앙이 깊어 2·3루타가 잘 나옵니다');if(d.fence)notes.push('외야 펜스가 높습니다');if(d.wind)notes.push('외야 쪽으로 부는 바람이 잦아 타구가 잘 뻗습니다');if(!notes.length)notes.push('표준 규격 구장입니다');
+  return PARK_MEMO[key]={name:`${city} ${d.sfx}`,hr,xb,dim:{l:d.l,c:d.c,r:d.r},fence:!!d.fence,wind:!!d.wind,notes,tag:hr>=1.04?'타자 친화':hr<=0.96?'투수 친화':'중립'};}
+// 비거리 dist가 다른 국내 구장에선 넘어갔을지 (그 방향 펜스가 더 가까운 구장 중 가장 유명한 곳)
+function parkNear(side,dist,homeId){const home=S.teams[homeId];const c=krTeams().filter(t=>t.id!==homeId).map(t=>({t,p:parkOf(t)})).filter(x=>x.p.dim[side]+(x.p.fence?1:0)<dist).sort((a,b)=>presOf(b.t)-presOf(a.t)||a.p.dim[side]-b.p.dim[side]);return c[0]?c[0].p:null;}
 const KO_POS={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수'};
 function endPA(lg,ev){
   const bs=lg.half;const bb=ensureBox(lg,lg.lineup[bs][lg.bat[bs]]);bb.pa++;lg.paCount++;
@@ -2073,7 +2088,7 @@ return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS
   promoteDev,demoteDev,devCap,draftAvail,draftPick,draftAuto,draftTurn,draftStep,
   willingInfo,contractText,advice,growthTop,togglePin,openTable,tableOffer,tableLeave,tableLeft,report,growthReport,
   diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,growthBase,promiseKept,promiseStatus,grievanceAnswer,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,winterResults,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
-  compOf,compTeams,leagueComps,lgOf,advStats,batLine,pitLine,batWar,pitWar,lgCtx,leaders,compKeyOf,sponSettle,sponBase,sponSign,boardSign,boardDrop,boardSlots,sponStatus,starScore,endorseOffers,endorseAnswer,ensureSpon,sponAutoPick,presSeasonEnd,presOf,presTier,presTierOf,presTierIdx,presTable,presIncome,presPull,reserveTable,reserveIds,loanCheck,loanOptions,loanPlayer,postInfo,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
+  compOf,compTeams,leagueComps,lgOf,parkOf,advStats,batLine,pitLine,batWar,pitWar,lgCtx,leaders,compKeyOf,sponSettle,sponBase,sponSign,boardSign,boardDrop,boardSlots,sponStatus,starScore,endorseOffers,endorseAnswer,ensureSpon,sponAutoPick,presSeasonEnd,presOf,presTier,presTierOf,presTierIdx,presTable,presIncome,presPull,reserveTable,reserveIds,loanCheck,loanOptions,loanPlayer,postInfo,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
   P:P_,krTeams,overseasTeams,rnd};
 })();
@@ -2384,7 +2399,7 @@ function renderHome(){
   if(S.phase==='season'){const g=SL.userGameToday();
     if(g){const home=g.home===ut.id;const opp=S.teams[home?g.away:g.home];const sp=S.players[ut.rotation[ut.rotIdx%Math.max(1,ut.rotation.length)]];const pi=SL.postInfo(g);
       h+=`<div class="card${pi?' postc':''}">${hd(pi?esc(pi.title):'다음 경기',`${dayLabel()} · ${home?'홈':'원정'}`)}${pi?`<div class="small" style="text-align:center;margin-bottom:8px"><b class="due">${esc(pi.stake)}</b><br><span class="muted">단판 승부 · 정규 시즌 순위 기록에는 들어가지 않습니다</span></div>`:''}<div class="row" style="gap:10px;justify-content:center;margin-bottom:6px">${emblem(ut,38)}<b>${esc(ut.name.split(' ')[0])}</b><span class="muted" style="font-family:var(--f-display);font-size:18px">VS</span>${emblem(opp,38)}<b>${esc(opp.name.split(' ')[0])}</b></div>
-      <div class="muted small" style="text-align:center;margin-bottom:10px">상대 ${opp.rec.w}승 ${opp.rec.l}패 · 우리 선발 ${sp?esc(sp.name):'-'}${S.mgr&&S.mgr.cur&&S.mgr.cur.goal?` · 시즌 목표 <b>${esc(S.mgr.cur.goal.text)}</b>${goalLine()}`:''}</div>
+      <div class="muted small" style="text-align:center;margin-bottom:4px">${(()=>{const pk=SL.parkOf(home?ut:opp);return `${esc(pk.name)} · ${esc(pk.tag)}${pk.hr!==1?` (홈런 ${pk.hr>1?'+':''}${Math.round((pk.hr-1)*100)}%)`:''}`;})()}</div><div class="muted small" style="text-align:center;margin-bottom:10px">상대 ${opp.rec.w}승 ${opp.rec.l}패 · 우리 선발 ${sp?esc(sp.name):'-'}${S.mgr&&S.mgr.cur&&S.mgr.cur.goal?` · 시즌 목표 <b>${esc(S.mgr.cur.goal.text)}</b>${goalLine()}`:''}</div>
       <div class="btns"><button class="primary" onclick="UI.startGame()">▶ 경기 보기</button><button class="ghost" onclick="UI.autoDays(1)">▶▶ 자동 진행</button></div><div style="height:6px"></div>
       ${pi?'':`<div class="btns"><button class="ghost sm" onclick="UI.autoDays(7)">7경기 자동</button><button class="ghost sm" onclick="UI.autoDays(99)">시즌 끝까지</button></div>`}</div>`;}
     else h+=postDayCard();
@@ -2567,7 +2582,7 @@ function renderClub(){
     <tr><th>지출</th><th></th></tr><tr><td>선수 급여</td><td>${M(f.salary)}</td></tr><tr><td>코치진 연봉</td><td>${M(f.staff||0)}</td></tr><tr><td>영입·계약금</td><td>${M(f.buys)}</td></tr><tr><td>스카우트</td><td>${M(f.scout)}</td></tr><tr><td>겨울리그 파견비</td><td>${M(f.dispatch||0)}</td></tr><tr><td>시설·운영비</td><td>${M(f.facility)}</td></tr><tr><td>위약금·대출 상환</td><td>${M(f.other)}</td></tr><tr><td class="b">합계</td><td class="b">${M(out)}</td></tr></table></div>
     ${ut.loan?`<div class="warnbox" style="margin-top:10px">대출 잔액 ${M(ut.loan)} — 다음 시즌 개막 때 상환</div>`:''}</div>
     <div class="card">${hd('긴급 대출',`한도 ${Ms(SL.BAL.LOAN_CAP)} · 이자 ${SL.BAL.LOAN_RATE*100}% · 명성 -2`)}<div class="row"><input id="loanAmt" aria-label="대출액" type="number" value="10000"><button onclick="UI.loan()">대출</button></div></div>`;}
-  else if(sb==='fac'){const F=SL.BAL.FACILITY;const desc={train:['훈련장','성장 속도 +12%/Lv, 피로 회복 증가'],youth:['유소년 센터','유망주 수·잠재력, 육성군 정원 증가'],scout:['스카우트 조직','보고서 정확도·후보 수 증가']};
+  else if(sb==='fac'){h+=parkCard(ut);const F=SL.BAL.FACILITY;const desc={train:['훈련장','성장 속도 +12%/Lv, 피로 회복 증가'],youth:['유소년 센터','유망주 수·잠재력, 육성군 정원 증가'],scout:['스카우트 조직','보고서 정확도·후보 수 증가']};
     h+=`<div class="card">${hd('시설','유지비는 개막 때 차감')}${Object.keys(F).map(k=>{const lv=ut.fac[k];const now=SL.facEffect(k,lv),nx=lv<5?SL.facEffect(k,lv+1):null;return `<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row sb"><div><b>${desc[k][0]}</b> <span class="chip n">Lv.${lv}</span></div><button class="sm ${lv<5?'go':''}" ${lv>=5?'disabled':''} onclick="UI.upgrade('${k}')">${lv>=5?'최대 레벨':`Lv.${lv+1} 업그레이드 ${Ms(F[k].cost*lv)}`}</button></div>
     <div class="tw" style="margin-top:6px"><table><tr><th>효과</th><th>현재</th>${nx?'<th>업그레이드 후</th>':''}</tr>${now.map((x,i)=>{const [kk,...vv]=x.split(' ');const nv=nx?nx[i].split(' ').slice(1).join(' '):'';const cv=vv.join(' ');return `<tr><td>${esc(x.replace(cv,'').trim())}</td><td>${esc(cv)}</td>${nx?`<td class="${nv!==cv?'up':''}">${esc(nv)}</td>`:''}</tr>`;}).join('')}<tr><td>유지비/시즌</td><td>${Ms(F[k].upkeep*lv)}</td>${nx?`<td class="due">${Ms(F[k].upkeep*(lv+1))} (+${Ms(F[k].upkeep)})</td>`:''}</tr></table></div></div>`;}).join('')}</div>`;}
   else if(sb==='staff'){h+=renderStaff(ut);}
@@ -2755,7 +2770,7 @@ function keyWhy(lg,my){const B=SL.curBatter(lg);if(lg.bases[1]||lg.bases[2])retu
 function renderGame(){
   const lg=S.liveGame;const H=S.teams[lg.home],A=S.teams[lg.away];const ut=SL.userTeam();const mySide=lg.home===ut.id?1:0;
   const B=lg.done?null:SL.curBatter(lg),P=lg.done?null:SL.curPitcher(lg);const bases=lg.bases;
-  let h=`<div class="club gut"><div class="r1"><div><div class="nm">${lg.done?'경기 종료':`${lg.inn}회 ${lg.half===0?'초':'말'}`}</div><div class="sub">${S.season}시즌 ${dayLabel()}${(()=>{const g=SL.userGameToday();const pi=g&&SL.postInfo(g);return pi?' · '+esc(pi.title):'';})()}</div></div></div></div><div class="content gut" style="padding-bottom:24px">`;
+  let h=`<div class="club gut"><div class="r1"><div><div class="nm">${lg.done?'경기 종료':`${lg.inn}회 ${lg.half===0?'초':'말'}`}</div><div class="sub">${S.season}시즌 ${dayLabel()} · ${esc(SL.parkOf(S.teams[lg.home]).name)}${(()=>{const g=SL.userGameToday();const pi=g&&SL.postInfo(g);return pi?' · '+esc(pi.title):'';})()}</div></div></div></div><div class="content gut" style="padding-bottom:24px">`;
   h+=`<div class="score"><div class="${!lg.done&&lg.half===0?'atk':''}" style="text-align:center">${emblem(A,34)}<div class="tn">${esc(A.name)}</div><div class="sc">${lg.score[0]}</div></div><div>${ART&&ART.field?`<div class="field"><img class="px" alt="" src="${ART.field}"><i class="r1 ${bases[0]?'on':''}"></i><i class="r2 ${bases[1]?'on':''}"></i><i class="r3 ${bases[2]?'on':''}"></i></div>`:`<div class="diamond"><i class="b2 ${bases[1]?'on':''}"></i><i class="b1 ${bases[0]?'on':''}"></i><i class="b3 ${bases[2]?'on':''}"></i></div>`}<div class="count"><span>B ${lg.balls}</span><span>S ${lg.strikes}</span><span>O ${lg.outs}</span></div></div><div class="${!lg.done&&lg.half===1?'atk':''}" style="text-align:center">${emblem(H,34)}<div class="tn">${esc(H.name)}</div><div class="sc">${lg.score[1]}</div></div></div>`;
   {const PA=['1b','2b','3b','hr','so','walk','bb','dp','fo','go','hbp','sf','e'];const lp=[...lg.log].reverse().find(l=>PA.includes(l.type));if(lp&&!lg.done){const big=/희생플라이/.test(lp.text)?'희생플라이':/내야안타/.test(lp.text)?'내야안타':lp.type==='so'?(/헛스윙/.test(lp.text)?'헛스윙 삼진':'루킹 삼진'):{hr:/만루/.test(lp.text)?'만루 홈런!':'홈런!',bb:'볼넷',walk:'볼넷','1b':'안타','2b':'2루타','3b':'3루타',dp:'병살',go:'땅볼 아웃',fo:'뜬공 아웃'}[lp.type]||null;const cls=['hr','1b','2b','3b','bb','walk'].includes(lp.type)?'good':['so','dp','go','fo'].includes(lp.type)?'bad':'';
     const ours=lp.half===mySide;h+=`<div class="lastplay ${cls} ${ours?'ours':'theirs'}" key="${lg.log.length}">${big?`<div class="lpb">${big}</div>`:''}<div class="lpt">직전 타석 · ${lp.inn}회${lp.half===0?'초':'말'} · ${esc(lp.text)}</div></div>`;}}
@@ -2862,6 +2877,14 @@ function renderRecords(ut){const keys=[...new Set(SL.krTeams().map(t=>SL.compKey
   const list=(cat,C,setter)=>{const L=SL.leaders(key,cat,10);return `<div class="card">${hd(C[cat],'규정 타석·이닝 적용(비율 기록)')}<div class="row wrap" style="gap:4px;margin-bottom:8px">${Object.keys(C).map(k=>`<button class="sm ${k===cat?'primary':'ghost'}" onclick="UI.set('${setter}','${k}')">${C[k]}</button>`).join('')}</div>
     ${L.map((o,i)=>`<div class="prow" onclick="UI.openPlayer(${o.p.id})"><b style="width:22px">${i+1}</b>${face(o.p,32)}<div class="grow"><div class="nm">${esc(o.p.name)}${o.t&&o.t.isUser?' <span class="chip g">우리</span>':''}</div><div class="sub">${o.t?esc(o.t.name):''} · ${o.p.pos}</div></div><b>${fmt(cat,o.v)}</b></div>`).join('')||'<div class="muted small">아직 기록이 없습니다.</div>'}</div>`;};
   return h+list(bc,BC,'recBat')+list(pcat,PC,'recPit');}
+// ----- 홈구장 -----
+function parkSvg(pk){const c=pk.dim;const sc=x=>x*0.62;const L=sc(c.l),C=sc(c.c),R=sc(c.r);const cx=100,cy=92;const pt=(a,d)=>[cx+Math.cos(a)*d,cy-Math.sin(a)*d];const A=Math.PI/4,[lx,ly]=pt(Math.PI-A+0.0,L),[rx,ry]=pt(A,R),[mx,my]=pt(Math.PI/2,C);
+  return `<svg viewBox="0 0 200 100" width="100%" style="max-width:260px;display:block;margin:0 auto" role="img" aria-label="구장 규격 좌 ${c.l}m 중 ${c.c}m 우 ${c.r}m"><path d="M${cx},${cy} L${lx.toFixed(1)},${ly.toFixed(1)} Q${mx-40},${my-6} ${mx.toFixed(1)},${my.toFixed(1)} Q${mx+40},${my-6} ${rx.toFixed(1)},${ry.toFixed(1)} Z" fill="var(--green-bg)" stroke="var(--green)" stroke-width="${pk.fence?3:1.5}"/><path d="M${cx},${cy} l-18,-18 l18,-18 l18,18 z" fill="#c9a77a" opacity=".7"/>
+    <text x="${(lx+8).toFixed(0)}" y="${(ly+14).toFixed(0)}" font-size="9" fill="currentColor">${c.l}m</text><text x="${(mx-10).toFixed(0)}" y="${(my+12).toFixed(0)}" font-size="9" fill="currentColor">${c.c}m</text><text x="${(rx-26).toFixed(0)}" y="${(ry+14).toFixed(0)}" font-size="9" fill="currentColor">${c.r}m</text></svg>`;}
+function parkCard(ut){const pk=SL.parkOf(ut);const pct=x=>`${x>1?'+':''}${Math.round((x-1)*100)}%`;const all=SL.krTeams().map(t=>({t,p:SL.parkOf(t)})).sort((a,b)=>b.p.hr-a.p.hr);
+  return `<div class="card">${hd('홈구장 · '+esc(pk.name),esc(pk.tag))}${parkSvg(pk)}<div class="stat3" style="margin-top:8px"><div><div class="k">좌·중·우</div><div class="v small2">${pk.dim.l}·${pk.dim.c}·${pk.dim.r}m</div></div><div><div class="k">홈런</div><div class="v small2 ${pk.hr>1?'up':pk.hr<1?'dn':''}">${pct(pk.hr)}</div></div><div><div class="k">2·3루타</div><div class="v small2 ${pk.xb>1?'up':pk.xb<1?'dn':''}">${pct(pk.xb)}</div></div></div>
+    <div class="small" style="margin-top:6px">${pk.notes.map(esc).join(' · ')}</div><div class="muted small" style="margin-top:4px">국내 구장 평균 대비입니다. 차이는 아주 작게(홈런 최대 ±8%) — 홈 경기 절반에만 적용되니 선수 영입 때 살짝 참고하는 정도면 됩니다.</div>
+    <details style="margin-top:8px"><summary class="small b">국내 24개 구장 비교</summary><div class="tw" style="margin-top:6px"><table><tr><th style="text-align:left">구장</th><th>좌·중·우</th><th>홈런</th><th>2·3루타</th></tr>${all.map(x=>`<tr class="${x.t.isUser?'me':''}"><td style="text-align:left;white-space:nowrap">${esc(x.p.name)} <span class="muted small">${esc(x.t.name.split(' ').pop())}</span></td><td style="white-space:nowrap">${x.p.dim.l}·${x.p.dim.c}·${x.p.dim.r}</td><td class="${x.p.hr>1?'up':x.p.hr<1?'dn':''}">${pct(x.p.hr)}</td><td>${pct(x.p.xb)}</td></tr>`).join('')}</table></div></details></div>`;}
 function sideOf(){const lg=SL.state().liveGame;return lg.home===SL.userTeam().id?1:0;}
 function pinchMenu(){S=SL.state();const lg=S.liveGame;const ids=SL.bench(lg,sideOf());modal(`<h3>대타</h3>${ids.map(id=>{const p=S.players[id];return `<div class="prow" onclick="UI.pinch(${id})">${face(p,36)}<div class="grow"><div class="nm">${esc(p.name)}</div><div class="sub">${p.pos} · 컨택 ${Math.round(p.attrs.contact)} 파워 ${Math.round(p.attrs.power)} · 피로 ${Math.round(p.fatigue)}</div></div>${G(SL.calcOvr(p))}</div>`;}).join('')}`);}
 function pitchMenu(){S=SL.state();const lg=S.liveGame;const ut=SL.userTeam();const ids=SL.availableBullpen(lg,sideOf());modal(`<h3>투수 교체</h3>${ids.map(id=>{const p=S.players[id];return `<div class="prow" onclick="UI.chPitch(${id})">${face(p,36)}<div class="grow"><div class="nm">${esc(p.name)}${ut.closer===id?' <span class="chip g">마무리</span>':''}</div><div class="sub">${SL.velocity(p)}km/h · 구위 ${Math.round(p.attrs.stuff)} 제구 ${Math.round(p.attrs.control)} · 피로 ${Math.round(p.fatigue)}</div></div>${G(SL.calcOvr(p))}</div>`;}).join('')}`);}
