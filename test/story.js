@@ -333,4 +333,13 @@ console.log('[22] v36 23세 이후 잠재력 감소: 2군 주전·집중은 제�
  const st=res.filter(p=>p.resRole==='start'||p.resRole==='focus'),bn=res.filter(p=>p.resRole==='bench');
  st.length&&st.every(p=>p.pot===pot0[p.id])?ok(`2군 주전 ${st.length}명: 23세 이상이어도 잠재력 유지`):bad('2군 주전 감소 '+st.map(p=>pot0[p.id]-p.pot));
  bn.length?(bn.every(p=>p.pot<pot0[p.id]&&p.log[0].f.some(f=>/잠재력 조금 감소/.test(f)))?ok(`2군 벤치 ${bn.length}명: 감소 + 성장 요인에 표시`):bad('벤치 감소 안 됨')):ok('(이번 시드는 2군 벤치 야수 없음)');}
+console.log('[23] v37 해외 하부 리그 (미국 2군·3군, 일본 2군)');
+{SL.newGame(3838,9,{games:36});S=SL.state();const u=SL.userTeam();const us=SL.overseasTeams().find(t=>t.league==='US');
+ const ps=u.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(a)-SL.calcOvr(b));const weak=ps[0],star=ps[ps.length-1];
+ /시작$/.test(SL.expectedRole(weak,us))&&!/시작$/.test(SL.expectedRole(star,us))?ok(`예상 역할: 약한 선수 「${SL.expectedRole(weak,us)}」, 강한 선수 「${SL.expectedRole(star,us)}」`):bad('예상 역할 '+SL.expectedRole(weak,us)+' / '+SL.expectedRole(star,us));
+ SL.transferPlayer(weak.id,us.id,1000,{salary:10000,years:3},'해외 이적');weak.tier>1&&S.news.some(n=>n.text.includes(weak.name)&&/부터 시작/.test(n.text))?ok(`해외 이적: ${weak.name} ${SL.farmKo('US',weak.tier)}부터 시작 (소식)`):bad('하부 시작 '+weak.tier);
+ const o0=SL.calcOvr(weak);while(S.phase==='season')SL.playDayAuto();const h=weak.hist.slice(-1)[0];h.lg==='US'+weak.tier&&h.st.pa>=300&&/미국 [23]군/.test(h.tn)?ok(`하부에서 꾸준히 출장: ${h.tn} ${h.st.pa}타석`):bad('하부 기록 '+JSON.stringify([h.lg,h.tn,h.st.pa]));
+ while(S.week<=SL.BAL.OFFSEASON_WEEKS)SL.advanceWeek();let rr=SL.startNewSeason();if(!rr.ok){SL.autoFillUser();rr=SL.startNewSeason();}const lgw=(weak.log||[])[0]||(weak.ledger||[]).slice(-1)[0];lgw&&((lgw.f||[]).some(f=>/미국 [23]군에서 꾸준히 출장/.test(f)))?ok('겨울 성장 요인: 하부에서 꾸준히 출장'):bad('하부 성장 요인 '+JSON.stringify(lgw&&lgw.f));
+ const cnt={1:0,2:0,3:0};for(const t of SL.overseasTeams().filter(t=>t.league==='US'))for(const id of t.roster)cnt[S.players[id].tier||1]++;cnt[1]>=700&&cnt[1]<=800?ok(`미국 구단 1군 ${cnt[1]}명 · 2군 ${cnt[2]} · 3군 ${cnt[3]}`):bad('미국 분포 '+JSON.stringify(cnt));}
+{SL.newGame(3939,9,{games:36});S=SL.state();const t2=SL.krTeams().find(t=>!t.isUser);const p=S.players[t2.roster[3]];const t3=SL.krTeams().find(t=>!t.isUser&&t!==t2);SL.transferPlayer(p.id,t3.id,0,{salary:5000,years:2},'이적');!(S.ach&&S.ach.abroad)?ok('국내 이적으로는 「해외로」 안 됨'):bad('국내 이적에 해외로 달성');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
