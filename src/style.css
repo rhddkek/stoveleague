@@ -298,3 +298,39 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 /* 시상식 */
 .cer2{text-align:left}.cer2 .ctag{text-align:center}.mvp{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;background:linear-gradient(135deg,#f6e7b0,#fff6d8);color:#3a2c00;margin-bottom:8px}
 .ggg{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px}.gg{text-align:center;padding:6px 4px;border:1px solid var(--line);border-radius:10px;cursor:pointer}.gg.mine,.prow.mine{background:var(--green-bg)}
+/* ===== v24 야구단 분위기 ===== */
+button.gold{background:linear-gradient(180deg,#f6cf62,#e9b53c);color:#2a1f00;border:none;font-weight:800;box-shadow:0 2px 0 #b8862a}
+button.gold:active{transform:translateY(1px);box-shadow:none}
+.sech{font-weight:800;font-size:17px;margin:4px 0 8px;padding-left:10px;border-left:4px solid var(--green)}
+.hero2{position:relative;margin:0 calc(var(--gut,16px)*-1) 12px;overflow:hidden;line-height:0}.hero2 img{width:100%;height:auto;display:block;image-rendering:pixelated}
+.hero2 .hboard{position:absolute;left:36%;top:32%;width:17.6%;height:11.5%;display:flex;align-items:center;justify-content:center;gap:3px;color:#fff;font-size:clamp(7px,1.9vw,12px);line-height:1.1;font-weight:700;text-align:center;overflow:hidden;text-shadow:0 1px 0 #000}
+.hero2 .hboard .av,.hero2 .hboard img,.hero2 .hboard svg{width:1.4em;height:1.4em;flex:0 0 auto}
+.hero2 .hcap{position:absolute;left:0;right:0;bottom:0;padding:18px 14px 8px;background:linear-gradient(180deg,transparent,rgba(10,16,40,.85));color:#fff;line-height:1.3;font-size:13px}.hero2 .hcap span{opacity:.8;font-size:12px}
+.today{padding-top:0;overflow:hidden}.tdband{margin:0 -14px 10px;padding:8px 14px;background:var(--tc,#1f6f43);color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.tdvs{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0 6px}.tdvs .tdn{font-weight:800;font-size:16px}.tdvs .vs{font-family:var(--f-display);font-size:20px;color:var(--muted);margin:0 4px}
+.phero2{display:flex;align-items:flex-end;gap:8px;margin:6px 0 0;min-height:150px}.phero2 .pinfo{flex:1;min-width:0;padding-bottom:10px}.phero2 .nm{font-family:var(--f-display);font-size:30px;line-height:1.1}
+.phero2 .gbadge{display:inline-flex;align-items:center;gap:8px;margin:8px 0 4px;padding:4px 12px 4px 6px;border-radius:10px;background:var(--green-bg)}.phero2 .gbadge b{font-family:var(--f-display);font-size:28px}
+.phero2 .pbig{position:relative;flex:0 0 auto;width:150px;height:150px;display:flex;align-items:flex-end;justify-content:center}.phero2 .pbig .av{width:140px!important;height:140px!important;border-radius:16px;image-rendering:pixelated}
+.phero2 .pno{position:absolute;left:-34px;top:-6px;font-family:var(--f-display);font-size:84px;line-height:1;color:var(--muted);opacity:.18;font-style:italic;z-index:0}.phero2 .pbig .av{position:relative;z-index:1}
+.goalbox{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--card,#fff)}.goalbox .gi{font-size:26px}
+.sbd{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-top:10px;padding-bottom:6px;background:var(--navy);color:#fff}.sbt{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;min-width:0;flex:1}.sbt.r{justify-content:flex-end}.sbt.atk span::before{content:'▶ ';color:#f3c76b;font-size:12px}
+.sbs{text-align:center;flex:0 0 auto}.sbs b{display:block;font-family:var(--f-display);font-size:38px;line-height:1;color:#f3c76b;letter-spacing:2px}.sbs small{opacity:.85;font-size:12px}
+.bso{display:flex;justify-content:center;gap:22px;padding-bottom:8px;background:var(--navy);color:#fff;font-weight:800;font-size:13px}.bso span{display:inline-flex;align-items:center;gap:4px}.bso i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-block}.bso i.g{background:#34c46a}.bso i.y{background:#f3c76b}.bso i.r{background:#ef5a4c}
+.sbsub{background:var(--navy);color:#fff;opacity:.95;font-size:11.5px;padding-bottom:8px;text-align:center}
+.stad{position:relative;margin:0 calc(var(--gut,16px)*-1) 10px;line-height:0;overflow:hidden}.stad img{width:100%;height:auto;display:block;image-rendering:pixelated}
+.stad i{position:absolute;display:block;transform:translate(-50%,-50%);border-radius:50%}
+.stad .fd{width:2.6%;aspect-ratio:1;background:var(--c);border:1.5px solid #fff;opacity:.9}
+.stad .rn{width:3.6%;aspect-ratio:1;background:var(--c);border:2px solid #f3c76b;box-shadow:0 0 0 2px rgba(0,0,0,.35);animation:rnPulse 1.2s ease-in-out infinite}
+.stad .bt{width:3%;aspect-ratio:1;background:var(--c);border:2px solid #fff}
+.stad .ball{width:2.2%;aspect-ratio:1;background:#fff;box-shadow:0 0 6px 2px rgba(255,255,255,.8);left:var(--x1);top:var(--y1);animation:ballFly .9s cubic-bezier(.2,.7,.3,1) both}
+.stad .ball.hr{box-shadow:0 0 10px 4px #f3c76b}
+@keyframes ballFly{0%{left:var(--x0);top:var(--y0);transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(var(--hi))}100%{left:var(--x1);top:var(--y1);transform:translate(-50%,-50%) scale(1)}}
+@keyframes rnPulse{50%{box-shadow:0 0 0 5px rgba(243,199,107,.35)}}
+.calm .stad .ball,.calm .stad .rn{animation:none}
+.mu3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.mu3 .mc{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--card,#fff);min-width:0}.mu3 .b{font-size:15px}
+.prevline{font-size:12.5px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:10px;background:var(--card,#fff)}.prevline .tag{display:inline-block;background:var(--navy);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;margin-right:4px}
+.gdet summary{cursor:pointer;font-weight:700;font-size:14px;padding:8px 2px}
+@media (prefers-reduced-motion:reduce){.stad .ball,.stad .rn{animation:none}}
+.btns3{display:flex;gap:6px}.btns3 button{flex:1;padding-left:4px;padding-right:4px;white-space:nowrap}
+.pmeta{margin:6px 0 10px}.phero2 .pbig .av{background-color:transparent}
+@media(min-width:700px){.hero2{margin-left:0;margin-right:0;border-radius:14px}.stad{max-width:560px;margin-left:auto;margin-right:auto;border-radius:12px}}
