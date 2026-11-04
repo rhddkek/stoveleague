@@ -7,7 +7,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   const over=async label=>{const r=await p.evaluate(()=>{const d=document.documentElement;const wide=[...document.querySelectorAll('body *')].filter(e=>{if(e.closest('.tw,.ovseg,.subtabs,.glog,table'))return false;const r=e.getBoundingClientRect();return r.width>0&&r.right>d.clientWidth+2;}).slice(0,3).map(e=>e.className||e.tagName);return {sw:d.scrollWidth,cw:d.clientWidth,wide};});if(r.sw>r.cw+1||r.wide.length)bad(`${label} 가로 넘침 ${r.sw}>${r.cw} ${r.wide.join(',')}`);return r;};
   const navCover=async label=>{const r=await p.evaluate(()=>{const nav=document.querySelector('.nav');const c=document.querySelector('.content');if(!nav||!c)return null;return {pad:parseFloat(getComputedStyle(c).paddingBottom)+parseFloat(getComputedStyle(c.parentElement).paddingBottom||0),nav:nav.getBoundingClientRect().height};});if(r&&r.pad+2<r.nav)bad(`${label} 하단 메뉴가 내용을 가림 (여백 ${r.pad} < 메뉴 ${r.nav})`);};
   const has=async s=>{const t=await p.evaluate(()=>document.body.innerText);if(!t.includes(s))throw new Error('화면에 없음: '+s);};
-  await over('시작 화면');await has('맡을 3부 구단');await has('재정난 구단');ok('시작 화면: 구단 유형 8개 표시');
+  await over('시작 화면');await has('맡을 막내 구단');await has('144경기');await has('재정난 구단');ok('시작 화면: 구단 유형 8개 표시');
   await p.evaluate(()=>{UI.pickTeam(2);UI.newGame();SL.state().tutorialDone=true;UI.setTab('home');});await p.waitForTimeout(150);
   (await p.evaluate(()=>SL.userTeam().arch))==='poor'?ok('재정난 구단으로 시작 (유형 반영)'):bad('구단 유형 미반영');
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
@@ -25,7 +25,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{let g=0;while(SL.state().phase==='season'&&g++<40){UI.autoDays(99);for(const o of [...SL.state().market.offers])SL.respondOffer(o.id,'reject');}});await p.waitForTimeout(200);
   await has('시즌 결산');await has('감독 평판');await over('시즌 결산');ok('시즌 종료 → 결산 화면');
   await p.evaluate(()=>UI.closeModal());await sweep('스토브리그');ok('스토브리그 18개 화면 검사');
-  await p.evaluate(()=>UI.go('club','table'));await has('최종 순위');await has('다음 시즌 편성');ok('스토브리그 순위: 지난 시즌 최종 + 다음 시즌 편성 분리');
+  await p.evaluate(()=>UI.go('club','table'));await has('최종 순위');await has('포스트시즌 결과');await has('가을야구');ok('스토브리그 순위: 정규 시즌 최종 순위 + 포스트시즌 결과(대진표)');
   // R003: 드래프트 보드 필터·비교
   const dok=await p.evaluate(()=>{let g=0;while(!(SL.state().draft&&!SL.state().draft.done)&&g++<3)SL.advanceWeek();if(!SL.state().draft||SL.state().draft.done)return null;UI.go('dev','draft');UI.draftF('g','P');const ids=SL.draftAvail().filter(SL.isPitcher).slice(0,3).map(p=>p.id);ids.forEach(id=>UI.draftToggle(id));UI.draftCompare();return ids.length;});
   if(dok){await has('드래프트 후보 비교');await has('예상 잠재');await has('부족 포지션');await over('드래프트 비교');ok(`드래프트: 투수 필터 + ${dok}명 비교 표`);await p.evaluate(()=>{UI.closeModal();UI.set('draftCmp',[]);UI.draftF('g','all');});}
@@ -60,22 +60,22 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{UI.closeModal();UI.openPlayer(SL.userTeam().lineup[0]);UI.pTab('record');});await has('세부 지표');await has('출루율');await has('WAR');await has('능력치는 이렇게 기록이 됩니다');await over('선수 기록 세부 지표');ok('선수 기록: 세부 지표(출루율·OPS+·WAR·백분위)·능력치 연결');await p.evaluate(()=>UI.back());
   {await p.evaluate(()=>{UI.closeModal();const S=SL.state();if(S.phase!=='season')return;UI.setTab('home');});if(await p.evaluate(()=>SL.state().phase==='season'&&!!SL.userGameToday())){await has('경기 보기');await p.evaluate(()=>{UI.startGame();for(let i=0;i<6;i++)UI.step('pa');});const gi=await p.evaluate(()=>({sb:!!document.querySelector('.sbd .sbs b'),bso:document.querySelectorAll('.bso i').length,stad:!!document.querySelector('.stad img'),fd:document.querySelectorAll('.stad .fd').length,out:document.querySelectorAll('.bso i.r').length,outs:SL.state().liveGame.outs}));
    gi.sb&&gi.bso===7&&gi.stad&&gi.fd===9&&gi.out===gi.outs?ok(`경기 화면: 전광판·B/S/O 불빛(아웃 ${gi.outs} = 빨간 불 ${gi.out})·구장 배경·수비 9명`):bad('경기 화면 '+JSON.stringify(gi));await over('새 경기 화면');{const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 경기 화면 한 화면 (${fit.sh}/${fit.ch}px)`):bad('경기 화면 스크롤 '+JSON.stringify(fit));}await p.evaluate(()=>{UI.step('game');UI.endGame();UI.closeModal();});}}
-  // 2군 · 임대 · 결정전
+  // 2군 · 임대 · 포스트시즌
   await p.evaluate(()=>{UI.closeModal();for(let i=0;i<7&&SL.state().phase==='season'&&SL.state().day<=7;i++)SL.playDayAuto();UI.go('dev','res');});
   if(await p.evaluate(()=>SL.state().phase==='season'&&SL.state().day<=14)){await has('퓨처스(2군) 리그');await has('2군 순위');await has('임대 후보');await over('2군·임대 탭');
     const lp=await p.evaluate(()=>{const ut=SL.userTeam();const S=SL.state();const c=ut.roster.concat(ut.dev).map(id=>S.players[id]).find(x=>x.age<=28&&!ut.lineup.includes(x.id)&&!ut.rotation.includes(x.id)&&x.id!==ut.closer&&!SL.loanCheck(x));if(!c)return null;UI.loanView(c.id);return c.id;});
     if(lp!=null){await has('출장 기회를 만드는 세 가지 방법');await over('임대 화면');      await p.evaluate(pid=>{const o=SL.loanOptions(pid)[0];UI.loanOut(pid,o.team.id);UI.openPlayer(pid);},lp);await has('임대 중');await p.evaluate(()=>UI.pTab('contract'));await has('원소속');await over('임대 선수 화면');
       ok('2군·임대 탭 → 임대 화면 → 임대 확정 → 선수 화면 임대 표시');}else ok('(임대 후보 없음 — 2군 탭만 확인)');}
   await p.evaluate(()=>{UI.back&&UI.back();const S=SL.state();while(S.phase==='season'&&S.day<=SL.BAL.SEASON_GAMES)SL.playDayAuto();UI.setTab('home');});
-  if(await p.evaluate(()=>!!SL.state().post)){const mine=await p.evaluate(()=>!!SL.userGameToday());await has(mine?'결정전':'결정전의 날');await over('결정전 홈');await p.evaluate(()=>UI.go('club','table'));await has('결정전');
-    await p.evaluate(()=>{UI.setTab('home');UI.autoDays(1);UI.closeModal();UI.go('club','table');});await has('결정전 결과');await over('결정전 결과');ok(`결정전: 홈 카드(${mine?'우리 경기':'관전'}) → 결과 보기 → 순위 탭 결정전 결과`);}
-  else bad('29일차 결정전 없음');
+  if(await p.evaluate(()=>!!SL.state().post)){const mine=await p.evaluate(()=>!!SL.userGameToday());await has('와일드카드 결정전');await over('포스트시즌 홈');await p.evaluate(()=>UI.go('club','table'));await has('포스트시즌');await has('한국시리즈');await over('포스트시즌 대진표');
+    await p.evaluate(()=>{UI.setTab('home');let g=0;while(SL.state().phase==='season'&&g++<80){UI.closeModal();if(SL.userGameToday()){UI.startGame();UI.step('game');UI.endGame();}else UI.autoDays(60);}UI.closeModal();UI.go('club','table');});await has('포스트시즌 결과');await has('한국시리즈 우승');await over('포스트시즌 결과');ok(`포스트시즌: 홈 카드(${mine?'우리 경기':'관전'}) → 대진표 → 순위 탭 포스트시즌 결과`);}
+  else bad('정규 시즌 뒤 포스트시즌 없음');
   if(await p.evaluate(()=>SL.state().phase==='offseason'&&!!SL.state().awards)){await p.evaluate(()=>{UI.closeModal();UI.ceremony(SL.state().season);});await has('시상식');await has('골든글러브');await has('MVP');await over('시상식 화면');await p.evaluate(()=>UI.closeModal());ok('시즌 시상식: MVP·타이틀·골든글러브');}
   if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>UI.go('club','hist'));await has('우리 구단 역대 수상자');await over('역대 수상자');const wp=await p.evaluate(()=>{const S=SL.state();const x=Object.values(S.players).find(q=>q.awards&&q.awards.length&&q.teamId!=null);if(!x)return null;UI.openPlayer(x.id);UI.pTab('record');return x.id;});if(wp!=null){await has('수상 기록');await over('선수 수상 기록');await p.evaluate(()=>UI.back());}ok('역대 탭 「우리 구단 역대 수상자」·선수 기록 「수상 기록」');}
   // 스토브리그 스폰서 고르기
   if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>{UI.closeModal();UI.go('club','spon');});await has('메인 스폰서');await has('구장 광고판');await has('선수 개인 광고');await over('스폰서 화면(스토브)');
     const ok1=await p.evaluate(()=>{const t=SL.userTeam();if(t.spon.main||!t.spon.offers.length)return 'skip';UI.sponSign(t.spon.offers[0].id);return !!t.spon.main;});ok1===true?ok('스폰서·광고 탭: 제안 비교 → 메인 스폰서 계약'):ok1==='skip'?ok('(스폰서 계약 중 — 제안 화면 생략)'):bad('스폰서 계약 실패');}
-  // R013: 결정전 앞 정지 · 포스트시즌 연출 · 광고 마감 정지 · 결과 주인공 · 시상식 우리 선수 먼저 · 2군 기록
+  // R013: 포스트시즌 앞 정지 · 포스트시즌 연출 · 광고 마감 정지 · 결과 주인공 · 시상식 우리 선수 먼저 · 2군 기록
   await p.goto(FILE+'?test=1&new=1&team=0&seed=4321');await p.waitForTimeout(300);
   {const r=await p.evaluate(()=>{const S=SL.state();const u=SL.userTeam();const st=u.roster.map(id=>S.players[id]).find(x=>!SL.isPitcher(x));S.endorseOffers=[{id:99901,pid:st.id,co:'시험상사',sector:'x',fee:1000,years:1,sc:9,exp:S.clock+1}];S.settings.stopOnOffer=true;UI.setTab('home');UI.autoDays(7);return {day:S.day,left:S.endorseOffers.length};});
    r.left===1&&r.day<=2?ok('정지 옵션: 내일 마감 광고 제안이 있으면 자동 진행이 멈춤'):bad('광고 마감 정지 '+JSON.stringify(r));}
@@ -84,8 +84,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    lp.shown&&lp.shown===lp.real?ok(`결과 카드 주인공 = 직전 타석 선수 (${lp.shown})`):bad('결과 주인공 '+JSON.stringify(lp));}
   await p.evaluate(()=>{UI.step('game');UI.endGame();UI.closeModal();UI.autoDays(999);});await p.waitForTimeout(250);
   {const r=await p.evaluate(()=>{const S=SL.state();return {phase:S.phase,day:S.day,G:SL.BAL.SEASON_GAMES,post:!!S.post,modal:!!document.querySelector('.post2')};});
-   r.phase==='season'&&r.day===r.G+1&&r.post&&r.modal?ok('「시즌 끝까지」가 결정전 앞에서 멈추고 포스트시즌 화면을 띄움'):bad('결정전 정지 '+JSON.stringify(r));await has('결정전 대진');await over('포스트시즌 화면');}
-  await p.evaluate(()=>{UI.closeModal();const S=SL.state();if(SL.userGameToday()){UI.startGame();UI.step('game');UI.endGame();}else UI.autoDays(1);});await p.waitForTimeout(250);
+   r.phase==='season'&&r.day===r.G+1&&r.post&&r.modal?ok('「시즌 끝까지」가 포스트시즌 앞에서 멈추고 포스트시즌 화면(대진표)을 띄움'):bad('포스트시즌 정지 '+JSON.stringify(r));await has('포스트시즌 대진');await has('와일드카드 결정전');await has('한국시리즈');await over('포스트시즌 화면');}
+  await p.evaluate(()=>{const S=SL.state();let g=0;while(S.phase==='season'&&g++<80){UI.closeModal();if(SL.userGameToday()){UI.startGame();UI.step('game');UI.endGame();}else UI.autoDays(60);}});await p.waitForTimeout(250);
   {const r=await p.evaluate(()=>{const S=SL.state();UI.closeModal();const u=SL.userTeam();const A=S.awards&&S.awards[S.season];const mine=A&&Object.values(A).flatMap(R=>[R.mvp,R.roy,...R.titles,...R.gg]).some(e=>e&&e.tid===u.id);if(!mine){const k=Object.keys(A)[0];A[k].titles[0].tid=u.id;}UI.ceremony(S.season);const m=document.querySelector('.cer2');const first=m.querySelector('.ourwin,.mvp');return first?first.className:null;});
    r==='ourwin'?ok('시상식: 우리 선수 수상이 맨 위에 축하 카드로'):bad('시상식 순서 '+r);await p.evaluate(()=>UI.closeModal());}
   {const ok2=await p.evaluate(()=>{const S=SL.state();const u=SL.userTeam();const x=u.roster.map(id=>S.players[id]).find(q=>!SL.isPitcher(q)&&q.age<=26);x.hist=x.hist.filter(h=>h.s!==S.season);x.rhist=[{s:S.season,tn:u.name,st:Object.assign({g:12,pa:44,ab:40,h:12,hr:2,rbi:7,bb:4,so:8},{})}];UI.go('roster','list');return document.body.innerText.includes(S.season+'시즌 2군');});

@@ -142,7 +142,7 @@ const PARK_SFX=['스타디움','볼파크','필드','야구장','파크','돔'];
 function strHash(str){let h=2166136261>>>0;for(const ch of String(str)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h;}
 function parkDim0(name){const h=strHash(name);const f=k=>((h>>>(k*5))&31)/31;const l=Math.round(95+f(0)*6),r=Math.round(95+f(1)*6),c=Math.round(117+f(2)*8);const sfx=PARK_SFX[(h>>>20)%PARK_SFX.length];const fence=f(3)>0.75?'높은 펜스':'';const wind=f(4)>0.8&&sfx!=='돔'?'강바람':'';return {l,c,r,sfx,fence,wind};}
 let PARK_REF=null;
-function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
+function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.filter((x,i)=>i<BAL.KR_TEAMS-1||i>=16).map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
 const PARK_MEMO={};
 function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.name);const R=parkRef();
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
@@ -211,9 +211,10 @@ function finalizeGame(lg){
   if(!lg.done||lg.finalized)return;lg.finalized=true;
   const H=S.teams[lg.home],A=S.teams[lg.away];
   const hw=lg.score[1]>lg.score[0];const sg=lg.gameRef!=null?S.schedule[lg.gameRef]:null;
-  // 결정전(post)은 정규 시즌 순위 기록에 넣지 않는다
+  // 포스트시즌(post) 경기는 정규 시즌 순위·선수 시즌 기록에 넣지 않는다 (선수 기록은 p.ps에 따로)
   if(!(sg&&sg.post)){H.rec[hw?'w':'l']++;A.rec[hw?'l':'w']++;H.rec.rs+=lg.score[1];H.rec.ra+=lg.score[0];A.rec.rs+=lg.score[0];A.rec.ra+=lg.score[1];}
-  for(const pid in lg.box){const p=S.players[pid];if(!p)continue;const b=lg.box[pid];const c=p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
+  const isPost=!!(sg&&sg.post);
+  for(const pid in lg.box){const p=S.players[pid];if(!p)continue;const b=lg.box[pid];const c=isPost?(p.ps=p.ps||newStat()):p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
     if(b.pG){p.fatigue=Math.min(100,(p.fatigue||0)+b.pPit*0.55);p.xp+=b.pOuts;}
     else if(b.g){p.fatigue=Math.min(100,(p.fatigue||0)+5);p.xp+=b.pa;}
   }

@@ -13,17 +13,17 @@ function checkIntegrity(label){
   }
   for(const pid in S.players){const p=S.players[pid];if(+pid!==p.id)bad('id 키 불일치');if(p.teamId!=null&&!p.retired){const t=S.teams[p.teamId];if(!t||!(t.roster.includes(p.id)||(t.dev||[]).includes(p.id)))bad(`${label} teamId 있으나 로스터에 없음 ${p.name}`);}}
   for(const id of S.fa){const p=S.players[id];if(!p)bad('FA에 없는 선수');else if(p.teamId!=null)bad(`${label} FA인데 소속 있음 ${p.name}`);}
-  for(let d=1;d<=3;d++){const n=SL.krTeams().filter(t=>t.div===d).length;if(n!==8)bad(`${label} ${d}부 팀 수 ${n}`);}
+  {const n=SL.krTeams().length;if(n!==10)bad(`${label} 국내 구단 수 ${n} (10개여야 함)`);if(SL.krTeams().some(t=>t.div!==1))bad(`${label} 승강제 잔재: div≠1 구단`);}
 }
 function checkSchedule(){
-  const games=S.schedule;if(games.length!==336)bad('경기 수 '+games.length);
+  const G=B.SEASON_GAMES;const games=S.schedule.filter(g=>!g.post);if(games.length!==G*5)bad('경기 수 '+games.length+' (10구단 × '+G+'경기 ÷ 2)');
   const per={},home={},dayTeam=new Set();
   for(const g of games){per[g.home]=(per[g.home]||0)+1;per[g.away]=(per[g.away]||0)+1;home[g.home]=(home[g.home]||0)+1;
     for(const t of [g.home,g.away]){const k=g.day+':'+t;if(dayTeam.has(k))bad('같은 날 2경기 '+k);dayTeam.add(k);}
-    if(S.teams[g.home].div!==g.div||S.teams[g.away].div!==g.div)bad('디비전 불일치 일정');}
-  for(const t of SL.krTeams()){if(per[t.id]!==28)bad(`${t.name} 경기수 ${per[t.id]}`);if(home[t.id]!==14)bad(`${t.name} 홈경기 ${home[t.id]}`);}
-  // 각 상대와 4경기
-  for(const t of SL.krTeams()){const opp={};for(const g of games){if(g.home===t.id)opp[g.away]=(opp[g.away]||0)+1;if(g.away===t.id)opp[g.home]=(opp[g.home]||0)+1;}for(const o in opp)if(opp[o]!==4)bad(`${t.name} vs ${o} ${opp[o]}경기`);}
+    if(S.teams[g.home].league!=='KR'||S.teams[g.away].league!=='KR')bad('국내 일정에 해외 구단');}
+  for(const t of SL.krTeams()){if(per[t.id]!==G)bad(`${t.name} 경기수 ${per[t.id]}`);if(home[t.id]!==G/2)bad(`${t.name} 홈경기 ${home[t.id]}`);}
+  // 각 상대와 G/9경기 (36경기면 4경기)
+  for(const t of SL.krTeams()){const opp={};for(const g of games){if(g.home===t.id)opp[g.away]=(opp[g.away]||0)+1;if(g.away===t.id)opp[g.home]=(opp[g.home]||0)+1;}for(const o in opp)if(opp[o]!==G/9)bad(`${t.name} vs ${o} ${opp[o]}경기`);}
 }
 function gradeDist(){const d={S:0,A:0,B:0,C:0,D:0};let n=0;for(const t of SL.krTeams())for(const pid of t.roster){d[SL.gradeOf(SL.calcOvr(S.players[pid]))]++;n++;}return Object.entries(d).map(([k,v])=>k+':'+(v/n*100).toFixed(0)+'%').join(' ');}
 function userManage(){ // 유저 구단 간단 자동 운영 (테스트용)
@@ -60,13 +60,20 @@ function determinism(){
   console.log('  저장/재개 OK (중간 저장 후 종료 '+sc+')');
 }
 function transferUnit(){
-  const ut=SL.userTeam();const seller=SL.krTeams().find(t=>!t.isUser&&t.div===ut.div);let p=null,r=null;for(let i=10;i<26&&!(r&&r.done);i++){p=S.players[seller.roster[i]];const fee0=SL.aiAsk(seller,p);r=SL.negotiate(p.id,{fee:fee0,salary:SL.playerDemand(p,ut)*1.05,years:2});}
+  const ut=SL.userTeam();const seller=SL.krTeams().find(t=>!t.isUser);let p=null,r=null;for(let i=10;i<26&&!(r&&r.done);i++){p=S.players[seller.roster[i]];const fee0=SL.aiAsk(seller,p);r=SL.negotiate(p.id,{fee:fee0,salary:SL.playerDemand(p,ut)*1.05,years:2});}
   if(!(r&&r.done)){console.log('  (이적 협상 미성사)');return;}
   S=SL.state();p=S.players[p.id];const tr=p.transfers[p.transfers.length-1];const fee=tr.fee;const cashU=ut.cash+fee,cashS=seller.cash-fee;
   if(r.done){if(ut.cash!==cashU-fee)bad('구매 구단 현금 차감 오류');if(seller.cash!==cashS+fee)bad('판매 구단 현금 입금 오류');if(p.teamId!==ut.id||!ut.roster.includes(p.id)||seller.roster.includes(p.id))bad('소속 이동 오류');
     const r2=SL.listPlayer(p.id);if(!r2)bad('영입 직후 판매 등록이 허용됨');console.log('  이적 거래 OK:',p.name,SL.money(fee),'| 즉시 재판매 차단:',r2);}
   else console.log('  (이적 협상 미성사 — 정상 케이스)',r.msg);
 }
+// 포스트시즌: 5팀 계단식 — 시드·시리즈 규칙·우승팀·정규 기록 분리
+function checkPost(rec){const P=rec.post;if(!P){bad('포스트시즌 기록 없음');return;}const top=rec.tables[1].slice(0,5).map(r=>r.id);if(JSON.stringify(P.seeds)!==JSON.stringify(top))bad('시드가 정규 1~5위와 다름');
+  const need={wc:[1,2],semi:[3,3],po:[3,3],ks:[4,4]};if(P.ser.length!==4)bad('시리즈 수 '+P.ser.length);
+  P.ser.forEach((c,i)=>{const n=need[c.k];const won=c.winner===c.hi?0:1;if(c.w[won]!==n[won])bad(`${c.k} 승자 승수 ${c.w.join('-')}`);if(c.w[1-won]>=n[1-won])bad(`${c.k} 패자도 진출 조건 충족 ${c.w.join('-')}`);
+    if(c.hi!==P.seeds[[3,2,1,0][i]])bad(`${c.k} 상위 시드 오류`);if(i>0&&c.lo!==P.ser[i-1].winner)bad(`${c.k} 하위 팀이 전 단계 승자가 아님`);});
+  if(P.champ!==P.ser[3].winner)bad('우승팀 불일치');const t=S.teams[P.champ];if(!t||!(t.champ||[]).includes(rec.s))bad('우승 기록 누락');
+  const tot=rec.tables[1].reduce((a,r)=>a+r.w+r.l,0);if(tot!==B.SEASON_GAMES*10)bad('정규 승패 합계에 포스트시즌이 섞임 '+tot);}
 let maxFee=0,totalFees=0,nTransfers=0;
 checkIntegrity('초기');checkSchedule();
 console.log('시즌 시작 전 등급분포',gradeDist());
@@ -75,8 +82,8 @@ for(let s=1;s<=SEASONS;s++){
   while(S.phase==='season'){if(S.day===10)userManage();SL.playDayAuto();}
   const sum=S.lastSummary;const ut=SL.userTeam();
   const cashes=SL.krTeams().map(t=>t.cash);const str=t=>(t.roster.map(id=>S.players[id]).reduce((a,p)=>a+SL.calcOvr(p),0)/t.roster.length).toFixed(1);
-  console.log(`시즌 ${s}: 유저 ${sum.div}부 ${sum.rank}위 ${sum.w}-${sum.l} 현금 ${SL.money(ut.cash)} | 등급 ${gradeDist()} | KR총자금 ${SL.money(cashes.reduce((a,b)=>a+b,0))} 최대 ${SL.money(Math.max(...cashes))} 최소 ${SL.money(Math.min(...cashes))} | 선수수 ${Object.keys(S.players).length} | 유저전력 ${str(ut)} vs 같은부 평균 ${(SL.krTeams().filter(t=>t.div===ut.div&&!t.isUser).map(str).reduce((a,b)=>a+ +b,0)/7).toFixed(1)}`);
-  checkIntegrity('시즌'+s+'종료');
+  console.log(`시즌 ${s}: 유저 ${sum.rank}위 ${sum.w}-${sum.l} ${sum.post||''} 현금 ${SL.money(ut.cash)} | 등급 ${gradeDist()} | KR총자금 ${SL.money(cashes.reduce((a,b)=>a+b,0))} 최대 ${SL.money(Math.max(...cashes))} 최소 ${SL.money(Math.min(...cashes))} | 선수수 ${Object.keys(S.players).length} | 유저전력 ${str(ut)} vs 리그 평균 ${(SL.krTeams().filter(t=>!t.isUser).map(str).reduce((a,b)=>a+ +b,0)/9).toFixed(1)}`);
+  checkIntegrity('시즌'+s+'종료');checkPost(S.history[S.history.length-1]);
   // 스토브리그
   userManage();
   while(S.week<=B.OFFSEASON_WEEKS){SL.advanceWeek();userManage();}

@@ -1,24 +1,24 @@
 // ===================== 스토브리그 — 코어 (A: 데이터/선수/구단/가치/편성) =====================
 const SL=(function(){
 'use strict';
-const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v27';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const VERSION=5;          // 저장 형식 버전 (바뀌면 migrate 필요)
+const GAME_VER='v28';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
-  SEASON_GAMES:28, SEASON_OPTIONS:[28,70,140], DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
-  LEVEL_OVR:{KR1:66,KR2:59,KR3:52,JP:64,US:71,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
-  START_CASH:{1:900000,2:350000,3:100000},                  // 만원 (3부 10억 ≈ 연봉 2년치)
-  TICKET:{1:9000,2:3500,3:1300},                          // 홈경기당 기본 입장수입(만원)
-  SPONSOR:{1:300000,2:130000,3:45000}, OVERHEAD:{1:200000,2:60000,3:15000},                    // 시즌 스폰서(만원)
-  DIVIDEND:{1:[150000,120000,100000,80000,60000,50000,40000,30000],
-            2:[50000,40000,33000,27000,22000,18000,15000,12000],
-            3:[16000,13000,11000,9000,7500,6500,5500,5000]},
+  SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
+  LEVEL_OVR:{KR1:66,KRNEW:64,RES:52,JP:64,US:71,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
+  // 국내는 10개 구단 단일 리그(1군) + 2군. 승강제 없음. 경제 기준값은 1군 하나, 구단별 차이는 위상(시장 크기)으로만
+  START_CASH:{1:900000},                                   // 만원 (AI 기준값)
+  NEW_CLUB:{cash:300000,rep:[30,45]},                      // 유저가 맡는 막내 구단: 30억, 전력 KRNEW(리그 평균보다 조금 약함 → 첫 시즌 .35~.45)
+  TICKET:{1:9000},                                         // 홈경기당 기본 입장수입(만원)
+  SPONSOR:{1:300000}, OVERHEAD:{1:200000},                 // 시즌 스폰서·운영비(만원) — 위상(시장)에 따라 증감
+  DIVIDEND:{1:[150000,120000,100000,85000,70000,60000,50000,40000,35000,30000]},
   OVERSEAS_CASH:{JP:1500000,US:4000000,TW:300000,MX:400000,AU:120000,CB:180000},
   FACILITY:{train:{cost:20000,upkeep:1500},youth:{cost:15000,upkeep:1200},scout:{cost:10000,upkeep:1000}},
   SCOUT_COST:[800,2500,6000], SCOUT_N:[3,5,8], SCOUT_CONF:[0.12,0.25,0.4],
   VALUE_BASE:2000, VALUE_STEP:3.5,                        // ovr45=2000만, +10마다 x3.5
   SALARY_RATE:0.22, SALARY_MIN:1500,
-  LEAGUE_VALUE:{1:1.15,2:1.0,3:0.9,JP:1.6,US:2.4,TW:1.1,MX:1.1,AU:0.85,CB:0.95},
+  LEAGUE_VALUE:{1:1.15,JP:1.6,US:2.4,TW:1.1,MX:1.1,AU:0.85,CB:0.95},
   // 해외 무대: 리그 구조·팀 수는 실제 리그를 따르고, 구단명은 실제 연고 도시 + 가상 애칭 (실존 구단명·로고 미사용)
   LEAGUES:{JP:{name:'일본 프로야구',short:'일본',style:'12개 구단 · 양대 리그',games:143,roster:26,subs:['센트럴리그','퍼시픽리그']},
     US:{name:'메이저리그',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
@@ -29,7 +29,7 @@ const BAL={
   BUY_MIN:{US:70,JP:64,TW:58,MX:59},
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
-  JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,2:44,3:32,TW:47,JP:63},
+  JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,TW:47,JP:63},
   DISPATCH:{max:4,fee:{AU:3000,CB:5000},maxAge:25,share:{'주전':0.95,'주전 경쟁':0.6,'백업':0.3,'벤치':0.1}},
   GROWTH_TICK:10, DECLINE_PER_TICK:0.55, XP_TARGET_BAT:26, XP_TARGET_PIT:20,
   MIN_ROSTER:20, MAX_ROSTER:30, MIN_PITCHERS:9,
@@ -37,30 +37,33 @@ const BAL={
   FATIGUE_RECOVER:14,
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
-  POST_PRIZE:{1:30000,2:10000,3:4000},   // 우승 결정전 상금(만원)
-  AI_CASH_CAP:{1:600000,2:250000,3:100000},          // AI 구단 시즌 말 보유 한도(넘는 돈의 70%는 모기업 회수) — 이적시장 예산이 의미 있게
-  // 시작 구단 유형 (3부 8개 구단에 2개씩) — 난이도가 아니라 '다른 고민'
+  // 포스트시즌(5팀 계단식): 와일드카드(4위 1승 안고 시작, 최대 2경기) → 준플레이오프(5전 3선승) → 플레이오프(5전 3선승) → 한국시리즈(7전 4선승)
+  POST:[{k:'wc',name:'와일드카드 결정전',short:'WC',hiSeed:4,need:[1,2],host:'hh'},{k:'semi',name:'준플레이오프',short:'준PO',hiSeed:3,need:[3,3],host:'hhllh'},
+    {k:'po',name:'플레이오프',short:'PO',hiSeed:2,need:[3,3],host:'hhllh'},{k:'ks',name:'한국시리즈',short:'KS',hiSeed:1,need:[4,4],host:'hhlllhh'}],
+  POST_PRIZE:{champ:60000,runner:25000,po:12000,semi:8000,wc:5000},   // 포스트시즌 배당금(만원) — 탈락 단계별
+  AI_CASH_CAP:{1:600000},          // AI 구단 시즌 말 보유 한도(넘는 돈의 70%는 모기업 회수) — 이적시장 예산이 의미 있게
+  // 시작 구단 유형 (막내 구단 후보 8개에 2개씩) — 난이도가 아니라 '다른 고민'
   ARCH:{youth:{name:'유망주 중심',pitch:'어린 선수가 많아 「내가 키운다」는 맛이 큽니다.',worry:'당장은 이기기 어렵습니다.',tip:'출장 기회를 주며 1~2시즌 뒤를 노리세요.'},
     popular:{name:'지역 인기 구단',pitch:'관중이 많아 입장 수입과 스폰서가 안정적입니다.',worry:'팬과 구단주의 기대가 높아 목표가 빡빡합니다.',tip:'수입을 영입에 써서 기대에 맞추세요.'},
     poor:{name:'재정난 구단',pitch:'싼 선수를 찾아 되살리는 재미가 있습니다.',worry:'돈이 거의 없고 비싼 주축 2명의 연봉이 무겁습니다.',tip:'주축을 팔지, 버틸지 첫 결정이 중요합니다.'},
-    vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌 승격을 노릴 수 있습니다.',worry:'2~3년 안에 세대교체가 급합니다.',tip:'좋을 때 팔고 젊은 선수를 모으세요.'}},
+    vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌부터 가을야구를 노릴 수 있습니다.',worry:'2~3년 안에 세대교체가 급합니다.',tip:'좋을 때 팔고 젊은 선수를 모으세요.'}},
   ARCH_OF:['youth','popular','poor','vet','youth','popular','poor','vet'],
-  // 구단 위상(명문도): 성적·우승·소속 부로 천천히 쌓이고 천천히 식는다. TEAM_NAMES.KR 순서대로 시작 값
+  // 구단 위상(명문도): 순위·가을야구·한국시리즈 우승으로 천천히 쌓이고 천천히 식는다. TEAM_NAMES.KR 순서대로 시작 값
   // 스폰서·광고 (유저 구단만 선택, AI는 기존 자동 수입 = 기준값). 회사명은 모두 가상
   SPON:{
     co:{big:[['청람그룹','금융'],['은하전자','전자'],['솔빛생명','보험'],['미리내건설','건설']],
         mid:[['라온통신','통신'],['다온식품','식품'],['가람제약','제약'],['누리모터스','자동차'],['별빛제과','식품'],['한결증권','금융'],['초록에너지','에너지'],['파랑항공','항공']],
         local:[['골목치킨','외식'],['동네마트','유통'],['밝은안경','안경'],['달빛분식','외식'],['바른세탁','생활'],['새봄약국','제약'],['든든렌터카','자동차'],['푸른학원','교육'],['한우리정육','식품'],['햇살병원','의료']]},
     kinds:{stable:{name:'장기 안정형',years:3,base:0.8},perf:{name:'성적 연동형',years:2,base:0.5},short:{name:'단기 고액형',years:1,base:1.15,miss:0.35},big:{name:'대기업 메인',years:3,base:1.2}},
-    perfBonus:{r1:0.8,r2:0.6,r4:0.3,promo:0.3,champ:0.2},
-    boards:{1:4,2:3,3:2,os:3},boardShare:0.055,   // 광고판 한 자리 ≈ 기준 스폰서의 5.5%
+    perfBonus:{r1:0.8,r3:0.55,r5:0.3,ks:0.25,champ:0.3},   // 정규 1위·2~3위·4~5위(가을야구), 한국시리즈 진출·우승
+    boards:{1:4,os:3},boardShare:0.055,   // 광고판 한 자리 ≈ 기준 스폰서의 5.5%
     endorse:{minScore:8,comm:0.3,feeShare:0.03,morale:8,decline:-4,demand:1.05}},
   PRES0:[90,84,80,68,62,56,50,46, 74,44,40,38,35,33,30,28, 16,14,12,15,20,13,18,22],
   PRES_TIER:[[80,'명문'],[60,'강호'],[40,'중견'],[22,'신흥'],[0,'약소']],
-  PRES_NORM:{1:66,2:42,3:20},                // 부별 평균 위상 — 수입은 이 값 대비로만 증감 (AI 평균 밸런스 유지)
+  PRES_NORM:{1:66},                          // 리그 평균 위상 — 수입(시장 크기)은 이 값 대비로 증감 (AI 평균 밸런스 유지)
   PRES_RATE:0.2,                             // 시즌 점수 쪽으로 다가가는 속도
-  PRES_BASE:{1:72,2:46,3:24},PRES_RANK:[14,9,5,2,0,-3,-6,-9],
-  PRES_FLOOR_TITLE:5,PRES_FLOOR_MAX:70,      // 1부 우승 1회마다 바닥 +5 (전통은 쉽게 사라지지 않음)
+  PRES_BASE:{1:62},PRES_RANK:[16,12,8,5,2,0,-3,-6,-9,-12],PRES_POST:{ps:3,ks:4,champ:10},
+  PRES_FLOOR_TITLE:5,PRES_FLOOR_MAX:70,      // 한국시리즈 우승 1회마다 바닥 +5 (전통은 쉽게 사라지지 않음)
   // 코치진: 부서별 정원, 등급별 기준 연봉(만원/시즌), 부서 특기
   STAFF:{bat:{name:'타격코치',max:3,what:'타자 컨택·파워·선구안 성장'},pit:{name:'투수코치',max:3,what:'투수 구위·제구·변화구·체력 성장'},def:{name:'수비·주루코치',max:2,what:'야수 주력·수비·송구 성장'},
     dev:{name:'육성코치',max:2,what:'23세 이하·육성군 성장, 육성군 정원'},scout:{name:'스카우트',max:5,what:'잠재력 판별 정확도, 유망주·드래프트 발굴'},med:{name:'트레이너·의무',max:5,what:'피로 회복, 노화 지연'}},
@@ -214,7 +217,7 @@ function calcValue(p){
   const yrs=p.contract?p.contract.years:1;v*=yrs<=1?0.85:yrs===2?1:1.08;
   if(['C','SS','CF','SP'].includes(p.pos))v*=1.1;
   v*=perfFactor(p);v*=awardPrem(p);
-  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[t.div]:BAL.LEAGUE_VALUE[t.league]):1;
+  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;
   return Math.max(500,Math.round(v/10)*10);
 }
 function salaryFor(p){const v=baseVal(calcOvr(p))*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1);return Math.max(BAL.SALARY_MIN,Math.round(v/10)*10);}
@@ -223,17 +226,17 @@ function money(m){const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){con
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){
   const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
-  if(league==='KR'){t.cash=BAL.START_CASH[div]*(0.9+rnd()*0.3);t.rep=div===1?ri(60,85):div===2?ri(40,58):ri(20,38);}
+  if(league==='KR'){t.cash=BAL.START_CASH[1]*(0.9+rnd()*0.3);t.rep=ri(60,85);}
   else{t.cash=BAL.OVERSEAS_CASH[league];t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
   t.cash=Math.round(t.cash);
   return t;
 }
 function newFin(){return {tickets:0,sponsor:0,ads:0,endorse:0,dividend:0,sales:0,salary:0,buys:0,scout:0,facility:0,other:0,dispatch:0,staff:0};}
-function levelOf(t){return t.league==='KR'?BAL.LEVEL_OVR['KR'+t.div]:BAL.LEVEL_OVR[t.league];}
+function levelOf(t){return t.league==='KR'?BAL.LEVEL_OVR.KR1:BAL.LEVEL_OVR[t.league];}
 function addToTeam(p,t,contract,dev){p.teamId=t.id;(dev?t.dev:t.roster).push(p.id);p.contract=contract;}
 function devCap(t){return BAL.DEV_BASE+(t.fac?t.fac.youth:1)+(t.staff&&typeof staffP==='function'&&staffP(t,'dev')>=1.2?1:0);}
 function fillRoster(t){
-  const lvl=levelOf(t);const nat=t.league==='KR'?'KR':t.league;
+  const lvl=t.newClub?BAL.LEVEL_OVR.KRNEW:levelOf(t);const nat=t.league==='KR'?'KR':t.league;
   const have={};for(const pid of t.roster)have[S.players[pid].pos]=(have[S.players[pid].pos]||0)+1;
   const size=t.league==='KR'?26:(BAL.LEAGUES[t.league]?BAL.LEAGUES[t.league].roster:26);
   for(const pos of ROSTER_TEMPLATE){if(t.roster.length>=size)break;if(have[pos]>0){have[pos]--;continue;}

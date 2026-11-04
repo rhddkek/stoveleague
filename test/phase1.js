@@ -5,16 +5,17 @@ function integrity(label){S=SL.state();const seen=new Map();
   for(const t of Object.values(S.teams)){const all=t.roster.concat(t.dev||[]);if(new Set(all).size!==all.length)bad(label+' 중복 '+t.name);
     for(const pid of all){const p=S.players[pid];if(!p){bad(label+' 없는 선수');continue;}if(p.teamId!==t.id)bad(label+' 소속 불일치 '+p.name);if(seen.has(pid))bad(label+' 이중 소속 '+p.name);seen.set(pid,1);}}
   for(const l of ['JP','US','TW','MX','AU','CB'])if(!Object.values(S.teams).some(t=>t.league===l))bad(label+' 리그 없음 '+l);}
-// ---- 1. 구버전 세이브 이어하기 ----
-console.log('[1] v1 세이브 이어하기');
-const v1=fs.readFileSync(__dirname+'/v1_save.json','utf8');const o1=JSON.parse(v1);
-SL.load(v1);S=SL.state();
-if(S.version<2)bad('버전 미변환');else ok('v1 → v'+S.version+' 변환');
+// ---- 1. 구버전 세이브 거부 (v28: 10구단 단일 리그 전환, 광우 결정) + 새 게임 경기 도중 저장·이어하기 ----
+console.log('[1] 구버전 세이브 거부 · 새 게임 이어하기');
+const v1=fs.readFileSync(__dirname+'/v1_save.json','utf8');
+{let err=null;const keep=SL.state();try{SL.load(v1);}catch(e){err=e.message;}err&&/10개 구단/.test(err)&&SL.state()===keep?ok('구버전(v1) 저장은 안내 문구와 함께 거부'):bad('구버전 저장이 거부되지 않음: '+err);}
+SL.newGame(4242,1,{games:36});S=SL.state();
+while(S.day<12)SL.playDayAuto();
+{const lg=SL.startDay();for(let i=0;i<5;i++)SL.stepPA(lg);}
+const mid=SL.serialize();SL.load(mid);S=SL.state();
 const ut=SL.userTeam();
-const old=Object.values(o1.players).filter(p=>p.userLink);let lost=0;for(const p of old){const q=S.players[p.id];if(!q||q.transfers.length!==p.transfers.length||q.hist.length!==p.hist.length)lost++;}
-lost?bad('유저 연계 선수 경력 손실 '+lost):ok(`유저 연계 선수 ${old.length}명 경력·이적 이력 보존`);
 if(!S.liveGame)bad('경기 도중 상태 손실');else{const before=ut.rec.w+ut.rec.l;SL.stepGame(S.liveGame);SL.endUserGame();ut.rec.w+ut.rec.l===before+1?ok('경기 도중 저장분 이어서 종료, 중복 없음'):bad('경기 기록 중복');}
-integrity('v1 로드');
+integrity('저장 후 로드');
 console.log('  신규 리그 팀:',['TW','MX','AU','CB'].map(l=>l+':'+Object.values(S.teams).filter(t=>t.league===l).length).join(' '),'| 감독 실적 백필',S.mgr.seasons.length);
 // ---- 2. 시즌 끝 → 파견 ----
 console.log('[2] 겨울리그 파견');

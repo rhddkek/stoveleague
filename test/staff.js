@@ -25,8 +25,8 @@ function draftConf(staff){SL.load(base);S=SL.state();SL.userTeam().staff=staff()
 const c0=draftConf(()=>[]),c1=draftConf(()=>[mk('scout',85,'고교 네트워크'),mk('scout',80),mk('scout',78),mk('scout',75),mk('scout',72)]);c1>c0+0.1?ok(`드래프트 후보 평균 신뢰도 ${c0.toFixed(2)} → ${c1.toFixed(2)}`):bad('스카우트 효과 '+c0+' '+c1);
 console.log('[4] 영입·정원·등급 조건·해임·만료·재계약');
 SL.load(base);S=SL.state();ut=SL.userTeam();
-const sC=Object.assign(mk('pit',88),{years:0});S.staffPool.push(sC);const e1=SL.hireCoach(sC.id,2);e1&&/3부/.test(e1)?ok('S급 코치: '+e1):bad('S급 3부 영입됨 '+e1);
-const aC=Object.assign(mk('bat',74),{years:0,salary:8000});S.staffPool.push(aC);const tA=SL.coachTerms(aC);tA.ok&&tA.salary===10000?ok('A급 코치 3부 요구 연봉 +25%: '+SL.money(tA.salary)):bad('A급 조건 '+JSON.stringify(tA));
+const sC=Object.assign(mk('pit',88),{years:0});S.staffPool.push(sC);const e1=SL.hireCoach(sC.id,2);e1&&/위상/.test(e1)?ok('S급 코치: '+e1):bad('S급이 약소 구단에 영입됨 '+e1);
+const aC=Object.assign(mk('bat',74),{years:0,salary:8000});S.staffPool.push(aC);const tA=SL.coachTerms(aC);tA.ok&&tA.salary===10000?ok('A급 코치 약소 구단 요구 연봉 +25%: '+SL.money(tA.salary)):bad('A급 조건 '+JSON.stringify(tA));
 const cash0=ut.cash;SL.hireCoach(aC.id,1)===null&&ut.staff.includes(aC)?ok('A급 타격코치 1년 계약'):bad('영입 실패');
 for(let i=0;i<3;i++){const x=Object.assign(mk('bat',55),{years:0});S.staffPool.push(x);var eCap=SL.hireCoach(x.id,1);}eCap&&/정원/.test(eCap)?ok('타격코치 정원 3명 초과 차단'):bad('정원 '+eCap);
 const sev=SL.severanceOf(aC);const c1b=ut.cash;SL.fireCoach(aC.id);(!ut.staff.includes(aC)&&c1b-ut.cash===sev&&sev>0)?ok('해임 보상금 '+SL.money(sev)+' (잔여 연봉 50%)'):bad('해임 '+sev);
@@ -36,7 +36,7 @@ S.staffPool.length>=24?ok('스토브리그 코치 시장 갱신 '+S.staffPool.le
 offseason();ut=SL.userTeam();ut.staff.every(c=>c.years>0)?ok('2주차 미재계약 코치 이탈, 재계약 코치 잔류 ('+ut.staff.map(c=>c.name).join(', ')+')'):bad('만료 코치 잔류');
 console.log('[5] 저장·구버전·이직');
 const j=SL.serialize();SL.load(j);S=SL.state();JSON.stringify(SL.userTeam().staff)===JSON.stringify(JSON.parse(j).teams[S.userTeamId].staff)?ok('저장/불러오기 코치진 보존'):bad('저장 손실');
-SL.load(fs.readFileSync(__dirname+'/v2_save.json','utf8'));S=SL.state();SL.userTeam().staff&&SL.userTeam().staff.length>=4&&S.staffPool.length?ok('구버전 세이브: 기본 코치진·코치 시장 생성'):bad('구버전 코치진');
-SL.newGame(31,2);S=SL.state();playSeason();const nt=SL.krTeams().find(t=>!t.isUser&&t.div===2);S.jobOffers=[{id:S.nextOfferId++,team:nt.id,kind:'job',goal:{text:'잔류',target:6},rankExp:5,n:8,expires:2,reason:'t'}];SL.moveManager(S.jobOffers[0].id);
+{let err=null;try{SL.load(fs.readFileSync(__dirname+'/v2_save.json','utf8'));}catch(e){err=e.message;}err?ok('구버전 세이브(v2)는 v28 리그 개편으로 거부'):bad('구버전 세이브가 거부되지 않음');}
+SL.newGame(31,2);S=SL.state();playSeason();const nt=SL.krTeams().find(t=>!t.isUser);S.jobOffers=[{id:S.nextOfferId++,team:nt.id,kind:'job',goal:{text:'가을야구 (5위 이내)',target:5},rankExp:5,n:10,expires:2,reason:'t'}];SL.moveManager(S.jobOffers[0].id);
 SL.userTeam().staff&&SL.userTeam().staff.length>=4?ok('이직한 구단 기본 코치진: '+SL.userTeam().staff.map(c=>B.STAFF[c.dept].name+' '+c.rating).join(', ')):bad('이직 코치진');
 console.log(fails?`코치진 검증 실패 ${fails}건`:'코치진 검증 모두 통과');process.exit(fails?1:0);
