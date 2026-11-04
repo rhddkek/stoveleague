@@ -46,12 +46,14 @@ function doPitch(lg){
   const risp=lg.bases[1]||lg.bases[2];
   if(risp&&B.traits.includes('클러치')){con+=4;pow+=4;}
   if(risp&&B.traits.includes('유리멘탈')){con-=3;eye-=3;}
+  const tk=tacNow(lg);if(tk==='hitrun'){con+=3;pow-=5;}else if(tk==='team'){pow-=8;con+=2;}else if(tk==='gb'){/* 아래 resolveInPlay에서 */}
   lg.pc[P.id]=(lg.pc[P.id]||0)+1;pb.pPit++;
   let zone=clamp(0.40+ctl*0.0032,0.45,0.78);if(lg.balls>=2)zone+=0.06;if(lg.strikes===2)zone-=0.07;if(lg.balls===3)zone+=0.05;
   const inZone=rnd()<zone;
   let swing;
   if(inZone)swing=0.62+(lg.strikes===2?0.25:0)-(lg.balls===3&&lg.strikes<2?0.2:0)+(lg.balls===0&&lg.strikes===0?-0.15:0);
   else swing=0.26-(eye-50)*0.0085+(lg.strikes===2?0.15:0)-(lg.balls===3?0.12:0)+(lg.balls===0&&lg.strikes===0?-0.1:0);  // 선구안: 볼에 덜 따라감 → 볼넷↑ 삼진↓
+  if(tk==='wait'&&lg.strikes<2)swing*=inZone?0.7:0.55;if(tk==='hitrun')swing=Math.max(swing,inZone?0.85:0.5);
   swing=clamp(swing,0.05,0.95);
   let res;
   if(rnd()>=swing)res=inZone?'strike':'ball';
@@ -59,7 +61,8 @@ function doPitch(lg){
   let ev={type:res,text:'',paEnd:false};lg.c0=[lg.balls,lg.strikes];
   const cnt=()=>`(${lg.balls}B-${lg.strikes}S)`;
   if(res==='ball'){lg.balls++;ev.text=`볼 ${cnt()}`;if(lg.balls===4){doWalk(lg,B,bb,pb);ev.type='walk';ev.text=`${B.name} 볼넷${lg.c0[1]===2?' (풀카운트 승부)':''}`;ev.paEnd=true;}}
-  else if(res==='strike'||res==='whiff'){lg.strikes++;ev.text=(res==='whiff'?'헛스윙 ':'')+`스트라이크 ${cnt()}`;if(lg.strikes===3){bb.ab++;bb.so++;pb.pSO++;addOut(lg,1);ev.type='so';ev.text=`${B.name}, ${cntWord(lg)} ${res==='whiff'?'헛스윙':'루킹'} 삼진 아웃 (${lg.outs}아웃)`;ev.paEnd=true;}}
+  else if(res==='strike'||res==='whiff'){lg.strikes++;ev.text=(res==='whiff'?'헛스윙 ':'')+`스트라이크 ${cnt()}`;if(lg.strikes===3){bb.ab++;bb.so++;pb.pSO++;addOut(lg,1);ev.type='so';ev.text=`${B.name}, ${cntWord(lg)} ${res==='whiff'?'헛스윙':'루킹'} 삼진 아웃 (${lg.outs}아웃)`;ev.paEnd=true;
+    if(tk==='hitrun'&&lg.bases[0]&&!lg.bases[1]&&lg.outs<3){const r=lg.bases[0];if(rnd()<stealP(lg,r.pid)){lg.bases[1]=r;lg.bases[0]=null;ev.text+=' · 1루 주자 2루 진루';}else{lg.bases[0]=null;addOut(lg,1);ev.text+=` · 1루 주자도 2루에서 아웃 (${lg.outs}아웃)`;}}}}
   else if(res==='foul'){if(lg.strikes<2)lg.strikes++;ev.text=`파울 ${cnt()}`;}
   else{ev=resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov);ev.paEnd=true;}
   lg.last=ev;
@@ -88,7 +91,7 @@ function advRunners(lg,hitType,B,bb,def){
 }
 function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
   bb.ab++;const bs=lg.half,fs=1-bs;const def=teamDef(lg,fs);const before=lg.outs;
-  let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;
+  const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;
   const ev={type:'',text:'',paEnd:true};
   const ro=()=>lg.outs>0?` (${lg.outs}아웃)`:'';
   if(rnd()<hrP){bb.h++;bb.hr++;pb.pH++;pb.pHR++;const runs=advRunners(lg,'hr',B,bb,def);lg.hits[bs]++;ev.type='hr';const hd=playDir(lg,B);const fz=PK.dim[hd.side];const dist=Math.round(fz+2+hd.r*16+Math.max(0,pow-50)*0.18);ev.text=`${B.name}, ${cntWord(lg)} ${hd.hr} ${runs===4?'만루':runs>1?runs+'점':'솔로'} 홈런! (비거리 ${dist}m · 펜스 ${fz}m)`;return ev;}
@@ -98,23 +101,23 @@ function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
     const xb=clamp((0.17+(pow-50)*0.0035+(sp-50)*0.0012)*PK.xb,0.05,0.45);const r=rnd();
     let type='1b';if(r<xb*0.1+Math.max(0,(sp-50))*0.0006)type='3b';else if(r<xb)type='2b';
     if(type==='3b'){bb.d3++;}else if(type==='2b'){bb.d2++;}
-    const runs=advRunners(lg,type,B,bb,def);
+    const b0=lg.bases[0];const runs=advRunners(lg,type,B,bb,def);if(tk==='hitrun'&&type==='1b'&&b0&&lg.bases[1]===b0&&!lg.bases[2]){lg.bases[2]=b0;lg.bases[1]=null;}
     ev.type=type;const dd=playDir(lg,B);const inf=type==='1b'&&dd.r<0.12&&sp>=60;ev.text=`${B.name}, ${cntWord(lg)} ${inf?`${dd.inf} 깊은 곳 내야안타`:type==='3b'?dd.x3:type==='2b'?dd.x2:dd.x1}${runs?` (${runs}득점)`:''}`;return ev;
   }
-  const gP=clamp(0.52+(mov-50)*0.003-(pow-50)*0.002,0.3,0.75);const b=lg.bases;
+  const gP=clamp(0.52+(mov-50)*0.003-(pow-50)*0.002+(tk==='gb'?0.1:0)+(tk==='team'?0.08:0),0.3,0.82);const b=lg.bases;
   if(rnd()<gP){
     if(before<2&&b[0]){
-      const dp=clamp(0.36-(sp-50)*0.005-(spd(b[0].pid)-50)*0.002+(def-50)*0.003,0.08,0.7);
+      const dp=tk==='hitrun'?0:clamp(0.36-(sp-50)*0.005-(spd(b[0].pid)-50)*0.002+(def-50)*0.003+(tk==='gb'?0.08:0),0.08,0.75);
       if(rnd()<dp){addOut(lg,2);if(before===0){if(b[2])scoreRun(lg,bs,b[2],false,bb);lg.bases=[null,null,b[1]||null];}else lg.bases=[null,null,null];
         ev.type='dp';const d=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${d.dp} 병살타${ro()}`;return ev;}
     }
     {const ih=Math.max(0,sp-55)*0.0045+(B.traits.includes('빠른발')?0.03:0);if(ih>0&&rnd()<ih){bb.h++;pb.pH++;lg.hits[bs]++;const runs=advRunners(lg,'1b',B,bb,def);const d=playDir(lg,B);ev.type='1b';ev.text=`${B.name}, ${cntWord(lg)} ${d.inf} 쪽 땅볼 — 빠른 발로 내야안타${runs?` (${runs}득점)`:''}`;return ev;}}
     addOut(lg,1);ev.type='go';let extra='';
-    if(before<2){const nb=[b[0],null,null];if(b[2]){if(rnd()<0.5){scoreRun(lg,bs,b[2],true,bb);extra=' (1득점)';}else nb[2]=b[2];}if(b[1]){if(!nb[2]&&rnd()<0.5)nb[2]=b[1];else nb[1]=b[1];}lg.bases=nb;}
+    if(before<2){const adv=tk==='team'||tk==='hitrun';const nb=[b[0],null,null];if(tk==='hitrun'&&b[0]){nb[1]=b[0];nb[0]=null;}if(b[2]){if(rnd()<(adv?0.75:0.5)){scoreRun(lg,bs,b[2],true,bb);extra=' (1득점)';}else nb[2]=b[2];}if(b[1]){if(!nb[2]&&rnd()<(adv?0.9:0.5))nb[2]=b[1];else nb[1]=b[1];}lg.bases=nb;}
     {const d=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${d.go} 땅볼 아웃 — ${d.goBy}${extra}${ro()}`;}return ev;
   }
   addOut(lg,1);ev.type='fo';let extra='';
-  if(before<2){const nb=[b[0],b[1],null];if(b[2]){if(rnd()<0.65){scoreRun(lg,bs,b[2],true,bb);extra=' sf';}else nb[2]=b[2];}if(b[1]&&!nb[2]&&rnd()<0.22){nb[2]=b[1];nb[1]=null;}lg.bases=nb;}
+  if(before<2){const nb=[b[0],b[1],null];if(b[2]){if(rnd()<(tk==='team'?0.82:0.65)){scoreRun(lg,bs,b[2],true,bb);extra=' sf';}else nb[2]=b[2];}if(b[1]&&!nb[2]&&rnd()<0.22){nb[2]=b[1];nb[1]=null;}lg.bases=nb;}
   {const d=playDir(lg,B);let nm='';if(d.deep){const fz=PK.dim[d.side];const dist=Math.round(fz-1-hr01(lg,B,6)*5);const alt=parkNear(d.side,dist,lg.home);if(alt&&hr01(lg,B,7)<0.6)nm=` · 비거리 ${dist}m — ${josa(alt.name,'이었다면','였다면')} 넘어갔을 타구`;else nm=` · 비거리 ${dist}m`;}ev.text=`${B.name}, ${cntWord(lg)} ${d.foW} ${extra?'희생플라이 (1득점)':'뜬공 아웃'} — ${d.foBy}${nm}${ro()}`;}return ev;
 }
 // 타구 방향·잡은 수비수·볼카운트 문구 (난수 대신 타석 번호로 정해 경기 결과·밸런스에 영향 없음)
@@ -202,6 +205,43 @@ function aiPitchCheck(lg,side,halfStart){
   changePitcher(lg,side,pickId);
 }
 // ---- 진행 단위 (모두 동일 엔진) ----
+// ---------- 경기 작전 (EA 2011의 「이득 / 대가」 한 줄 설명 방식을 우리 식으로) ----------
+// 유저 경기에서만 쓴다 (AI 구단은 기존 엔진 그대로라 밸런스 기준값 유지). 작전은 그 타석에만 적용
+const TACTICS={
+  bunt:{ko:'보내기 번트',side:'off',now:true,gain:'주자 한 베이스 진루',cost:'타자는 아웃 · 실패하면 앞 주자가 잡힘'},
+  steal:{ko:'도루',side:'off',now:true,gain:'주자 한 베이스 진루 (발 빠를수록 성공↑)',cost:'실패하면 주자 아웃 · 포수 어깨가 좋으면 위험'},
+  dsteal:{ko:'이중 도루',side:'off',now:true,gain:'1·2루 주자 동시 진루',cost:'실패하면 앞 주자 아웃'},
+  hitrun:{ko:'히트 앤드 런',side:'off',gain:'안타 때 1루 주자 3루까지 · 병살 없음',cost:'장타 감소 · 삼진이면 주자도 위험'},
+  team:{ko:'팀배팅',side:'off',gain:'아웃돼도 주자 진루 · 희생플라이 잘 나옴',cost:'장타 크게 감소'},
+  wait:{ko:'공 기다리기',side:'off',gain:'볼넷 증가',cost:'루킹 삼진 증가'},
+  ibb:{ko:'고의사구',side:'def',now:true,gain:'강타자를 피함',cost:'주자를 공짜로 내보냄'},
+  gb:{ko:'땅볼 유도',side:'def',gain:'땅볼·병살 증가',cost:'맞으면 장타 위험 증가'}};
+function catcherDef(lg,fs){for(const pid of lg.lineup[fs]){if(lg.pos[fs][pid]==='C'){const p=S.players[pid];return p?p.attrs.defense:50;}}return 50;}
+function stealP(lg,pid){const fs=1-lg.half;const P=S.players[lg.pitcher[fs]];return clamp(0.62+(spd(pid)-50)*0.012+fast(pid)*0.012-(catcherDef(lg,fs)-50)*0.006+(P&&P.throws==='L'?-0.04:0),0.2,0.93);}
+function tacOk(lg,side,k){const T=TACTICS[k];if(!T||lg.done)return {ok:false,why:'경기 중이 아닙니다.'};const atBat=lg.half===side;const b=lg.bases;
+  if(T.side==='off'&&!atBat)return {ok:false,why:'공격 때만 쓸 수 있습니다.'};if(T.side==='def'&&atBat)return {ok:false,why:'수비 때만 쓸 수 있습니다.'};
+  if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1루나 2루에 주자가 있어야 합니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않습니다.'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험합니다 (파울이면 삼진).'};}
+  if(k==='steal'){if(!((b[0]&&!b[1])||(b[1]&&!b[2])))return {ok:false,why:'앞 베이스가 빈 1루·2루 주자가 있어야 합니다.'};}
+  if(k==='dsteal'){if(!(b[0]&&b[1]&&!b[2]))return {ok:false,why:'1·2루에 주자가 있고 3루가 비어야 합니다.'};}
+  if(k==='hitrun'){if(!b[0]||b[1])return {ok:false,why:'1루에만 주자가 있을 때 씁니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 의미가 적습니다.'};}
+  if(k==='team'){if(!(b[1]||b[2]))return {ok:false,why:'득점권(2·3루)에 주자가 있을 때 씁니다.'};}
+  if(k==='ibb'){if(lg.balls||lg.strikes)return {ok:false,why:'타석 시작 때만 고의사구를 할 수 있습니다.'};}
+  return {ok:true};}
+function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false,msg:c.why};const T=TACTICS[k];
+  if(!T.now){lg.tac={k,pa:lg.paCount};glog(lg,`[작전] ${T.ko}`,'tac');return {ok:true,msg:`${T.ko} 지시 — 이번 타석에 적용`};}
+  const bs=lg.half,b=lg.bases;const B=curBatter(lg),P=curPitcher(lg);const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const nm=r=>S.players[r.pid]?S.players[r.pid].name:'주자';
+  if(k==='ibb'){doWalk(lg,B,bb,pb);endPA(lg,{type:'walk',text:`[작전] 고의사구 — ${B.name} 1루로`,paEnd:true});return {ok:true,msg:'고의사구'};}
+  if(k==='steal'||k==='dsteal'){const lead=k==='dsteal'?b[1]:(b[1]&&!b[2]?b[1]:b[0]);const from=b.indexOf(lead);const pr=stealP(lg,lead.pid)-(k==='dsteal'?0.05:0)-(from===1?0.06:0);let txt;
+    if(rnd()<pr){if(k==='dsteal'){b[2]=b[1];b[1]=b[0];b[0]=null;txt=`[작전] 이중 도루 성공 — ${nm(b[2])} 3루, ${nm(b[1])} 2루`;}else{b[from+1]=lead;b[from]=null;txt=`[작전] ${nm(lead)} ${from===0?'2루':'3루'} 도루 성공`;}glog(lg,txt,'tac');}
+    else{addOut(lg,1);if(k==='dsteal'){b[1]=b[0];b[0]=null;b[2]=null;txt=`[작전] 이중 도루 실패 — 앞 주자 ${nm(lead)} 3루에서 아웃 (${lg.outs}아웃)`;}else{b[from]=null;txt=`[작전] ${nm(lead)} 도루 실패 — 아웃 (${lg.outs}아웃)`;}glog(lg,txt,'tac');if(lg.outs>=3)endHalf(lg);}
+    return {ok:true,msg:txt.replace('[작전] ','')};}
+  if(k==='bunt'){const pr=clamp(0.68+(effAttr(B,'contact')-50)*0.004+(B.traits.includes('빠른발')?0.03:0),0.45,0.9);let txt;
+    if(rnd()<pr){addOut(lg,1);const nb=[null,b[0]||null,b[1]||null];let sq='';if(b[2]){if(nb[2]){scoreRun(lg,bs,b[2],true,bb);sq=' · 3루 주자 홈인';}else nb[2]=b[2];}lg.bases=nb;txt=`[작전] ${B.name} 보내기 번트 성공 — 주자 진루${sq} (${lg.outs}아웃)`;endPA(lg,{type:'sac',text:txt,paEnd:true});}
+    else if(rnd()<0.5){bb.ab++;addOut(lg,1);txt=`[작전] ${B.name} 번트 실패 — 뜬공 아웃 (${lg.outs}아웃)`;endPA(lg,{type:'fo',text:txt,paEnd:true});}
+    else{bb.ab++;addOut(lg,1);const bat={pid:B.id,resp:P.id};let nb,where;if(b[0]&&b[1]&&b[2]){nb=[bat,b[0],b[1]];where='홈';}else if(b[0]&&b[1]){nb=[bat,b[0],null];where='3루';}else if(b[0]){nb=[bat,null,b[2]];where='2루';}else{nb=[bat,null,b[2]];where='3루';}txt=`[작전] ${B.name} 번트 — 앞 주자 ${where}에서 아웃, 타자 1루 (${lg.outs}아웃)`;lg.bases=nb;endPA(lg,{type:'go',text:txt,paEnd:true});}
+    return {ok:true,msg:txt.replace('[작전] ','')};}
+  return {ok:false,msg:'알 수 없는 작전'};}
+function tacNow(lg){const t=lg.tac;return t&&t.pa===lg.paCount?t.k:null;}
 function stepPitch(lg){return doPitch(lg);}
 function stepPA(lg){const c=lg.paCount;let ev=null;while(!lg.done&&lg.paCount===c)ev=doPitch(lg);return ev;}
 function stepHalf(lg){const h=lg.inn*2+lg.half;let ev=null;while(!lg.done&&lg.inn*2+lg.half===h)ev=doPitch(lg);return ev;}

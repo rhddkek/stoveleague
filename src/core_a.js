@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v33';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v34';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -34,7 +34,7 @@ const BAL={
   MIN_ROSTER:20, MAX_ROSTER:30, MIN_PITCHERS:9,
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
-  FGN:{max:3,asiaCap:28000,genMin:6000,genMax:60000,genMul:1.0,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년
+  FGN:{max:3,asiaCap:28000,genMin:4000,genMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년
   FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 3,000만 원 (준우승 1/3)
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
@@ -74,7 +74,7 @@ const BAL={
   STAFF_PAY:{S:15000,A:8000,B:4000,C:2000,D:1000}, STAFF_REF:{bat:0.35,pit:0.35,def:0,dev:0,scout:0.3,med:0.3}, STAFF_CREDIT:{1:22000,2:13000,3:9000}, // 기본 코치진 인건비만큼 운영비에서 분리
   STAFF_TRAITS:{bat:{'장타 조련':'power','컨택 장인':'contact','선구안 교정':'eye'},pit:{'구위 조련':'stuff','제구 장인':'control','변화구 전수':'movement'},def:{'수비 장인':'defense','주루 전문':'speed','강견 조련':'arm'},
     dev:{'유망주 조련':'u20','육성군 전문':'devsq'},scout:{'고교 네트워크':'draft','해외 네트워크':'abroad','매의 눈':'watch'},med:{'체력 관리':'fatigue','노장 관리':'aging'}},
-  DEV_BASE:4, DEV_EXP:0.75, DRAFT_POOL:48, DRAFT_ROUNDS:2,
+  DEV_BASE:4, DEV_EXP:0.75, DRAFT_POOL:80, DRAFT_ROUNDS:5,   // 5라운드 · 후보 80명 (3라운드부터는 자리 있는 구단만 지명)
 };
 let S=null;
 const POS_BAT=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
@@ -150,6 +150,8 @@ function calcOvr(p){
 }
 function posPenalty(p,pos){
   if(pos===p.pos||isPitcher(p)||pos==='DH')return 0;
+  if(p.posTrain&&p.posTrain.to===pos){const base=posPenalty({...p,posTrain:null},pos);return Math.round(base*clamp(p.posTrain.left/p.posTrain.total,0,1));}   // 전환 훈련 중: 남은 기간만큼 불이익
+  if(p.pos2&&pos===p.pos2)return 3;   // 예전 주 포지션 = 부포지션
   if(pos==='C')return 30;
   if(pos==='1B')return p.pos==='DH'?10:5;
   if(p.pos==='DH'||p.pos==='1B')return pos==='LF'||pos==='RF'?14:20;

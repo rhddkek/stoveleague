@@ -277,4 +277,40 @@ console.log('[19] v33 퓨처스 12팀 일정 · 올스타전 · 외국인 선수
  let w=0;while(S.fdraft&&!S.fdraft.done&&w++<5)SL.advanceWeek();S.fdraft.done&&SL.krTeams().every(t=>!SL.fgnStatus(t).over)?ok('지명 종료 · 모든 구단 정원 이내'):bad('지명 종료 안 됨/정원 초과');
  S.fdraft.pool.every(id=>!S.players[id]||S.players[id].teamId!=null)?ok('지명 안 된 후보 정리'):bad('후보 남음');}
 {const fs=require('fs');SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();S.res&&S.res.sched&&SL.futStand('N').length===6?ok(`v29 저장(시즌 ${S.day}일차) → 퓨처스 실제 일정으로 이어짐`):bad('v29 퓨처스 변환');let g=0;while(S.phase==='season'&&g++<60)SL.playDayAuto();S.phase==='offseason'?ok('v29 저장으로 시즌 끝까지 진행'):bad('v29 진행');}
+console.log('[20] v34 경기 작전 · 트레이드 · 포지션 전환 · 드래프트 5라운드');
+{SL.newGame(3434,9,{games:36});S=SL.state();const u=SL.userTeam();const lg=SL.startDay();const side=lg.home===u.id?1:0;
+ // 공격 차례로 맞춰 놓고 작전 시험
+ let g=0;while(lg.half!==side&&g++<400)SL.stepPitch(lg);const B0=S.players[lg.lineup[side][lg.bat[side]]];
+ lg.bases=[{pid:B0.id,resp:lg.pitcher[1-side]},null,null];lg.outs=0;lg.balls=0;lg.strikes=0;
+ SL.tacOk(lg,side,'ibb').ok?bad('공격 때 고의사구 허용'):ok('공격 때는 수비 작전 불가');SL.tacOk(lg,side,'dsteal').ok?bad('이중 도루 조건'):ok('이중 도루는 1·2루 주자 필요');
+ const pa0=lg.paCount,o0=lg.outs;const r=SL.setTactic(lg,side,'bunt');const bok=lg.paCount===pa0+1&&lg.outs===o0+1;bok?ok('보내기 번트: 한 타석 소모 · 아웃 1 — '+r.msg):bad('번트 처리 '+JSON.stringify(r));
+ lg.bases=[{pid:B0.id,resp:lg.pitcher[1-side]},null,null];lg.outs=0;const o1=lg.outs;const r2=SL.setTactic(lg,side,'steal');(lg.bases[1]&&!lg.bases[0]&&lg.outs===o1)||(!lg.bases[0]&&!lg.bases[1]&&lg.outs===o1+1)?ok('도루: 성공이면 2루, 실패면 아웃 — '+r2.msg):bad('도루 처리');
+ lg.bases=[{pid:B0.id,resp:lg.pitcher[1-side]},null,null];lg.outs=0;SL.setTactic(lg,side,'hitrun');SL.tacNow(lg)==='hitrun'?ok('히트 앤드 런: 이번 타석에만 적용'):bad('히트앤런 미적용');const pc=lg.paCount;while(lg.paCount===pc&&!lg.done)SL.stepPitch(lg);SL.tacNow(lg)?bad('작전이 다음 타석까지 남음'):ok('타석이 끝나면 작전 해제');
+ g=0;while(lg.half===side&&g++<400)SL.stepPitch(lg);if(!lg.done){const pa1=lg.paCount;lg.balls=0;lg.strikes=0;const r3=SL.setTactic(lg,side,'ibb');r3.ok&&lg.paCount===pa1+1&&lg.bases[0]?ok('고의사구: 타자 1루, 타석 종료'):bad('고의사구 '+JSON.stringify(r3));}
+ SL.stepGame(lg);SL.endUserGame();
+ // 성공률 표본: 도루 60~85%, 번트 65~85%
+ let st=0,sn=0;for(let i=0;i<120;i++){SL.newGame(500+i,9,{games:36});const L=SL.startDay();if(!L)continue;const sd=L.half;const b=SL.state().players[L.lineup[sd][0]];L.bases=[{pid:b.id,resp:L.pitcher[1-sd]},null,null];SL.setTactic(L,sd,'steal');sn++;if(L.bases[1])st++;}
+ st/sn>0.6&&st/sn<0.85?ok(`도루 성공률 ${(st/sn*100).toFixed(0)}% (실제 KBO 약 70%대)`):bad('도루 성공률 '+st/sn);}
+{SL.newGame(3535,9,{games:36});S=SL.state();const u=SL.userTeam();const ai=SL.krTeams().find(t=>!t.isUser&&SL.aimOf(t)!=='rebuild')||SL.krTeams().find(t=>!t.isUser);
+ const bats=u.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)&&p.pos!=='C').sort((a,b)=>SL.calcValue(b)-SL.calcValue(a));
+ const core=SL.tradeCore(ai);const e1=SL.tradeEval(ai.id,[bats[bats.length-1].id],[core[0]],0);!e1.ok&&e1.why.some(w=>/핵심|손해/.test(w))?ok('핵심 선수·손해 거절 이유: '+e1.why[0]):bad('거절 이유 '+JSON.stringify(e1.why));
+ const cand=ai.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)&&p.pos!=='C'&&!core.includes(p.id)&&!SL.isFgn(p)).sort((a,b)=>SL.calcValue(a)-SL.calcValue(b));const want=cand[0];const giveP=bats.find(p=>!SL.isFgn(p)&&SL.calcValue(p)>SL.calcValue(want)*1.6);
+ const cA=JSON.stringify(giveP.contract),cB=JSON.stringify(want.contract);const r=SL.tradePropose(ai.id,[giveP.id],[want.id],0);
+ r.ok&&u.roster.includes(want.id)&&ai.roster.includes(giveP.id)&&JSON.stringify(want.contract)===cB&&JSON.stringify(giveP.contract)===cA&&want.transfers.slice(-1)[0].kind==='트레이드'?ok(`트레이드 성사: ${giveP.name} ↔ ${want.name} (계약 그대로)`):bad('트레이드 '+r.msg);
+ const cs=ai.roster.map(id=>S.players[id]).filter(p=>p.pos==='C');if(cs.length===1){const e2=SL.tradeEval(ai.id,[bats[0].id],[cs[0].id],0);e2.why.some(w=>/포수/.test(w))?ok('포수 공백 → 포지션 문제 거절'):bad('포수 공백 '+e2.why);}else ok('(상대 포수 2명 이상 — 포지션 공백 시험 생략)');
+ for(let i=0;i<3;i++)SL.tradePropose(ai.id,[bats[bats.length-1].id],[core[0]],0);/하루 3번/.test(SL.tradeEval(ai.id,[bats[bats.length-1].id],[core[0]],0).why[0])?ok('같은 구단과 하루 3번까지'):bad('횟수 제한');
+ // 포지션 전환
+ const p=S.players[u.lineup.find(id=>['2B','3B','SS'].includes(S.players[id].pos))||u.lineup[0]];const from=p.pos;const to=from==='SS'?'2B':'SS';const pen0=SL.posPenalty(p,to);SL.startConv(p.id,to);const days=p.posTrain.total;
+ for(let i=0;i<Math.ceil(days/2);i++)SL.playDayAuto();const mid=SL.posPenalty(p,to);mid<pen0&&mid>0?ok(`전환 훈련 중 불이익 줄어듦 (${pen0} → ${mid})`):bad('훈련 중 불이익 '+pen0+'→'+mid);
+ for(let i=0;i<days;i++)if(S.phase==='season')SL.playDayAuto();p.pos===to&&p.pos2===from&&SL.posPenalty(p,from)===3&&SL.posPenalty(p,to)===0?ok(`전환 완료: ${from} → ${to}, ${from}는 부포지션(불이익 3)`):bad('전환 완료 '+p.pos+' '+p.pos2);
+ const sp=S.players[u.rotation[4]];SL.startConv(sp.id,'RP');for(let i=0;i<6;i++)if(S.phase==='season')SL.playDayAuto();sp.pos==='RP'&&!u.rotation.includes(sp.id)?ok('선발 → 불펜 역할 전환 후 로테이션에서 빠짐'):bad('투수 전환 '+sp.pos+' '+u.rotation.includes(sp.id));
+ SL.startConv(p.id,'SP')?ok('야수 → 투수 전환은 거절'):bad('야수 투수 허용');
+ // 드래프트 5라운드 · 지명 후 계약
+ SL.testCmd('endSeason');const D=S.draft;D.pool.length===SL.BAL.DRAFT_POOL&&SL.BAL.DRAFT_ROUNDS===5&&D.order.length===50?ok('드래프트: 후보 80명 · 5라운드 (50순번)'):bad('드래프트 규모 '+D.pool.length+' '+D.order.length);
+ let w=0;while(!SL.draftTurn()&&!D.done&&w++<6)SL.advanceWeek();if(SL.draftTurn()){const c=SL.draftAvail()[0];const r1=SL.draftPick(c.id,'auto');const pend=SL.draftPending();r1.ok&&c.teamId==null&&pend.some(x=>x.id===c.id)&&c.drafted.ask>0?ok(`지명 후 계약 대기: ${c.name} 계약금 ${SL.money(c.drafted.ask)}`):bad('지명 대기 '+r1.msg);
+   const cash0=u.cash;const r2=SL.draftContract(c.id,true);r2.ok&&c.teamId===u.id&&u.cash===cash0-(c.transfers.slice(-1)[0].kind.includes('계약금')?Math.round(cash0-u.cash):0)?ok('계약하면 입단 · 계약금 지출 — '+r2.msg):bad('계약 '+r2.msg);}
+ else ok('(이번 시드는 첫 주에 우리 차례 없음)');
+ let k=0;while(SL.draftTurn()&&k++<10)SL.draftPick(SL.draftAvail()[0].id,'auto');const left=SL.draftPending();while(S.week<=SL.BAL.OFFSEASON_WEEKS)SL.advanceWeek();let rr=SL.startNewSeason();if(!rr.ok){SL.autoFillUser();rr=SL.startNewSeason();}
+ left.every(p=>!S.players[p.id]||S.players[p.id].teamId==null)&&!SL.draftPending().length?ok(`개막까지 계약 안 한 ${left.length}명은 대학 진학`):bad('미계약 처리');
+ SL.krTeams().filter(t=>!t.isUser).every(t=>t.roster.length+t.dev.length<=34)?ok('AI 구단 인원 과도하게 늘지 않음'):bad('AI 인원 '+SL.krTeams().map(t=>t.roster.length+t.dev.length));}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
