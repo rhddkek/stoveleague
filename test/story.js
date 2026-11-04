@@ -172,4 +172,18 @@ console.log('[13] 구장 차이');
    const m2=l.text.match(/비거리 (\d+)m — (.+?)(이었다면|였다면)/);if(m2){near++;const side=/좌익수/.test(l.text)?'l':/우익수/.test(l.text)?'r':'c';const pk=SL.krTeams().map(t=>SL.parkOf(t)).find(p=>p.name===m2[2]);if(!pk||pk.dim[side]>=+m2[1])nearBad++;}}}
  hrN&&!badD?ok(`홈런 비거리는 항상 그 방향 펜스보다 멀다 (${hrN}개)`):bad('비거리<펜스 '+badD);
  !nearBad?ok(`「○○ 구장이었다면 넘어갔을 타구」 ${near}건 — 그 구장 펜스가 실제로 더 짧음`):bad('넘어갔을 타구 오류 '+nearBad);}
+console.log('[14] 시즌 길이 · 시상식 · 아시아 챔피언십');
+{const tot={};for(const G of [28,140]){SL.newGame(606,0,{arch:true,games:G});S=SL.state();const u=SL.userTeam();const ovr0={};for(const id in S.players)ovr0[id]=SL.calcOvr(S.players[id]);
+   while(S.phase==='season')SL.playDayAuto();let gs=0,n=0;for(const id in S.players){const p=S.players[id];if(p.age<=23&&ovr0[id]!=null&&p.teamId!=null){gs+=SL.calcOvr(p)-ovr0[id];n++;}}
+   const t3=S.history[0].tables[3];tot[G]={games:t3[0].w+t3[0].l,tickets:u.fin.tickets,salary:u.fin.salary,grow:gs/n,awards:S.awards&&S.awards[1],asia:S.asia&&S.asia[1]};}
+ tot[28].games===28&&tot[140].games===140?ok('시즌 길이 선택: 28경기 / 140경기 일정 (같은 부 7개 팀과 4번 / 20번)'):bad('경기 수 '+tot[28].games+' '+tot[140].games);
+ const rt=tot[140].tickets/tot[28].tickets,rs=tot[140].salary/tot[28].salary,rg=tot[140].grow/tot[28].grow;Math.abs(rt-1)<0.12&&Math.abs(rs-1)<0.02&&rg>0.75&&rg<1.3?ok(`140경기도 시즌 총량 유지: 입장 수입 ×${rt.toFixed(2)}, 연봉 ×${rs.toFixed(2)}, 유망주 성장 ×${rg.toFixed(2)}`):bad(`총량 차이 수입 ${rt} 연봉 ${rs} 성장 ${rg}`);
+ const A=tot[140].awards;A&&A.KR1&&A.KR1.mvp&&A.KR1.titles.length>=8&&A.KR1.gg.length>=9?ok(`시상식: 1부 MVP ${A.KR1.mvp.name} (${A.KR1.mvp.line}), 타이틀 ${A.KR1.titles.length}개, 골든글러브 ${A.KR1.gg.length}명`):bad('시상식 '+JSON.stringify(A&&A.KR1&&Object.keys(A.KR1)));
+ const hr=A.KR1.titles.find(e=>e.k==='hr');const mx=Math.max(...Object.values(S.players).filter(p=>p.hist&&p.hist.some(h=>h.s===1&&h.lg==='KR1')).map(p=>p.hist.find(h=>h.s===1&&h.lg==='KR1').st.hr||0));hr&&hr.v===mx?ok(`홈런왕 ${hr.name} ${hr.vs} = 1부 최다 홈런 기록과 일치`):bad('홈런왕 불일치 '+(hr&&hr.v)+' '+mx);
+ const mvpP=S.players[A.KR1.mvp.pid];mvpP&&mvpP.awards&&mvpP.awards.some(a=>a.k==='mvp')?ok('수상 기록이 선수에게 남음 (가치·사기 반영)'):bad('선수 수상 기록');
+ const As=tot[140].asia;As&&As.teams.length>=3&&As.table.length===As.teams.length&&As.final.w!==As.final.l&&As.teams.includes(As.final.w)?ok(`아시아 클럽 챔피언십: ${As.table.map(r=>r.name).join(' · ')} → 우승 ${As.final.wn} (${As.final.score})`):bad('아시아 시리즈 '+JSON.stringify(As));
+ const pk=S.players[A.KR1.mvp.pid];const curG=pk?pk.cur.g:0;curG===0?ok('아시아 시리즈 기록은 다음 시즌 성적에 섞이지 않음'):bad('아시아 기록 혼입');
+ SL.setNextGames(70);while(S.week<=6)SL.advanceWeek();let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();SL.startNewSeason();}SL.BAL.SEASON_GAMES===70&&S.games===70&&S.schedule.filter(g=>g.div===3).length===70*4?ok('다음 시즌부터 70경기로 변경'):bad('시즌 길이 변경 '+S.games);
+ const js=SL.serialize();SL.newGame(1,0);SL.load(js);SL.BAL.SEASON_GAMES===70?ok('불러오기 때 저장의 시즌 길이 복원'):bad('불러오기 시즌 길이 '+SL.BAL.SEASON_GAMES);
+ const old=JSON.parse(js);delete old.games;SL.load(JSON.stringify(old));SL.BAL.SEASON_GAMES===28?ok('구버전 저장(시즌 길이 없음) = 28경기'):bad('구버전 시즌 길이');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

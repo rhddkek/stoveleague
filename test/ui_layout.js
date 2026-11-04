@@ -67,6 +67,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   if(await p.evaluate(()=>!!SL.state().post)){const mine=await p.evaluate(()=>!!SL.userGameToday());await has(mine?'결정전':'결정전의 날');await over('결정전 홈');await p.evaluate(()=>UI.go('club','table'));await has('결정전');
     await p.evaluate(()=>{UI.setTab('home');UI.autoDays(1);UI.closeModal();UI.go('club','table');});await has('결정전 결과');await over('결정전 결과');ok(`결정전: 홈 카드(${mine?'우리 경기':'관전'}) → 결과 보기 → 순위 탭 결정전 결과`);}
   else bad('29일차 결정전 없음');
+  if(await p.evaluate(()=>SL.state().phase==='offseason'&&!!SL.state().awards)){await p.evaluate(()=>{UI.closeModal();UI.ceremony(SL.state().season);});await has('시상식');await has('골든글러브');await has('MVP');await over('시상식 화면');await p.evaluate(()=>UI.closeModal());ok('시즌 시상식: MVP·타이틀·골든글러브');}
   // 스토브리그 스폰서 고르기
   if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>{UI.closeModal();UI.go('club','spon');});await has('메인 스폰서');await has('구장 광고판');await has('선수 개인 광고');await over('스폰서 화면(스토브)');
     const ok1=await p.evaluate(()=>{const t=SL.userTeam();if(t.spon.main||!t.spon.offers.length)return 'skip';UI.sponSign(t.spon.offers[0].id);return !!t.spon.main;});ok1===true?ok('스폰서·광고 탭: 제안 비교 → 메인 스폰서 계약'):ok1==='skip'?ok('(스폰서 계약 중 — 제안 화면 생략)'):bad('스폰서 계약 실패');}

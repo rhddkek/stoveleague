@@ -48,7 +48,7 @@ setTimeout(()=>{
      UI.render();has('감독 제의');UI.jobView(91002);has('구단 상황');UI.declineJob(91002);if(S().jobOffers.some(o=>o.id===91002))throw new Error('잔류 실패');UI.back();
      const old=SL.userTeam().id;UI.jobView(91001);has('취임한다');UI.confirmMove(91001);has('취임 확정');UI.moveMgr(91001);if(S().userTeamId!==t.id||S().teams[old].isUser)throw new Error('이직 실패');has('대만 프로야구');
      UI.startSeason();if(S().phase!=='season'){UI.autoFill();UI.startSeason();}if(S().phase!=='season')throw new Error('개막 실패 '+toastT());has('다음 경기');UI.startGame();UI.step('game');UI.endGame();
-     UI.setTab('club');UI.setSub('club','table');has('압축 시즌');UI.setSub('club','mgr');has('감독 평판');has('감독 경력');has('타이베이');UI.setSub('club','alumni');has('옛 제자');});
+     UI.setTab('club');UI.setSub('club','table');has('정규 시즌');UI.setSub('club','mgr');has('감독 평판');has('감독 경력');has('타이베이');UI.setSub('club','alumni');has('옛 제자');});
   step('PC 좌우 배치',()=>{w.matchMedia=()=>({matches:true,addListener(){},removeListener(){}});UI.setTab('roster');const ut=SL.userTeam();UI.openPlayer(ut.roster[0]);if(!w.document.querySelector('.split .lp')||!w.document.querySelector('#rpane .pvbar'))throw new Error('split');has('선수 목록');UI.back();has('코치 한마디');w.matchMedia=()=>({matches:false});UI.render();});
   console.log(errors.length?'UI 오류 '+errors.length+'건:\n'+errors.join('\n'):'UI 스모크 테스트 통과');process.exit(errors.length?1:0);
 },300);

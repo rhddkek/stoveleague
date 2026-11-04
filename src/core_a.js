@@ -2,10 +2,10 @@
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v22';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v23';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
-  SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
+  SEASON_GAMES:28, SEASON_OPTIONS:[28,70,140], DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
   LEVEL_OVR:{KR1:66,KR2:59,KR3:52,JP:64,US:71,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
   START_CASH:{1:900000,2:350000,3:100000},                  // 만원 (3부 10억 ≈ 연봉 2년치)
   TICKET:{1:9000,2:3500,3:1300},                          // 홈경기당 기본 입장수입(만원)
@@ -206,13 +206,14 @@ function perfFactor(p){
   if(s.pa<40)return 1;const ops=ops_(s);return clamp(1+(ops-0.72)*0.8,0.85,1.15);
 }
 function ops_(s){const ab=s.ab||1,h=s.h,bb=s.bb;const obp=(h+bb)/Math.max(1,s.ab+s.bb);const slg=(h+s.d2+2*s.d3+3*s.hr)/ab;return obp+slg;}
+function awardPrem(p){if(!p.awards||!p.awards.length||typeof S==='undefined'||!S)return 1;let m=1;for(const a of p.awards){if(a.s<S.season-1)continue;m*=a.k==='mvp'?1.12:a.k==='gg'?1.05:a.k==='roy'?1.06:1.03;}return Math.min(1.25,m);}
 function calcValue(p){
   const ovr=calcOvr(p);let v=baseVal(ovr);const a=p.age;
   v*=a<=23?1.0:a<=27?1.05:a<=30?0.9:a<=33?0.6:a<=35?0.38:0.25;
   if(a<=26)v*=1+Math.max(0,p.pot-ovr)/22*(a<=22?1:a<=24?0.7:0.4);
   const yrs=p.contract?p.contract.years:1;v*=yrs<=1?0.85:yrs===2?1:1.08;
   if(['C','SS','CF','SP'].includes(p.pos))v*=1.1;
-  v*=perfFactor(p);
+  v*=perfFactor(p);v*=awardPrem(p);
   const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[t.div]:BAL.LEAGUE_VALUE[t.league]):1;
   return Math.max(500,Math.round(v/10)*10);
 }
