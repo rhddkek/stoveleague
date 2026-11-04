@@ -396,3 +396,9 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 
 .tacs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.tacs .dim{margin-right:2px}.tacinfo{background:var(--sunk);border-radius:8px;padding:6px 8px;margin-bottom:8px}
 .glog .tac{color:var(--accent,#b45309);font-weight:600}
+
+.attr .k em{font-style:normal;font-size:10px;font-weight:700;color:#fff;background:#b45309;border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}
+.achrow{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}.achrow .achi{font-size:18px;color:var(--muted);width:20px;text-align:center}.achrow.got .achi{color:#d97706}.achrow:not(.got) b{color:var(--muted)}
+.ledrow{padding:5px 0;border-bottom:1px dashed var(--line)}
+.wsteps{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:2px 0 8px;font-size:12px}.wsteps i{font-style:normal;color:var(--muted)}.ws{padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted)}.ws.on{background:#1e3a8a;color:#fff;font-weight:700}.ws.done{color:var(--green-ink)}
+.farmg{font-family:'Black Han Sans',sans-serif;font-size:20px}.farmg.gA{color:#15803d}.farmg.gB{color:#2563eb}.farmg.gC{color:#ca8a04}.farmg.gD,.farmg.gE{color:#b91c1c}

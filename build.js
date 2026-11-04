@@ -6,9 +6,10 @@ const emIdx=fs.existsSync(A+'/emblems/index.json')?JSON.parse(fs.readFileSync(A+
 const sfx={};if(fs.existsSync(A+'/sfx'))for(const f of fs.readdirSync(A+'/sfx'))if(/\.(mp3|ogg|wav)$/.test(f))sfx[path.basename(f).replace(/\.[^.]+$/,'')]=b64(A+'/sfx/'+f,f.endsWith('.mp3')?'audio/mpeg':f.endsWith('.ogg')?'audio/ogg':'audio/wav');
 const field=fs.existsSync(A+'/field.png')?b64(A+'/field.png','image/png'):null;
 const title=fs.existsSync(A+'/title.png')?b64(A+'/title.png','image/png'):null;
+const office=fs.existsSync(A+'/office.png')?b64(A+'/office.png','image/png'):null;
 const stadiumHome=fs.existsSync(A+'/stadium_home.png')?b64(A+'/stadium_home.png','image/png'):null;const stadiumGame=fs.existsSync(A+'/stadium_game.png')?b64(A+'/stadium_game.png','image/png'):null;
 const badges={};if(fs.existsSync(A+'/badges'))for(const f of fs.readdirSync(A+'/badges'))if(f.endsWith('.png'))badges[f.replace(/\.png$/,'')]=b64(A+'/badges/'+f,'image/png');
-const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,stadiumHome,stadiumGame,badges})+';';
+const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,stadiumHome,stadiumGame,badges,office})+';';
 const html=`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>

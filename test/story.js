@@ -313,4 +313,18 @@ console.log('[20] v34 경기 작전 · 트레이드 · 포지션 전환 · 드�
  let k=0;while(SL.draftTurn()&&k++<10)SL.draftPick(SL.draftAvail()[0].id,'auto');const left=SL.draftPending();while(S.week<=SL.BAL.OFFSEASON_WEEKS)SL.advanceWeek();let rr=SL.startNewSeason();if(!rr.ok){SL.autoFillUser();rr=SL.startNewSeason();}
  left.every(p=>!S.players[p.id]||S.players[p.id].teamId==null)&&!SL.draftPending().length?ok(`개막까지 계약 안 한 ${left.length}명은 대학 진학`):bad('미계약 처리');
  SL.krTeams().filter(t=>!t.isUser).every(t=>t.roster.length+t.dev.length<=34)?ok('AI 구단 인원 과도하게 늘지 않음'):bad('AI 인원 '+SL.krTeams().map(t=>t.roster.length+t.dev.length));}
+console.log('[21] v35 숨은 상한 · 성장 원장 · 생일 · 단기 목표 · 도전과제 · 팜 등급 · 일괄 재계약');
+{SL.newGame(3636,9,{games:36});S=SL.state();const u=SL.userTeam();
+ const p=S.players[u.lineup[0]];const c1=JSON.stringify(SL.capOf(p));delete p._cap;const c2=JSON.stringify(SL.capOf(p));c1===c2&&Object.keys(SL.capOf(p)).every(k=>SL.capOf(p)[k]>=Math.round(p.attrs[k]))?ok('숨은 상한: 선수마다 고정, 지금 능력 이상'):bad('상한 '+c1+' '+c2);
+ !JSON.stringify(S).includes('_cap')?ok('상한은 저장 파일에 안 들어감 (id로 계산)'):bad('상한 저장됨');
+ const bd=SL.bdOf(p);bd.m>=1&&bd.m<=12&&bd.d>=1&&bd.d<=31?ok(`생일: ${p.name} ${bd.m}월 ${bd.d}일`):bad('생일');
+ const d1=SL.dateOf(1),dG=SL.dateOf(SL.BAL.SEASON_GAMES);d1.m===3&&dG.m===9?ok(`시즌 날짜: 1일차 ${d1.m}/${d1.d} ~ ${SL.BAL.SEASON_GAMES}일차 ${dG.m}/${dG.d}`):bad('날짜 '+JSON.stringify([d1,dG]));
+ const fo=SL.reserveIds(u).map(id=>S.players[id]).filter(x=>!SL.isPitcher(x)).slice(0,2);fo.forEach(x=>SL.setResFocus(x.id,true));
+ while(S.phase==='season')SL.playDayAuto();const wg=fo.flatMap(x=>x.wgoals||[]);wg.length>=4&&wg.every(g=>typeof g.got==='number'&&g.text)?ok(`단기 목표 ${wg.length}건 판정 (달성 ${wg.filter(g=>g.ok).length})`):bad('단기 목표 '+wg.length);
+ const okG=fo.find(x=>(x.wgoals||[]).some(g=>g.ok));okG?((okG.ledger||[]).some(e=>(e.f||[]).some(f=>/단기 목표 달성/.test(f)))?ok('달성하면 능력 상승이 성장 원장에 남음'):bad('원장에 목표 없음')):ok('(이번 시드는 달성 없음)');
+ const L=u.roster.map(id=>S.players[id]).find(x=>(x.ledger||[]).length>=3);L&&L.ledger.every(e=>e.s&&e.l&&typeof e.d==='number')?ok(`성장 원장: ${L.name} ${L.ledger.length}건 (날짜·변화·요인)`):bad('원장');
+ const A=SL.achList();A.length>=20&&A.filter(a=>a.got).some(a=>a.k==='season')&&A.filter(a=>a.got).some(a=>a.k==='w1')?ok(`도전과제 ${A.filter(a=>a.got).length}/${A.length}: ${A.filter(a=>a.got).map(a=>a.t).join(', ')}`):bad('도전과제');
+ S.news.filter(n=>/\[도전과제\]/.test(n.text)).length===A.filter(a=>a.got).length?ok('도전과제 달성마다 소식 1번'):bad('도전과제 소식 수');
+ const fg=SL.farmGrade(u);/^[A-E]$/.test(fg.g)?ok(`팜 등급 ${fg.g} (${fg.parts.map(x=>x.join(' ')).join(', ')})`):bad('팜 등급');
+ const pend=S.pendingFA.slice();if(pend.length){const exp=pend.map(id=>SL.renewDemandOf(S.players[id]));const r=SL.renewAll();!S.pendingFA.filter(id=>!S.players[id].grudge).length&&pend.every((id,i)=>S.players[id].grudge||S.players[id].contract.salary===exp[i])?ok(`일괄 재계약 ${r.length}명 (요구액 그대로)`):bad('일괄 재계약');}else ok('(계약 만료 선수 없음)');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);
