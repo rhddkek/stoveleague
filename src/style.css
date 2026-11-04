@@ -340,3 +340,19 @@ button.gold:active{transform:translateY(1px);box-shadow:none}
 .postband{background:linear-gradient(90deg,#b8862a,#f3c76b,#b8862a);color:#2a1f00;font-weight:800;text-align:center;padding:6px 0;font-size:13px}
 .post2 .pvs{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0}.post2 .pvs .vs{font-family:var(--f-display);font-size:24px;opacity:.7}.post2 .pstake{font-weight:800;color:#b8862a;margin-top:4px}
 .ourwin{background:linear-gradient(135deg,#fff3c4,#ffe08a);color:#3a2c00;border-radius:14px;padding:12px;margin:8px 0}.owrow{display:flex;gap:12px;align-items:center;padding:6px 0;cursor:pointer}.ourwin .chip{margin:2px 2px 0 0}
+/* ===== v27 모바일 한 화면 ===== */
+.hero2.cmp{margin-bottom:8px}.hero2.cmp img{height:118px;object-fit:cover;object-position:50% 72%}.hero2.cmp .hboard{display:none}.hero2.cmp .hcap{padding:12px 12px 6px;font-size:12px}
+.today.cmp{margin-bottom:8px}.today.cmp .tdband{font-size:14px;padding:6px 14px;margin-bottom:6px}.today.cmp .tdvs{margin:2px 0 2px}.today.cmp .tdvs .av,.today.cmp .tdvs svg,.today.cmp .tdvs img{width:44px!important;height:44px!important}
+.today.cmp>.muted.small:not(.tdmeta){display:none}.today.cmp .gold.big{padding-top:11px;padding-bottom:11px}
+.rbanner{display:flex;align-items:center;gap:8px;border-radius:12px;padding:9px 12px;margin-bottom:8px;font-size:13.5px;cursor:pointer;border:1px solid var(--line)}.rbanner span{margin-left:auto;font-size:12px;opacity:.75;white-space:nowrap}.rbanner.win{background:var(--green-bg)}.rbanner.loss{background:var(--red-bg)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tile{text-align:left;background:var(--card,#fff);border:1px solid var(--line);border-radius:12px;padding:9px 11px;min-height:64px;display:block;width:100%;color:inherit;font:inherit}
+.tile .th{display:flex;align-items:center;justify-content:space-between;gap:6px;font-weight:800;font-size:13px}.tile .th b{color:var(--green);font-size:13px}.tile.hot{border-color:var(--orange);box-shadow:inset 3px 0 0 var(--orange)}.tile.hot .th b{color:var(--orange)}
+.tile .ts{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sheetc .card:first-child{margin-top:4px}
+@media (max-height:780px){.hero2.cmp img{height:66px;object-position:50% 80%}.hero2.cmp .hcap{padding:6px 10px 4px}.tile{min-height:56px;padding:7px 10px}.today.cmp .gold.big{padding-top:9px;padding-bottom:9px}.today.cmp .tdvs .av,.today.cmp .tdvs svg,.today.cmp .tdvs img{width:38px!important;height:38px!important}}
+.lpwrap{margin:-10px 0 8px;position:relative;z-index:2}.lpwrap .lastplay{margin:0;padding:8px 12px;cursor:pointer}.lpwrap .lastplay .lpb{font-size:24px;line-height:1.1}.lpwrap .lastplay .lpt{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lpwrap .lpface .av,.lpwrap .lpface img,.lpwrap .lpface svg{width:52px!important;height:52px!important}
+.gsm button{padding-top:7px;padding-bottom:7px}
+.mu3{margin-bottom:6px}.mu3 .mc{padding:6px}.mu3 .mc .av,.mu3 .mc img,.mu3 .mc svg{width:42px!important;height:42px!important}
+@media (max-height:780px){.stad{max-width:82%;margin-left:auto;margin-right:auto;border-radius:10px}}
+@media (max-height:780px){.tiles{grid-template-columns:repeat(3,1fr);gap:6px}.tile .th{font-size:12px;flex-wrap:wrap;gap:2px}.tile .ts{font-size:11px}}
