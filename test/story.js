@@ -143,4 +143,13 @@ while(S.phase==='season')SL.playDayAuto();const sp10=S.lastSummary.spon||[];sp10
  !u10.spon.main&&(L.spon||[]).some(x=>/강등으로 시험그룹 계약 해지/.test(x))?ok('대기업 메인: 강등 시 남은 계약 해지'):bad('해지 조항 '+L.spon);L.rank=keep.rank;L.relegated=keep.rel;}
 {SL.newGame(3031,0);S=SL.state();const t=SL.userTeam();t.pres=85;delete t.spon;S.phase='offseason';SL.ensureSpon(t);t.spon.offers.some(o=>o.kind==='big')&&SL.boardSlots(t)===SL.BAL.SPON.boards[t.div]+1?ok('명문 구단: 대기업 메인 제안 + 광고판 1자리 추가'):bad('명문 스폰서');}
 {const js=JSON.parse(SL.serialize());for(const id in js.teams)delete js.teams[id].spon;SL.load(JSON.stringify(js));S=SL.state();SL.userTeam().spon?ok('구버전 세이브: 스폰서 상태 자동 생성'):bad('스폰서 마이그레이션');}
+console.log('[11] 경기 중계 문구 · 효과음');
+{SL.newGame(4242,0);S=SL.state();const lg=SL.startDay();SL.stepGame(lg);const pa=lg.log.filter(l=>['1b','2b','3b','hr','so','dp','fo','go'].includes(l.type));
+ const cntOk=pa.every(l=>/(초구에|볼 \d스트라이크에서|풀카운트에서)/.test(l.text));cntOk?ok(`모든 타석 결과에 볼카운트 (${pa.length}타석)`):bad('볼카운트 누락 '+pa.find(l=>!/(초구에|스트라이크에서|풀카운트에서)/.test(l.text)).text);
+ const names=new Set(Object.keys(lg.box).map(id=>S.players[id]&&S.players[id].name));const outs=pa.filter(l=>l.type==='go'||l.type==='fo');
+ outs.length&&outs.every(l=>/(투수|포수|1루수|2루수|3루수|유격수|좌익수|중견수|우익수)/.test(l.text)&&[...names].some(n=>n&&l.text.includes('— ')&&l.text.split('— ')[1].includes(n)))?ok('범타마다 타구 방향 + 잡은 수비수 이름: '+outs[0].text):bad('수비수 문구 '+(outs.find(l=>!/—/.test(l.text))||{}).text);
+ const hits=pa.filter(l=>['1b','2b','3b'].includes(l.type));hits.every(l=>/(좌|우|중|내야|선상|간)/.test(l.text))?ok('안타 방향: '+(hits[0]?hits[0].text:'-')):bad('안타 방향');
+ const so=pa.filter(l=>l.type==='so');so.every(l=>/(헛스윙|루킹) 삼진/.test(l.text))?ok('삼진 종류 구분: '+(so[0]?so[0].text:'-')):bad('삼진 문구');}
+{SL.newGame(4242,0);S=SL.state();const lg=SL.startDay();SL.stepGame(lg);const a=lg.score.join(':');SL.newGame(4242,0);S=SL.state();const lg2=SL.startDay();SL.stepGame(lg2);a===lg2.score.join(':')?ok('중계 문구는 난수를 쓰지 않음 — 같은 시드 같은 결과 '+a):bad('결정성');}
+{const fs=require('fs');const need=['hit','hr','mitt','so','out'];const have=fs.readdirSync(__dirname+'/../assets/sfx').map(f=>f.replace(/\.mp3$/,''));need.every(k=>have.includes(k))?ok('효과음: 타격음·홈런 함성·미트·삼진·포구'):bad('효과음 파일 '+have);}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

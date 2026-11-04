@@ -45,7 +45,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>UI.test('nextSeason'));(await p.evaluate(()=>SL.state().season))===2?ok('테스트 도구: 다음 시즌 개막까지'):bad('다음 시즌 이동 실패');
   // R004: 직전 타석 결과 유지 · 판매 작별 카드 · 출신 코치 복귀 카드
   await p.goto(FILE+'?test=1&new=1&team=0&seed=1234');await p.waitForTimeout(300);
-  await p.evaluate(()=>{UI.startGame();UI.step('half');});await has('직전 타석');const lpt=await p.evaluate(()=>document.querySelector('.lastplay .lpt').textContent);/회(초|말)/.test(lpt)&&!/—/.test(lpt)?ok('이닝이 바뀌어도 직전 타석 결과 유지: '+lpt.slice(0,40)):bad('직전 타석 '+lpt);
+  await p.evaluate(()=>{UI.startGame();UI.step('half');});await has('직전 타석');const lpt=await p.evaluate(()=>document.querySelector('.lastplay .lpt').textContent);/회(초|말)/.test(lpt)&&!/이닝 종료|공수 교대/.test(lpt)?ok('이닝이 바뀌어도 직전 타석 결과 유지: '+lpt.slice(0,40)):bad('직전 타석 '+lpt);
+  {const mt=await p.evaluate(()=>document.querySelector('.mu').innerText);/오늘/.test(mt)&&/시즌/.test(mt)&&/컨택/.test(mt)&&/구위/.test(mt)&&/구$|·/.test(mt)?ok('경기 화면 타자·투수 카드: 오늘 기록·시즌 기록·주요 능력치'):bad('타자·투수 카드 '+mt);await over('경기 화면 타자·투수 카드');}
   await p.evaluate(()=>{UI.step('game');UI.endGame();});
   await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const pid=ut.roster.find(id=>!ut.lineup.includes(id)&&!SL.isPitcher(S.players[id]));const b=SL.krTeams().find(t=>!t.isUser&&t.div===1);b.cash=9e6;const o={id:S.nextOfferId++,type:'buy',pid,team:b.id,fee:Math.round(SL.calcValue(S.players[pid])*1.2),max:0,expires:S.clock+3,counters:0,status:'agreed',willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(pid);UI.respond(o.id,'accept');});
   await p.waitForTimeout(200);await has('이적 성사');await has('떠납니다');ok('판매 성사 → 작별 카드');await p.evaluate(()=>UI.closeModal());
