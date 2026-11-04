@@ -2,12 +2,12 @@
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v16';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v17';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
   LEVEL_OVR:{KR1:66,KR2:59,KR3:52,JP:64,US:71,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
-  START_CASH:{1:1500000,2:500000,3:160000},                 // 만원
+  START_CASH:{1:900000,2:350000,3:100000},                  // 만원 (3부 10억 ≈ 연봉 2년치)
   TICKET:{1:9000,2:3500,3:1300},                          // 홈경기당 기본 입장수입(만원)
   SPONSOR:{1:300000,2:130000,3:45000}, OVERHEAD:{1:200000,2:60000,3:15000},                    // 시즌 스폰서(만원)
   DIVIDEND:{1:[150000,120000,100000,80000,60000,50000,40000,30000],
@@ -30,11 +30,15 @@ const BAL={
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
   JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,2:44,3:32,TW:47,JP:63},
-  DISPATCH:{max:4,fee:{AU:300,CB:500},maxAge:25,share:{'주전':0.95,'주전 경쟁':0.6,'백업':0.3,'벤치':0.1}},
+  DISPATCH:{max:4,fee:{AU:3000,CB:5000},maxAge:25,share:{'주전':0.95,'주전 경쟁':0.6,'백업':0.3,'벤치':0.1}},
   GROWTH_TICK:10, DECLINE_PER_TICK:0.55, XP_TARGET_BAT:26, XP_TARGET_PIT:20,
   MIN_ROSTER:20, MAX_ROSTER:30, MIN_PITCHERS:9,
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
+  RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
+  LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
+  POST_PRIZE:{1:30000,2:10000,3:4000},   // 우승 결정전 상금(만원)
+  AI_CASH_CAP:{1:600000,2:250000,3:100000},          // AI 구단 시즌 말 보유 한도(넘는 돈의 70%는 모기업 회수) — 이적시장 예산이 의미 있게
   // 시작 구단 유형 (3부 8개 구단에 2개씩) — 난이도가 아니라 '다른 고민'
   ARCH:{youth:{name:'유망주 중심',pitch:'어린 선수가 많아 「내가 키운다」는 맛이 큽니다.',worry:'당장은 이기기 어렵습니다.',tip:'출장 기회를 주며 1~2시즌 뒤를 노리세요.'},
     popular:{name:'지역 인기 구단',pitch:'관중이 많아 입장 수입과 스폰서가 안정적입니다.',worry:'팬과 구단주의 기대가 높아 목표가 빡빡합니다.',tip:'수입을 영입에 써서 기대에 맞추세요.'},

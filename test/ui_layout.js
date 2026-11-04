@@ -13,9 +13,9 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
   await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
   /다음 타석/.test(tt)&&/하이라이트/.test(tt)&&/이번 주 이야기/.test(tt)&&/코치진/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내가 현재 화면(이번 주 이야기·다음 타석·하이라이트·코치진)과 일치'):bad('튜토리얼 문구');
-  const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','table'],['club','fin'],['club','fac'],['club','staff'],['club','overseas'],['club','alumni'],['club','hist'],['club','data']];
+  const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','res'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','table'],['club','fin'],['club','fac'],['club','staff'],['club','overseas'],['club','alumni'],['club','hist'],['club','data']];
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
-  await sweep('시즌 중');ok('시즌 중 18개 화면 가로 넘침·하단 가림 검사');
+  await sweep('시즌 중');ok('시즌 중 19개 화면 가로 넘침·하단 가림 검사');
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');ok('7경기 자동 → 한 주간 보고서');
   await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('다음 타석');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');
@@ -55,5 +55,15 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const b=ut.roster.map(id=>S.players[id]).find(x=>!SL.isPitcher(x)&&!ut.lineup.includes(x.id));S.grievances=[{pid:b.id,s:S.season,on:2,n:13,exp:S.clock+3}];UI.setTab('home');});
   await has('면담 요청');await p.evaluate(()=>UI.grievance(SL.state().grievances[0].pid));await has('사과하고 기회를 약속한다');await has('트레이드 요청을 받아들인다');await has('그냥 넘긴다');await over('면담 화면');
   await p.evaluate(()=>UI.grievanceAns(SL.state().grievances[0].pid,'apology'));(await p.evaluate(()=>!SL.state().grievances.length))?ok('주전 약속 면담: 홈 결정 → 세 가지 선택 → 처리'):bad('면담 처리');
+  // 2군 · 임대 · 결정전
+  await p.evaluate(()=>{UI.closeModal();for(let i=0;i<7&&SL.state().phase==='season'&&SL.state().day<=7;i++)SL.playDayAuto();UI.go('dev','res');});
+  if(await p.evaluate(()=>SL.state().phase==='season'&&SL.state().day<=14)){await has('퓨처스(2군) 리그');await has('2군 순위');await has('임대 후보');await over('2군·임대 탭');
+    const lp=await p.evaluate(()=>{const ut=SL.userTeam();const S=SL.state();const c=ut.roster.concat(ut.dev).map(id=>S.players[id]).find(x=>x.age<=28&&!ut.lineup.includes(x.id)&&!ut.rotation.includes(x.id)&&x.id!==ut.closer&&!SL.loanCheck(x));if(!c)return null;UI.loanView(c.id);return c.id;});
+    if(lp!=null){await has('출장 기회를 만드는 세 가지 방법');await over('임대 화면');      await p.evaluate(pid=>{const o=SL.loanOptions(pid)[0];UI.loanOut(pid,o.team.id);UI.openPlayer(pid);},lp);await has('임대 중');await p.evaluate(()=>UI.pTab('contract'));await has('원소속');await over('임대 선수 화면');
+      ok('2군·임대 탭 → 임대 화면 → 임대 확정 → 선수 화면 임대 표시');}else ok('(임대 후보 없음 — 2군 탭만 확인)');}
+  await p.evaluate(()=>{UI.back&&UI.back();const S=SL.state();while(S.phase==='season'&&S.day<=SL.BAL.SEASON_GAMES)SL.playDayAuto();UI.setTab('home');});
+  if(await p.evaluate(()=>!!SL.state().post)){const mine=await p.evaluate(()=>!!SL.userGameToday());await has(mine?'결정전':'결정전의 날');await over('결정전 홈');await p.evaluate(()=>UI.go('club','table'));await has('결정전');
+    await p.evaluate(()=>{UI.setTab('home');UI.autoDays(1);UI.closeModal();UI.go('club','table');});await has('결정전 결과');await over('결정전 결과');ok(`결정전: 홈 카드(${mine?'우리 경기':'관전'}) → 결과 보기 → 순위 탭 결정전 결과`);}
+  else bad('29일차 결정전 없음');
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

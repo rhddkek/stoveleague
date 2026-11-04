@@ -280,3 +280,7 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 .cmpt th,.cmpt td{text-align:center;vertical-align:middle;padding:6px 8px}.cmpt th:first-child{white-space:nowrap}
 .glist{display:grid;gap:8px;margin-top:12px;text-align:left}.gopt{display:block;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:0;font-weight:400;color:var(--ink,inherit)}
 .gopt b{display:block;font-size:15px;margin-bottom:2px}.gopt span{font-size:13px;color:var(--muted)}.gopt:hover{border-color:var(--navy)}
+/* 결정전 */
+.postc{border-left:4px solid var(--orange)}
+.postc .drow{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.postc .drow:last-of-type{border-bottom:none}
+.postc .drow .nm{font-weight:700;font-size:14px}.postc .drow.me{background:var(--green-bg);margin:0 -8px;padding:8px}
