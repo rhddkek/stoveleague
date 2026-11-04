@@ -120,4 +120,27 @@ for(let i=0;i<9;i++)SL.playDayAuto();const crisisT=big9[1].t;const c0=crisisT.ca
 S.news.some(n=>n.text.includes(crisisT.name)&&/긴급 투자/.test(n.text))&&crisisT.roster.some(id=>!ro9.includes(id))?ok(`강등권 명문 ${crisisT.name}: 10일차 모기업 긴급 투자 + 보강 (${S.news.find(n=>/긴급 투자/.test(n.text)).text.split(' — ')[1]||''})`):bad('긴급 투자 없음');
 // 구버전 세이브 위상 채움
 {const js=JSON.parse(SL.serialize());for(const id in js.teams){delete js.teams[id].pres;delete js.teams[id].presFloor;}SL.load(JSON.stringify(js));S=SL.state();SL.krTeams().every(t=>typeof t.pres==='number')&&SL.presTable()[0].tier==='명문'?ok('구버전 세이브: 위상 자동 부여'):bad('위상 마이그레이션');}
+console.log('[10] 스폰서 · 광고판 · 선수 광고');
+SL.newGame(3030,0,{arch:true});S=SL.state();let u10=SL.userTeam();const B10=SL.sponBase(u10);
+u10.spon.main&&u10.spon.boards.length===SL.boardSlots(u10)&&u10.fin.sponsor===u10.spon.main.base&&u10.fin.ads>0?ok(`시작: 메인 ${u10.spon.main.co} ${SL.money(u10.spon.main.base)} + 광고판 ${u10.spon.boards.length}자리 ${SL.money(u10.fin.ads)} (예전 자동 스폰서 ${SL.money(Math.round(B10))} 대비 ${Math.round((u10.fin.sponsor+u10.fin.ads)/B10*100)}%)`):bad('시작 스폰서 '+JSON.stringify(u10.spon.main));
+while(S.phase==='season')SL.playDayAuto();const ks=u10.spon.offers.map(o=>o.kind);
+!u10.spon.main&&ks.includes('stable')&&ks.includes('perf')&&ks.includes('short')&&!ks.includes('big')?ok('시즌 뒤 계약 만료 → 제안 3종 (장기 안정·성적 연동·단기 고액), 약소 구단엔 대기업 없음'):bad('제안 '+ks);
+const perf=u10.spon.offers.find(o=>o.kind==='perf');SL.sponSign(perf.id);u10.spon.main.kind==='perf'&&!u10.spon.offers.length?ok(`성적 연동형 계약: ${perf.co}`):bad('계약 실패');
+const bo=u10.spon.boardOffers;const same=bo.find(b=>b.sector===perf.sector);if(same)/업종/.test(SL.boardSign(same.id)||'')?ok('메인 스폰서와 같은 업종 광고판 거절'):bad('업종 충돌 허용');
+const gate=bo.find(b=>b.type==='gate'&&b.sector!==perf.sector);if(gate)SL.boardSign(gate.id);
+// 개인 광고: 스타 만들기
+const star=u10.roster.map(id=>S.players[id]).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];for(const k in star.attrs)star.attrs[k]=Math.min(99,star.attrs[k]+15);S.endorseOffers=[];
+let tries=0;while(!S.endorseOffers.some(o=>o.pid===star.id)&&tries++<30){S.endorseOffers=[];SL.endorseOffers();}const eo=S.endorseOffers.find(o=>o.pid===star.id);
+if(eo){const m0=star.morale,d0=SL.playerDemand(star,u10);SL.endorseAnswer(eo.id,true);star.endorse&&star.morale>m0&&SL.playerDemand(star,u10)>d0?ok(`개인 광고: ${star.name} ← ${eo.co} 연 ${SL.money(eo.fee)}, 사기 ${m0}→${star.morale}, 재계약 요구 상승`):bad('광고 수락 효과');}else bad('스타 광고 제안 없음 (점수 '+SL.starScore(star,u10)+')');
+let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();r=SL.startNewSeason();}
+u10.fin.sponsor===u10.spon.main.base&&u10.fin.endorse===Math.round(star.endorse.fee*0.3/10)*10?ok(`개막 입금: 메인 ${SL.money(u10.fin.sponsor)} + 광고판 ${SL.money(u10.fin.ads)} + 광고 수수료 ${SL.money(u10.fin.endorse)}`):bad('개막 입금 '+JSON.stringify(u10.fin));
+const ads0=u10.fin.ads;for(let i=0;i<6;i++)SL.playDayAuto();gate?(u10.fin.ads>ads0?ok(`관중 연동 광고판: 홈 경기마다 입금 (${SL.money(u10.fin.ads-ads0)})`):bad('관중 연동 미입금')):0;
+while(S.phase==='season')SL.playDayAuto();const sp10=S.lastSummary.spon||[];sp10.some(x=>/성적 보너스/.test(x))?ok('시즌 정산: '+sp10[0]):bad('성적 보너스 정산 '+sp10);
+// 단기 고액형 위약금 · 대기업 메인 강등 해지
+{const L=S.lastSummary;const keep={rank:L.rank,rel:L.relegated};u10.spon.main={co:'시험상사',sector:'x',kind:'short',years:1,base:1000,target:2,penalty:777,since:1};L.rank=5;L.relegated=false;const c1=u10.cash;SL.sponSettle(S.season,{s:S.season,post:null});
+ u10.cash===c1-777&&!u10.spon.main&&u10.spon.offers.length?ok('단기 고액형 목표 미달 → 위약금 차감, 새 제안'):bad('위약금 '+(c1-u10.cash));
+ u10.spon.main={co:'시험그룹',sector:'y',kind:'big',years:3,base:1000,clause:'relegate',since:1};L.relegated=true;SL.sponSettle(S.season,{s:S.season,post:null});
+ !u10.spon.main&&(L.spon||[]).some(x=>/강등으로 시험그룹 계약 해지/.test(x))?ok('대기업 메인: 강등 시 남은 계약 해지'):bad('해지 조항 '+L.spon);L.rank=keep.rank;L.relegated=keep.rel;}
+{SL.newGame(3031,0);S=SL.state();const t=SL.userTeam();t.pres=85;delete t.spon;S.phase='offseason';SL.ensureSpon(t);t.spon.offers.some(o=>o.kind==='big')&&SL.boardSlots(t)===SL.BAL.SPON.boards[t.div]+1?ok('명문 구단: 대기업 메인 제안 + 광고판 1자리 추가'):bad('명문 스폰서');}
+{const js=JSON.parse(SL.serialize());for(const id in js.teams)delete js.teams[id].spon;SL.load(JSON.stringify(js));S=SL.state();SL.userTeam().spon?ok('구버전 세이브: 스폰서 상태 자동 생성'):bad('스폰서 마이그레이션');}
 console.log(fails?`리뷰 반영 검증 실패 ${fails}건`:'리뷰 반영 검증 모두 통과');process.exit(fails?1:0);

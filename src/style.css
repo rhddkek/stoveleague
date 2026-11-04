@@ -285,3 +285,6 @@ html.calm *,html.calm *::before,html.calm *::after{animation:none!important;tran
 .postc .drow{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.postc .drow:last-of-type{border-bottom:none}
 .postc .drow .nm{font-weight:700;font-size:14px}.postc .drow.me{background:var(--green-bg);margin:0 -8px;padding:8px}
 .chip.y{background:#f6e7b0;color:#7a5600;font-weight:700}
+/* 스폰서 */
+.spl{width:42px;height:42px;border-radius:10px;background:var(--navy);color:#f3c76b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:0 0 auto}
+.drow2{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.drow2:last-child{border-bottom:none}

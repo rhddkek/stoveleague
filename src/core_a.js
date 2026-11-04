@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=4;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v18';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v19';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:28, DIV_TEAMS:8, DIVS:3, OFFSEASON_WEEKS:6,
@@ -46,6 +46,15 @@ const BAL={
     vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌 승격을 노릴 수 있습니다.',worry:'2~3년 안에 세대교체가 급합니다.',tip:'좋을 때 팔고 젊은 선수를 모으세요.'}},
   ARCH_OF:['youth','popular','poor','vet','youth','popular','poor','vet'],
   // 구단 위상(명문도): 성적·우승·소속 부로 천천히 쌓이고 천천히 식는다. TEAM_NAMES.KR 순서대로 시작 값
+  // 스폰서·광고 (유저 구단만 선택, AI는 기존 자동 수입 = 기준값). 회사명은 모두 가상
+  SPON:{
+    co:{big:[['청람그룹','금융'],['은하전자','전자'],['솔빛생명','보험'],['미리내건설','건설']],
+        mid:[['라온통신','통신'],['다온식품','식품'],['가람제약','제약'],['누리모터스','자동차'],['별빛제과','식품'],['한결증권','금융'],['초록에너지','에너지'],['파랑항공','항공']],
+        local:[['골목치킨','외식'],['동네마트','유통'],['밝은안경','안경'],['달빛분식','외식'],['바른세탁','생활'],['새봄약국','제약'],['든든렌터카','자동차'],['푸른학원','교육'],['한우리정육','식품'],['햇살병원','의료']]},
+    kinds:{stable:{name:'장기 안정형',years:3,base:0.8},perf:{name:'성적 연동형',years:2,base:0.5},short:{name:'단기 고액형',years:1,base:1.15,miss:0.35},big:{name:'대기업 메인',years:3,base:1.2}},
+    perfBonus:{r1:0.8,r2:0.6,r4:0.3,promo:0.3,champ:0.2},
+    boards:{1:4,2:3,3:2,os:3},boardShare:0.055,   // 광고판 한 자리 ≈ 기준 스폰서의 5.5%
+    endorse:{minScore:8,comm:0.3,feeShare:0.03,morale:8,decline:-4,demand:1.05}},
   PRES0:[90,84,80,68,62,56,50,46, 74,44,40,38,35,33,30,28, 16,14,12,15,20,13,18,22],
   PRES_TIER:[[80,'명문'],[60,'강호'],[40,'중견'],[22,'신흥'],[0,'약소']],
   PRES_NORM:{1:66,2:42,3:20},                // 부별 평균 위상 — 수입은 이 값 대비로만 증감 (AI 평균 밸런스 유지)
@@ -218,7 +227,7 @@ function genTeam(name,color,league,div,isUser){
   t.cash=Math.round(t.cash);
   return t;
 }
-function newFin(){return {tickets:0,sponsor:0,dividend:0,sales:0,salary:0,buys:0,scout:0,facility:0,other:0,dispatch:0,staff:0};}
+function newFin(){return {tickets:0,sponsor:0,ads:0,endorse:0,dividend:0,sales:0,salary:0,buys:0,scout:0,facility:0,other:0,dispatch:0,staff:0};}
 function levelOf(t){return t.league==='KR'?BAL.LEVEL_OVR['KR'+t.div]:BAL.LEVEL_OVR[t.league];}
 function addToTeam(p,t,contract,dev){p.teamId=t.id;(dev?t.dev:t.roster).push(p.id);p.contract=contract;}
 function devCap(t){return BAL.DEV_BASE+(t.fac?t.fac.youth:1)+(t.staff&&typeof staffP==='function'&&staffP(t,'dev')>=1.2?1:0);}
