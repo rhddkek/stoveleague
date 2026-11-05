@@ -19,6 +19,14 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   // R026 한 화면: 360×740에서 모든 탭 첫 화면이 세로로 넘치지 않는다 (넘치는 카드는 타일 → 누르면 팝업)
   {const sc=[];for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);const o=await p.evaluate(()=>document.scrollingElement.scrollHeight-innerHeight);if(o>4)sc.push(`${t}/${s||''} ${o}px`);}
    sc.length?bad('세로 스크롤 남음: '+sc.join(', ')):ok(`한 화면: ${tabs.length}개 화면 모두 세로 스크롤 없음`);}
+  // v44 EA 2011 착안: 성장 정보(목록+상세) · 표로 보기 · 트레이드 나란히 비교 팝업 · 아래 한 줄 소식 · 결정 화면의 자금
+  {await p.evaluate(()=>UI.go('dev','train'));const g=await p.evaluate(()=>{const b=document.querySelector('.gbcard');if(!b)return null;const items=b.querySelectorAll('.gbi').length;const attrs=b.querySelectorAll('.gba').length;const sec=document.querySelectorAll('.gbi')[1];if(sec)sec.click();const sel=document.querySelector('.gbi.on .gn');return {items,attrs,sel:sel&&sel.textContent};});
+   g&&g.items>5&&g.attrs>=5&&g.sel?ok(`성장 정보: 목록 ${g.items}명 + 능력 ${g.attrs}개, 다른 선수 누르면 오른쪽이 바뀜 (${g.sel})`):bad('성장 정보 '+JSON.stringify(g));
+   await p.evaluate(()=>UI.go('market','fa'));const t1=await p.evaluate(()=>document.querySelectorAll('.ptab tbody tr').length);await p.evaluate(()=>UI.lmode());const t2=await p.evaluate(()=>document.querySelectorAll('.ptab').length+'/'+document.querySelectorAll('.content .prow').length);await p.evaluate(()=>UI.lmode());
+   t1>5&&/^0\/\d+/.test(t2)?ok(`표로 보기: FA ${t1}줄 표 ↔ 카드 전환`):bad('표 보기 '+t1+' '+t2);
+   const tr=await p.evaluate(()=>{UI.go('market','trade');const ut=SL.userTeam();UI.tradeToggle('give',ut.roster[2]);const t=SL.state().teams[ui_t=SL.krTeams().find(x=>!x.isUser).id];UI.tradeToggle('get',t.roster[4]);UI.tradeSheet();const m=document.querySelector('#modal .tside');const r=m?m.querySelectorAll('.tpr').length:0;UI.closeModal();return r;});
+   tr===2?ok('트레이드: 비교·제안 팝업에 양쪽 선수 나란히'):bad('트레이드 팝업 '+tr);
+   const tk=await p.evaluate(()=>{const e=document.getElementById('tick');return e&&e.textContent.length>3;});tk?ok('아래 한 줄 소식 표시'):bad('소식 띠 없음');}
   {await p.evaluate(()=>UI.go('dev','res'));const n=await p.evaluate(()=>document.querySelectorAll('.tile2').length);await p.evaluate(()=>{const t=document.querySelector('.tile2');if(t)t.click();});const r=await p.evaluate(()=>{const m=document.querySelector('#modal .sheetc .card');return m?m.innerText.slice(0,20):null;});
    n>0&&r?ok(`타일 ${n}개 → 누르면 그 카드가 팝업으로 열림 (「${r.replace(/\n/g,' ')}」)`):bad('타일 팝업 '+n+' '+r);await p.evaluate(()=>UI.closeModal());}
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
@@ -33,7 +41,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>UI.go('league','table'));await has('최종 순위');await has('포스트시즌 결과');await has('가을야구');ok('스토브리그 순위: 정규 시즌 최종 순위 + 포스트시즌 결과(대진표)');
   // R003: 드래프트 보드 필터·비교
   const dok=await p.evaluate(()=>{let g=0;while(!(SL.state().draft&&!SL.state().draft.done)&&g++<3)SL.advanceWeek();if(!SL.state().draft||SL.state().draft.done)return null;UI.go('dev','draft');UI.draftF('g','P');const ids=SL.draftAvail().filter(SL.isPitcher).slice(0,3).map(p=>p.id);ids.forEach(id=>UI.draftToggle(id));UI.draftCompare();return ids.length;});
-  if(dok){await has('드래프트 후보 비교');await has('예상 잠재');await has('부족 포지션');await over('드래프트 비교');ok(`드래프트: 투수 필터 + ${dok}명 비교 표`);await p.evaluate(()=>{UI.closeModal();UI.set('draftCmp',[]);UI.draftF('g','all');});}
+  if(dok){await has('드래프트 후보 비교');await has('예상 잠재');await has('필요 포지션');await over('드래프트 비교');ok(`드래프트: 투수 필터 + ${dok}명 비교 표`);await p.evaluate(()=>{UI.closeModal();UI.set('draftCmp',[]);UI.draftF('g','all');});}
   const pick=await p.evaluate(()=>{let g=0;while(!SL.draftTurn()&&SL.state().draft&&!SL.state().draft.done&&g++<10)SL.advanceWeek();if(!SL.draftTurn())return null;const id=SL.state().draft.pool.find(x=>SL.state().players[x].teamId==null);UI.draftPick(id,'auto');return id;});
   if(pick){await p.waitForTimeout(100);await has('지명');await has('첫 육성 계획');await over('지명 연출');ok('드래프트 지명 연출');await p.evaluate(()=>UI.closeModal());
     await p.evaluate(id=>{if(SL.state().players[id].drafted)UI.draftSign(id,true);},pick);await p.evaluate(id=>UI.openPlayer(id),pick);const bt=await p.evaluate(()=>document.body.innerText);(!/\d시즌 시작/.test(bt.split('비교 기준')[1]||bt.split('비교할 과거')[0]||''))&&/입단 당시|비교할 과거/.test(bt)?ok('지명 신인 비교 기준 = 입단 당시 (「1시즌 시작」 없음)'):bad('신인 비교 기준 표시');await p.evaluate(()=>UI.back());}else console.log('  (이번 시드는 우리 지명 차례 없음)');
