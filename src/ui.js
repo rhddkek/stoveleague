@@ -503,7 +503,7 @@ function renderRoster(){
 function asSquadName(k){return SL.AS_SQUAD[k].name;}
 function allStarCard(A,ut){const G=A.game;const mv=G.mvp?S.players[G.mvp]:null;const mine=['blue','red'].flatMap(k=>A.squads[k].best.map(b=>({...b,best:true})).concat(A.squads[k].picks)).filter(x=>x.tid===ut.id);
   return `<div class="card asc">${hd(`${A.s}시즌 올스타전`,`${A.d}일차 · 올스타 휴식기`)}<div class="asbox"><div class="asside ${G.win==='blue'?'win':''}"><span class="asn blue">청팀</span><b>${G.blue}</b></div><span class="dim">:</span><div class="asside ${G.win==='red'?'win':''}"><b>${G.red}</b><span class="asn red">홍팀</span></div></div>
-    ${mv?`<div class="row" style="gap:10px;margin-top:8px" onclick="UI.openPlayer(${mv.id})">${face(mv,40)}<div><div class="b">MVP ${esc(mv.name)} <span class="dim small">${esc(S.teams[mv.teamId].name)}</span></div><div class="small">${esc(G.line.text)}</div></div></div>`:''}
+    ${mv?`<div class="row" style="gap:10px;margin-top:8px" onclick="UI.openPlayer(${mv.id})">${face(mv,40)}<div><div class="b">MVP ${esc(mv.name)} <span class="dim small">${esc(teamName(mv.teamId))}</span></div><div class="small">${esc(G.line.text)}</div></div></div>`:''}
     <div class="small" style="margin-top:8px">우리 구단: ${mine.length?mine.map(x=>`<b>${esc(S.players[x.pid].name)}</b>${x.best?`(${esc(x.ko)} 베스트)`:'(감독 추천)'}`).join(', '):'<span class="dim">선정자 없음</span>'}</div>
     <div style="height:8px"></div><button class="sm" onclick="UI.allStarView()">올스타 명단 · 투표 결과</button></div>`;}
 function allStarModal(){const A=S.allstar;if(!A)return '';const ut=SL.userTeam();const nm=id=>{const p=S.players[id];return p?esc(p.name):'-';};
