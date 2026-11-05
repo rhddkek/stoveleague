@@ -73,7 +73,9 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   if(await p.evaluate(()=>SL.state().phase==='offseason'&&!!SL.state().awards)){await p.evaluate(()=>{UI.closeModal();UI.ceremony(SL.state().season);});await has('시상식');await has('골든글러브');await has('MVP');await over('시상식 화면');await p.evaluate(()=>UI.closeModal());ok('시즌 시상식: MVP·타이틀·골든글러브');}
   if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>UI.go('league','hist'));await has('우리 구단 역대 수상자');await over('역대 수상자');const wp=await p.evaluate(()=>{const S=SL.state();const x=Object.values(S.players).find(q=>q.awards&&q.awards.length&&q.teamId!=null);if(!x)return null;UI.openPlayer(x.id);UI.pTab('record');return x.id;});if(wp!=null){await has('수상 기록');await over('선수 수상 기록');await p.evaluate(()=>UI.back());}ok('역대 탭 「우리 구단 역대 수상자」·선수 기록 「수상 기록」');}
   // 스토브리그 스폰서 고르기
-  if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>{UI.closeModal();UI.go('club','spon');});await has('메인 스폰서');await has('구장 광고판');await has('선수 개인 광고');await over('스폰서 화면(스토브)');
+  if(await p.evaluate(()=>SL.state().phase==='offseason')){await p.evaluate(()=>{UI.closeModal();UI.go('home');});await has('진행 중');await over('겨울 마감판');ok('겨울 마감판 (이번 주 마감·진행 중·완료)');
+    await p.evaluate(()=>UI.startSeason());const sk=await p.evaluate(()=>!!document.querySelector('#modal'));if(sk){await has('남은 겨울을 건너뛰고');await has('자동으로 처리되는 것');await over('개막 건너뛰기 요약');ok('개막 건너뛰기 전 요약');await p.evaluate(()=>UI.closeModal());}
+    await p.evaluate(()=>{UI.closeModal();UI.go('club','spon');});await has('메인 스폰서');await has('구장 광고판');await has('선수 개인 광고');await over('스폰서 화면(스토브)');
     const ok1=await p.evaluate(()=>{const t=SL.userTeam();if(t.spon.main||!t.spon.offers.length)return 'skip';UI.sponSign(t.spon.offers[0].id);return !!t.spon.main;});ok1===true?ok('스폰서·광고 탭: 제안 비교 → 메인 스폰서 계약'):ok1==='skip'?ok('(스폰서 계약 중 — 제안 화면 생략)'):bad('스폰서 계약 실패');}
   // R013: 포스트시즌 앞 정지 · 포스트시즌 연출 · 광고 마감 정지 · 결과 주인공 · 시상식 우리 선수 먼저 · 2군 기록
   await p.goto(FILE+'?test=1&new=1&team=0&seed=4321');await p.waitForTimeout(300);

@@ -37,7 +37,7 @@ setTimeout(()=>{
      UI.setSub('dev','draft');if(SL.draftTurn()){const id=SL.draftAvail()[0].id;UI.draftPick(id,'dev');}UI.setTab('home');UI.advanceWeek();if(!S().draft.done)throw new Error('draft');});
   step('파견 종료 기록',()=>{UI.setTab('home');UI.advanceWeek();UI.advanceWeek();UI.advanceWeek();const d=S().dispatch;if(d.list.length){if(d.phase!=='done')throw new Error('파견 미종료 '+d.phase);const p=S().players[d.list[0].pid];UI.openPlayer(p.id);UI.pTab('record');has('겨울리그 파견 기록');UI.back();}});
   step('계약 표기',()=>{const ut=SL.userTeam();const p=S().players[ut.roster[0]];UI.openPlayer(p.id);UI.pTab('contract');if(!/시즌 종료 후 FA|우선협상/.test(txt()))throw new Error('계약 텍스트');UI.back();});
-  step('새 시즌',()=>{UI.setTab('home');UI.startSeason();if(S().season!==2){UI.autoFill();UI.startSeason();}if(S().season!==2)throw new Error(toastT());has('경기 보기');has('육성 리포트');});
+  step('새 시즌',()=>{UI.setTab('home');UI.startSeasonGo();if(S().season!==2){UI.autoFill();UI.startSeasonGo();}if(S().season!==2)throw new Error(toastT());has('경기 보기');has('육성 리포트');});
   step('모달/내보내기',()=>{const ut=SL.userTeam();UI.confirmRelease(ut.roster[ut.roster.length-1]);has('방출 확정');UI.closeModal();UI.exportSave();has('전체 복사');UI.closeModal();});
   step('잘못된 JSON',()=>{try{SL.load('{"version":99}');throw new Error('로드됨');}catch(e){if(e.message==='로드됨')throw e;}if(S().season!==2)throw new Error('손상');});
   step('이어하기',()=>{UI.continueGame();has('다음 경기');});
@@ -47,7 +47,7 @@ setTimeout(()=>{
      const t=SL.overseasTeams().find(x=>x.league==='TW');const k=SL.krTeams().find(x=>!x.isUser);S().jobOffers=[{id:91001,team:t.id,kind:'job',goal:SL.teamOutlook(t).goal,rankExp:2,n:4,expires:2,reason:'t'},{id:91002,team:k.id,kind:'job',goal:SL.teamOutlook(k).goal,rankExp:4,n:10,expires:2,reason:'t'}];
      UI.render();has('감독 제의');UI.jobView(91002);has('구단 상황');UI.declineJob(91002);if(S().jobOffers.some(o=>o.id===91002))throw new Error('잔류 실패');UI.back();
      const old=SL.userTeam().id;UI.jobView(91001);has('취임한다');UI.confirmMove(91001);has('취임 확정');UI.moveMgr(91001);if(S().userTeamId!==t.id||S().teams[old].isUser)throw new Error('이직 실패');has('대만 프로야구');
-     UI.startSeason();if(S().phase!=='season'){UI.autoFill();UI.startSeason();}if(S().phase!=='season')throw new Error('개막 실패 '+toastT());has('다음 경기');UI.startGame();UI.step('game');UI.endGame();
+     UI.startSeasonGo();if(S().phase!=='season'){UI.autoFill();UI.startSeasonGo();}if(S().phase!=='season')throw new Error('개막 실패 '+toastT());has('다음 경기');UI.startGame();UI.step('game');UI.endGame();
      UI.setTab('league');UI.setSub('league','table');has('정규 시즌');UI.setTab('club');UI.setSub('club','mgr');has('감독 평판');has('감독 경력');has('타이베이');UI.setSub('club','alumni');has('옛 제자');});
   step('PC 좌우 배치',()=>{w.matchMedia=()=>({matches:true,addListener(){},removeListener(){}});UI.setTab('roster');const ut=SL.userTeam();UI.openPlayer(ut.roster[0]);if(!w.document.querySelector('.split .lp')||!w.document.querySelector('#rpane .pvbar'))throw new Error('split');has('선수 목록');UI.back();has('코치 한마디');w.matchMedia=()=>({matches:false});UI.render();});
   console.log(errors.length?'UI 오류 '+errors.length+'건:\n'+errors.join('\n'):'UI 스모크 테스트 통과');process.exit(errors.length?1:0);
