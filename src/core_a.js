@@ -2,11 +2,11 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v37';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v38';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
-  LEVEL_OVR:{KR1:66,RES:52,JP:64,US:71,US2:63,US3:56,JP2:54,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
+  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:75,US2:68,US3:63,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6,
   // 국내는 10개 구단 단일 리그(1군) + 2군. 승강제 없음. 경제 기준값은 1군 하나, 구단별 차이는 위상(시장 크기)으로만
   START_CASH:{1:900000},                                   // 만원 (AI 기준값)
   TICKET:{1:9000},                                         // 홈경기당 기본 입장수입(만원)
@@ -25,7 +25,8 @@ const BAL={
     MX:{name:'멕시칸리그',short:'멕시코',style:'20개 구단 · 북부/남부 지구',games:93,roster:24,subs:['북부 지구','남부 지구']},
     AU:{name:'호주 야구리그',short:'호주',style:'4개 구단 겨울리그',games:36,roster:22,winter:true},
     CB:{name:'도미니카 윈터리그',short:'도미니카',style:'6개 구단 겨울리그',games:50,roster:22,winter:true}},
-  BUY_MIN:{US:70,JP:64,TW:58,MX:59},
+  // 리그 수준 (v38, 스카우트·구단 관계자 평가 기준): 메이저리그 > 일본 > 미국 2군(트리플A급) > 한국 > 멕시코 ≈ 미국 3군(더블A급) ≈ 도미니카 겨울 > 일본 2군 > 대만 > 호주 > 한국 퓨처스
+  BUY_MIN:{US:73,JP:69,TW:60,MX:62},
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
   JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,TW:47,JP:63},
@@ -35,7 +36,8 @@ const BAL={
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:28000,genMin:4000,genMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년
-  FARM:{US:[{t:2,ko:'미국 2군',lvl:63},{t:3,ko:'미국 3군',lvl:56}],JP:[{t:2,ko:'일본 2군',lvl:54}]},   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
+  FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
+  LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준
   FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 3,000만 원 (준우승 1/3)
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율

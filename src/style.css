@@ -402,3 +402,5 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 .ledrow{padding:5px 0;border-bottom:1px dashed var(--line)}
 .wsteps{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:2px 0 8px;font-size:12px}.wsteps i{font-style:normal;color:var(--muted)}.ws{padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted)}.ws.on{background:#1e3a8a;color:#fff;font-weight:700}.ws.done{color:var(--green-ink)}
 .farmg{font-family:'Black Han Sans',sans-serif;font-size:20px}.farmg.gA{color:#15803d}.farmg.gB{color:#2563eb}.farmg.gC{color:#ca8a04}.farmg.gD,.farmg.gE{color:#b91c1c}
+
+.lvrow{display:grid;grid-template-columns:104px 1fr 26px;gap:8px;align-items:center;padding:4px 0}.lvrow .lx{grid-column:1/-1;margin-top:-4px;padding-left:2px}.lvrow .bar{height:8px;background:var(--sunk);border-radius:4px;overflow:hidden}.lvrow .bar i{display:block;height:100%;background:#1e3a8a}.lvrow.me .bar i{background:var(--green-ink)}.lvrow.me .ln{font-weight:700}.lvrow .ln{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -488,6 +488,10 @@ function renderTrade(ut){const T=ui.trade||(ui.trade={tid:null,give:[],get:[],ca
   h+=`<div class="card">${hd('우리 선수',`${T.give.length}/3명 선택`)}${mine.map(p=>row(p,'give')).join('')}</div><div class="card">${hd(esc(t.name)+' 선수',`${T.get.length}/3명 선택`)}${theirs.map(p=>row(p,'get')).join('')}</div>`;
   return h;}
 
+
+// 리그 수준 비교 (v38): 숫자는 그 리그 평균 수준의 종합 능력치. 실제 비교는 스카우트·구단 관계자 평가 순서를 따름
+function levelCard(){const L=SL.BAL.LEVEL_OVR;const rows=[['US','메이저리그','세계 최고 수준'],['JP','일본 1군','일본 프로야구'],['US2','미국 2군','트리플A급'],['KR1','한국 1군','우리 리그 · 기준'],['MX','멕시칸리그','더블A~트리플A 사이'],['US3','미국 3군','더블A급'],['CB','도미니카 겨울리그','겨울 · 트리플A·더블A 선수 다수'],['JP2','일본 2군','유망주 리그'],['TW','대만 프로야구','하이 싱글A급'],['AU','호주 겨울리그','겨울 · 싱글A급 유망주 다수'],['RES','한국 퓨처스','2군']].sort((a,b)=>L[b[0]]-L[a[0]]);const mx=L.US,mn=L.RES-4;
+  return `<div class="card">${hd('리그 수준 비교','종합 능력치 기준')}<div class="muted small" style="margin-bottom:6px">숫자는 그 리그 평균 선수 수준입니다. 순서는 스카우트·구단 관계자들이 보는 실제 비교(메이저리그 > 일본 > 트리플A > 한국 > 더블A > 하이 싱글A > 대만)를 따랐습니다. 하부 리그는 실제 리그명 대신 2군·3군으로 부릅니다.</div>${rows.map(r=>`<div class="lvrow ${r[0]==='KR1'?'me':''}"><span class="ln">${esc(r[1])}</span><div class="bar"><i style="width:${Math.round((L[r[0]]-mn)/(mx-mn)*100)}%"></i></div><b>${L[r[0]]}</b><span class="dim small lx">${esc(r[2])}</span></div>`).join('')}</div>`;}
 // ---------- 리그: 올스타·퓨처스 / 도전과제 ----------
 function renderEvents(){let h='';const A=S.allstar;const ut=SL.userTeam();
   if(A)h+=allStarCard(A,ut);else h+=`<div class="card">${hd('올스타전')}<div class="muted small">정규 시즌 ${SL.asDay()}일차가 끝나면 열립니다 (청팀 vs 홍팀, 베스트 12 + 감독 추천 13명씩, 퓨처스 올스타전 함께).</div></div>`;
@@ -674,7 +678,7 @@ function renderClub(forced){
     h+=`<div class="card">${hd('시설','유지비는 개막 때 차감')}${Object.keys(F).map(k=>{const lv=ut.fac[k];const now=SL.facEffect(k,lv),nx=lv<5?SL.facEffect(k,lv+1):null;return `<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row sb"><div><b>${desc[k][0]}</b> <span class="chip n">Lv.${lv}</span></div><button class="sm ${lv<5?'go':''}" ${lv>=5?'disabled':''} onclick="UI.upgrade('${k}')">${lv>=5?'최대 레벨':`Lv.${lv+1} 업그레이드 ${Ms(F[k].cost*lv)}`}</button></div>
     <div class="tw" style="margin-top:6px"><table><tr><th>효과</th><th>현재</th>${nx?'<th>업그레이드 후</th>':''}</tr>${now.map((x,i)=>{const [kk,...vv]=x.split(' ');const nv=nx?nx[i].split(' ').slice(1).join(' '):'';const cv=vv.join(' ');return `<tr><td>${esc(x.replace(cv,'').trim())}</td><td>${esc(cv)}</td>${nx?`<td class="${nv!==cv?'up':''}">${esc(nv)}</td>`:''}</tr>`;}).join('')}<tr><td>유지비/시즌</td><td>${Ms(F[k].upkeep*lv)}</td>${nx?`<td class="due">${Ms(F[k].upkeep*(lv+1))} (+${Ms(F[k].upkeep)})</td>`:''}</tr></table></div></div>`;}).join('')}</div>`;}
   else if(sb==='staff'){h+=renderStaff(ut);}
-  else if(sb==='overseas'){const LG=SL.BAL.LEAGUES;const abroadAll=Object.values(S.players).filter(p=>p.userLink&&!p.retired&&p.teamId!=null&&S.teams[p.teamId]&&S.teams[p.teamId].league!=='KR');
+  else if(sb==='overseas'){h+=levelCard();const LG=SL.BAL.LEAGUES;const abroadAll=Object.values(S.players).filter(p=>p.userLink&&!p.retired&&p.teamId!=null&&S.teams[p.teamId]&&S.teams[p.teamId].league!=='KR');
     const cnt={};for(const p of abroadAll){const l=S.teams[p.teamId].league;cnt[l]=(cnt[l]||0)+1;}
     const lg=LG[ui.ovLg]?ui.ovLg:(ut.league!=='KR'?ut.league:(Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'JP'));const L=LG[lg];
     h+=`<div class="seg ovseg">${Object.entries(LG).map(([k,x])=>`<button class="${k===lg?'on':''}" onclick="UI.ovLg('${k}')">${x.short}${cnt[k]?` <span class="chip g">${cnt[k]}</span>`:''}</button>`).join('')}</div>`;

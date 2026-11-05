@@ -407,6 +407,8 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 .wsteps{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:2px 0 8px;font-size:12px}.wsteps i{font-style:normal;color:var(--muted)}.ws{padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted)}.ws.on{background:#1e3a8a;color:#fff;font-weight:700}.ws.done{color:var(--green-ink)}
 .farmg{font-family:'Black Han Sans',sans-serif;font-size:20px}.farmg.gA{color:#15803d}.farmg.gB{color:#2563eb}.farmg.gC{color:#ca8a04}.farmg.gD,.farmg.gE{color:#b91c1c}
 
+.lvrow{display:grid;grid-template-columns:104px 1fr 26px;gap:8px;align-items:center;padding:4px 0}.lvrow .lx{grid-column:1/-1;margin-top:-4px;padding-left:2px}.lvrow .bar{height:8px;background:var(--sunk);border-radius:4px;overflow:hidden}.lvrow .bar i{display:block;height:100%;background:#1e3a8a}.lvrow.me .bar i{background:var(--green-ink)}.lvrow.me .ln{font-weight:700}.lvrow .ln{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 </style>
 <div id="app"></div>
 <script>
@@ -417,11 +419,11 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v37';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v38';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
-  LEVEL_OVR:{KR1:66,RES:52,JP:64,US:71,US2:63,US3:56,JP2:54,TW:57,MX:58,AU:50,CB:55,ROOKIE:44,FA:50}, LEVEL_SD:6,
+  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:75,US2:68,US3:63,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6,
   // 국내는 10개 구단 단일 리그(1군) + 2군. 승강제 없음. 경제 기준값은 1군 하나, 구단별 차이는 위상(시장 크기)으로만
   START_CASH:{1:900000},                                   // 만원 (AI 기준값)
   TICKET:{1:9000},                                         // 홈경기당 기본 입장수입(만원)
@@ -440,7 +442,8 @@ const BAL={
     MX:{name:'멕시칸리그',short:'멕시코',style:'20개 구단 · 북부/남부 지구',games:93,roster:24,subs:['북부 지구','남부 지구']},
     AU:{name:'호주 야구리그',short:'호주',style:'4개 구단 겨울리그',games:36,roster:22,winter:true},
     CB:{name:'도미니카 윈터리그',short:'도미니카',style:'6개 구단 겨울리그',games:50,roster:22,winter:true}},
-  BUY_MIN:{US:70,JP:64,TW:58,MX:59},
+  // 리그 수준 (v38, 스카우트·구단 관계자 평가 기준): 메이저리그 > 일본 > 미국 2군(트리플A급) > 한국 > 멕시코 ≈ 미국 3군(더블A급) ≈ 도미니카 겨울 > 일본 2군 > 대만 > 호주 > 한국 퓨처스
+  BUY_MIN:{US:73,JP:69,TW:60,MX:62},
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
   JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,TW:47,JP:63},
@@ -450,7 +453,8 @@ const BAL={
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:28000,genMin:4000,genMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년
-  FARM:{US:[{t:2,ko:'미국 2군',lvl:63},{t:3,ko:'미국 3군',lvl:56}],JP:[{t:2,ko:'일본 2군',lvl:54}]},   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
+  FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
+  LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준
   FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 3,000만 원 (준우승 1/3)
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
@@ -1028,7 +1032,7 @@ function warn(text){S.warn.push(text);}
 
 // ---------- 새 게임 ----------
 function newGame(seed,userIdx,opt){opt=opt||{};setGames(BAL.SEASON_OPTIONS.includes(+opt.games)?+opt.games:BAL.SEASON_OPTIONS[0]);
-  S={version:VERSION,seed:seed|0,rng:seed|0,nextId:1,season:1,day:1,phase:'season',week:0,clock:1,userTeamId:null,teams:{},players:{},schedule:[],liveGame:null,fa:[],
+  S={version:VERSION,lvlV:BAL.LVL_VER,seed:seed|0,rng:seed|0,nextId:1,season:1,day:1,phase:'season',week:0,clock:1,userTeamId:null,teams:{},players:{},schedule:[],liveGame:null,fa:[],
      games:BAL.SEASON_GAMES,market:{listed:[],offers:[],negs:[],attempts:{},scoutResults:null},youth:[],pendingFA:[],news:[],history:[],overseas:{hist:[]},tutorialDone:false,nextOfferId:1,warn:[],lastSummary:null,draft:null,settings:{stopOnOffer:true},pins:[],dispatch:null,mgr:{seasons:[],cur:null}};
   // 한국 프로야구 10개 구단 (실제 연고 도시 + 가상 애칭). 유저는 그중 하나를 맡는다
   const ui=clamp(userIdx|0,0,TEAM_NAMES.KR.length-1);
@@ -1428,7 +1432,7 @@ function interestCheck(){
     if(isPitcher(p)){if(s.pOuts>=30*gf()){const era=s.pER*27/s.pOuts;if(era<3.0)sc+=4;else if(era>5.5)sc-=3;}}else if(s.pa>=40*gf()){const o=ops_(s);if(o>0.85)sc+=4;else if(o<0.62)sc-=3;}
     if(p.exposure===S.season||p.exposure===S.season-1)sc+=3;
     const vet=p.age>30;if(vet)sc-=8;if(p.age<=23&&p.pot>=80&&ovr>=60)sc=Math.max(sc,66);
-    const myLv=levelOf(ut);let lg=null;if(sc>=72&&p.age<=30)lg='US';else if(sc>=65&&p.age<=31)lg='JP';else if(sc>=59&&p.age<=31)lg=rnd()<0.5?'TW':'MX';else if(vet&&ovr>=58&&p.age<=34)lg='MX';
+    const myLv=levelOf(ut);let lg=null;if(sc>=BAL.LEVEL_OVR.US-2&&p.age<=30)lg='US';else if(sc>=BAL.LEVEL_OVR.JP-2&&p.age<=31)lg='JP';else if(sc>=59&&p.age<=31)lg=rnd()<0.5?'TW':'MX';else if(vet&&ovr>=58&&p.age<=34)lg='MX';
     if(lg&&BAL.LEVEL_OVR[lg]<=myLv+2)lg=null;
     if(lg){if(!p.interest||p.interest.lg!==lg){const t=pick(overseasTeams().filter(x=>x.league===lg&&!x.isUser));p.interest={team:t.id,lg,stage:p.interest?Math.max(0,p.interest.stage-1):0};}
       if(rnd()<0.55){p.interest.stage=Math.min(3,p.interest.stage+1);if(p.interest.stage===1)news(`${S.teams[p.interest.team].name} 스카우트가 ${josa(p.name,'을','를')} 관찰하기 시작했습니다.`,'overseas');}
@@ -2562,6 +2566,7 @@ function migrate(){const from=S.version;S.games=BAL.SEASON_OPTIONS.includes(S.ga
     add(R.mvp,'mvp','MVP');add(R.roy,'roy','신인왕');for(const e of R.titles||[])add(e,'title',AWARD_LABEL[e.k]);for(const e of R.gg||[])add(e,'gg',`골든글러브(${e.slot==='OF'?'외야수':e.slot==='P'?'투수':POS_KO[e.slot]||e.slot})`);}}
   if(krTeams().some(t=>!t.isUser&&!t.aim))aiAims(true);   // v29 저장: AI 운영 목표가 없으면 지금 정함
   if(S.phase==='season'&&(!S.res||!S.res.sched||S.res.s!==S.season))futMigrate();
+  if((S.lvlV||1)<BAL.LVL_VER){for(const t of overseasTeams()){const d=(BAL.LEVEL_OVR[t.league]||0)-(BAL.LVL_OLD[t.league]!=null?BAL.LVL_OLD[t.league]:BAL.LEVEL_OVR[t.league]);if(!d)continue;for(const id of t.roster){const p=P_(id);if(!p||p.userLink||p.exUser)continue;for(const k in p.attrs)p.attrs[k]=clamp(r1(p.attrs[k]+d),10,99);p.pot=Math.min(99,(p.pot||0)+d);}if(!t.isUser)autoLineup(t);}S.lvlV=BAL.LVL_VER;}
   presMigrate();ensureSpon(userTeam());S.endorseOffers=S.endorseOffers||[];
   S.jobOffers=S.jobOffers||[];S.grievances=S.grievances||[];if(S.mgr){S.mgr.loyalty=S.mgr.loyalty||0;if(S.mgr.rep==null)S.mgr.rep=calcRep();S.mgr.repHist=S.mgr.repHist||[];ensureCareer();if(S.mgr.cur&&!S.mgr.cur.goal){const o=teamOutlook(userTeam());S.mgr.cur.goal=o.goal;}}
   for(const id of userTeam().roster.concat(userTeam().dev)){const p=S.players[id];if(p)p.coached=true;}for(const id in S.players){const p=S.players[id];if(p.exUser)p.coached=true;}
@@ -3200,6 +3205,10 @@ function renderTrade(ut){const T=ui.trade||(ui.trade={tid:null,give:[],get:[],ca
   h+=`<div class="card">${hd('우리 선수',`${T.give.length}/3명 선택`)}${mine.map(p=>row(p,'give')).join('')}</div><div class="card">${hd(esc(t.name)+' 선수',`${T.get.length}/3명 선택`)}${theirs.map(p=>row(p,'get')).join('')}</div>`;
   return h;}
 
+
+// 리그 수준 비교 (v38): 숫자는 그 리그 평균 수준의 종합 능력치. 실제 비교는 스카우트·구단 관계자 평가 순서를 따름
+function levelCard(){const L=SL.BAL.LEVEL_OVR;const rows=[['US','메이저리그','세계 최고 수준'],['JP','일본 1군','일본 프로야구'],['US2','미국 2군','트리플A급'],['KR1','한국 1군','우리 리그 · 기준'],['MX','멕시칸리그','더블A~트리플A 사이'],['US3','미국 3군','더블A급'],['CB','도미니카 겨울리그','겨울 · 트리플A·더블A 선수 다수'],['JP2','일본 2군','유망주 리그'],['TW','대만 프로야구','하이 싱글A급'],['AU','호주 겨울리그','겨울 · 싱글A급 유망주 다수'],['RES','한국 퓨처스','2군']].sort((a,b)=>L[b[0]]-L[a[0]]);const mx=L.US,mn=L.RES-4;
+  return `<div class="card">${hd('리그 수준 비교','종합 능력치 기준')}<div class="muted small" style="margin-bottom:6px">숫자는 그 리그 평균 선수 수준입니다. 순서는 스카우트·구단 관계자들이 보는 실제 비교(메이저리그 > 일본 > 트리플A > 한국 > 더블A > 하이 싱글A > 대만)를 따랐습니다. 하부 리그는 실제 리그명 대신 2군·3군으로 부릅니다.</div>${rows.map(r=>`<div class="lvrow ${r[0]==='KR1'?'me':''}"><span class="ln">${esc(r[1])}</span><div class="bar"><i style="width:${Math.round((L[r[0]]-mn)/(mx-mn)*100)}%"></i></div><b>${L[r[0]]}</b><span class="dim small lx">${esc(r[2])}</span></div>`).join('')}</div>`;}
 // ---------- 리그: 올스타·퓨처스 / 도전과제 ----------
 function renderEvents(){let h='';const A=S.allstar;const ut=SL.userTeam();
   if(A)h+=allStarCard(A,ut);else h+=`<div class="card">${hd('올스타전')}<div class="muted small">정규 시즌 ${SL.asDay()}일차가 끝나면 열립니다 (청팀 vs 홍팀, 베스트 12 + 감독 추천 13명씩, 퓨처스 올스타전 함께).</div></div>`;
@@ -3386,7 +3395,7 @@ function renderClub(forced){
     h+=`<div class="card">${hd('시설','유지비는 개막 때 차감')}${Object.keys(F).map(k=>{const lv=ut.fac[k];const now=SL.facEffect(k,lv),nx=lv<5?SL.facEffect(k,lv+1):null;return `<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row sb"><div><b>${desc[k][0]}</b> <span class="chip n">Lv.${lv}</span></div><button class="sm ${lv<5?'go':''}" ${lv>=5?'disabled':''} onclick="UI.upgrade('${k}')">${lv>=5?'최대 레벨':`Lv.${lv+1} 업그레이드 ${Ms(F[k].cost*lv)}`}</button></div>
     <div class="tw" style="margin-top:6px"><table><tr><th>효과</th><th>현재</th>${nx?'<th>업그레이드 후</th>':''}</tr>${now.map((x,i)=>{const [kk,...vv]=x.split(' ');const nv=nx?nx[i].split(' ').slice(1).join(' '):'';const cv=vv.join(' ');return `<tr><td>${esc(x.replace(cv,'').trim())}</td><td>${esc(cv)}</td>${nx?`<td class="${nv!==cv?'up':''}">${esc(nv)}</td>`:''}</tr>`;}).join('')}<tr><td>유지비/시즌</td><td>${Ms(F[k].upkeep*lv)}</td>${nx?`<td class="due">${Ms(F[k].upkeep*(lv+1))} (+${Ms(F[k].upkeep)})</td>`:''}</tr></table></div></div>`;}).join('')}</div>`;}
   else if(sb==='staff'){h+=renderStaff(ut);}
-  else if(sb==='overseas'){const LG=SL.BAL.LEAGUES;const abroadAll=Object.values(S.players).filter(p=>p.userLink&&!p.retired&&p.teamId!=null&&S.teams[p.teamId]&&S.teams[p.teamId].league!=='KR');
+  else if(sb==='overseas'){h+=levelCard();const LG=SL.BAL.LEAGUES;const abroadAll=Object.values(S.players).filter(p=>p.userLink&&!p.retired&&p.teamId!=null&&S.teams[p.teamId]&&S.teams[p.teamId].league!=='KR');
     const cnt={};for(const p of abroadAll){const l=S.teams[p.teamId].league;cnt[l]=(cnt[l]||0)+1;}
     const lg=LG[ui.ovLg]?ui.ovLg:(ut.league!=='KR'?ut.league:(Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||'JP'));const L=LG[lg];
     h+=`<div class="seg ovseg">${Object.entries(LG).map(([k,x])=>`<button class="${k===lg?'on':''}" onclick="UI.ovLg('${k}')">${x.short}${cnt[k]?` <span class="chip g">${cnt[k]}</span>`:''}</button>`).join('')}</div>`;

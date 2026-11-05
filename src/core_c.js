@@ -19,7 +19,7 @@ function warn(text){S.warn.push(text);}
 
 // ---------- 새 게임 ----------
 function newGame(seed,userIdx,opt){opt=opt||{};setGames(BAL.SEASON_OPTIONS.includes(+opt.games)?+opt.games:BAL.SEASON_OPTIONS[0]);
-  S={version:VERSION,seed:seed|0,rng:seed|0,nextId:1,season:1,day:1,phase:'season',week:0,clock:1,userTeamId:null,teams:{},players:{},schedule:[],liveGame:null,fa:[],
+  S={version:VERSION,lvlV:BAL.LVL_VER,seed:seed|0,rng:seed|0,nextId:1,season:1,day:1,phase:'season',week:0,clock:1,userTeamId:null,teams:{},players:{},schedule:[],liveGame:null,fa:[],
      games:BAL.SEASON_GAMES,market:{listed:[],offers:[],negs:[],attempts:{},scoutResults:null},youth:[],pendingFA:[],news:[],history:[],overseas:{hist:[]},tutorialDone:false,nextOfferId:1,warn:[],lastSummary:null,draft:null,settings:{stopOnOffer:true},pins:[],dispatch:null,mgr:{seasons:[],cur:null}};
   // 한국 프로야구 10개 구단 (실제 연고 도시 + 가상 애칭). 유저는 그중 하나를 맡는다
   const ui=clamp(userIdx|0,0,TEAM_NAMES.KR.length-1);
@@ -419,7 +419,7 @@ function interestCheck(){
     if(isPitcher(p)){if(s.pOuts>=30*gf()){const era=s.pER*27/s.pOuts;if(era<3.0)sc+=4;else if(era>5.5)sc-=3;}}else if(s.pa>=40*gf()){const o=ops_(s);if(o>0.85)sc+=4;else if(o<0.62)sc-=3;}
     if(p.exposure===S.season||p.exposure===S.season-1)sc+=3;
     const vet=p.age>30;if(vet)sc-=8;if(p.age<=23&&p.pot>=80&&ovr>=60)sc=Math.max(sc,66);
-    const myLv=levelOf(ut);let lg=null;if(sc>=72&&p.age<=30)lg='US';else if(sc>=65&&p.age<=31)lg='JP';else if(sc>=59&&p.age<=31)lg=rnd()<0.5?'TW':'MX';else if(vet&&ovr>=58&&p.age<=34)lg='MX';
+    const myLv=levelOf(ut);let lg=null;if(sc>=BAL.LEVEL_OVR.US-2&&p.age<=30)lg='US';else if(sc>=BAL.LEVEL_OVR.JP-2&&p.age<=31)lg='JP';else if(sc>=59&&p.age<=31)lg=rnd()<0.5?'TW':'MX';else if(vet&&ovr>=58&&p.age<=34)lg='MX';
     if(lg&&BAL.LEVEL_OVR[lg]<=myLv+2)lg=null;
     if(lg){if(!p.interest||p.interest.lg!==lg){const t=pick(overseasTeams().filter(x=>x.league===lg&&!x.isUser));p.interest={team:t.id,lg,stage:p.interest?Math.max(0,p.interest.stage-1):0};}
       if(rnd()<0.55){p.interest.stage=Math.min(3,p.interest.stage+1);if(p.interest.stage===1)news(`${S.teams[p.interest.team].name} 스카우트가 ${josa(p.name,'을','를')} 관찰하기 시작했습니다.`,'overseas');}
@@ -1553,6 +1553,7 @@ function migrate(){const from=S.version;S.games=BAL.SEASON_OPTIONS.includes(S.ga
     add(R.mvp,'mvp','MVP');add(R.roy,'roy','신인왕');for(const e of R.titles||[])add(e,'title',AWARD_LABEL[e.k]);for(const e of R.gg||[])add(e,'gg',`골든글러브(${e.slot==='OF'?'외야수':e.slot==='P'?'투수':POS_KO[e.slot]||e.slot})`);}}
   if(krTeams().some(t=>!t.isUser&&!t.aim))aiAims(true);   // v29 저장: AI 운영 목표가 없으면 지금 정함
   if(S.phase==='season'&&(!S.res||!S.res.sched||S.res.s!==S.season))futMigrate();
+  if((S.lvlV||1)<BAL.LVL_VER){for(const t of overseasTeams()){const d=(BAL.LEVEL_OVR[t.league]||0)-(BAL.LVL_OLD[t.league]!=null?BAL.LVL_OLD[t.league]:BAL.LEVEL_OVR[t.league]);if(!d)continue;for(const id of t.roster){const p=P_(id);if(!p||p.userLink||p.exUser)continue;for(const k in p.attrs)p.attrs[k]=clamp(r1(p.attrs[k]+d),10,99);p.pot=Math.min(99,(p.pot||0)+d);}if(!t.isUser)autoLineup(t);}S.lvlV=BAL.LVL_VER;}
   presMigrate();ensureSpon(userTeam());S.endorseOffers=S.endorseOffers||[];
   S.jobOffers=S.jobOffers||[];S.grievances=S.grievances||[];if(S.mgr){S.mgr.loyalty=S.mgr.loyalty||0;if(S.mgr.rep==null)S.mgr.rep=calcRep();S.mgr.repHist=S.mgr.repHist||[];ensureCareer();if(S.mgr.cur&&!S.mgr.cur.goal){const o=teamOutlook(userTeam());S.mgr.cur.goal=o.goal;}}
   for(const id of userTeam().roster.concat(userTeam().dev)){const p=S.players[id];if(p)p.coached=true;}for(const id in S.players){const p=S.players[id];if(p.exUser)p.coached=true;}
