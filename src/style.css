@@ -567,3 +567,22 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 .ea .subtabs:not(.gtabs) button{background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--muted);flex:1 1 0;min-height:40px}
 .ea .subtabs:not(.gtabs) button.on{background:transparent;color:var(--text);border-bottom-color:var(--orange);font-weight:800}
 .helpline{display:block;background:none;border:0;min-height:0;padding:2px 0;margin:-4px 0 8px;color:var(--muted);font-size:12.5px;font-weight:500;text-align:left}
+.mvx .mk.ms{color:var(--text);opacity:.9;font-weight:600}
+.mvx .mk.ms{white-space:normal;overflow:visible;line-height:1.3}
+.mvx .mk.ms span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* v46 경기 화면: MY 표시 · 구장 정보 · 공수 교대 · 왼쪽=원정/오른쪽=홈 */
+.sbinfo{background:var(--navy);color:var(--on-navy-dim);font-size:11.5px;text-align:center;padding-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.myt{font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.5px;color:#1a1200;background:#f3c14b;border-radius:4px;padding:1px 4px;line-height:1.3;flex:0 0 auto}
+.sbt.my .av,.sbt.my img,.sbt.my svg{box-shadow:0 0 0 2px #f3c14b;border-radius:50%}
+.mvx{position:relative;border:1.5px solid transparent;border-radius:12px;padding:5px 6px}.mvx.my{border-color:#f3c14b;background:rgba(243,193,75,.07)}
+.mvx .myt{position:absolute;top:-7px;left:8px}.mvx.r .myt{left:auto;right:8px}
+.ichg{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;background:#f3c14b;color:#1a1200;border-radius:10px;padding:6px 12px;margin:0 0 6px;font-size:13px;animation:lp .35s ease-out}.ichg b{font-size:14px}.ichg span{font-weight:700}
+.gfoot:empty{display:none}
+/* 진행 버튼 자리 고정: 아래에 붙여 두고, 글이 늘거나 줄어도 버튼은 제자리 */
+.gbar{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:560px;margin:0 auto;background:var(--bg);padding:8px var(--gut,16px) calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 16px rgba(0,0,0,.25)}
+.gbar .tacinfo,.gbar>.dim.small{margin:0 0 6px!important}.gbar .tacs{margin-bottom:8px}
+@media(min-width:700px){.gbar{max-width:760px}}
+.lastplay{min-height:104px}.lastplay .lpwho{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lpwrap{position:relative}.lpwrap .ichg{position:absolute;left:0;right:0;top:-42px;margin:0;z-index:3;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+@media(max-height:700px){.stadc{aspect-ratio:2.7}.stadc .stad{margin-top:-19%}.lastplay{min-height:92px}}
