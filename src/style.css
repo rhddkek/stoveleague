@@ -439,3 +439,28 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 .wgo{display:grid;grid-template-columns:3fr 2fr;gap:8px}.wgo button small{display:block;font-size:11px;font-weight:400;opacity:.75;margin-top:1px}.wgo .ghost.big{font-size:14px;padding-top:6px;padding-bottom:6px}
 .dbtn button{white-space:normal;font-size:12.5px;padding:8px 6px;line-height:1.25}
 .card:has(.wboard.cmp) .wsum:not(.open){display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* 시작 화면 한 화면 (v42) */
+.title .hero{min-height:150px;padding:18px 0 12px}.title .hero h1{font-size:36px}.title .hero p{font-size:13.5px;margin-top:4px}
+.tbtns{margin-bottom:10px}.tbtns button{padding:9px 4px;white-space:nowrap;font-size:14.5px;min-height:0}
+.title .panel{padding:12px}
+.clamp1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.clamp1::after{content:''}.clamp1.open{display:block;-webkit-line-clamp:unset}
+.tsel5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.tsel5 button{display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--navy);color:#fff;border:2px solid transparent;border-radius:12px;padding:7px 2px 6px;min-height:0;min-width:0;font-weight:400;line-height:1.15}
+.tsel5 button.on{border-color:#4fd18e;background:#1b2a5c}.tsel5 .c{font-size:11px;color:var(--on-navy-dim);margin-top:3px}.tsel5 .n{font-size:12.5px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tsel5 .t{font-size:10.5px;color:#f3c76b}
+.tdetail{margin-top:8px;padding:10px 12px}
+.glen button{padding:5px 2px;line-height:1.15;min-height:0}.glen button b{display:block;font-size:13.5px}.glen button small{display:block;font-size:10.5px;opacity:.75;font-weight:400}
+.title .contcard.row{display:flex;align-items:center;margin-bottom:10px}
+.title details.adv{margin-top:10px}
+@media(max-height:700px){.title .hero{min-height:112px;padding:12px 0 8px}.title .hero h1{font-size:30px}.title .hero p{display:none}}
+.tsel5 .c{margin-top:1px;white-space:nowrap}.tsel5 .c i{font-style:normal;color:#f3c76b}.tsel5 .n{margin-top:3px}
+.tdetail .small{line-height:1.4}.tdetail .row .b{font-size:15px!important}.tdetail .small[style*="margin-top:6px"]{margin-top:4px!important}
+@media(max-width:560px){.title .hero{min-height:112px;padding:12px 0 8px}.title .hero h1{font-size:32px}.title .hero p{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.glen button b,.glen button small{display:inline}.glen button{padding:7px 2px;white-space:nowrap}
+.title details.adv{margin-top:8px}.title details.adv summary{font-size:12px}
+.title .panel .go.big{padding-top:12px;padding-bottom:12px}.tdetail{padding:8px 12px}
+@media(max-height:700px){.title .hero{min-height:84px;padding:10px 0 6px}.title .hero h1{font-size:28px}.title .hero p{display:none}.title .tintro{display:none}.tsel5 button{padding:5px 2px 4px}.tsel5 .av,.tsel5 svg,.tsel5 img{width:24px!important;height:24px!important}.tbtns button{padding:7px 4px}}
+@media(max-height:760px){.title .hero p{display:none}.title .hero{min-height:96px}}
+@media(max-height:680px){.tdetail .small.dim{display:none}.title .panel .go.big{padding-top:10px;padding-bottom:10px}.title .panel>.b{margin-bottom:6px!important}}
+@media(max-height:700px){.title .tbtns{margin-bottom:8px}.title .panel{padding:10px 12px}.tdetail{margin-top:6px}.tsel5{gap:4px}.title details.adv{margin-top:6px}}
+@media(min-width:700px){.title>.gut,.title .hero>.gut{max-width:760px;margin-left:auto;margin-right:auto;width:100%}}
+@media(max-width:560px){.tile2{padding:7px 9px;min-height:0}.tile2 span{-webkit-line-clamp:1}}
