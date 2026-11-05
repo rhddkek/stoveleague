@@ -413,3 +413,9 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 
 .watchl{background:#fff7e6;border:1px solid #f5c26b;border-radius:8px;padding:6px 8px;margin:0 0 8px;color:#7a4b00}.fpc{border:2px solid #f5c26b}
 @media (prefers-color-scheme:dark){.watchl{background:#3a2a10;color:#ffd58a;border-color:#7a5a20}}
+
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}.chiprow button{font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted)}.chiprow button.on{background:var(--text);color:var(--card);border-color:var(--text);font-weight:700}
+.gtabs{overflow-x:visible;flex-wrap:nowrap}.gtabs button{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.clamp.open{display:block;-webkit-line-clamp:unset}.morebtn{border:0;background:none;color:var(--muted);font-size:12px;text-decoration:underline;padding:2px 0;margin-top:2px;cursor:pointer}
+
+.gtabs button{padding-left:4px;padding-right:4px}
