@@ -488,7 +488,7 @@ function aiWeek(t){presCrisis(t);
   autoLineup(t);
 }
 function overseasWeek(){
-  for(const t of overseasTeams()){if(!BAL.BUY_MIN[t.league]||t.isUser)continue;const nL=compTeams(t.league).length||6;if(rnd()>(t.league==='US'||t.league==='JP'?0.18:0.06)*6/nL)continue;const key='osbuy:'+t.id+':'+S.season;if((S.market.attempts[key]||0)>=1)continue;
+  for(const t of overseasTeams()){if(!BAL.BUY_MIN[t.league]||t.isUser)continue;const nL=compTeams(t.league).length||6;if(rnd()>(t.league==='US'||t.league==='JP'?0.05:0.03)*6/nL)continue;const key='osbuy:'+t.id+':'+S.season;if((S.market.attempts[key]||0)>=1)continue;
     const cands=krTeams().filter(x=>!x.isUser).flatMap(x=>x.roster.map(P_)).filter(p=>!p.loan&&p.age<=(t.league==='MX'?33:29)&&calcOvr(p)>=BAL.BUY_MIN[t.league]&&(p.lockUntil||0)<=S.clock);
     if(!cands.length)continue;const p=pick(cands);const seller=S.teams[p.teamId];const fee=Math.min(t.cash*0.4,Math.round(calcValue(p)*(t.league==='US'||t.league==='JP'?1.6:1.15)/100)*100);
     if(t.cash<fee)continue;S.market.attempts[key]=1;transferPlayer(p.id,t.id,fee,{salary:Math.round(salaryFor(p)*(t.league==='US'?3.5:t.league==='JP'?2.5:1.5)/10)*10,years:ri(2,4)},'해외 이적');news(`${p.exUser?'[출신] ':''}${seller.name} ${josa(p.name,'이','가')} ${josa(t.name,'으로')} 해외 진출 (이적료 ${money(fee)})`,p.exUser?'alumni':'overseas');}
@@ -1074,6 +1074,30 @@ function farmTierOf(p,t){const F=BAL.FARM[t.league];if(!F)return 1;const same=t.
 function farmCheck(){for(const t of overseasTeams()){if(!BAL.FARM[t.league])continue;for(const id of t.roster){const p=P_(id);if(!p||p.retired)continue;const nt=farmTierOf(p,t);const old=p.tier||1;
   if(nt!==old&&(p.userLink||p.exUser)){if(nt<old)news(`[해외] ${p.name} ${farmKo(t.league,nt)} 콜업! (${t.name} · ${farmKo(t.league,old)}에서 승격)`,'alumni');else news(`[해외] ${p.name}, ${farmKo(t.league,nt)}로 내려갔습니다 (${t.name})`,'overseas');}
   if(nt>1)p.tier=nt;else delete p.tier;}}}
+
+// ---------- 볼 만한 경기 (관전 정지 조건) ----------
+// 오늘 우리 경기에 「보고 싶은 순간」이 있으면 이유를 돌려준다. 자동 진행은 설정에 따라 여기서 멈춘다
+const WATCH_KO={pin:'관심 선수',rookie:'신인 첫 1군 출전',role:'새 역할 첫 경기',race:'순위 경쟁',alumni:'판매한 선수와 맞대결'};
+function watchReasons(){const g=userGameToday();if(!g||g.res||S.phase!=='season')return [];const ut=userTeam();const opp=S.teams[g.home===ut.id?g.away:g.home];const out=[];
+  const starters=new Set(ut.lineup.concat([ut.rotation[ut.rotIdx%Math.max(1,ut.rotation.length)]]));
+  for(const id of S.pins||[]){const p=P_(id);if(p&&p.teamId===ut.id&&starters.has(id)&&!(isPitcher(p)?p.cur.pGS:p.cur.g)){out.push({k:'pin',text:`관심 선수 ${p.name} 이번 시즌 첫 ${isPitcher(p)?'선발 등판':'선발 출전'}`});break;}}   // 매일 뛰는 주전이면 멈추지 않게: 시즌 첫 선발만
+  for(const id of ut.roster){const p=P_(id);if(!p||p.deb||p.age>25)continue;if(starters.has(id)||(isPitcher(p)&&ut.bullpen.slice(0,6).includes(id))){out.push({k:'rookie',text:`${p.name} 1군 데뷔 가능`});break;}}
+  for(const id of ut.lineup){const p=P_(id);if(p&&p.posTrain==null&&p.lastPos&&p.lastPos!==ut.pos[id]&&p.lastPos!=='-'){out.push({k:'role',text:`${p.name} ${POS_KO[ut.pos[id]]||ut.pos[id]} 첫 경기`});break;}}
+  {const sp=P_(ut.rotation[ut.rotIdx%Math.max(1,ut.rotation.length)]);if(sp&&sp.lastPos==='RP'&&!out.some(x=>x.k==='role'))out.push({k:'role',text:`${sp.name} 불펜 → 선발 첫 등판`});}
+  if(S.day>=BAL.SEASON_GAMES*0.6&&!g.post){const st=standings(compOf(ut));const r=st.findIndex(t=>t.id===ut.id),o=st.findIndex(t=>t.id===opp.id);const gb=Math.abs((st[r].rec.w-st[r].rec.l)-(st[o].rec.w-st[o].rec.l))/2;if((r<=5||o<=5)&&Math.abs(r-o)<=2&&gb<=2)out.push({k:'race',text:`${r+1}위 vs ${o+1}위 (${gb}경기 차)`});}
+  const al=opp.roster.map(P_).find(p=>p&&p.exUser&&opp.lineup.concat(opp.rotation).includes(p.id));if(al)out.push({k:'alumni',text:`옛 제자 ${al.name}(${opp.name.split(' ').pop()})와 맞대결`});
+  return out;}
+// ---------- 성장 단계 사건: 첫 선발·첫 승·첫 세이브 (우리 선수, 데뷔 이후) ----------
+function careerMs(p,b,lg){if(p.teamId!==S.userTeamId)return;{const side=lg.home===S.userTeamId?1:0;const ps=lg.pos&&lg.pos[side]&&lg.pos[side][p.id];p.lastPos=ps||(b.pGS?'SP':b.pG?'RP':p.lastPos);}if(!p.deb)return;p.ms=p.ms||{};const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];const vs=opp?opp.name.split(' ')[0]:'';
+  if(b.pGS&&!p.ms.gs1){p.ms.gs1={s:S.season,d:S.day};news(`[첫 선발] ${p.name}, ${vs}전 1군 첫 선발 등판 — ${Math.floor(b.pOuts/3)}이닝 ${b.pR}실점`,'growth');}
+  if(b.pW&&!p.ms.w1){p.ms.w1={s:S.season,d:S.day};news(`[첫 승] ${p.name}, ${vs}전에서 1군 첫 승리!`,'growth');}
+  if(b.pSV&&!p.ms.sv1){p.ms.sv1={s:S.season,d:S.day};news(`[첫 세이브] ${p.name}, ${vs}전 1군 첫 세이브`,'growth');}}
+// ---------- 첫 관심 선수 고르기 (처음 10분: 고르고 → 훈련 정하고 → 지켜보고 → 첫 점검에서 결과 확인) ----------
+function firstPickCands(){const ut=userTeam();return ut.roster.concat(ut.dev).map(P_).filter(p=>p&&p.age<=25&&!isFgn(p)).map(p=>{const dg=diagnose(p);return {p,dg,room:(p.scout?p.scout.est:p.pot)-calcOvr(p)};}).sort((a,b)=>b.room-a.room).filter((x,i,a)=>a.findIndex(y=>isPitcher(y.p)===isPitcher(x.p))===i||i<4).slice(0,3);}
+function firstPick(pid,focus){const ut=userTeam();const p=P_(pid);if(!p||(!ut.roster.includes(pid)&&!ut.dev.includes(pid)))return '우리 선수가 아닙니다.';p.focus=focus||'balance';S.pins=S.pins||[];if(!S.pins.includes(pid))S.pins.unshift(pid);
+  if(reserveIds(ut).includes(pid)&&resFocusList().length<3)setResFocus(pid,true);S.firstPick={pid,s:S.season,d:S.day,focus:p.focus,ovr:r1(calcOvr(p)),attrs:JSON.parse(JSON.stringify(p.attrs)),seen:false};return null;}
+function firstPickResult(){const F=S.firstPick;if(!F)return null;const p=P_(F.pid);if(!p)return null;const L=(p.ledger||[]).filter(e=>e.s===F.s&&!/동계|겨울/.test(e.l));if(!L.length)return {p,F,pending:true,next:nextCheck()};const e=L[0];
+  const fk=F.focus!=='balance'?F.focus:null;const fd=fk?r1(p.attrs[fk]-F.attrs[fk]):null;return {p,F,e,fk,fd,d:r1(calcOvr(p)-F.ovr)};}
 // ---------- 선수 교환 트레이드 (EA 2011의 「가치 비교 + 거절 이유」를 우리 식으로) ----------
 // 유저가 국내 AI 구단에 제안 → AI는 운영 목표(우승 도전·리빌딩 등)에 맞춰 가치를 따지고, 포지션 공백·인원·외국인 정원도 확인. 거절하면 이유를 문장으로 알려 준다
 function tradeDeadline(){return dayAt(0.7);}
@@ -1101,8 +1125,9 @@ function tradeEval(tid,give,get,cash){const t=S.teams[tid];const ut=userTeam();c
   for(const p of R){if(isPitcher(p))continue;const left=A.ps.filter(x=>x.pos===p.pos).length;if(left===0&&!['DH'].includes(p.pos))why.push(`${t.name}에 ${POS_KO[p.pos]||p.pos}가 남지 않습니다 — 포지션 문제로 어렵답니다.`);}
   const core=tradeCore(t);const cp=R.filter(p=>core.includes(p.id));if(cp.length&&aimOf(t)!=='rebuild')why.push(`${cp.map(p=>p.name).join('·')}${josa(cp[cp.length-1].name,'은','는').slice(cp[cp.length-1].name.length)} 팀의 핵심 선수라 내줄 수 없답니다.`);
   const vGet=G.reduce((a,p)=>a+tradeVal(t,p),0)+cash*(aimOf(t)==='money'?1.3:1),vGive=R.reduce((a,p)=>a+tradeVal(t,p),0);const need=vGive*(1.08+(R.length>G.length?0.04:0));
-  const ratio=vGive?vGet/vGive:9;if(vGet<need)why.push(`손해를 본다고 생각합니다 — ${ratio<0.8?'가치 차이가 크다고 봅니다':'조금만 더 얹으면 생각해 보겠답니다'}.`);
-  return {ok:!why.length,why,ratio,vGet,vGive,need,aim:aimOf(t),tid,give:G.map(p=>p.id),get:R.map(p=>p.id),cash};}
+  const ratio=vGive?vGet/vGive:9;if(vGet<need)why.push(`손해를 본다고 생각합니다 — 그쪽 판단으로 받는 가치가 내주는 가치의 ${Math.round(ratio*100)}% (${Math.round(need/Math.max(1,vGive)*100)}% 이상이어야 응함). ${ratio<0.8?'가치 차이가 큽니다':'조금만 더 얹으면 됩니다'}.`);
+  const hard=why.some(w=>!/손해를 본다고/.test(w));const chance=hard?0:Math.round(clamp(vGive?vGet/need:1,0,1)*100);
+  return {ok:!why.length,why,ratio,vGet,vGive,need,chance,hard,needPct:vGive?Math.round(need/vGive*100):0,aim:aimOf(t),tid,give:G.map(p=>p.id),get:R.map(p=>p.id),cash};}
 function tradePropose(tid,give,get,cash){const e=tradeEval(tid,give,get,cash);const t=S.teams[tid];if(t&&e.why&&!/하루 3번|마감|국내 AI|고르세요|3명까지|소속|현금/.test(e.why.join(''))){const key='trade'+tid+':'+S.clock;S.market.attempts[key]=(S.market.attempts[key]||0)+1;}
   if(!e.ok)return {ok:false,msg:`${t?t.name:'상대'} 거절: ${e.why[0]}`,why:e.why,ev:e};const ut=userTeam();
   for(const id of e.give){const p=P_(id);const c={...p.contract};S.market.listed=S.market.listed.filter(x=>x!==id);removeFromTeam(ut,p);addToTeam(p,t,c);p.transfers.push({s:S.season,from:ut.name,to:t.name,fee:0,kind:'트레이드'});p.exUser=true;p.coached=true;}
@@ -1711,7 +1736,7 @@ return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS
   diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,growthBase,promiseKept,promiseStatus,grievanceAnswer,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,winterResults,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
   compOf,compTeams,leagueComps,lgOf,jerseyOf,compLabel,AWARD_LABEL,parkOf,setNextGames,loanDeadline,dayAt,gf,advStats,batLine,pitLine,batWar,pitWar,lgCtx,leaders,compKeyOf,sponSettle,sponBase,sponSign,boardSign,boardDrop,boardSlots,sponStatus,starScore,endorseOffers,endorseAnswer,ensureSpon,sponAutoPick,presSeasonEnd,presOf,presTier,presTierOf,presTierIdx,presTable,presIncome,presPull,reserveTable,reserveIds,loanCheck,loanOptions,loanPlayer,postInfo,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
-  postReach,postRecord,postCur,POST_TEXT,perfRankBonus,OLD_SAVE_MSG,aimOf,callupPlan,callupSwap,AIM_KO,setResFocus,resFocusList,resFocusWarn,callupCands,stallList,perfBonus,recapNext,needCats,draftAutoOne,draftMyLeft,farmKo,farmTierOf,farmCheck,capOf,nearCap,bdOf,dateOf,WGOAL,achList,ACH,farmGrade,renewAll,renewDemandOf,ledgerAdd,tradeEval,tradePropose,tradeOpen,tradeDeadline,tradeCore,tradeVal,convOpts,convDays,startConv,cancelConv,TACTICS,tacOk,setTactic,tacNow,stealP,transferPlayer,isFgn,fgnList,fgnStatus,fgnBlock,asiaOk,NAT_KO,ASIA_NAT,createFDraft,fdAvail,fdPick,fdAuto,fdTurn,fdCur,fdStep,fdNeeds,fdFits,allStar,asDay,AS_SQUAD,asSquadOf,futGames,futStand,futTeam,futNext,futDivOf,FUT_DIV_KO,FUT_INDEP,futDay,futPost,
+  postReach,postRecord,postCur,POST_TEXT,perfRankBonus,OLD_SAVE_MSG,aimOf,callupPlan,callupSwap,AIM_KO,setResFocus,resFocusList,resFocusWarn,callupCands,stallList,perfBonus,watchReasons,WATCH_KO,careerMs,firstPickCands,firstPick,firstPickResult,recapNext,needCats,draftAutoOne,draftMyLeft,farmKo,farmTierOf,farmCheck,capOf,nearCap,bdOf,dateOf,WGOAL,achList,ACH,farmGrade,renewAll,renewDemandOf,ledgerAdd,tradeEval,tradePropose,tradeOpen,tradeDeadline,tradeCore,tradeVal,convOpts,convDays,startConv,cancelConv,TACTICS,tacOk,setTactic,tacNow,stealP,transferPlayer,isFgn,fgnList,fgnStatus,fgnBlock,asiaOk,NAT_KO,ASIA_NAT,createFDraft,fdAvail,fdPick,fdAuto,fdTurn,fdCur,fdStep,fdNeeds,fdFits,allStar,asDay,AS_SQUAD,asSquadOf,futGames,futStand,futTeam,futNext,futDivOf,FUT_DIV_KO,FUT_INDEP,futDay,futPost,
   P:P_,krTeams,overseasTeams,rnd};
 })();
 if(typeof module!=='undefined')module.exports=SL;
