@@ -16,6 +16,11 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','res'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','pres'],['club','spon'],['league','table'],['league','rec'],['club','fin'],['club','fac'],['club','staff'],['league','overseas'],['club','alumni'],['league','hist'],['league','events'],['league','ach'],['league','sched'],['dev','fgn'],['market','trade'],['club','data']];
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
   await sweep('시즌 중');ok('시즌 중 22개 화면 가로 넘침·하단 가림 검사');
+  // R026 한 화면: 360×740에서 모든 탭 첫 화면이 세로로 넘치지 않는다 (넘치는 카드는 타일 → 누르면 팝업)
+  {const sc=[];for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);const o=await p.evaluate(()=>document.scrollingElement.scrollHeight-innerHeight);if(o>4)sc.push(`${t}/${s||''} ${o}px`);}
+   sc.length?bad('세로 스크롤 남음: '+sc.join(', ')):ok(`한 화면: ${tabs.length}개 화면 모두 세로 스크롤 없음`);}
+  {await p.evaluate(()=>UI.go('dev','res'));const n=await p.evaluate(()=>document.querySelectorAll('.tile2').length);await p.evaluate(()=>{const t=document.querySelector('.tile2');if(t)t.click();});const r=await p.evaluate(()=>{const m=document.querySelector('#modal .sheetc .card');return m?m.innerText.slice(0,20):null;});
+   n>0&&r?ok(`타일 ${n}개 → 누르면 그 카드가 팝업으로 열림 (「${r.replace(/\n/g,' ')}」)`):bad('타일 팝업 '+n+' '+r);await p.evaluate(()=>UI.closeModal());}
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('자세히');await p.evaluate(()=>UI.sheet('result'));await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');await p.evaluate(()=>UI.closeModal());ok('7경기 자동 → 결과 띠 → 한 주간 보고서 창');
   {const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 홈 한 화면 (${fit.sh}/${fit.ch}px)`):bad('모바일 홈 스크롤 '+JSON.stringify(fit));}
@@ -42,7 +47,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.goto(FILE+'?test=1&new=1&team=9&seed=1234');await p.waitForTimeout(400);
   const tb=await p.evaluate(()=>({arch:SL.userTeam().arch,seed:SL.state().seed,ver:SL.GAME_VER}));
   tb.arch==='poor'&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed}, 재정난)`):bad('테스트 주소 시작 '+JSON.stringify(tb));
-  await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await has('요청서용 정보 복사');await has(tb.ver);
+  await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await p.evaluate(()=>{const t=[...document.querySelectorAll('.tile2')].find(x=>x.textContent.includes('테스트 도구'));if(t)t.click();});await has('요청서용 정보 복사');await p.evaluate(()=>UI.closeModal());await has(tb.ver);
   await p.evaluate(()=>UI.test('nextSeason'));(await p.evaluate(()=>SL.state().season))===2?ok('테스트 도구: 다음 시즌 개막까지'):bad('다음 시즌 이동 실패');
   // R004: 직전 타석 결과 유지 · 판매 작별 카드 · 출신 코치 복귀 카드
   await p.goto(FILE+'?test=1&new=1&team=0&seed=1234');await p.waitForTimeout(300);
