@@ -687,6 +687,16 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 @media(max-height:780px){.tpv{margin-top:6px;gap:10px}.tpvbars{gap:3px}.tpvpw{padding:4px 8px;min-width:62px}.tpvpw b{font-size:22px}.tpvps{margin-top:6px;gap:6px}.tpvp{padding:4px 6px}.tpvp .av{width:30px;height:30px}.tdetail .row .b{font-size:16px!important}}
 @media(max-height:780px){.title .panel:has(.jpleg) .tpvps{display:none}.title .panel:has(.jpleg) .tdetail .small.dim{display:none}}
 @media(max-height:700px){.tdetail .small.dim{display:none}.tpvp .av{display:none}.tpvp .k:last-child{display:none}.tpvp b{display:inline;font-size:13px}.tpvp>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tpvp .k:first-child{display:inline;margin-right:4px}.tpvbar{font-size:12px}.tpvbar .tk{height:6px}}
+/* v52 허브 탭: 3칸 + 더보기 (가로 스크롤 없음) */
+.subtabs.htabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex-wrap:nowrap;overflow:visible}
+.subtabs.htabs button{min-width:0;padding-left:4px;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htabs .hmore{color:var(--muted)}.htabs .hmore.on{color:inherit}
+.hbd{font-style:normal;display:inline-block;min-width:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:11px;line-height:16px;margin-left:2px}
+.hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);vertical-align:middle;margin-left:3px}
+.seg.hseg{margin:6px 0 8px}
+.hrow{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}.hrow b{min-width:92px;font-size:15px}.hrow .small{flex:1;min-width:0}.hrow .hgo{color:var(--muted);font-size:18px}
+.hrow.on b{color:var(--green)}.hgrp{margin:14px 0 2px;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.5px}
+.subtabs.htabs:has(+.hseg){margin-bottom:0}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -697,7 +707,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v52';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v53';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -3472,6 +3482,25 @@ function groupTabs(key,groups){const cur=ui.sub[key];let gi=groups.findIndex(g=>
 function flatTabs(key,items){const cur=ui.sub[key];if(!items.some(i=>i&&i[0]===cur))ui.sub[key]=items.find(Boolean)[0];
   return `<div class="subtabs ftabs" data-k="${key}">${items.map(i=>i?`<button class="${ui.sub[key]===i[0]?'on':''}" onclick="UI.setSub('${key}','${i[0]}')">${i[1]}</button>`:'<span class="fsep"></span>').join('')}</div>`;}
 function ftabsScroll(){for(const r of document.querySelectorAll('.ftabs')){const on=r.querySelector('.on');if(!on)continue;const want=on.offsetLeft-(r.clientWidth-on.offsetWidth)/2;if(on.offsetLeft<r.scrollLeft||on.offsetLeft+on.offsetWidth>r.scrollLeft+r.clientWidth||!r.dataset.done)r.scrollLeft=Math.max(0,want);r.dataset.done=1;}}
+// v52 허브 탭: 탭마다 자주 쓰는 3칸 + 「더보기」 목록. 한 칸에 둘이 묶이면(예: 타순·수비 / 투수진) 그 칸 안에 작은 전환
+const HUB={
+  roster:()=>{const ut=SL.userTeam();return {core:[['선수',['list']],['라인업',['lineup','pitch'],['타순·수비','투수진']],['성장',['train']]],
+    more:[['선수 운용',[['res','2군·임대','2군 선수 · 콜업 · 임대 보내기'],['dev','육성군',`육성 선수 ${ut.dev.length}/${SL.devCap(ut)}명 · 1군 등록`],['winter','겨울리그','비시즌 겨울리그 파견']]]]};},
+  market:()=>{const n=S.market.offers.length,ng=(S.market.negs||[]).length;return {core:[['제안·협상',['offers','neg'],[`받은 제안${n?' '+n:''}`,`협상 중${ng?' '+ng:''}`],n],['선수 찾기',['buy','fa'],['타 구단','FA']],['트레이드',['trade']]],
+    more:[['판매',[['list','판매 등록','내 선수를 시장에 내놓기 · 관심 구단']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['fgn','외국인','외국인 선수 영입 · 리그 규정'],['scout','스카우트','스카우트 파견 · 발견한 선수'],['youth','유소년','유소년 선수 육성']]]]};},
+  league:()=>({core:[['순위',['table']],['일정',['sched']],['기록실',['rec']]],
+    more:[['기록',[['hist','역대','시즌별 우승 · 순위 · 시상'],['hof','명예의 전당','헌액 선수 · 현역 후보'],['ach','도전과제','달성 기록']]],['리그',[['fut','2군 리그','퓨처스 순위 · 일정'],['events','올스타전','올스타 투표 · 경기'],['overseas','해외','해외 리그 순위 · 우리 출신 선수']]]]}),
+  club:()=>({core:[['감독',['mgr']],['코치진',['staff']],['재정',['fin']]],
+    more:[['구단',[['fac','시설','훈련장 · 구장 · 의료 시설'],['pres','구단 위상','명문 · 인기 · 팬'],['spon','스폰서·광고','스폰서 계약 · 선수 광고'],['alumni','옛 제자','떠난 선수들의 이후']]],['설정',[['look','꾸미기','애칭 · 색 · 엠블럼'],['data','설정·저장','저장 칸 · 백업 · 설정']]]]})};
+function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.flatMap(c=>c[1]).concat(H.more.flatMap(g=>g[1].map(x=>x[0])));if(!all.includes(cur))ui.sub[key]=H.core[0][1][0];const c0=ui.sub[key];
+  ui.hubLast=ui.hubLast||{};const core=H.core.map((c,i)=>{const on=c[1].includes(c0);if(on)ui.hubLast[key+i]=c0;const go=on?c0:(ui.hubLast[key+i]||c[1][0]);return `<button class="${on?'on':''}" onclick="UI.setSub('${key}','${go}')">${c[0]}${c[3]?` <i class="hbd">${c[3]}</i>`:''}</button>`;}).join('');
+  const mi=H.more.flatMap(g=>g[1]).find(x=>x[0]===c0);const mb=H.more.flatMap(g=>g[1]).reduce((a,x)=>a+(x[3]||0),0);
+  let h=`<div class="subtabs htabs" data-k="${key}">${core}<button class="${mi?'on':''} hmore" onclick="UI.hubMenu('${key}')">${mi?esc(mi[1])+' ▾':'더보기 ▾'}${!mi&&mb?' <i class="hdot"></i>':''}</button></div>`;
+  const cc=H.core.find(c=>c[1].includes(c0));if(cc&&cc[2])h+=`<div class="seg hseg">${cc[1].map((k,i)=>`<button class="${k===c0?'on':''}" onclick="UI.setSub('${key}','${k}')">${cc[2][i]}</button>`).join('')}</div>`;
+  return h;}
+function hubMenu(key){const H=HUB[key]();const c0=ui.sub[key];const T={roster:'선수단',market:'영입',league:'리그',club:'구단'}[key];
+  modal(`<h3>${T} 메뉴</h3>${H.core.map(c=>`<div class="hrow ${c[1].includes(c0)?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${c[1][0]}')"><b>${c[0]}</b><span class="dim small">${c[2]?c[2].join(' · '):''}</span></div>`).join('')}
+  ${H.more.map(g=>`<div class="hgrp">${esc(g[0])}</div>${g[1].map(x=>`<div class="hrow ${x[0]===c0?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${x[0]}')"><b>${esc(x[1])}${x[3]?' <i class="hdot"></i>':''}</b><span class="dim small">${esc(x[2])}</span><span class="hgo">›</span></div>`).join('')}`).join('')}`);}
 const DEV_IN_ROSTER=['train','res','dev','winter'],DEV_IN_MARKET=['draft','fgn','scout','youth'];
 function navOf(t,sub){if(t==='dev'){if(DEV_IN_MARKET.includes(sub))return ['market',sub];return ['roster',DEV_IN_ROSTER.includes(sub)?sub:'train'];}return [t,sub];}
 function subtabs(key,items){return `<div class="subtabs">${items.map(i=>`<button class="${ui.sub[key]===i[0]?'on':''}" onclick="UI.setSub('${key}','${i[0]}')">${i[1]}</button>`).join('')}</div>`;}
@@ -3919,7 +3948,7 @@ function renderHome(){
 
 // ---------- 선수단 ----------
 function renderRoster(){
-  const ut=SL.userTeam();let h=flatTabs('roster',[['list','선수 목록'],['lineup','타순·수비'],['pitch','투수진'],null,['train','성장'],['res','2군·임대'],['dev','육성군'],['winter','겨울리그']]);
+  const ut=SL.userTeam();let h=hubTabs('roster');
   if(DEV_IN_ROSTER.includes(ui.sub.roster)){ui.sub.dev=ui.sub.roster;return h+renderDev(true);}
   if(ui.sub.roster==='list'){
     let ps=ut.roster.map(id=>S.players[id]);if(ui.rf==='P')ps=ps.filter(SL.isPitcher);else if(ui.rf==='B')ps=ps.filter(p=>!SL.isPitcher(p));else if(ui.rf==='D')ps=ut.dev.map(id=>S.players[id]);
@@ -4194,7 +4223,7 @@ function renderDev(embed){
 
 // ---------- 이적 ----------
 function renderMarket(){
-  const ut=SL.userTeam();const MK=[['offers',`받은 제안${S.market.offers.length?' '+S.market.offers.length:''}`],['buy','타 구단'],['trade','트레이드'],['fa','FA'],['neg','협상 중'],['list','판매 등록']];const mk=k=>MK.find(x=>x[0]===k)||[k,k];let h=flatTabs('market',[...MK.filter(x=>['offers','neg','buy','fa','trade','list'].includes(x[0])),null,['draft','드래프트'],['fgn','외국인'],['scout','스카우트'],['youth','유소년']]);if(DEV_IN_MARKET.includes(ui.sub.market)){ui.sub.dev=ui.sub.market;return h+renderDev(true);}
+  const ut=SL.userTeam();const MK=[['offers',`받은 제안${S.market.offers.length?' '+S.market.offers.length:''}`],['buy','타 구단'],['trade','트레이드'],['fa','FA'],['neg','협상 중'],['list','판매 등록']];const mk=k=>MK.find(x=>x[0]===k)||[k,k];let h=hubTabs('market');if(DEV_IN_MARKET.includes(ui.sub.market)){ui.sub.dev=ui.sub.market;return h+renderDev(true);}
   if(ui.sub.market==='offers'){h+=S.market.offers.map(offerCard).join('')||`<div class="card muted">받은 제안이 없습니다. 선수 화면 → 계약 탭에서 판매 등록하면 관심 구단이 제안합니다.</div>`;
     const ovs=ut.roster.map(id=>S.players[id]).filter(p=>p.interest);h+=`<div class="card">${hd('해외 구단 관심','관찰 → 검토 → 공식 제안')}${ovs.map(p=>prow(p,esc(SL.interestText(p)))).join('')||'<div class="muted">아직 없습니다.</div>'}</div>`;}
   else if(ui.sub.market==='trade'){h+=renderTrade(ut);}
@@ -4220,9 +4249,9 @@ function renderMarket(){
 
 // ---------- 구단 ----------
 const LEAGUE_SUBS=[['table','순위'],['sched','일정'],['fut','2군 리그'],['rec','기록실'],['hof','명예의 전당'],['events','올스타전'],['ach','도전과제'],['overseas','해외 리그'],['hist','역대']];
-function renderLeague(){let h=flatTabs('league',[['table','순위'],['sched','일정'],['fut','2군 리그'],null,['rec','기록실'],['hist','역대'],['ach','도전과제'],['hof','명예의 전당'],['events','올스타전'],null,['overseas','해외']]);const sb=ui.sub.league;if(sb==='events')return h+renderEvents();if(sb==='hof')return h+renderHof();if(sb==='fut')return h+renderFutures();if(sb==='ach')return h+renderAch();return h+renderClub(sb);}
+function renderLeague(){let h=hubTabs('league');const sb=ui.sub.league;if(sb==='events')return h+renderEvents();if(sb==='hof')return h+renderHof();if(sb==='fut')return h+renderFutures();if(sb==='ach')return h+renderAch();return h+renderClub(sb);}
 function renderClub(forced){
-  const ut=SL.userTeam();if(!forced&&['table','rec','sched','overseas','hist'].includes(ui.sub.club))ui.sub.club='mgr';let h=forced?'':flatTabs('club',[['mgr','감독'],['alumni','옛 제자'],null,['staff','코치진'],['fac','시설'],['pres','구단 위상'],null,['fin','재정'],['spon','스폰서·광고'],null,['data','설정·저장'],['look','꾸미기']]);const sb=forced||ui.sub.club;
+  const ut=SL.userTeam();if(!forced&&['table','rec','sched','overseas','hist'].includes(ui.sub.club))ui.sub.club='mgr';let h=forced?'':hubTabs('club');const sb=forced||ui.sub.club;
   if(sb==='look'){h+=renderLook(ut);return h;}
   if(sb==='mgr'){const m=S.mgr||{};const rp=m.rep!=null?m.rep:SL.calcRep();const P=SL.repParts();const cur=m.cur;const st=SL.standings(SL.compOf(ut));const rk=st.findIndex(t=>t.id===ut.id)+1;
     h+=`<div class="card">${hd('감독 평판',SL.repGrade(rp))}<div class="row" style="gap:14px"><div style="font-family:var(--f-display);font-size:44px;line-height:1">${rp}</div><div class="grow"><div class="potbar" style="height:10px"><i style="width:${rp}%"></i></div><div class="small muted">감독 제의 기준: 대만풍 ${SL.BAL.REP_NEED.TW} · 국내 ${SL.BAL.REP_NEED[1]} (강호 +4 · 명문 +10) · 일본풍 ${SL.BAL.REP_NEED.JP}</div></div></div>
@@ -4771,6 +4800,7 @@ const A={
   delSlotGo(k){delSlot(k).then(()=>{closeModal();toast(`${k}번 칸을 지웠습니다.`);render();});},
   resetConfirm(){delSlot(curSlot());closeModal();SL.setState(null);ui.view=null;ui.stack=[];render();},
   setTab(t){if(t==='dev'){const m=navOf('dev',ui.sub.dev);t=m[0];ui.sub[t]=m[1];}ui.tab=t;ui.view=null;ui.stack=[];closeModal();render();scrollTop();},
+  hubMenu(k){hubMenu(k);},
   setSub(k,v){if(k==='dev'){const m=navOf('dev',v);ui.tab=m[0];ui.sub[m[0]]=m[1];render();return;}ui.sub[k]=v;render();},
   go(t,sub){const m=navOf(t,sub);ui.sub[m[0]]=m[1];A.setTab(m[0]);},
   set(k,v){ui[k]=v;render();},

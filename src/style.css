@@ -684,3 +684,13 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 @media(max-height:780px){.tpv{margin-top:6px;gap:10px}.tpvbars{gap:3px}.tpvpw{padding:4px 8px;min-width:62px}.tpvpw b{font-size:22px}.tpvps{margin-top:6px;gap:6px}.tpvp{padding:4px 6px}.tpvp .av{width:30px;height:30px}.tdetail .row .b{font-size:16px!important}}
 @media(max-height:780px){.title .panel:has(.jpleg) .tpvps{display:none}.title .panel:has(.jpleg) .tdetail .small.dim{display:none}}
 @media(max-height:700px){.tdetail .small.dim{display:none}.tpvp .av{display:none}.tpvp .k:last-child{display:none}.tpvp b{display:inline;font-size:13px}.tpvp>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tpvp .k:first-child{display:inline;margin-right:4px}.tpvbar{font-size:12px}.tpvbar .tk{height:6px}}
+/* v52 허브 탭: 3칸 + 더보기 (가로 스크롤 없음) */
+.subtabs.htabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex-wrap:nowrap;overflow:visible}
+.subtabs.htabs button{min-width:0;padding-left:4px;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htabs .hmore{color:var(--muted)}.htabs .hmore.on{color:inherit}
+.hbd{font-style:normal;display:inline-block;min-width:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:11px;line-height:16px;margin-left:2px}
+.hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);vertical-align:middle;margin-left:3px}
+.seg.hseg{margin:6px 0 8px}
+.hrow{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}.hrow b{min-width:92px;font-size:15px}.hrow .small{flex:1;min-width:0}.hrow .hgo{color:var(--muted);font-size:18px}
+.hrow.on b{color:var(--green)}.hgrp{margin:14px 0 2px;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.5px}
+.subtabs.htabs:has(+.hseg){margin-bottom:0}
