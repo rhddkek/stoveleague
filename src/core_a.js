@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v47';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v48';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -288,6 +288,7 @@ function bestLineup(bats,opt){
   return {order:order.filter(Boolean).map(p=>p.id),pos:asg,score:total()};
 }
 function autoLineup(t,opt){
+  if(t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
   opt=opt||{mode:t.lineupMode||'win',locks:t.isUser?(t.locks||{}):{}};
   const ps=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired);
   const bats=ps.filter(p=>!isPitcher(p)),pits=ps.filter(isPitcher);
@@ -309,7 +310,7 @@ function teamPower(t,exclude){
   return {power:r1(la*0.55+spAvg*0.3+rpAvg*0.15),lineup:r,spIds:pits.filter(p=>p.pos==='SP').sort((a,b)=>calcOvr(b)-calcOvr(a)).slice(0,5).map(p=>p.id)};
 }
 // 유저 팀: 빠진 선수만 교체(기존 편성 유지)
-function fixLineup(t){
+function fixLineup(t){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
   const alive=new Set(t.roster.filter(id=>S.players[id]&&!S.players[id].retired));
   const before=JSON.stringify([t.lineup,t.rotation,t.bullpen,t.closer]);
   t.lineup=t.lineup.filter(id=>alive.has(id));for(const id in t.pos)if(!alive.has(+id))delete t.pos[id];

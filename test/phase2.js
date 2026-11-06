@@ -7,8 +7,8 @@ function integrity(label){S=SL.state();const seen=new Map();let users=0;
   if(users!==1)bad(label+' 유저 구단 수 '+users);if(S.teams[S.userTeamId].isUser!==true)bad(label+' userTeamId 불일치');
   if(SL.compTeams(1).length!==10)bad(label+' 국내 구단 수 '+SL.compTeams(1).length);}
 function checkSched(label){const per={},home={},dt=new Set();for(const g of S.schedule){for(const t of [g.home,g.away]){per[t]=(per[t]||0)+1;const k=g.day+':'+t;if(dt.has(k))bad(label+' 같은 날 2경기');dt.add(k);}home[g.home]=(home[g.home]||0)+1;}
-  const G=SL.BAL.SEASON_GAMES;const ut=SL.userTeam();if(per[ut.id]!==G)bad(label+' 유저 경기 수 '+per[ut.id]);const comp=SL.compTeams(SL.compOf(ut));for(const t of comp){if(per[t.id]!==G)bad(label+' '+t.name+' 경기수 '+per[t.id]);if(Math.abs(home[t.id]-G/2)>1)bad(label+' 홈경기 불균형 '+t.name+' '+home[t.id]);}
-  for(const t of SL.krTeams())if(per[t.id]!==G)bad(label+' KR '+t.name+' '+per[t.id]);}
+  const G=SL.userGames();const ut=SL.userTeam();if(per[ut.id]!==G)bad(label+' 유저 경기 수 '+per[ut.id]);const comp=SL.compTeams(SL.compOf(ut));for(const t of comp){if(per[t.id]!==G)bad(label+' '+t.name+' 경기수 '+per[t.id]);if(Math.abs(home[t.id]-G/2)>1)bad(label+' 홈경기 불균형 '+t.name+' '+home[t.id]);}
+  for(const t of SL.krTeams())if(per[t.id]!==SL.lgGames('KR'))bad(label+' KR '+t.name+' '+per[t.id]);}
 function playSeason(){while(S.phase==='season'){SL.playDayAuto();for(const o of [...S.market.offers])SL.respondOffer(o.id,'reject');}}
 function offseason(beforeStart){while(S.week<=6){if(SL.draftTurn())SL.draftAuto();for(const pid of [...S.pendingFA]){const p=S.players[pid];SL.renewContract(pid,SL.salaryFor(p)*1.4,2);}if(beforeStart&&S.week===1)beforeStart();SL.advanceWeek();}
   let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();r=SL.startNewSeason();}if(!r.ok)bad('개막 실패 '+r.msg);const j=SL.serialize();SL.load(j);S=SL.state();return j.length/1024;}
@@ -36,7 +36,7 @@ const cash0=T(TW).cash;playSeason();
 const h=T(TW).roster.map(id=>S.players[id]).filter(p=>p.hist.length&&p.hist[p.hist.length-1].s===S.season);
 const dupH=T(TW).roster.map(id=>S.players[id]).filter(p=>p.hist.filter(x=>x.s===S.season&&!x.w).length>1).length;
 h.length>15?ok(`대만 시즌 실제 경기 기록 ${h.length}명 (중복 ${dupH})`):bad('대만 시즌 기록 누락 '+h.length);if(dupH)bad('시즌 기록 중복');
-const tbl=S.overseas.hist[S.overseas.hist.length-1].tables.TW;tbl&&tbl.find(r=>r.id===TW).w+tbl.find(r=>r.id===TW).l===SL.BAL.SEASON_GAMES?ok('대만 순위표 = 실제 '+SL.BAL.SEASON_GAMES+'경기 결과'):bad('대만 순위표 이상');
+const tbl=S.overseas.hist[S.overseas.hist.length-1].tables.TW;tbl&&tbl.find(r=>r.id===TW).w+tbl.find(r=>r.id===TW).l+(tbl.find(r=>r.id===TW).tie||0)===SL.lgGames('TW')?ok('대만 순위표 = 실제 '+SL.lgGames('TW')+'경기 결과'):bad('대만 순위표 이상');
 console.log('  대만 재정: 개막 현금',SL.money(cash0),'→',SL.money(T(TW).cash),'| 수입',JSON.stringify(T(TW).fin));
 console.log('  옛 구단',T(H0).name,'AI 운영:',T(H0).roster.length+'명, 라인업 '+T(H0).lineup.length);
 T(H0).roster.length>=20&&T(H0).lineup.length===9?ok('옛 구단 AI 정상 운영'):bad('옛 구단 운영 이상');

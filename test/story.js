@@ -192,7 +192,7 @@ console.log('[14] 시즌 길이 · 시상식 · 아시아 챔피언십');
  const pk=S.players[A.KR1.mvp.pid];const curG=pk?pk.cur.g:0;curG===0?ok('아시아 시리즈 기록은 다음 시즌 성적에 섞이지 않음'):bad('아시아 기록 혼입');
  SL.setNextGames(72);while(S.week<=6)SL.advanceWeek();let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();SL.startNewSeason();}SL.BAL.SEASON_GAMES===72&&S.games===72&&S.schedule.filter(g=>g.div===1).length===72*5?ok('다음 시즌부터 72경기로 변경'):bad('시즌 길이 변경 '+S.games);
  const js=SL.serialize();SL.newGame(1,0);SL.load(js);SL.BAL.SEASON_GAMES===72?ok('불러오기 때 저장의 시즌 길이 복원'):bad('불러오기 시즌 길이 '+SL.BAL.SEASON_GAMES);
- const old=JSON.parse(js);delete old.games;SL.load(JSON.stringify(old));SL.BAL.SEASON_GAMES===144?ok('시즌 길이 정보가 없는 저장 = 144경기(프로)'):bad('시즌 길이 기본값 '+SL.BAL.SEASON_GAMES);}
+ const old=JSON.parse(js);delete old.games;delete old.kg;SL.load(JSON.stringify(old));SL.BAL.SEASON_GAMES===144?ok('시즌 길이 정보가 없는 저장 = 144경기(프로)'):bad('시즌 길이 기본값 '+SL.BAL.SEASON_GAMES);}
 console.log('[15] 수상 기록 보기');
 {SL.newGame(707,0,{games:36});S=SL.state();const u=SL.userTeam();while(S.phase==='season')SL.playDayAuto();
  const mine=Object.values(S.awards[1]).flatMap(R=>[R.mvp,R.roy,...R.titles,...R.gg]).filter(e=>e&&e.tid===u.id);

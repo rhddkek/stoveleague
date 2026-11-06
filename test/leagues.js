@@ -1,4 +1,4 @@
-// 해외 리그 검증: 실제 규모·지구 배정, 구버전 세이브 거부(v28 10구단 전환), 일본 감독 일정(같은 리그 + 교류전 6)
+// 해외 리그 검증: 실제 규모·지구 배정, 구버전 세이브 거부(v28 10구단 전환), 일본 감독 일정(같은 리그 125 + 교류전 18 = 143)
 const SL=require('./run.js');const fs=require('fs');let S;let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
 const B=SL.BAL;const EXPECT={JP:[12,[6,6]],US:[30,[5,5,5,5,5,5]],TW:[6],MX:[20,[10,10]],AU:[4],CB:[6]};
 function structure(label){S=SL.state();for(const lg in EXPECT){const ts=Object.values(S.teams).filter(t=>t.league===lg);if(ts.length!==EXPECT[lg][0])bad(`${label} ${lg} 구단 수 ${ts.length}`);
@@ -9,10 +9,10 @@ function structure(label){S=SL.state();for(const lg in EXPECT){const ts=Object.v
   const names=Object.values(S.teams).map(t=>t.name);if(new Set(names).size!==names.length)bad(label+' 구단명 중복');}
 function playOut(){while(S.phase==='season'){SL.playDayAuto();for(const o of [...S.market.offers])SL.respondOffer(o.id,'reject');}}
 function offseason(){while(S.week<=6){if(SL.draftTurn())SL.draftAuto();for(const pid of [...S.pendingFA]){const p=S.players[pid];SL.renewContract(pid,SL.salaryFor(p)*1.4,2);}SL.advanceWeek();}let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();r=SL.startNewSeason();}if(!r.ok)bad('개막 실패 '+r.msg);const j=SL.serialize();SL.load(j);S=SL.state();}
-function jpSchedule(label){const ut=SL.userTeam();const ts=SL.compTeams('JP');const games=S.schedule.filter(g=>g.div==='JP');
-  for(const t of ts){const mine=games.filter(g=>g.home===t.id||g.away===t.id);const inter=mine.filter(g=>S.teams[g.home].sub!==S.teams[g.away].sub).length;if(mine.length!==B.SEASON_GAMES||inter!==6)bad(`${label} ${t.name} 경기 ${mine.length} 교류전 ${inter}`);
+function jpSchedule(label){const ut=SL.userTeam();const G=SL.lgGames('JP'),I=Math.round(18*G/143);const ts=SL.compTeams('JP');const games=S.schedule.filter(g=>g.div==='JP');
+  for(const t of ts){const mine=games.filter(g=>g.home===t.id||g.away===t.id);const inter=mine.filter(g=>S.teams[g.home].sub!==S.teams[g.away].sub).length;if(mine.length!==G||inter!==I)bad(`${label} ${t.name} 경기 ${mine.length} 교류전 ${inter}`);
     const days=new Set(mine.map(g=>g.day));if(days.size!==mine.length)bad(`${label} ${t.name} 하루 2경기`);}
-  ok(`${label} 일본 12구단 × ${B.SEASON_GAMES}경기 (리그 ${B.SEASON_GAMES-6} + 교류전 6) · 우리 리그 ${SL.compName(SL.compOf(ut))}`);}
+  ok(`${label} 일본 12구단 × ${G}경기 (리그 ${G-I} + 교류전 ${I}) · 우리 리그 ${SL.compName(SL.compOf(ut))}`);}
 console.log('[1] 새 게임 구조');SL.newGame(99,1);structure('새 게임');ok('일본 12(6/6) · 미국 30(5×6) · 대만 6 · 멕시코 20(10/10) · 호주 4 · 도미니카 6');
 playOut();const h=S.overseas.hist[S.overseas.hist.length-1].tables;
 for(const lg of ['JP','US','MX']){const subs=B.LEAGUES[lg].subs;for(let i=0;i<subs.length;i++){const rows=h[lg].filter(r=>r.sub===i);const ranks=rows.map(r=>r.rank).sort((a,b)=>a-b).join();if(ranks!==rows.map((_,k)=>k+1).join())bad(`${lg} ${subs[i]} 순위 ${ranks}`);}}
