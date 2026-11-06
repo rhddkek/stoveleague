@@ -603,3 +603,20 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 
 /* 해외 리그 대진표 (v48) */
 .lbrk .lrt{font-size:12px;font-weight:800;color:var(--orange);margin:4px 0 -2px}
+
+/* v49: 기록실 리그 고르기 · 관심 선수 별 · 통산 줄 · 명예의 전당 */
+.recsel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.lgpick{flex:1;min-width:0;position:relative;display:block}
+.lgpick select{width:100%;font-size:17px;font-weight:800;padding:10px 34px 10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:inherit;appearance:none;-webkit-appearance:none}
+.lgpick::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--orange);font-size:14px}
+.recside{margin-bottom:8px}
+.recchips{margin-bottom:8px;flex-wrap:wrap}
+.pinst{color:#f3c76b;margin-right:3px}
+.rhint{margin:-2px 0 8px;line-height:1.5}
+tr.tot td{border-top:2px solid var(--line);font-weight:700}
+.hofsc{color:#f3c76b}
+details.asbest{display:inline}details.asbest summary{display:inline;cursor:pointer;color:var(--orange);font-size:12px}details.asbest[open]>div{margin:4px 0 2px;line-height:1.6}
+.pslim{display:flex;align-items:center;gap:10px;margin:2px 0 10px}.pslim .nm{font-size:18px;font-weight:800}.pslim .gbadge{display:flex;align-items:center;gap:6px}.pslim .gbadge b{font-size:22px}
+/* v49: 낮은 PC 화면에서 경기 화면 구장 그림을 줄여 아래 경기 진행 버튼에 가리는 부분을 줄임 */
+@media(min-width:700px) and (max-height:760px){.stadc{max-width:440px}}
+@media(min-width:700px) and (max-height:640px){.stadc{max-width:360px}}
