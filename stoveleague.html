@@ -705,6 +705,13 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .rrow .k{flex:1;color:var(--muted)}.rrow .k em{font-style:normal;font-size:10px;margin-left:4px;padding:0 4px;border-radius:6px;background:var(--orange);color:#fff}.rrow b{font-size:16px;min-width:26px;text-align:right}.rrow .d{min-width:38px;text-align:right;font-size:12px}
 @media(max-width:439px){.abil .rlist{display:none}.abil .radar{max-width:320px}}
 @media(min-width:440px){.abil .radar .rd{display:none}}
+/* v55 투수진 한 목록 · 보직 탭 */
+.seg.pf{margin:0 0 8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.seg.pf::-webkit-scrollbar{display:none}.seg.pf button{flex:1 0 auto;padding:7px 8px;font-size:13px;white-space:nowrap}.seg.pf button i{font-style:normal;opacity:.6;font-size:11px}
+.prow.pr{gap:8px}.prow.pr .grow{cursor:pointer}.ptag{flex:0 0 46px;text-align:center;font-size:11px;font-weight:800;padding:4px 0;border-radius:8px;background:var(--sunk);color:var(--muted);letter-spacing:.3px}
+.ptag.sp{background:rgba(74,144,226,.22);color:#9cc4ff}.ptag.closer{background:rgba(231,76,60,.22);color:#ff9d93}.ptag.setup{background:rgba(243,156,18,.22);color:#ffcf7a}.ptag.long{background:rgba(46,204,113,.2);color:#8ff0b6}
+.prow.pr .rt{min-width:92px}.rsel{margin-top:4px;width:100%;font-size:12px;padding:3px 4px;min-height:28px}
+@media(max-width:420px){.prow.pr .sub{font-size:12px}}
+@media(max-width:600px){.pstaff .wide{display:none}.prow.pr .rt{min-width:84px}.prow.pr .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow.pr .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptag{flex-basis:40px;font-size:10px}}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -715,7 +722,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v54';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v55';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -947,7 +954,7 @@ function money(m){const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){con
 
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){
-  const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
+  const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rpRole:{},rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
   if(league==='KR'){t.cash=BAL.START_CASH[1]*(0.9+rnd()*0.3);t.rep=ri(60,85);}
   else{t.cash=BAL.OVERSEAS_CASH[league];t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
   t.cash=Math.round(t.cash);
@@ -1028,7 +1035,7 @@ function fixLineup(t){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){c
   const before=JSON.stringify([t.lineup,t.rotation,t.bullpen,t.closer]);
   t.lineup=t.lineup.filter(id=>alive.has(id));for(const id in t.pos)if(!alive.has(+id))delete t.pos[id];
   t.rotation=t.rotation.filter(id=>alive.has(id));t.bullpen=t.bullpen.filter(id=>alive.has(id));
-  if(t.closer!=null&&!alive.has(t.closer))t.closer=null;
+  if(t.closer!=null&&!alive.has(t.closer))t.closer=null;t.rpRole=t.rpRole||{};for(const k in t.rpRole)if(!t.bullpen.includes(+k))delete t.rpRole[k];
   const ps=[...alive].map(id=>S.players[id]);
   const needPos=['C','SS','2B','CF','3B','RF','LF','1B','DH'].filter(ps_=>!Object.values(t.pos).includes(ps_));
   for(const ps_ of needPos){let best=null,bv=-1e9;for(const p of ps){if(isPitcher(p)||t.lineup.includes(p.id))continue;const v=fitScore(p,ps_,{});if(v>bv){bv=v;best=p;}}if(best){t.lineup.push(best.id);t.pos[best.id]=ps_;}}
@@ -1239,6 +1246,12 @@ function pinchHit(lg,side,benchPid){
   const idx=lg.bat[side];const old=lg.lineup[side][idx];lg.lineup[side][idx]=benchPid;lg.pos[side][benchPid]=lg.pos[side][old];delete lg.pos[side][old];lg.subbed[side].push(old);
   const b=ensureBox(lg,benchPid);b.g=1;glog(lg,`${t.name} 대타: ${S.players[old].name} → ${S.players[benchPid].name}`,'sub');return true;
 }
+// v55 불펜 보직: 마무리(closer) · 셋업(7·8회 리드) · 롱릴리프(선발 조기 강판) · 중간(나머지). 지정 안 하면 능력·체력으로 자동
+const RP_ROLE_KO={sp:'선발',closer:'마무리',setup:'셋업',long:'롱릴리프',mid:'중간'};
+function rpRoleOf(t,id){if(t.rotation.includes(id))return 'sp';if(t.closer===id)return 'closer';const r=(t.rpRole||{})[id];if(r&&r!=='closer')return r;const p=S.players[id];if(!p)return 'mid';
+  const others=t.bullpen.filter(x=>x!==t.closer&&!(t.rpRole&&t.rpRole[x]));const top=others.slice().sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const setN=Math.max(0,2-Object.values(t.rpRole||{}).filter(x=>x==='setup').length);
+  if(top.slice(0,setN).includes(id))return 'setup';if(p.pos==='SP'||p.attrs.stamina>=62)return 'long';return 'mid';}
+function setRpRole(t,id,role){t.rpRole=t.rpRole||{};if(role==='closer'){t.closer=id;delete t.rpRole[id];return;}if(t.closer===id)t.closer=null;if(role==='auto'||!role)delete t.rpRole[id];else t.rpRole[id]=role;}
 function aiPitchCheck(lg,side,halfStart){
   if(lg.done)return;const t=teamSide(lg,side);const P=S.players[lg.pitcher[side]];if(!P)return;
   const pc=lg.pc[P.id]||0,lim=pitchLimit(P),pb=ensureBox(lg,P.id);
@@ -1252,9 +1265,9 @@ function aiPitchCheck(lg,side,halfStart){
   else if(P.pos==='SP'&&pb.pR>=6&&lg.inn>=4)need=true;else if(P.pos==='RP'&&pb.pR>=3&&lg.outs<3)need=true;
   if(saveSpot&&(pc>lim*0.75||P.pos==='RP')){changePitcher(lg,side,closer);return;}
   // 7·8회 3점 이내 리드: 필승조(마무리 아닌 가장 좋은 불펜)로 한 이닝씩 끊어 간다 — 홀드 상황
-  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su=(su0.some(rested)?su0.filter(rested):su0).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
+  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su1=su0.some(rested)?su0.filter(rested):su0;const st=su1.filter(id=>rpRoleOf(t,id)==='setup');const su=(st.length?st:su1).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
   if(!need)return;
-  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));pickId=lg.inn>=7?pool[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))];}
+  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const lr=pool.filter(id=>rpRoleOf(t,id)==='long'),md=pool.filter(id=>rpRoleOf(t,id)==='mid');pickId=lg.inn>=7?pool[0]:(lg.inn<=5&&P.pos==='SP'&&lr.length)?lr[0]:(md.length?md[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))]);}
   changePitcher(lg,side,pickId);
 }
 // ---- 진행 단위 (모두 동일 엔진) ----
@@ -3100,7 +3113,7 @@ function hydrate(){const fill=st=>Object.assign(newStat(),st||{});
   for(const id in S.players){const p=S.players[id];p.cur=fill(p.cur);if(p.res)p.res=fill(p.res);for(const h of p.rhist||[])h.st=fill(h.st);for(const h of p.hist||[]){h.st=fill(stObj(h.st));if(!h.tn)h.tn=h.team!=null&&S.teams[h.team]?S.teams[h.team].name:'-';}for(const w of p.winter||[])w.st=fill(w.st);p.log=p.log||[];p.transfers=p.transfers||[];p.valHist=p.valHist||[];}
   if(S.liveGame&&S.liveGame.box)for(const id in S.liveGame.box)S.liveGame.box[id]=fill(S.liveGame.box[id]);}
 function migrate(){const from=S.version;for(const id in S.players)carFromHist(S.players[id]);if(!S.hof)S.hof=[];if(S.kg==null)S.kg=BAL.SEASON_OPTIONS.includes(S.games)?S.games:144;if(!(S.games>=S.kg))S.games=S.kg;setGames(S.games);
-  for(const id in S.teams){const t=S.teams[id];t.dev=t.dev||[];t.fin=Object.assign(newFin(),t.fin||{});}
+  for(const id in S.teams){const t=S.teams[id];t.dev=t.dev||[];t.rpRole=t.rpRole||{};t.fin=Object.assign(newFin(),t.fin||{});}
   if(S.draft===undefined)S.draft=null;S.settings=S.settings||{stopOnOffer:true};S.pins=S.pins||[];if(S.dispatch===undefined)S.dispatch=null;S.overseas=S.overseas||{hist:[]};
   const added=[],renamed=[];
   // v4: 실존 구단명과 겹치던 해외 구단 개명 + 소속 리그/지구 배정 + 실제 리그 규모로 구단 추가
@@ -3280,7 +3293,7 @@ function interestText(p){if(!p.interest)return null;const t=S.teams[p.interest.t
 
 return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
-  startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,pinchHit,availableBullpen,bench,curBatter,curPitcher,
+  startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
   calcOvr,posOvr,gradeOf,calcValue,salaryFor,money,isPitcher,velocity,statLine,ops_,potText,confText,scoutReport,interestText,needOf,countPos,
   autoLineup,fixLineup,rosterCheck,autoFillUser,
@@ -3411,7 +3424,20 @@ function misfitReasons(t){const out=[];for(const id of t.lineup){const p=S.playe
   const od=Math.round(SL.offVal(p)-SL.offVal(alt));out.push(od>0?`${SL.POS_KO[pos]}: 타격 +${od}를 얻으려고 수비 손실 −${pen}을 감수했습니다 (대안 ${alt.name}).`:`${SL.POS_KO[pos]}: ${SL.josa(alt.name,'이','가')} 벤치에 있지만 종합 판단으로 ${SL.josa(p.name,'을','를')} 세웠습니다 (수비 −${pen}). 직접 바꿔도 됩니다.`);}
   return out;}
 function fitWarn(p){const t=SL.userTeam();if(p.teamId!==t.id||!t.lineup.includes(p.id))return '';const pos=t.pos[p.id];if(!pos||pos==='DH'||pos===p.pos)return '';return `<span class="chip r">${SL.POS_KO[pos]} 적응 부족 · 수비 -${SL.posPenalty(p,pos)}</span> `;}
-function role(p){const t=SL.userTeam();if(p.teamId!==t.id)return '';if(t.dev.includes(p.id))return '육성군';if(t.lineup.includes(p.id)){const pos=t.pos[p.id]||'';return '주전 '+pos;}const ri=t.rotation.indexOf(p.id);if(ri>=0)return `선발 ${ri+1}번`;if(t.closer===p.id)return '마무리';if(t.bullpen.includes(p.id))return '불펜';return '벤치';}
+function role(p){const t=SL.userTeam();if(p.teamId!==t.id)return '';if(t.dev.includes(p.id))return '육성군';if(t.lineup.includes(p.id)){const pos=t.pos[p.id]||'';return '주전 '+pos;}const ri=t.rotation.indexOf(p.id);if(ri>=0)return `선발 ${ri+1}번`;if(t.bullpen.includes(p.id))return SL.RP_ROLE_KO[SL.rpRoleOf(t,p.id)];return '벤치';}
+// ----- v55 투수진: 한 목록에 전원 · 보직 탭(전체/선발/롱릴리프/셋업/마무리/중간) · 줄마다 보직 바꾸기 -----
+const RP_ROLES=[['sp','선발'],['long','롱릴리프'],['mid','중간'],['setup','셋업'],['closer','마무리']];
+function pitchStaff(ut){const pits=ut.roster.map(id=>S.players[id]).filter(SL.isPitcher).filter(p=>!ut.dev.includes(p.id));const roleOf=p=>ut.rotation.includes(p.id)?'sp':ut.bullpen.includes(p.id)?SL.rpRoleOf(ut,p.id):'none';
+  const ORD={sp:0,closer:1,setup:2,long:3,mid:4,none:5};const rows=pits.map(p=>({p,r:roleOf(p)})).sort((a,b)=>ORD[a.r]-ORD[b.r]||(a.r==='sp'?ut.rotation.indexOf(a.p.id)-ut.rotation.indexOf(b.p.id):SL.calcOvr(b.p)-SL.calcOvr(a.p)));
+  const f=ui.pitchF||'all';const cnt=k=>rows.filter(x=>x.r===k).length;const shown=rows.filter(x=>f==='all'||x.r===f);
+  const nx=ut.rotation[ut.rotIdx]?S.players[ut.rotation[ut.rotIdx]]:null;const cl=ut.closer!=null?S.players[ut.closer]:null;
+  const tabs=`<div class="seg pf">${[['all','전체'],...RP_ROLES].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="UI.pitchF('${k}')">${l}${k==='all'?'':` <i>${cnt(k)}</i>`}</button>`).join('')}</div>`;
+  const opts=p=>{const r=roleOf(p);const o=[];for(let i=0;i<5;i++)o.push(`<option value="sp${i}" ${r==='sp'&&ut.rotation[i]===p.id?'selected':''}>선발 ${i+1}번</option>`);for(const [k,l] of RP_ROLES.slice(1))o.push(`<option value="${k}" ${r===k?'selected':''}>${l}</option>`);return o.join('');};
+  const line=p=>{const s=SL.statLine(p,p.cur);const g=s.g||0;return g?`${g}G ${s.w}승${s.l}패${s.sv?' '+s.sv+'S':''}${s.hd?' '+s.hd+'H':''} ERA ${s.era}`:'등판 없음';};
+  const row=({p,r})=>{const ovr=SL.calcOvr(p);const ri=ut.rotation.indexOf(p.id);const tag=r==='sp'?`${ri+1}선발`:SL.RP_ROLE_KO[r]||'대기';const fat=Math.round(p.fatigue);const inj=p.inj?`<span class="chip r">부상 ${p.inj.left}일</span>`:fat>=78?`<span class="chip o">피로 ${fat}</span>`:'';
+    return `<div class="prow pr ${r}"><span class="ptag ${r}">${tag}</span>${face(p,40)}<div class="grow" onclick="UI.openPlayer(${p.id})"><div class="nm">${esc(p.name)} <span class="muted small" style="font-weight:400">${p.pos} · ${p.age}세<span class="wide"> · ${p.throws==='L'?'좌투':'우투'} ${SL.velocity(p)}km/h</span></span></div><div class="sub">${inj}${esc(line(p))}${!inj&&fat>=40?` · 피로 ${fat}`:''}</div></div><div class="rt"><div class="row" style="gap:5px;justify-content:flex-end">${G(ovr)}<span class="ovr">${Math.round(ovr)}</span></div><select class="rsel" aria-label="${esc(p.name)} 보직" onchange="UI.setPitchRole(${p.id},this.value)">${opts(p)}</select></div></div>`;};
+  return `<div class="card main pstaff">${hd('투수진',`다음 선발 ${nx?esc(nx.name):'-'} · 마무리 ${cl?esc(cl.name):'없음'}`)}${tabs}${shown.map(row).join('')||'<div class="muted">해당 보직 투수가 없습니다.</div>'}
+  <div class="row sb" style="margin-top:8px"><span class="muted small">보직은 오른쪽에서 바꿉니다 · 피로 78 이상은 등판 불가</span><button class="sm ghost" onclick="UI.autoLineup()">자동 편성</button></div></div>`;}
 function statShort(p,st){const s=SL.statLine(p,st);if(SL.isPitcher(p))return `${s.w}승${s.l}패${s.sv?' '+s.sv+'S':''}${s.hd?' '+s.hd+'H':''} ERA ${s.era}`;return `타율 ${s.avg} ${s.hr}홈런 ${s.rbi}타점${s.sb?' '+s.sb+'도루':''}`;}
 function lastSt(p){const cur=S.phase==='season'&&(p.cur.pa>0||p.cur.pOuts>0);if(cur)return {st:p.cur,label:'이번 시즌'};const h=p.hist.length?p.hist[p.hist.length-1]:null;return h?{st:h.st,label:h.s+'시즌'}:null;}
 function hasSt(st){return !!(st&&(st.pa>0||st.pOuts>0));}
@@ -4002,12 +4028,7 @@ function renderRoster(){
       ${off?`<div class="small" style="margin-left:28px"><span class="chip r">${SL.POS_KO[pos]} 적응 부족 · 수비 -${SL.posPenalty(cur,pos)}</span> <span class="muted">본래 ${SL.POS_KO[cur.pos]}</span></div>`:''}</div>`;}
     h+=`</div><div class="card">${hd('벤치')}${bats.filter(p=>!ut.lineup.includes(p.id)).map(p=>prow(p,`${SL.POS_KO[p.pos]} · ${seasonLine(p)}`)).join('')||'<div class="muted">없음</div>'}</div>`;
   }else{
-    const pits=ut.roster.map(id=>S.players[id]).filter(SL.isPitcher);
-    h+=`<div class="card">${hd('선발 로테이션',`다음 선발: ${ut.rotation[ut.rotIdx]?esc(S.players[ut.rotation[ut.rotIdx]].name):'-'}`)}`;
-    for(let i=0;i<5;i++){const pid=ut.rotation[i];h+=`<div class="slot" style="grid-template-columns:22px 1fr"><b>${i+1}</b><select aria-label="${i+1}선발" onchange="UI.setRot(${i},+this.value)"><option value="-1">(비어 있음)</option>${pits.map(p=>`<option value="${p.id}" ${p.id===pid?'selected':''}>${SL.gradeOf(SL.calcOvr(p))} ${esc(p.name)} (${p.pos} ${SL.velocity(p)}km/h · 체력 ${Math.round(p.attrs.stamina)})</option>`).join('')}</select></div>`;}
-    h+=`<div style="height:8px"></div><button class="ghost" onclick="UI.autoLineup()">자동 편성</button></div>`;
-    h+=`<div class="card">${hd('마무리')}<select aria-label="마무리" style="width:100%" onchange="UI.setCloser(+this.value)"><option value="-1">(없음)</option>${pits.filter(p=>ut.bullpen.includes(p.id)).map(p=>`<option value="${p.id}" ${p.id===ut.closer?'selected':''}>${SL.gradeOf(SL.calcOvr(p))} ${esc(p.name)}</option>`).join('')}</select></div>`;
-    h+=`<div class="card">${hd('불펜','피로 78 이상은 등판 불가')}${ut.bullpen.map(id=>S.players[id]).map(p=>prow(p,`피로 ${Math.round(p.fatigue)} · ${seasonLine(p)}`)).join('')}</div>`;
+    h+=pitchStaff(ut);
   }
   return h;
 }
@@ -4962,8 +4983,10 @@ const A={
   setLineup(i,pid){const ut=SL.userTeam();if(pid>=0&&S.players[pid]&&S.players[pid].inj){toast(`${S.players[pid].name}: 부상 중이라 경기에 나설 수 없습니다 (복귀까지 ${S.players[pid].inj.left}일).`);render();return;}if(pid<0){const old=ut.lineup[i];if(old!=null){ut.lineup.splice(i,1);delete ut.pos[old];}}else{const j=ut.lineup.indexOf(pid);if(j>=0&&j!==i){const old=ut.lineup[i];ut.lineup[j]=old;ut.lineup[i]=pid;if(old==null)ut.lineup.splice(j,1);}else if(j<0){const old=ut.lineup[i];if(old!=null){ut.pos[pid]=ut.pos[old];delete ut.pos[old];}else ut.pos[pid]=ut.pos[pid]||SL.P(pid).pos;ut.lineup[i]=pid;}}autosave();render();},
   setPos(pid,pos){SL.userTeam().pos[pid]=pos;autosave();render();},
   moveSlot(i,d){const ut=SL.userTeam();const j=i+d;if(j<0||j>=ut.lineup.length)return;[ut.lineup[i],ut.lineup[j]]=[ut.lineup[j],ut.lineup[i]];autosave();render();},
-  setRot(i,pid){const ut=SL.userTeam();if(pid<0){const old=ut.rotation[i];if(old!=null){ut.rotation.splice(i,1);ut.bullpen.push(old);}}else{const old=ut.rotation[i];ut.bullpen=ut.bullpen.filter(x=>x!==pid);const j=ut.rotation.indexOf(pid);if(j>=0)ut.rotation.splice(j,1);if(old!=null&&old!==pid){ut.rotation[ut.rotation.indexOf(old)]=pid;ut.bullpen.push(old);}else ut.rotation.splice(i,0,pid);if(ut.closer===pid)ut.closer=null;}if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;autosave();render();},
+  setRot(i,pid){const ut=SL.userTeam();if(pid<0){const old=ut.rotation[i];if(old!=null){ut.rotation.splice(i,1);ut.bullpen.push(old);}}else{const old=ut.rotation[i];ut.bullpen=ut.bullpen.filter(x=>x!==pid);const j=ut.rotation.indexOf(pid);if(j>=0)ut.rotation.splice(j,1);if(old!=null&&old!==pid){ut.rotation[ut.rotation.indexOf(old)]=pid;ut.bullpen.push(old);}else ut.rotation.splice(i,0,pid);if(ut.closer===pid)ut.closer=null;if(ut.rpRole)delete ut.rpRole[pid];}if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;autosave();render();},
   setCloser(pid){SL.userTeam().closer=pid<0?null:pid;autosave();render();},
+  pitchF(k){ui.pitchF=k;render();},
+  setPitchRole(pid,v){const ut=SL.userTeam();if(v.startsWith('sp')){UI.setRot(+v.slice(2),pid);return;}const ri=ut.rotation.indexOf(pid);if(ri>=0){ut.rotation.splice(ri,1);if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;}if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);SL.setRpRole(ut,pid,v);autosave();render();},
   list(pid){const e=SL.listPlayer(pid);toast(e||'판매 등록했습니다. 관심 구단의 제안을 기다리세요.');autosave();render();},
   unlist(pid){SL.unlistPlayer(pid);toast('등록 해제');autosave();render();},
   confirmRelease(pid){const p=SL.P(pid);modal(`<h3>${esc(p.name)} 방출</h3><div>잔여 계약의 30%(${M(Math.round((p.contract?p.contract.salary*Math.max(1,p.contract.years)*0.3:0)/10)*10)})를 위약금으로 지급합니다. 되돌릴 수 없습니다.</div><div style="height:12px"></div><div class="btns"><button class="danger" onclick="UI.release(${pid})">방출 확정</button><button onclick="UI.closeModal()">취소</button></div>`);},

@@ -34,4 +34,15 @@ while(S.phase==='season'){SL.playDayAuto();for(const o of [...S.market.offers])S
 console.log('[3] 다른 리그 요약 기록 · 구버전 저장');
 {const os=Object.values(S.players).filter(p=>p.hist&&p.hist.some(h=>h.s===1&&h.lg==='JP'));const sb=os.reduce((a,p)=>a+(p.hist.find(h=>h.s===1&&h.lg==='JP').st.sb||0),0),hd=os.reduce((a,p)=>a+(p.hist.find(h=>h.s===1&&h.lg==='JP').st.pHD||0),0);sb>0&&hd>0?ok(`일본 리그 요약에도 도루 ${sb} · 홀드 ${hd}`):bad(`일본 요약 도루 ${sb} 홀드 ${hd}`);}
 {SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();let n=0;for(let i=0;i<5&&S.phase==='season';i++){SL.playDayAuto();n++;}const p=Object.values(S.players).find(x=>x.teamId!=null&&!SL.isPitcher(x));const l=SL.statLine(p);l.sb!=null&&!isNaN(l.sb)?ok(`v29 저장 이어서 ${n}일 진행 · 새 기록 칸 0부터`):bad('구버전 statLine '+JSON.stringify(l));}
+console.log('[4] v55 불펜 보직');
+{SL.newGame(5555,4,{games:144});S=SL.state();const u=SL.userTeam();const bp=u.bullpen.slice().sort((a,b)=>SL.calcOvr(S.players[b])-SL.calcOvr(S.players[a]));
+  const roles=u.bullpen.map(id=>SL.rpRoleOf(u,id));roles.filter(r=>r==='setup').length===2&&roles.filter(r=>r==='closer').length<=1?ok('지정 안 하면 셋업 2명 자동 (능력 순) · '+roles.join(' ')):bad('자동 보직 '+roles.join(' '));
+  const x=bp[bp.length-1];SL.setRpRole(u,x,'setup');SL.rpRoleOf(u,x)==='setup'&&u.bullpen.map(id=>SL.rpRoleOf(u,id)).filter(r=>r==='setup').length===2?ok('셋업 지정하면 자동 셋업 한 자리 줄어 총 2명 유지'):bad('셋업 지정');
+  SL.setRpRole(u,x,'closer');u.closer===x&&SL.rpRoleOf(u,x)==='closer'?ok('마무리 지정'):bad('마무리 지정');SL.setRpRole(u,x,'long');u.closer==null&&SL.rpRoleOf(u,x)==='long'?ok('마무리 → 롱릴리프 바꾸면 마무리 비움'):bad('보직 변경');
+  let setupHd=0,otherHd=0,longEarly=0,n=0;const st=u.bullpen.find(id=>SL.rpRoleOf(u,id)==='setup');
+  while(S.phase==='season'&&n++<60){const g=SL.startDay();if(g){SL.stepGame(g);for(const pid in g.box){const b=g.box[pid];if(!b.pHD||!u.bullpen.includes(+pid))continue;if(SL.rpRoleOf(u,+pid)==='setup')setupHd++;else otherHd++;}
+      const e=g.log.find(l=>l.type==='sub'&&/투수 교체/.test(l.text)&&l.inn<=5);SL.endUserGame();}else SL.playDayAuto();for(const o of [...S.market.offers])SL.respondOffer(o.id,'reject');}
+  setupHd>=otherHd?ok(`홀드는 셋업이 주로 챙김 (셋업 ${setupHd} · 그 외 ${otherHd})`):bad(`홀드 분배 셋업 ${setupHd} 그 외 ${otherHd}`);
+  const j=SL.serialize();SL.load(j);S=SL.state();SL.userTeam().rpRole&&SL.rpRoleOf(SL.userTeam(),x)==='long'?ok('저장·불러오기 뒤 보직 유지'):bad('보직 저장');
+  SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const t0=SL.userTeam();t0.rpRole&&t0.bullpen.every(id=>['setup','long','mid','closer'].includes(SL.rpRoleOf(t0,id)))?ok('구버전 저장: 보직 자동 배정'):bad('구버전 보직');}
 console.log(fails?`v52 검증 실패 ${fails}건`:'v52 검증 모두 통과');process.exit(fails?1:0);

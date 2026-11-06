@@ -1771,7 +1771,7 @@ function hydrate(){const fill=st=>Object.assign(newStat(),st||{});
   for(const id in S.players){const p=S.players[id];p.cur=fill(p.cur);if(p.res)p.res=fill(p.res);for(const h of p.rhist||[])h.st=fill(h.st);for(const h of p.hist||[]){h.st=fill(stObj(h.st));if(!h.tn)h.tn=h.team!=null&&S.teams[h.team]?S.teams[h.team].name:'-';}for(const w of p.winter||[])w.st=fill(w.st);p.log=p.log||[];p.transfers=p.transfers||[];p.valHist=p.valHist||[];}
   if(S.liveGame&&S.liveGame.box)for(const id in S.liveGame.box)S.liveGame.box[id]=fill(S.liveGame.box[id]);}
 function migrate(){const from=S.version;for(const id in S.players)carFromHist(S.players[id]);if(!S.hof)S.hof=[];if(S.kg==null)S.kg=BAL.SEASON_OPTIONS.includes(S.games)?S.games:144;if(!(S.games>=S.kg))S.games=S.kg;setGames(S.games);
-  for(const id in S.teams){const t=S.teams[id];t.dev=t.dev||[];t.fin=Object.assign(newFin(),t.fin||{});}
+  for(const id in S.teams){const t=S.teams[id];t.dev=t.dev||[];t.rpRole=t.rpRole||{};t.fin=Object.assign(newFin(),t.fin||{});}
   if(S.draft===undefined)S.draft=null;S.settings=S.settings||{stopOnOffer:true};S.pins=S.pins||[];if(S.dispatch===undefined)S.dispatch=null;S.overseas=S.overseas||{hist:[]};
   const added=[],renamed=[];
   // v4: 실존 구단명과 겹치던 해외 구단 개명 + 소속 리그/지구 배정 + 실제 리그 규모로 구단 추가
@@ -1951,7 +1951,7 @@ function interestText(p){if(!p.interest)return null;const t=S.teams[p.interest.t
 
 return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
-  startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,pinchHit,availableBullpen,bench,curBatter,curPitcher,
+  startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
   calcOvr,posOvr,gradeOf,calcValue,salaryFor,money,isPitcher,velocity,statLine,ops_,potText,confText,scoutReport,interestText,needOf,countPos,
   autoLineup,fixLineup,rosterCheck,autoFillUser,

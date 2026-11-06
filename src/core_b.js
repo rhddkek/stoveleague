@@ -196,6 +196,12 @@ function pinchHit(lg,side,benchPid){
   const idx=lg.bat[side];const old=lg.lineup[side][idx];lg.lineup[side][idx]=benchPid;lg.pos[side][benchPid]=lg.pos[side][old];delete lg.pos[side][old];lg.subbed[side].push(old);
   const b=ensureBox(lg,benchPid);b.g=1;glog(lg,`${t.name} 대타: ${S.players[old].name} → ${S.players[benchPid].name}`,'sub');return true;
 }
+// v55 불펜 보직: 마무리(closer) · 셋업(7·8회 리드) · 롱릴리프(선발 조기 강판) · 중간(나머지). 지정 안 하면 능력·체력으로 자동
+const RP_ROLE_KO={sp:'선발',closer:'마무리',setup:'셋업',long:'롱릴리프',mid:'중간'};
+function rpRoleOf(t,id){if(t.rotation.includes(id))return 'sp';if(t.closer===id)return 'closer';const r=(t.rpRole||{})[id];if(r&&r!=='closer')return r;const p=S.players[id];if(!p)return 'mid';
+  const others=t.bullpen.filter(x=>x!==t.closer&&!(t.rpRole&&t.rpRole[x]));const top=others.slice().sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const setN=Math.max(0,2-Object.values(t.rpRole||{}).filter(x=>x==='setup').length);
+  if(top.slice(0,setN).includes(id))return 'setup';if(p.pos==='SP'||p.attrs.stamina>=62)return 'long';return 'mid';}
+function setRpRole(t,id,role){t.rpRole=t.rpRole||{};if(role==='closer'){t.closer=id;delete t.rpRole[id];return;}if(t.closer===id)t.closer=null;if(role==='auto'||!role)delete t.rpRole[id];else t.rpRole[id]=role;}
 function aiPitchCheck(lg,side,halfStart){
   if(lg.done)return;const t=teamSide(lg,side);const P=S.players[lg.pitcher[side]];if(!P)return;
   const pc=lg.pc[P.id]||0,lim=pitchLimit(P),pb=ensureBox(lg,P.id);
@@ -209,9 +215,9 @@ function aiPitchCheck(lg,side,halfStart){
   else if(P.pos==='SP'&&pb.pR>=6&&lg.inn>=4)need=true;else if(P.pos==='RP'&&pb.pR>=3&&lg.outs<3)need=true;
   if(saveSpot&&(pc>lim*0.75||P.pos==='RP')){changePitcher(lg,side,closer);return;}
   // 7·8회 3점 이내 리드: 필승조(마무리 아닌 가장 좋은 불펜)로 한 이닝씩 끊어 간다 — 홀드 상황
-  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su=(su0.some(rested)?su0.filter(rested):su0).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
+  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su1=su0.some(rested)?su0.filter(rested):su0;const st=su1.filter(id=>rpRoleOf(t,id)==='setup');const su=(st.length?st:su1).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
   if(!need)return;
-  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));pickId=lg.inn>=7?pool[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))];}
+  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const lr=pool.filter(id=>rpRoleOf(t,id)==='long'),md=pool.filter(id=>rpRoleOf(t,id)==='mid');pickId=lg.inn>=7?pool[0]:(lg.inn<=5&&P.pos==='SP'&&lr.length)?lr[0]:(md.length?md[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))]);}
   changePitcher(lg,side,pickId);
 }
 // ---- 진행 단위 (모두 동일 엔진) ----

@@ -702,3 +702,10 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .rrow .k{flex:1;color:var(--muted)}.rrow .k em{font-style:normal;font-size:10px;margin-left:4px;padding:0 4px;border-radius:6px;background:var(--orange);color:#fff}.rrow b{font-size:16px;min-width:26px;text-align:right}.rrow .d{min-width:38px;text-align:right;font-size:12px}
 @media(max-width:439px){.abil .rlist{display:none}.abil .radar{max-width:320px}}
 @media(min-width:440px){.abil .radar .rd{display:none}}
+/* v55 투수진 한 목록 · 보직 탭 */
+.seg.pf{margin:0 0 8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.seg.pf::-webkit-scrollbar{display:none}.seg.pf button{flex:1 0 auto;padding:7px 8px;font-size:13px;white-space:nowrap}.seg.pf button i{font-style:normal;opacity:.6;font-size:11px}
+.prow.pr{gap:8px}.prow.pr .grow{cursor:pointer}.ptag{flex:0 0 46px;text-align:center;font-size:11px;font-weight:800;padding:4px 0;border-radius:8px;background:var(--sunk);color:var(--muted);letter-spacing:.3px}
+.ptag.sp{background:rgba(74,144,226,.22);color:#9cc4ff}.ptag.closer{background:rgba(231,76,60,.22);color:#ff9d93}.ptag.setup{background:rgba(243,156,18,.22);color:#ffcf7a}.ptag.long{background:rgba(46,204,113,.2);color:#8ff0b6}
+.prow.pr .rt{min-width:92px}.rsel{margin-top:4px;width:100%;font-size:12px;padding:3px 4px;min-height:28px}
+@media(max-width:420px){.prow.pr .sub{font-size:12px}}
+@media(max-width:600px){.pstaff .wide{display:none}.prow.pr .rt{min-width:84px}.prow.pr .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow.pr .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptag{flex-basis:40px;font-size:10px}}

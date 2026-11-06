@@ -110,7 +110,20 @@ function misfitReasons(t){const out=[];for(const id of t.lineup){const p=S.playe
   const od=Math.round(SL.offVal(p)-SL.offVal(alt));out.push(od>0?`${SL.POS_KO[pos]}: 타격 +${od}를 얻으려고 수비 손실 −${pen}을 감수했습니다 (대안 ${alt.name}).`:`${SL.POS_KO[pos]}: ${SL.josa(alt.name,'이','가')} 벤치에 있지만 종합 판단으로 ${SL.josa(p.name,'을','를')} 세웠습니다 (수비 −${pen}). 직접 바꿔도 됩니다.`);}
   return out;}
 function fitWarn(p){const t=SL.userTeam();if(p.teamId!==t.id||!t.lineup.includes(p.id))return '';const pos=t.pos[p.id];if(!pos||pos==='DH'||pos===p.pos)return '';return `<span class="chip r">${SL.POS_KO[pos]} 적응 부족 · 수비 -${SL.posPenalty(p,pos)}</span> `;}
-function role(p){const t=SL.userTeam();if(p.teamId!==t.id)return '';if(t.dev.includes(p.id))return '육성군';if(t.lineup.includes(p.id)){const pos=t.pos[p.id]||'';return '주전 '+pos;}const ri=t.rotation.indexOf(p.id);if(ri>=0)return `선발 ${ri+1}번`;if(t.closer===p.id)return '마무리';if(t.bullpen.includes(p.id))return '불펜';return '벤치';}
+function role(p){const t=SL.userTeam();if(p.teamId!==t.id)return '';if(t.dev.includes(p.id))return '육성군';if(t.lineup.includes(p.id)){const pos=t.pos[p.id]||'';return '주전 '+pos;}const ri=t.rotation.indexOf(p.id);if(ri>=0)return `선발 ${ri+1}번`;if(t.bullpen.includes(p.id))return SL.RP_ROLE_KO[SL.rpRoleOf(t,p.id)];return '벤치';}
+// ----- v55 투수진: 한 목록에 전원 · 보직 탭(전체/선발/롱릴리프/셋업/마무리/중간) · 줄마다 보직 바꾸기 -----
+const RP_ROLES=[['sp','선발'],['long','롱릴리프'],['mid','중간'],['setup','셋업'],['closer','마무리']];
+function pitchStaff(ut){const pits=ut.roster.map(id=>S.players[id]).filter(SL.isPitcher).filter(p=>!ut.dev.includes(p.id));const roleOf=p=>ut.rotation.includes(p.id)?'sp':ut.bullpen.includes(p.id)?SL.rpRoleOf(ut,p.id):'none';
+  const ORD={sp:0,closer:1,setup:2,long:3,mid:4,none:5};const rows=pits.map(p=>({p,r:roleOf(p)})).sort((a,b)=>ORD[a.r]-ORD[b.r]||(a.r==='sp'?ut.rotation.indexOf(a.p.id)-ut.rotation.indexOf(b.p.id):SL.calcOvr(b.p)-SL.calcOvr(a.p)));
+  const f=ui.pitchF||'all';const cnt=k=>rows.filter(x=>x.r===k).length;const shown=rows.filter(x=>f==='all'||x.r===f);
+  const nx=ut.rotation[ut.rotIdx]?S.players[ut.rotation[ut.rotIdx]]:null;const cl=ut.closer!=null?S.players[ut.closer]:null;
+  const tabs=`<div class="seg pf">${[['all','전체'],...RP_ROLES].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="UI.pitchF('${k}')">${l}${k==='all'?'':` <i>${cnt(k)}</i>`}</button>`).join('')}</div>`;
+  const opts=p=>{const r=roleOf(p);const o=[];for(let i=0;i<5;i++)o.push(`<option value="sp${i}" ${r==='sp'&&ut.rotation[i]===p.id?'selected':''}>선발 ${i+1}번</option>`);for(const [k,l] of RP_ROLES.slice(1))o.push(`<option value="${k}" ${r===k?'selected':''}>${l}</option>`);return o.join('');};
+  const line=p=>{const s=SL.statLine(p,p.cur);const g=s.g||0;return g?`${g}G ${s.w}승${s.l}패${s.sv?' '+s.sv+'S':''}${s.hd?' '+s.hd+'H':''} ERA ${s.era}`:'등판 없음';};
+  const row=({p,r})=>{const ovr=SL.calcOvr(p);const ri=ut.rotation.indexOf(p.id);const tag=r==='sp'?`${ri+1}선발`:SL.RP_ROLE_KO[r]||'대기';const fat=Math.round(p.fatigue);const inj=p.inj?`<span class="chip r">부상 ${p.inj.left}일</span>`:fat>=78?`<span class="chip o">피로 ${fat}</span>`:'';
+    return `<div class="prow pr ${r}"><span class="ptag ${r}">${tag}</span>${face(p,40)}<div class="grow" onclick="UI.openPlayer(${p.id})"><div class="nm">${esc(p.name)} <span class="muted small" style="font-weight:400">${p.pos} · ${p.age}세<span class="wide"> · ${p.throws==='L'?'좌투':'우투'} ${SL.velocity(p)}km/h</span></span></div><div class="sub">${inj}${esc(line(p))}${!inj&&fat>=40?` · 피로 ${fat}`:''}</div></div><div class="rt"><div class="row" style="gap:5px;justify-content:flex-end">${G(ovr)}<span class="ovr">${Math.round(ovr)}</span></div><select class="rsel" aria-label="${esc(p.name)} 보직" onchange="UI.setPitchRole(${p.id},this.value)">${opts(p)}</select></div></div>`;};
+  return `<div class="card main pstaff">${hd('투수진',`다음 선발 ${nx?esc(nx.name):'-'} · 마무리 ${cl?esc(cl.name):'없음'}`)}${tabs}${shown.map(row).join('')||'<div class="muted">해당 보직 투수가 없습니다.</div>'}
+  <div class="row sb" style="margin-top:8px"><span class="muted small">보직은 오른쪽에서 바꿉니다 · 피로 78 이상은 등판 불가</span><button class="sm ghost" onclick="UI.autoLineup()">자동 편성</button></div></div>`;}
 function statShort(p,st){const s=SL.statLine(p,st);if(SL.isPitcher(p))return `${s.w}승${s.l}패${s.sv?' '+s.sv+'S':''}${s.hd?' '+s.hd+'H':''} ERA ${s.era}`;return `타율 ${s.avg} ${s.hr}홈런 ${s.rbi}타점${s.sb?' '+s.sb+'도루':''}`;}
 function lastSt(p){const cur=S.phase==='season'&&(p.cur.pa>0||p.cur.pOuts>0);if(cur)return {st:p.cur,label:'이번 시즌'};const h=p.hist.length?p.hist[p.hist.length-1]:null;return h?{st:h.st,label:h.s+'시즌'}:null;}
 function hasSt(st){return !!(st&&(st.pa>0||st.pOuts>0));}
@@ -701,12 +714,7 @@ function renderRoster(){
       ${off?`<div class="small" style="margin-left:28px"><span class="chip r">${SL.POS_KO[pos]} 적응 부족 · 수비 -${SL.posPenalty(cur,pos)}</span> <span class="muted">본래 ${SL.POS_KO[cur.pos]}</span></div>`:''}</div>`;}
     h+=`</div><div class="card">${hd('벤치')}${bats.filter(p=>!ut.lineup.includes(p.id)).map(p=>prow(p,`${SL.POS_KO[p.pos]} · ${seasonLine(p)}`)).join('')||'<div class="muted">없음</div>'}</div>`;
   }else{
-    const pits=ut.roster.map(id=>S.players[id]).filter(SL.isPitcher);
-    h+=`<div class="card">${hd('선발 로테이션',`다음 선발: ${ut.rotation[ut.rotIdx]?esc(S.players[ut.rotation[ut.rotIdx]].name):'-'}`)}`;
-    for(let i=0;i<5;i++){const pid=ut.rotation[i];h+=`<div class="slot" style="grid-template-columns:22px 1fr"><b>${i+1}</b><select aria-label="${i+1}선발" onchange="UI.setRot(${i},+this.value)"><option value="-1">(비어 있음)</option>${pits.map(p=>`<option value="${p.id}" ${p.id===pid?'selected':''}>${SL.gradeOf(SL.calcOvr(p))} ${esc(p.name)} (${p.pos} ${SL.velocity(p)}km/h · 체력 ${Math.round(p.attrs.stamina)})</option>`).join('')}</select></div>`;}
-    h+=`<div style="height:8px"></div><button class="ghost" onclick="UI.autoLineup()">자동 편성</button></div>`;
-    h+=`<div class="card">${hd('마무리')}<select aria-label="마무리" style="width:100%" onchange="UI.setCloser(+this.value)"><option value="-1">(없음)</option>${pits.filter(p=>ut.bullpen.includes(p.id)).map(p=>`<option value="${p.id}" ${p.id===ut.closer?'selected':''}>${SL.gradeOf(SL.calcOvr(p))} ${esc(p.name)}</option>`).join('')}</select></div>`;
-    h+=`<div class="card">${hd('불펜','피로 78 이상은 등판 불가')}${ut.bullpen.map(id=>S.players[id]).map(p=>prow(p,`피로 ${Math.round(p.fatigue)} · ${seasonLine(p)}`)).join('')}</div>`;
+    h+=pitchStaff(ut);
   }
   return h;
 }
@@ -1661,8 +1669,10 @@ const A={
   setLineup(i,pid){const ut=SL.userTeam();if(pid>=0&&S.players[pid]&&S.players[pid].inj){toast(`${S.players[pid].name}: 부상 중이라 경기에 나설 수 없습니다 (복귀까지 ${S.players[pid].inj.left}일).`);render();return;}if(pid<0){const old=ut.lineup[i];if(old!=null){ut.lineup.splice(i,1);delete ut.pos[old];}}else{const j=ut.lineup.indexOf(pid);if(j>=0&&j!==i){const old=ut.lineup[i];ut.lineup[j]=old;ut.lineup[i]=pid;if(old==null)ut.lineup.splice(j,1);}else if(j<0){const old=ut.lineup[i];if(old!=null){ut.pos[pid]=ut.pos[old];delete ut.pos[old];}else ut.pos[pid]=ut.pos[pid]||SL.P(pid).pos;ut.lineup[i]=pid;}}autosave();render();},
   setPos(pid,pos){SL.userTeam().pos[pid]=pos;autosave();render();},
   moveSlot(i,d){const ut=SL.userTeam();const j=i+d;if(j<0||j>=ut.lineup.length)return;[ut.lineup[i],ut.lineup[j]]=[ut.lineup[j],ut.lineup[i]];autosave();render();},
-  setRot(i,pid){const ut=SL.userTeam();if(pid<0){const old=ut.rotation[i];if(old!=null){ut.rotation.splice(i,1);ut.bullpen.push(old);}}else{const old=ut.rotation[i];ut.bullpen=ut.bullpen.filter(x=>x!==pid);const j=ut.rotation.indexOf(pid);if(j>=0)ut.rotation.splice(j,1);if(old!=null&&old!==pid){ut.rotation[ut.rotation.indexOf(old)]=pid;ut.bullpen.push(old);}else ut.rotation.splice(i,0,pid);if(ut.closer===pid)ut.closer=null;}if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;autosave();render();},
+  setRot(i,pid){const ut=SL.userTeam();if(pid<0){const old=ut.rotation[i];if(old!=null){ut.rotation.splice(i,1);ut.bullpen.push(old);}}else{const old=ut.rotation[i];ut.bullpen=ut.bullpen.filter(x=>x!==pid);const j=ut.rotation.indexOf(pid);if(j>=0)ut.rotation.splice(j,1);if(old!=null&&old!==pid){ut.rotation[ut.rotation.indexOf(old)]=pid;ut.bullpen.push(old);}else ut.rotation.splice(i,0,pid);if(ut.closer===pid)ut.closer=null;if(ut.rpRole)delete ut.rpRole[pid];}if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;autosave();render();},
   setCloser(pid){SL.userTeam().closer=pid<0?null:pid;autosave();render();},
+  pitchF(k){ui.pitchF=k;render();},
+  setPitchRole(pid,v){const ut=SL.userTeam();if(v.startsWith('sp')){UI.setRot(+v.slice(2),pid);return;}const ri=ut.rotation.indexOf(pid);if(ri>=0){ut.rotation.splice(ri,1);if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;}if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);SL.setRpRole(ut,pid,v);autosave();render();},
   list(pid){const e=SL.listPlayer(pid);toast(e||'판매 등록했습니다. 관심 구단의 제안을 기다리세요.');autosave();render();},
   unlist(pid){SL.unlistPlayer(pid);toast('등록 해제');autosave();render();},
   confirmRelease(pid){const p=SL.P(pid);modal(`<h3>${esc(p.name)} 방출</h3><div>잔여 계약의 30%(${M(Math.round((p.contract?p.contract.salary*Math.max(1,p.contract.years)*0.3:0)/10)*10)})를 위약금으로 지급합니다. 되돌릴 수 없습니다.</div><div style="height:12px"></div><div class="btns"><button class="danger" onclick="UI.release(${pid})">방출 확정</button><button onclick="UI.closeModal()">취소</button></div>`);},

@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v54';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v55';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -234,7 +234,7 @@ function money(m){const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){con
 
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){
-  const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
+  const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rpRole:{},rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
   if(league==='KR'){t.cash=BAL.START_CASH[1]*(0.9+rnd()*0.3);t.rep=ri(60,85);}
   else{t.cash=BAL.OVERSEAS_CASH[league];t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
   t.cash=Math.round(t.cash);
@@ -315,7 +315,7 @@ function fixLineup(t){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){c
   const before=JSON.stringify([t.lineup,t.rotation,t.bullpen,t.closer]);
   t.lineup=t.lineup.filter(id=>alive.has(id));for(const id in t.pos)if(!alive.has(+id))delete t.pos[id];
   t.rotation=t.rotation.filter(id=>alive.has(id));t.bullpen=t.bullpen.filter(id=>alive.has(id));
-  if(t.closer!=null&&!alive.has(t.closer))t.closer=null;
+  if(t.closer!=null&&!alive.has(t.closer))t.closer=null;t.rpRole=t.rpRole||{};for(const k in t.rpRole)if(!t.bullpen.includes(+k))delete t.rpRole[k];
   const ps=[...alive].map(id=>S.players[id]);
   const needPos=['C','SS','2B','CF','3B','RF','LF','1B','DH'].filter(ps_=>!Object.values(t.pos).includes(ps_));
   for(const ps_ of needPos){let best=null,bv=-1e9;for(const p of ps){if(isPitcher(p)||t.lineup.includes(p.id))continue;const v=fitScore(p,ps_,{});if(v>bv){bv=v;best=p;}}if(best){t.lineup.push(best.id);t.pos[best.id]=ps_;}}
