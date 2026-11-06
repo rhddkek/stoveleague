@@ -124,6 +124,36 @@ function customizeTeam(o){const t=userTeam();o=o||{};const city=t.name.split(' '
   if(o.emb!==undefined){if(o.emb===null){if(t.emb){delete t.emb;ch.push('원래 엠블럼으로');}}else if(EMB_SHAPES.includes(o.emb.shape)){const L=String(o.emb.letter||'').trim().slice(0,2)||t.name.split(' ')[1][0];t.emb={shape:o.emb.shape,letter:L};ch.push('엠블럼 변경');}}
   if(o.reset){const d=(TEAM_NAMES[t.league]||[]).find(x=>x[0]===(t.orig||t.name));if(t.orig){t.name=t.orig;delete t.orig;}delete t.emb;delete t.cc;if(d)t.color=d[1];ch.push('처음 모습으로 되돌림');}
   if(ch.length)news(`[구단] ${ch.join(' · ')}`,'sys');return null;}
+// ---------- 기용 방침 (선수마다): 승리 우선(자동) · 육성 우선(선발 고정) · 분담 출장(3경기 중 2경기) ----------
+// 감독이 「키우려고 쓰는 선수」를 정하면 자동 편성·코치 조언이 그 뜻을 존중하고, 점검마다 결과를 따로 보여 준다
+function planPosOf(p,t){return isPitcher(p)?'SP':(t.pos[p.id]&&t.lineup.includes(p.id)?t.pos[p.id]:p.pos==='DH'?'DH':p.pos);}
+function setPlan(pid,k){const t=userTeam();const p=P_(pid);if(!p||!t.roster.includes(pid))return '1군 선수만 정할 수 있습니다.';if(k&&isPitcher(p)&&(k==='split'||p.pos!=='SP'))return '투수는 선발 투수의 「육성 우선」(로테이션 고정)만 정할 수 있습니다.';
+  t.locks=t.locks||{};if(!k){if(p.plan&&!isPitcher(p))delete t.locks[pid];delete p.plan;return null;}
+  const pos=planPosOf(p,t);p.plan={k,pos,s:S.season,d:S.day,n:0,ovr:r1(calcOvr(p)),attrs:{...p.attrs},ab:p.cur.ab||0,h:p.cur.h||0,hr:p.cur.hr||0,o:p.cur.pOuts||0,er:p.cur.pER||0};
+  if(!isPitcher(p))t.locks[pid]=pos;planPut(p,t,true);return null;}
+// 오늘 경기에 방침대로 넣거나(분담 출장은 세 경기에 한 번 쉼) 뺀다
+function planPut(p,t,force){if(p.inj)return;const P=p.plan;if(!P)return;
+  if(isPitcher(p)){if(!t.rotation.includes(p.id)){const w=t.rotation.map(P_).filter(Boolean).sort((a,b)=>calcOvr(a)-calcOvr(b))[0];t.bullpen=t.bullpen.filter(x=>x!==p.id);if(t.closer===p.id)t.closer=null;if(t.rotation.length<5)t.rotation.push(p.id);else if(w){t.rotation[t.rotation.indexOf(w.id)]=p.id;t.bullpen.push(w.id);}}return;}
+  const rest=P.k==='split'&&!force&&P.n%3===2;
+  if(rest){if(t.lineup.includes(p.id)){delete t.locks[p.id];const alt=t.roster.map(P_).filter(q=>q&&!q.inj&&!isPitcher(q)&&!t.lineup.includes(q.id)).sort((a,b)=>fitScore(b,P.pos)-fitScore(a,P.pos))[0];if(alt){t.lineup[t.lineup.indexOf(p.id)]=alt.id;delete t.pos[p.id];t.pos[alt.id]=P.pos;}}return;}
+  t.locks[p.id]=P.pos;if(!t.lineup.includes(p.id)){const cur=t.lineup.find(id=>t.pos[id]===P.pos);if(cur!=null){t.lineup[t.lineup.indexOf(cur)]=p.id;delete t.pos[cur];}else if(t.lineup.length<9)t.lineup.push(p.id);t.pos[p.id]=P.pos;}}
+function applyPlans(t){for(const id of t.roster){const p=P_(id);if(p&&p.plan){planPut(p,t,false);p.plan.n++;}}}
+// 방침을 정한 뒤 결과: 능력 변화 · 그동안 성적 · 같은 자리 대안과의 차이
+function planEval(p){const P=p.plan;if(!P)return null;const t=userTeam();const ch=[];for(const k in p.attrs){const d=Math.round(p.attrs[k]-(P.attrs[k]!=null?P.attrs[k]:p.attrs[k]));if(d)ch.push({k,d});}ch.sort((a,b)=>b.d-a.d);
+  const f=p.focus&&p.focus!=='balance'?p.focus:null;const fd=f&&p.attrs[f]!=null?{k:f,from:Math.round(P.attrs[f]),to:Math.round(p.attrs[f])}:null;
+  const pit=isPitcher(p);const ab=(p.cur.ab||0)-(P.s===S.season?P.ab:0),h=(p.cur.h||0)-(P.s===S.season?P.h:0),o=(p.cur.pOuts||0)-(P.s===S.season?P.o:0),er=(p.cur.pER||0)-(P.s===S.season?P.er:0);
+  const line=pit?(o?`평균자책 ${(er*27/o).toFixed(2)} (${Math.floor(o/3)}이닝)`:'아직 등판 없음'):(ab?`타율 ${(h/ab).toFixed(3).replace(/^0/,'')} (${ab}타수 ${h}안타)`:'아직 타석 없음');
+  const alt=pit?null:t.roster.map(P_).filter(q=>q&&q.id!==p.id&&!q.inj&&!isPitcher(q)&&posPenalty(q,P.pos)<12).sort((a,b)=>calcOvr(b)-calcOvr(a))[0];
+  return {k:P.k,games:P.n,since:P.d,ovrFrom:Math.round(P.ovr),ovrTo:Math.round(calcOvr(p)),ch:ch.slice(0,3),fd,line,alt:alt?{name:alt.name,ovr:Math.round(calcOvr(alt)),gap:Math.round(calcOvr(alt)-calcOvr(p))}:null};}
+const PLAN_KO={dev:'육성 우선',split:'분담 출장'};
+// 이번 시즌 앞선 점검에서 이 능력의 보이는 숫자가 오른 적이 있는지 (첫 성과 판단)
+function intGainBefore(p,k){let v=p.attrs[k];const L=(p.log||[]).filter(l=>l.s===S.season);for(let i=0;i<L.length;i++){const d=(L[i].ch&&L[i].ch[k])||0;const v0=v-d;if(i>0&&Math.round(v)>Math.round(v0))return true;v=v0;}return false;}
+// 「내 선수」: 감독이 직접 손댄 선수 (관심 ★ · 훈련 방향 · 기용 방침 · 우리가 지명한 2년 안 신인)
+function myPlayers(n){const t=userTeam();const pins=new Set(S.pins||[]);return t.roster.concat(t.dev||[]).map(P_).filter(p=>p&&(pins.has(p.id)||p.plan||(p.focus&&p.focus!=='balance')||(p.transfers||[]).some(x=>/드래프트/.test(x.kind)&&x.s>=S.season-1)))
+  .map(p=>{const L=(p.log||[])[0];const fresh=L&&L.s===S.season&&L.dd!=null&&S.phase==='season'&&S.day-L.dd<=7;const f=p.focus&&p.focus!=='balance'?p.focus:null;
+    // 화면에 보이는 정수 능력치가 오른 것만 (속값 0.5 상승은 표시하지 않음). 집중 훈련 능력을 먼저
+    let up=null;if(fresh&&L.ch){const ks=Object.keys(L.ch).filter(k=>p.attrs[k]!=null&&Math.round(p.attrs[k])>Math.round(p.attrs[k]-L.ch[k]));ks.sort((a,b)=>(b===f)-(a===f)||L.ch[b]-L.ch[a]);if(ks[0]){const k=ks[0];const to=Math.round(p.attrs[k]);up={k,d:to-Math.round(p.attrs[k]-L.ch[k]),to,first:!intGainBefore(p,k)};}}return {p,up,ev:planEval(p),pin:pins.has(p.id),score:(up?10+up.d:0)+(p.plan?5:0)+(pins.has(p.id)?3:0)+(t.lineup.includes(p.id)||t.rotation.includes(p.id)?1:0)};})
+  .sort((a,b)=>b.score-a.score).slice(0,n||4);}
 // ---------- 부상 ----------
 // 1군 경기를 뛴 선수마다 경기 뒤 판정. 피로·나이·체력 특성이 위험을 바꾸고, 의무 코치(트레이너)가 회복 기간을 줄인다.
 // 부상 중에는 라인업·로테이션·불펜·대타에서 빠지고(1군 등록은 유지), 다 나으면 돌아온다. AI 구단도 똑같이 적용.
@@ -151,7 +181,7 @@ function startDay(){
   if(S.phase!=='season')return null;if(S.liveGame)return S.liveGame;S.injToday=[];
   S.schedule.forEach((g,i)=>{if(g.day!==S.day||g.res||isUserGame(g))return;const lg=createGame(g.home,g.away,false);lg.gameRef=i;stepGame(lg);finalizeGame(lg);});
   const idx=S.schedule.findIndex(g=>g.day===S.day&&isUserGame(g));
-  if(idx>=0&&!S.schedule[idx].res){const g=S.schedule[idx];{const ut=userTeam();if(rosterCheck(ut).length){const add=autoFillUser();if(add.length)news(`선수단이 경기를 치를 수 없을 만큼 줄어 최소 인원을 자동으로 보충했습니다: ${add.join(', ')}`,'contract');}}fixLineup(userTeam());const lg=createGame(g.home,g.away,true);lg.gameRef=idx;S.liveGame=lg;return lg;}
+  if(idx>=0&&!S.schedule[idx].res){const g=S.schedule[idx];{const ut=userTeam();if(rosterCheck(ut).length){const add=autoFillUser();if(add.length)news(`선수단이 경기를 치를 수 없을 만큼 줄어 최소 인원을 자동으로 보충했습니다: ${add.join(', ')}`,'contract');}}applyPlans(userTeam());fixLineup(userTeam());const lg=createGame(g.home,g.away,true);lg.gameRef=idx;S.liveGame=lg;return lg;}
   return null;
 }
 function endUserGame(){const lg=S.liveGame;if(!lg||!lg.done)return null;finalizeGame(lg);const summary={lg};S.liveGame=null;finishDay();return summary;}
@@ -229,7 +259,7 @@ function growthTick(p,ctx){
   for(const k of keys)p.attrs[k]=r1(p.attrs[k]);
   p.xp=0;
   if(p.userLink){const chR={};let any=false;for(const k in ch){const v=Math.round(ch[k]*10)/10;if(Math.abs(v)>=0.1){chR[k]=v;any=true;}}
-    p.log.unshift({s:S.season,label:ctx.label,ch:chR,f,ovr:r1(calcOvr(p)),d:r1(calcOvr(p)-ovr0)});if(p.log.length>14)p.log.length=14;ledgerAdd(p,{s:S.season,l:ctx.label,d:r1(calcOvr(p)-ovr0),o:r1(calcOvr(p)),c:chR,f:f.slice(0,3)});}
+    p.log.unshift({s:S.season,label:ctx.label,ch:chR,f,ovr:r1(calcOvr(p)),d:r1(calcOvr(p)-ovr0),dd:S.phase==='season'?S.day:null});if(p.log.length>14)p.log.length=14;ledgerAdd(p,{s:S.season,l:ctx.label,d:r1(calcOvr(p)-ovr0),o:r1(calcOvr(p)),c:chR,f:f.slice(0,3)});}
 }
 
 // ---------- AI 구단 운영 목표 ----------
@@ -966,6 +996,8 @@ function weeklyStory(){const ut=userTeam();const C=[];const F=p=>isPitcher(p)?FO
       const it=p.interest&&p.interest.stage>=1&&S.teams[p.interest.team]?`${S.teams[p.interest.team].name}(${BAL.LEAGUES[p.interest.lg]?BAL.LEAGUES[p.interest.lg].short:''}) 스카우트가 지켜보고 있습니다.`:(p.log&&p.log[0]?`최근 성장 요인: ${p.log[0].f.slice(0,3).join(', ')}`:'');
       C.push({score:d*3+Math.max(0,dv)/20000+(p.age<=23?2:0)+((S.pins||[]).includes(p.id)?3:0),kind:'growth',pid:p.id,title:`${p.name}의 ${josa(what,'이','가')} 성과를 내고 있습니다`,lines,sub:it,since:B.label});}
     if(d<=-2&&(ut.lineup.includes(id)||ut.rotation.includes(id)))C.push({score:-d*2,kind:'decline',pid:p.id,title:`${p.name}의 기량이 떨어지고 있습니다`,lines:[`종합 ${Math.round(B.ovr)} → ${Math.round(now)}`],sub:p.log&&p.log[0]?`요인: ${p.log[0].f.slice(0,3).join(', ')}`:'',since:B.label});}
+  if(S.phase==='season'){const M=myPlayers(6).filter(x=>x.up);for(const x of M){const p=x.p;const first=x.up.first;const F2=isPitcher(p)?FOCUS_PIT:FOCUS_BAT;const fo=p.focus&&p.focus!=='balance'?F2[p.focus]+' 훈련':null;const st=(p.log[0].f||[]).some(s=>/주전|출장|선발/.test(s));
+      const onF=x.up.k===p.focus;C.push({score:first?27:16+x.up.d,kind:'mine',pid:p.id,title:`${p.name}, ${onF?(first?'첫 훈련 성과':'훈련 성과'):(first?'첫 성장':'성장')}`,lines:[`${ATTR_KO[x.up.k]} ${x.up.to-x.up.d} → ${x.up.to}`,`이번 주 ${(onF?[st?'출장':null,fo]:[st?'꾸준한 출장':'훈련']).filter(Boolean).join('과 ')||'훈련'}이 성장에 기여했습니다.`,x.ev?`${PLAN_KO[x.ev.k]} ${x.ev.games}경기째 · ${x.ev.line}`:''].filter(Boolean),sub:'',acts:[{label:'선수 보기',open:p.id}]});}}
   if(S.phase==='season')for(const id of ut.roster){const p=P_(id);if(p&&p.deb&&p.deb.s===S.season&&S.day-p.deb.d<=7)C.push({score:19,kind:'growth',pid:p.id,title:`${p.name}, 1군 데뷔전을 치렀습니다`,lines:[`${p.deb.vs}전 · ${p.deb.line}`,`종합 ${Math.round(calcOvr(p))} · ${p.age}세 · ${POS_KO[p.pos]||p.pos}`],sub:'첫 1군 경기는 기록에 남습니다. 계속 기회를 줄지, 2군에서 더 키울지 정할 때입니다.'});}
   if(S.phase==='season'){const st=teamStreak(ut);if(st.n>=4)C.push({score:6+st.n,kind:'streak',title:`${st.n}${st.win?'연승':'연패'} 중입니다`,lines:[`${compName(compOf(ut))} ${rankOf(ut)}위 · ${ut.rec.w}승 ${ut.rec.l}패`],sub:st.win?'흐름을 탔을 때 주전을 무리시키지 않도록 피로를 확인하세요.':'라인업과 선발 순서를 점검해 볼 때입니다.'});
     const goal=S.mgr&&S.mgr.cur&&S.mgr.cur.goal;if(goal&&S.day>=dayAt(0.64)){const st2=standings(compOf(ut));const r=rankOf(ut);const tgt=st2[goal.target-1];const gap=tgt?tgt.rec.w-ut.rec.w:0;C.push({score:7,kind:'race',title:r<=goal.target?`목표(${goal.text}) 안에 있습니다`:`목표(${goal.text})까지 ${gap}승 차`,lines:[`현재 ${r}위 · 남은 ${BAL.SEASON_GAMES-S.day+1}경기`],sub:''});}}
@@ -986,7 +1018,8 @@ function coachNotes(){const ut=userTeam();const out=[];const st=ut.staff||[];con
   if(tired)out.push({who:who('med')||who('pit')||'트레이너',pid:tired.id,text:`${p_n(tired)} 피로가 ${Math.round(tired.fatigue)}입니다. 한두 경기 쉬게 하는 게 좋겠습니다.`});
   const pit=ps.filter(p=>isPitcher(p)&&p.log&&p.log[0]&&p.log[0].s===S.season).sort((a,b)=>(b.log[0].d||0)-(a.log[0].d||0))[0];
   if(pit&&who('pit')&&pit.log[0].d>0)out.push({who:who('pit'),pid:pit.id,text:`${josa(pit.name,'의','의').replace('의의','의')} 공이 좋아지고 있습니다 (최근 +${pit.log[0].d}).`});
-  const mis=ut.lineup.filter(id=>{const p=P_(id);const pos=ut.pos[id];return p&&pos&&pos!=='DH'&&pos!==p.pos&&posPenalty(p,pos)>=12;});
+  {const pl=ps.filter(p=>p.plan&&p.plan.n>=5).sort((a,b)=>b.plan.n-a.plan.n)[0];if(pl){const E=planEval(pl);const grew=E.fd&&E.fd.to>E.fd.from?`${ATTR_KO[E.fd.k]} ${E.fd.from} → ${E.fd.to}`:E.ovrTo>E.ovrFrom?`종합 ${E.ovrFrom} → ${E.ovrTo}`:'아직 능력 변화 없음';out.push({who:who('bat')||who('pit')||'수석코치',pid:pl.id,plan:true,text:`${PLAN_KO[E.k]} ${E.games}경기째 — ${pl.name}: ${grew} · ${E.line}.${E.alt&&E.alt.gap>0?` ${E.alt.name}(종합 ${E.alt.ovr})보다 당장 전력은 ${E.alt.gap} 낮습니다.`:''} 감독님 뜻대로 계속 기용하겠습니다.`});}}
+  const mis=ut.lineup.filter(id=>{const p=P_(id);const pos=ut.pos[id];return p&&!p.plan&&!(ut.locks&&ut.locks[id])&&pos&&pos!=='DH'&&pos!==p.pos&&posPenalty(p,pos)>=12;});
   if(mis.length){const m=P_(mis[0]),mp=ut.pos[mis[0]],pen=posPenalty(m,mp);const alt=ut.roster.map(P_).filter(q=>q&&!isPitcher(q)&&!ut.lineup.includes(q.id)&&posPenalty(q,mp)<12).sort((a,b)=>fitScore(b,mp)-fitScore(a,mp))[0];
     if(alt&&fitScore(alt,mp)>=fitScore(m,mp))out.push({who:who('def')||who('bat')||'수석코치',pid:m.id,text:`${josa(m.name,'이','가')} ${POS_KO[mp]} 수비를 어려워합니다 (적성 밖 −${pen}). ${josa(alt.name,'을','를')} ${josa(POS_KO[mp],'으로','로')} 쓰는 게 낫겠습니다.`});
     else out.push({who:who('def')||who('bat')||'수석코치',pid:m.id,text:`${m.name}의 ${POS_KO[mp]} 배치는 타격을 살리려는 선택입니다 (수비 −${pen} 감수 · 같은 자리 벤치보다 종합 이득).`});}
@@ -1929,7 +1962,7 @@ return {BAL,VERSION,GAME_VER,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS
   diagnose,nextCheck,seasonDelta,saleImpact,rosterRole,growthBase,promiseKept,promiseStatus,grievanceAnswer,offVal,weeklyStory,coachNotes,reportStart,reportEnd,teamStreak,winterResults,facEffect,teamPower,bestLineup,posPenalty,josa,POS_KO,NAT_KO,
   compOf,compTeams,leagueComps,lgOf,jerseyOf,compLabel,AWARD_LABEL,parkOf,setNextGames,loanDeadline,dayAt,gf,advStats,batLine,pitLine,batWar,pitWar,lgCtx,leaders,compKeyOf,sponSettle,sponBase,sponSign,boardSign,boardDrop,boardSlots,sponStatus,starScore,endorseOffers,endorseAnswer,ensureSpon,sponAutoPick,presSeasonEnd,presOf,presTier,presTierOf,presTierIdx,presTable,presIncome,presPull,reserveTable,reserveIds,loanCheck,loanOptions,loanPlayer,postInfo,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
-  postReach,postRecord,postCur,POST_TEXT,lgGames,calDays,userGames,lpostInfo,lpostText,lpostRule,nickCheck,customizeTeam,EMB_SHAPES,injList,recSeason,leadersPast,hofParts,hofScore,hofList,hofCands,carLine,mainTeam,HOF_MIN,lpostReach,lpostNextName,fgnRuleText,isFgnIn,asNames,asLg,twHalf,LPOST_LG,DRAFT_LG,perfRankBonus,OLD_SAVE_MSG,aimOf,callupPlan,callupSwap,AIM_KO,setResFocus,resFocusList,resFocusWarn,callupCands,stallList,perfBonus,watchReasons,WATCH_KO,careerMs,firstPickCands,firstPick,firstPickResult,recapNext,needCats,draftAutoOne,draftMyLeft,farmKo,farmTierOf,farmCheck,capOf,nearCap,bdOf,dateOf,WGOAL,achList,ACH,farmGrade,renewAll,renewDemandOf,ledgerAdd,tradeEval,tradePropose,tradeOpen,tradeDeadline,tradeCore,tradeVal,convOpts,convDays,startConv,cancelConv,TACTICS,tacOk,setTactic,tacNow,stealP,transferPlayer,isFgn,fgnList,fgnStatus,fgnBlock,asiaOk,NAT_KO,ASIA_NAT,createFDraft,fdAvail,fdPick,fdAuto,fdTurn,fdCur,fdStep,fdNeeds,fdFits,allStar,asDay,AS_SQUAD,asSquadOf,futGames,futStand,futTeam,futNext,futDivOf,FUT_DIV_KO,FUT_INDEP,futDay,futPost,
+  postReach,postRecord,postCur,POST_TEXT,lgGames,calDays,userGames,lpostInfo,lpostText,lpostRule,setPlan,planEval,myPlayers,PLAN_KO,nickCheck,customizeTeam,EMB_SHAPES,injList,recSeason,leadersPast,hofParts,hofScore,hofList,hofCands,carLine,mainTeam,HOF_MIN,lpostReach,lpostNextName,fgnRuleText,isFgnIn,asNames,asLg,twHalf,LPOST_LG,DRAFT_LG,perfRankBonus,OLD_SAVE_MSG,aimOf,callupPlan,callupSwap,AIM_KO,setResFocus,resFocusList,resFocusWarn,callupCands,stallList,perfBonus,watchReasons,WATCH_KO,careerMs,firstPickCands,firstPick,firstPickResult,recapNext,needCats,draftAutoOne,draftMyLeft,farmKo,farmTierOf,farmCheck,capOf,nearCap,bdOf,dateOf,WGOAL,achList,ACH,farmGrade,renewAll,renewDemandOf,ledgerAdd,tradeEval,tradePropose,tradeOpen,tradeDeadline,tradeCore,tradeVal,convOpts,convDays,startConv,cancelConv,TACTICS,tacOk,setTactic,tacNow,stealP,transferPlayer,isFgn,fgnList,fgnStatus,fgnBlock,asiaOk,NAT_KO,ASIA_NAT,createFDraft,fdAvail,fdPick,fdAuto,fdTurn,fdCur,fdStep,fdNeeds,fdFits,allStar,asDay,AS_SQUAD,asSquadOf,futGames,futStand,futTeam,futNext,futDivOf,FUT_DIV_KO,FUT_INDEP,futDay,futPost,
   P:P_,krTeams,overseasTeams,rnd};
 })();
 if(typeof module!=='undefined')module.exports=SL;
