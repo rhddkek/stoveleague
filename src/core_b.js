@@ -1,5 +1,5 @@
 // ===================== 코어 (B: 경기 엔진) =====================
-function ensureBox(lg,pid){if(!lg.box[pid])lg.box[pid]={g:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,bb:0,so:0,r:0,rbi:0,pG:0,pGS:0,pOuts:0,pH:0,pR:0,pER:0,pBB:0,pSO:0,pPit:0,pW:0,pL:0,pSV:0,pHR:0};return lg.box[pid];}
+function ensureBox(lg,pid){if(!lg.box[pid])lg.box[pid]={g:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,bb:0,so:0,r:0,rbi:0,pG:0,pGS:0,pOuts:0,pH:0,pR:0,pER:0,pBB:0,pSO:0,pPit:0,pW:0,pL:0,pSV:0,pHR:0,sb:0,cs:0,pHD:0,pBS:0};return lg.box[pid];}
 function effAttr(p,k){let v=p.attrs[k]+(p.cond||0)+((p.morale||60)-60)*0.04;const f=p.fatigue||0;if(f>70)v-=(f-70)*0.25;return clamp(v,10,99);}
 function pitchLimit(p){return p.pos==='SP'?p.attrs.stamina*0.9+30:p.attrs.stamina*0.45+14;}
 function pitEff(lg,p){const pc=lg.pc[p.id]||0;const over=Math.max(0,pc-pitchLimit(p));return clamp(1-over*0.006,0.6,1);}
@@ -30,6 +30,7 @@ function scoreRun(lg,bs,runner,rbi,batterBox){
   const pb=ensureBox(lg,runner.resp);pb.pR++;pb.pER++;
   const diff=lg.score[1]-lg.score[0];const ls=diff>0?1:diff<0?0:-1;
   if(ls!==lg.leadSide){if(ls!==-1){lg.por[ls]=lg.pitcher[ls];lg.lossP=lg.pitcher[1-ls];}lg.leadSide=ls;}
+  const dp=lg.pitcher[1-bs],sv=lg.svs&&lg.svs[dp];if(sv&&sv.sit&&!sv.blown&&lg.score[1-bs]<=lg.score[bs]){sv.blown=true;ensureBox(lg,dp).pBS=1;}
 }
 function addOut(lg,n){const pb=ensureBox(lg,lg.pitcher[1-lg.half]);lg.outs+=n;pb.pOuts+=n;}
 function spd(pid){return S.players[pid]?effAttr(S.players[pid],'speed'):50;}
@@ -37,6 +38,7 @@ function fast(pid){const p=S.players[pid];return p&&p.traits.includes('빠른발
 
 function doPitch(lg){
   if(lg.done)return null;
+  {const st=autoSteal(lg);if(st)return st;}
   const bs=lg.half,fs=1-bs;
   const B=curBatter(lg),P=curPitcher(lg);
   const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const sc0=lg.score.slice(),on0=lg.bases.map(x=>x?1:0).join(''),o0=lg.outs;
@@ -172,7 +174,8 @@ function endHalf(lg){
 function finishGameState(lg,walkoff){
   lg.done=true;const w=lg.score[1]>lg.score[0]?1:0;
   const wp=lg.por[w],lp=lg.lossP;if(wp!=null)ensureBox(lg,wp).pW=1;if(lp!=null)ensureBox(lg,lp).pL=1;
-  const fp=lg.pitcher[w];if(fp!=null&&fp!==wp){const el=lg.entryLead[fp];if(el!=null&&el>0&&el<=3)ensureBox(lg,fp).pSV=1;}
+  const fp=lg.pitcher[w];const sv=lg.svs?lg.svs[fp]:null;if(fp!=null&&fp!==wp&&sv&&!sv.blown){const el=sv.lead,o=ensureBox(lg,fp).pOuts;if(el>0&&o>=1&&((sv.sit&&el<=3&&o>=3)||sv.tie||o>=9))ensureBox(lg,fp).pSV=1;}
+  for(const pid in (lg.svs||{})){const b=lg.box[pid];if(b&&b.pHD&&(+pid===wp||b.pSV))b.pHD=0;}
   glog(lg,`경기 종료${walkoff?' (끝내기)':''}: ${S.teams[lg.away].name} ${lg.score[0]} : ${lg.score[1]} ${S.teams[lg.home].name}`,'end');
 }
 function availableBullpen(lg,side){const t=teamSide(lg,side);return t.bullpen.filter(id=>!lg.used[side].includes(id)&&S.players[id]&&!S.players[id].retired&&!S.players[id].inj&&(S.players[id].fatigue||0)<78);}
@@ -181,9 +184,12 @@ function changePitcher(lg,side,newPid){
   if(lg.done||lg.pitcher[side]===newPid)return false;
   const t=teamSide(lg,side);if(!t.roster.includes(newPid)||lg.used[side].includes(newPid))return false;
   const old=S.players[lg.pitcher[side]];const np=S.players[newPid];
-  lg.pitcher[side]=newPid;lg.used[side].push(newPid);const b=ensureBox(lg,newPid);b.pG=1;lg.entryLead[newPid]=lg.score[side]-lg.score[1-side];
+  holdCheck(lg,side,lg.pitcher[side]);
+  lg.pitcher[side]=newPid;lg.used[side].push(newPid);const b=ensureBox(lg,newPid);b.pG=1;lg.entryLead[newPid]=lg.score[side]-lg.score[1-side];svEnter(lg,side,newPid);
   glog(lg,`${t.name} 투수 교체: ${old?old.name:'?'} → ${np.name}`,'sub');return true;
 }
+function svEnter(lg,side,pid){lg.svs=lg.svs||{};const lead=lg.score[side]-lg.score[1-side];const on=lg.half===1-side&&lg.outs<3?lg.bases.filter(Boolean).length:0;const tie=lead>0&&lead<=on+2;lg.svs[pid]={lead,sit:lead>0&&(lead<=3||tie),tie,blown:false};}
+function holdCheck(lg,side,pid){const sv=lg.svs&&lg.svs[pid];if(!sv||!sv.sit||sv.blown)return;const b=lg.box[pid];if(b&&b.pOuts>=1&&lg.score[side]>lg.score[1-side])b.pHD=1;}
 function pinchHit(lg,side,benchPid){
   if(lg.done||lg.half!==side)return false;
   const t=teamSide(lg,side);if(!bench(lg,side).includes(benchPid))return false;
@@ -194,12 +200,16 @@ function aiPitchCheck(lg,side,halfStart){
   if(lg.done)return;const t=teamSide(lg,side);const P=S.players[lg.pitcher[side]];if(!P)return;
   const pc=lg.pc[P.id]||0,lim=pitchLimit(P),pb=ensureBox(lg,P.id);
   const lead=lg.score[side]-lg.score[1-side];const avail=availableBullpen(lg,side);if(!avail.length)return;
-  const closer=t.closer!=null&&avail.includes(t.closer)?t.closer:null;
+  // 불펜 3연투는 피한다 (어제·그제 연속 등판한 불펜은 마무리라도 쉬게 함)
+  const rested=id=>{const a=(S.players[id]&&S.players[id].apD)||[];return !(a.includes(S.day-1)&&a.includes(S.day-2));};
+  const closer=t.closer!=null&&avail.includes(t.closer)&&rested(t.closer)?t.closer:null;
   const saveSpot=halfStart&&lg.inn>=9&&lead>0&&lead<=3&&closer!=null&&P.id!==closer;
   let need=false;
   if(pc>lim+12)need=true;else if(pc>lim&&(halfStart||lg.outs===0))need=true;
   else if(P.pos==='SP'&&pb.pR>=6&&lg.inn>=4)need=true;else if(P.pos==='RP'&&pb.pR>=3&&lg.outs<3)need=true;
   if(saveSpot&&(pc>lim*0.75||P.pos==='RP')){changePitcher(lg,side,closer);return;}
+  // 7·8회 3점 이내 리드: 필승조(마무리 아닌 가장 좋은 불펜)로 한 이닝씩 끊어 간다 — 홀드 상황
+  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su=(su0.some(rested)?su0.filter(rested):su0).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
   if(!need)return;
   let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));pickId=lg.inn>=7?pool[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))];}
   changePitcher(lg,side,pickId);
@@ -217,7 +227,14 @@ const TACTICS={
   ibb:{ko:'고의사구',side:'def',now:true,gain:'강타자를 피함',cost:'주자를 공짜로 내보냄'},
   gb:{ko:'땅볼 유도',side:'def',gain:'땅볼·병살 증가',cost:'맞으면 장타 위험 증가'}};
 function catcherDef(lg,fs){for(const pid of lg.lineup[fs]){if(lg.pos[fs][pid]==='C'){const p=S.players[pid];return p?p.attrs.defense:50;}}return 50;}
-function stealP(lg,pid){const fs=1-lg.half;const P=S.players[lg.pitcher[fs]];return clamp(0.62+(spd(pid)-50)*0.012+fast(pid)*0.012-(catcherDef(lg,fs)-50)*0.006+(P&&P.throws==='L'?-0.04:0),0.2,0.93);}
+function stealP(lg,pid){const fs=1-lg.half;const P=S.players[lg.pitcher[fs]];return clamp(0.80+(spd(pid)+fast(pid)-70)*0.008-(catcherDef(lg,fs)-50)*0.004+(P&&P.throws==='L'?-0.04:0),0.35,0.93);}
+// 자동 도루 (그린라이트): 타석 시작 때 한 번, 발 빠른 주자가 앞 베이스가 비면 시도. 점수 차가 크면 하지 않음
+function autoSteal(lg){if(lg.done||lg.balls||lg.strikes||lg.stl===lg.paCount)return null;lg.stl=lg.paCount;if(tacNow(lg))return null;const bs=lg.half,b=lg.bases;const diff=lg.score[bs]-lg.score[1-bs];if(diff>=6||diff<=-6||(lg.inn>=7&&diff>=4))return null;
+  let from=-1;if(b[1]&&!b[2])from=1;else if(b[0]&&!b[1])from=0;if(from<0)return null;const r=b[from];const s=spd(r.pid)+fast(r.pid);let att=clamp((s-60)*0.011,0,0.26);if(from===1)att*=0.28;if(lg.outs===2&&from===1)att*=0.3;
+  if(!(rnd()<att))return null;const nm=S.players[r.pid]?S.players[r.pid].name:'주자';const rb=ensureBox(lg,r.pid);const base=from===0?'2루':'3루';const sc0=lg.score.slice(),on0=b.map(x=>x?1:0).join(''),o0=lg.outs;let ev;
+  if(rnd()<stealP(lg,r.pid)-(from===1?0.06:0)){b[from+1]=r;b[from]=null;rb.sb++;ev={type:'sb',text:`${nm}, ${base} 도루 성공`};}
+  else{b[from]=null;rb.cs++;addOut(lg,1);ev={type:'cs',text:`${nm}, ${base} 도루 실패 — 포수 송구에 아웃 (${lg.outs}아웃)`};}
+  ev.sc0=sc0;ev.on=on0;ev.o0=o0;ev.steal=true;glog(lg,ev.text,ev.type,lg.userGame?{pid:r.pid,pit:lg.pitcher[1-bs],sc0,sc1:lg.score.slice(),on:on0,o0}:null);lg.last=ev;if(lg.outs>=3)endHalf(lg);return ev;}
 function tacOk(lg,side,k){const T=TACTICS[k];if(!T||lg.done)return {ok:false,why:'경기 중이 아닙니다.'};const atBat=lg.half===side;const b=lg.bases;
   if(T.side==='off'&&!atBat)return {ok:false,why:'공격 때만 쓸 수 있습니다.'};if(T.side==='def'&&atBat)return {ok:false,why:'수비 때만 쓸 수 있습니다.'};
   if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1루나 2루에 주자가 있어야 합니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않습니다.'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험합니다 (파울이면 삼진).'};}
@@ -232,8 +249,8 @@ function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false
   const bs=lg.half,b=lg.bases;const B=curBatter(lg),P=curPitcher(lg);const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const nm=r=>S.players[r.pid]?S.players[r.pid].name:'주자';
   if(k==='ibb'){doWalk(lg,B,bb,pb);endPA(lg,{type:'walk',text:`[작전] 고의사구 — ${B.name} 1루로`,paEnd:true});return {ok:true,msg:'고의사구'};}
   if(k==='steal'||k==='dsteal'){const lead=k==='dsteal'?b[1]:(b[1]&&!b[2]?b[1]:b[0]);const from=b.indexOf(lead);const pr=stealP(lg,lead.pid)-(k==='dsteal'?0.05:0)-(from===1?0.06:0);let txt;
-    if(rnd()<pr){if(k==='dsteal'){b[2]=b[1];b[1]=b[0];b[0]=null;txt=`[작전] 이중 도루 성공 — ${nm(b[2])} 3루, ${nm(b[1])} 2루`;}else{b[from+1]=lead;b[from]=null;txt=`[작전] ${nm(lead)} ${from===0?'2루':'3루'} 도루 성공`;}glog(lg,txt,'tac');}
-    else{addOut(lg,1);if(k==='dsteal'){b[1]=b[0];b[0]=null;b[2]=null;txt=`[작전] 이중 도루 실패 — 앞 주자 ${nm(lead)} 3루에서 아웃 (${lg.outs}아웃)`;}else{b[from]=null;txt=`[작전] ${nm(lead)} 도루 실패 — 아웃 (${lg.outs}아웃)`;}glog(lg,txt,'tac');if(lg.outs>=3)endHalf(lg);}
+    lg.stl=lg.paCount;const lb=ensureBox(lg,lead.pid);if(rnd()<pr){lb.sb++;if(k==='dsteal'){if(b[0])ensureBox(lg,b[0].pid).sb++;b[2]=b[1];b[1]=b[0];b[0]=null;txt=`[작전] 이중 도루 성공 — ${nm(b[2])} 3루, ${nm(b[1])} 2루`;}else{b[from+1]=lead;b[from]=null;txt=`[작전] ${nm(lead)} ${from===0?'2루':'3루'} 도루 성공`;}glog(lg,txt,'tac');}
+    else{lb.cs++;addOut(lg,1);if(k==='dsteal'){b[1]=b[0];b[0]=null;b[2]=null;txt=`[작전] 이중 도루 실패 — 앞 주자 ${nm(lead)} 3루에서 아웃 (${lg.outs}아웃)`;}else{b[from]=null;txt=`[작전] ${nm(lead)} 도루 실패 — 아웃 (${lg.outs}아웃)`;}glog(lg,txt,'tac');if(lg.outs>=3)endHalf(lg);}
     return {ok:true,msg:txt.replace('[작전] ','')};}
   if(k==='bunt'){const pr=clamp(0.68+(effAttr(B,'contact')-50)*0.004+(B.traits.includes('빠른발')?0.03:0),0.45,0.9);let txt;
     if(rnd()<pr){addOut(lg,1);const nb=[null,b[0]||null,b[1]||null];let sq='';if(b[2]){if(nb[2]){scoreRun(lg,bs,b[2],true,bb);sq=' · 3루 주자 홈인';}else nb[2]=b[2];}lg.bases=nb;txt=`[작전] ${B.name} 보내기 번트 성공 — 주자 진루${sq} (${lg.outs}아웃)`;endPA(lg,{type:'sac',text:txt,paEnd:true});}
@@ -243,7 +260,7 @@ function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false
   return {ok:false,msg:'알 수 없는 작전'};}
 function tacNow(lg){const t=lg.tac;return t&&t.pa===lg.paCount?t.k:null;}
 function stepPitch(lg){return doPitch(lg);}
-function stepPA(lg){const c=lg.paCount;let ev=null;while(!lg.done&&lg.paCount===c)ev=doPitch(lg);return ev;}
+function stepPA(lg){const c=lg.paCount,h=lg.inn*2+lg.half;let ev=null;while(!lg.done&&lg.paCount===c&&lg.inn*2+lg.half===h){ev=doPitch(lg);if(ev&&ev.steal&&lg.userGame)break;}return ev;}
 function stepHalf(lg){const h=lg.inn*2+lg.half;let ev=null;while(!lg.done&&lg.inn*2+lg.half===h)ev=doPitch(lg);return ev;}
 function stepGame(lg){let n=0;while(!lg.done&&n<20000){doPitch(lg);n++;}return lg.last;}
 // ---- 기록 반영 (중복 방지) ----
@@ -259,7 +276,7 @@ function finalizeGame(lg){
   if(!(sg&&sg.post)){H.rec[hw?'w':'l']++;A.rec[hw?'l':'w']++;H.rec.rs+=lg.score[1];H.rec.ra+=lg.score[0];A.rec.rs+=lg.score[0];A.rec.ra+=lg.score[1];}
   const isPost=!!(sg&&sg.post);
   for(const pid in lg.box){const p=S.players[pid];if(!p)continue;const b=lg.box[pid];if(!isPost&&(lg.home===S.userTeamId||lg.away===S.userTeamId)&&(b.g||b.pG)){debutCheck(p,lg,b);if(typeof careerMs==='function')careerMs(p,b,lg);if(b.hr&&p.deb&&p.deb.s&&!(p.ms&&p.ms.hr1)&&!(p.cur.hr>0)&&!(p.hist||[]).some(h=>h.st&&h.st.hr)){const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];p.ms=Object.assign(p.ms||{},{hr1:{s:S.season,d:S.day,vs:opp?opp.name:''}});news(`[첫 홈런] ${p.name}, 1군 첫 홈런! (${opp?opp.name.split(' ')[0]:''}전)`,'growth');}}const c=isPost?(p.ps=p.ps||newStat()):p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
-    if(b.pG){p.fatigue=Math.min(100,(p.fatigue||0)+b.pPit*0.55);p.xp+=b.pOuts;}
+    if(b.pG){p.fatigue=Math.min(100,(p.fatigue||0)+b.pPit*0.55);p.xp+=b.pOuts;if(!b.pGS&&!isPost){p.apD=(p.apD||[]).filter(d=>d>=S.day-2&&d<S.day);p.apD.push(S.day);}}
     else if(b.g){p.fatigue=Math.min(100,(p.fatigue||0)+5);p.xp+=b.pa;}
     if(typeof injRoll==='function')injRoll(p,b,lg);
   }

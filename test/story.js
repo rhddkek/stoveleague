@@ -234,7 +234,7 @@ console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
  rk.ms&&rk.ms.hr1&&S.news.filter(n=>/\[첫 홈런\]/.test(n.text)&&n.text.includes(rk.name)).length===1?ok(`첫 홈런 배지: ${rk.name} ${rk.ms.hr1.s}시즌 ${rk.ms.hr1.d}일차`):bad('첫 홈런 '+JSON.stringify(rk.ms));
  const n1=S.news.filter(n=>/\[첫 홈런\]/.test(n.text)).length;for(let i=0;i<4&&S.phase==='season';i++)SL.playDayAuto();S.news.filter(n=>/\[첫 홈런\]/.test(n.text)).length===n1?ok('첫 홈런은 한 번만 기록'):bad('첫 홈런 중복');
  const ab=S.players[u.roster.find(id=>id!==rk.id)];const jp=SL.overseasTeams().find(t=>t.league==='JP');SL.transferPlayer?0:0;
- {const keep=S.phase;const o={id:S.nextOfferId++,type:'overseas',pid:ab.id,team:jp.id,fee:Math.round(SL.calcValue(ab)*1.2),salary:20000,years:2,max:0,expires:S.clock+3,counters:0,status:'agreed',pw:0.9,willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(ab.id);SL.respondOffer(o.id,'accept');}
+ {const keep=S.phase;const o={id:S.nextOfferId++,type:'overseas',pid:ab.id,team:jp.id,fee:Math.round(SL.calcValue(ab)*1.2),salary:20000,years:2,max:0,expires:S.clock+3,counters:0,status:'agreed',pw:1,willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(ab.id);SL.respondOffer(o.id,'accept');}
  ab.teamId===jp.id&&ab.ms&&ab.ms.ab&&ab.ms.ab.lg==='JP'?ok(`해외 진출 배지: ${ab.name} → ${ab.ms.ab.tn}`):bad('해외 배지 '+JSON.stringify(ab.ms)+' team '+(S.teams[ab.teamId]||{}).league);}
 console.log('[18] v32 국내 구단 2곳 개명 (다른 게임 가상 구단명과 겹침 방지)');
 {const fs=require('fs');const KR=SL.TEAM_NAMES.KR.map(x=>x[0]);const avoid=['시걸스','시걸즈','팰컨스','팔콘스','팔콘즈','팬더스','팬더즈','클론즈','나이츠','드래곤즈','캣츠','라이거즈'];

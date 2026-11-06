@@ -662,3 +662,25 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .ftabs .fsep{flex:0 0 1px;align-self:stretch;margin:6px 4px;background:var(--line)}
 .mycard .myrow{padding:8px 0;border-bottom:1px dashed var(--line)}.mycard .myrow:last-of-type{border-bottom:0}.mycard .up{color:var(--green)}
 .planseg{margin-top:6px}.planseg button{padding:5px 6px;font-size:12.5px;min-height:0}
+
+/* v52: 공수교대 화면 */
+.chgscr{margin:8px 0;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);animation:chgIn .35s ease-out}
+.chgscr.my{border-color:#f3c76b;box-shadow:0 0 0 1px #f3c76b inset}
+.chgscr .ct{font-size:12px;font-weight:800;color:var(--orange);letter-spacing:1px;margin-bottom:6px}
+.chgscr .cm{display:flex;align-items:center;gap:12px}.chgscr b{font-size:17px}
+@keyframes chgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* v52: 3아웃 뒤 「공수교대 ▶」 전 — 다음 타자·투수·작전은 자리만 지키고 숨김 (버튼 위치 고정) */
+.mvs.pend{position:relative}.mvs.pend>*,.gbar.pend>.tacinfo,.gbar.pend>.tachelp,.gbar.pend>.tacs{visibility:hidden}
+.mvs.pend::after{content:'이닝 종료 — 공수교대 대기';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);border-radius:12px;color:var(--dim);font-size:13px;font-weight:700;letter-spacing:.5px}
+/* v52: 대타·투수 교체 — 등급 대신 포지션 크게 */
+.prow.subr{gap:10px}.posbig{flex:0 0 46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--sunk);border:1px solid var(--line);font-weight:900;font-size:19px;letter-spacing:.5px;color:var(--text)}
+.prow.subr .sst{color:var(--text)}
+/* v52 시작 화면 구단 미리보기 (전력 막대 · 예상 순위 · 간판 선수) */
+.tpv{display:flex;gap:12px;align-items:center;margin-top:10px}.tpvbars{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.tpvbar{display:flex;align-items:center;gap:8px;font-size:13px}.tpvbar .l{width:30px;color:#b9c3dc;font-weight:700}.tpvbar .tk{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}.tpvbar .tk i{display:block;height:100%;border-radius:4px}.tpvbar .r{width:30px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.tpvpw{flex:0 0 auto;text-align:center;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.1);min-width:70px}.tpvpw b{font-size:26px;line-height:1}.tpvpw span{font-size:13px;color:#b9c3dc}
+.tpv .k,.tpvps .k{font-size:11px;color:#b9c3dc}
+.tpvps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tpvp{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.1);min-width:0}.tpvp b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-height:780px){.tpv{margin-top:6px;gap:10px}.tpvbars{gap:3px}.tpvpw{padding:4px 8px;min-width:62px}.tpvpw b{font-size:22px}.tpvps{margin-top:6px;gap:6px}.tpvp{padding:4px 6px}.tpvp .av{width:30px;height:30px}.tdetail .row .b{font-size:16px!important}}
+@media(max-height:780px){.title .panel:has(.jpleg) .tpvps{display:none}.title .panel:has(.jpleg) .tdetail .small.dim{display:none}}
+@media(max-height:700px){.tdetail .small.dim{display:none}.tpvp .av{display:none}.tpvp .k:last-child{display:none}.tpvp b{display:inline;font-size:13px}.tpvp>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tpvp .k:first-child{display:inline;margin-right:4px}.tpvbar{font-size:12px}.tpvbar .tk{height:6px}}
