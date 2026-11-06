@@ -709,3 +709,18 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .prow.pr .rt{min-width:92px}.rsel{margin-top:4px;width:100%;font-size:12px;padding:3px 4px;min-height:28px}
 @media(max-width:420px){.prow.pr .sub{font-size:12px}}
 @media(max-width:600px){.pstaff .wide{display:none}.prow.pr .rt{min-width:84px}.prow.pr .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow.pr .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptag{flex-basis:40px;font-size:10px}}
+/* v57 다이아몬드 배치 · 경기 능력 한 줄 · 진행 속도 칩 */
+.card.dia{padding:8px}.dfield{position:relative;width:100%;aspect-ratio:1/0.98;max-height:420px;margin:0 auto;border-radius:14px;overflow:hidden;background:
+ radial-gradient(ellipse at 50% 92%,rgba(190,120,60,.55) 0,rgba(190,120,60,.55) 9%,transparent 9.5%),
+ linear-gradient(135deg,transparent 46%,rgba(200,140,80,.35) 46%,rgba(200,140,80,.35) 54%,transparent 54%) 50% 58%/56% 56% no-repeat,
+ linear-gradient(45deg,transparent 46%,rgba(200,140,80,.35) 46%,rgba(200,140,80,.35) 54%,transparent 54%) 50% 58%/56% 56% no-repeat,
+ repeating-linear-gradient(180deg,rgba(40,120,70,.55) 0 24px,rgba(34,105,62,.55) 24px 48px)}
+.dslot{position:absolute;transform:translate(-50%,-50%);width:76px;padding:4px 2px 5px;border-radius:10px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;line-height:1.15;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.dslot b{max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.dslot small{color:var(--muted);font-size:10px}.dslot .av{width:34px;height:34px}
+.dslot .dn{position:absolute;top:-7px;left:-7px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.dslot.empty{border-style:dashed;background:rgba(10,20,40,.6)}.dslot .dpos{font-weight:900;font-size:15px}.dslot.off{border-color:var(--orange)}.dslot.inj{border-color:var(--red)}
+@media(max-width:380px){.dslot{width:66px}.dslot b{max-width:60px;font-size:11px}}
+.mvx .att{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}.mvx .att b{display:inline;font-size:11px;font-weight:700;color:var(--text)}
+.gctl{grid-template-columns:1fr;gap:4px}.seg.spd{margin:0 0 4px;padding:2px}.seg.spd button{padding:3px 2px;font-size:11px;min-height:24px}
+@media(max-width:600px){.mvx .att .wide{display:none}}
+@media(max-width:600px) and (max-height:760px){.mvx .mk.ms span:nth-child(2){display:none}}
