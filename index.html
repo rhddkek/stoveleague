@@ -722,7 +722,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v55';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v56';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -3581,9 +3581,8 @@ function helpize(scope){(scope||document).querySelectorAll('.card,.decide').forE
 function helpTop(){const c=document.querySelector('.content');if(!c)return;for(const e of [...c.children]){if(!e.matches('.muted.small,.dim.small,.clamp'))continue;const t=(e.innerText||e.textContent||'').trim();if(t.length<56||e.querySelector('button,input,select,table'))continue;const nb=e.nextElementSibling;if(nb&&nb.classList.contains('morebtn'))nb.remove();e.classList.remove('clamp');e.classList.add('helpx');const b=document.createElement('button');b.className='helpline';b.textContent='ⓘ 설명 보기';b.setAttribute('onclick',"this.nextElementSibling.classList.toggle('helpx');this.textContent=this.nextElementSibling.classList.contains('helpx')?'ⓘ 설명 보기':'ⓘ 설명 접기'");e.before(b);}}
 function fitScreen(){if(S&&!S.liveGame){helpize(document.querySelector('#app'));helpTop();}if(!S||S.liveGame)return;for(const k in CARD_STORE)delete CARD_STORE[k];
   const scope=ui.view?('v:'+ui.view.type+':'+(ui.view.pid||'')+':'+(ui.pTab||'')):(ui.tab+':'+(ui.sub[ui.tab]||''));
-  const content=document.querySelector('.content');if(content)tileize(content,'c:'+ui.tab+':'+(ui.sub[ui.tab]||''));
-  const rp=document.querySelector('#rpane');if(rp){const fc=rp.querySelector('.card');if(fc)tileize(fc.parentElement,'r:'+scope);}
-  if(!isWide()&&ui.view){const fc=document.querySelector('#app .card,#app .tgrid');if(fc&&fc.parentElement!==content)tileize(fc.parentElement,'v:'+scope);}
+  // v56: 카드를 작은 칸으로 접는 건 감독실(한눈 요약)만. 다른 화면은 목록 그대로 두고 보통 스크롤
+  const content=document.querySelector('.content');if(content&&ui.tab==='home'&&!ui.view)tileize(content,'c:home:'+(ui.sub.home||''));
   const m=$('#modal');if(m&&m.dataset.sheet){const key=m.dataset.sheet;const c=CARD_STORE[key];if(c){const box=m.querySelector('.sheetc');if(box)box.innerHTML=c.outerHTML;}else closeModal();}}
 function render0(){S=SL.state();const app=$('#app');if(!S){app.innerHTML=renderTitle();return;}
   if(S.liveGame){app.innerHTML=`<div class="gamev">${renderGame()}</div>`;{const gb=document.querySelector('.gbar'),gc=document.querySelector('.gamev>.content');if(gb&&gc)gc.style.paddingBottom=(gb.offsetHeight+12)+'px';}const gl=$('#glog');if(gl)gl.scrollTop=gl.scrollHeight;return;}
@@ -4017,9 +4016,8 @@ function renderRoster(){
   }else if(ui.sub.roster==='lineup'){
     const bats=ut.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p));const locks=ut.locks||{};const mode=ut.lineupMode||'win';
     const offs=ut.lineup.filter(id=>{const p=S.players[id];const pos=ut.pos[id];return p&&pos&&pos!=='DH'&&pos!==p.pos;}).length;
-    h+=`<div class="card">${hd('자동 편성 기준')}<div class="seg" style="margin-bottom:8px">${[['win','승리 우선'],['attack','공격 우선'],['youth','유망주 출장'],['rest','체력 관리']].map(m=>`<button class="${mode===m[0]?'on':''}" onclick="UI.setMode('${m[0]}')">${m[1]}</button>`).join('')}</div>
-    <div class="muted small">${mode==='win'?'공격력과 포지션 적성(수비 손실)을 함께 계산해 가장 강한 9명을 세웁니다. 2루수를 포수로 쓰는 것처럼 적성에서 크게 벗어난 배치는 하지 않습니다.':mode==='attack'?'타격을 최우선으로, 수비 손실이 커도 강한 타자를 다른 자리에 세웁니다.':mode==='youth'?'잠재력이 남은 24세 이하 선수에게 가산점을 줍니다. 성장은 빨라지지만 당장 전력은 조금 낮아질 수 있습니다.':'피로가 쌓인 선수를 우선 쉬게 합니다.'} 🔒 고정한 선수·포지션은 그대로 둡니다.</div>
-    <div style="height:8px"></div><button class="primary" style="width:100%" onclick="UI.autoLineup()">자동 편성 실행</button></div>`;
+    const MD={win:'공격력과 수비 적성을 함께 계산해 가장 강한 9명',attack:'타격 최우선 — 수비 손실이 커도 강한 타자',youth:'24세 이하 유망주에게 가산점',rest:'피로 쌓인 선수를 우선 쉬게'}[mode];
+    h+=`<div class="card autol"><div class="row sb" style="gap:8px"><div class="seg grow" style="margin:0">${[['win','승리'],['attack','공격'],['youth','유망'],['rest','체력']].map(m=>`<button class="${mode===m[0]?'on':''}" onclick="UI.setMode('${m[0]}')">${m[1]}</button>`).join('')}</div><button class="primary sm" style="flex:0 0 auto" onclick="UI.autoLineup()">자동 편성</button></div><div class="muted small" style="margin-top:6px">${MD} · 🔒 고정은 그대로</div></div>`;
     {const IJ=ut.roster.map(id=>S.players[id]).filter(p=>p&&p.inj);if(IJ.length)h+=`<div class="warnbox" style="margin-bottom:8px"><b>부상 ${IJ.length}명</b> — ${IJ.map(p=>`${esc(p.name)}(${esc(p.inj.type)}, ${p.inj.left}일)`).join(', ')}. 부상 선수는 경기 직전에 자동으로 빠지고 빈자리는 다른 선수로 채웁니다.</div>`;}
     h+=`<div class="card">${hd('타순 · 수비 위치',offs?`<span class="bad">적성 밖 배치 ${offs}명</span>`:'모두 본래 포지션')}${offs?`<div class="warnbox small" style="margin-bottom:8px">${misfitReasons(ut).map(esc).join('<br>')}</div>`:''}`;
     for(let i=0;i<9;i++){const pid=ut.lineup[i];const cur=pid!=null?S.players[pid]:null;const pos=cur?ut.pos[pid]:null;const off=cur&&pos&&pos!=='DH'&&pos!==cur.pos;const lk=cur&&locks[pid];

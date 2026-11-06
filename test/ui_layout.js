@@ -19,8 +19,9 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
   await sweep('시즌 중');ok('시즌 중 22개 화면 가로 넘침·하단 가림 검사');
   // R026 한 화면: 360×740에서 모든 탭 첫 화면이 세로로 넘치지 않는다 (넘치는 카드는 타일 → 누르면 팝업)
-  {const sc=[];for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);const o=await p.evaluate(()=>document.scrollingElement.scrollHeight-innerHeight);if(o>4)sc.push(`${t}/${s||''} ${o}px`);}
-   sc.length?bad('세로 스크롤 남음: '+sc.join(', ')):ok(`한 화면: ${tabs.length}개 화면 모두 세로 스크롤 없음`);}
+  // v56: 감독실만 한 화면(타일), 나머지는 목록 그대로 + 보통 스크롤 (접힌 타일·카드 안 스크롤 없음)
+  {const bad2=[];for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);const r=await p.evaluate(()=>({o:document.scrollingElement.scrollHeight-innerHeight,tiles:document.querySelectorAll('.tile2').length,sc:document.querySelectorAll('.scrollcard').length}));if(t==='home'){if(r.o>4)bad2.push('home 세로 넘침 '+r.o);}else if(r.tiles||r.sc)bad2.push(`${t}/${s||''} 타일 ${r.tiles} 카드내스크롤 ${r.sc}`);}
+   bad2.length?bad('화면 방식: '+bad2.join(', ')):ok(`감독실은 한 화면(타일), 나머지 ${tabs.length-1}개 화면은 접힌 칸 없이 목록 그대로`);}
   // v44 EA 2011 착안: 성장 정보(목록+상세) · 표로 보기 · 트레이드 나란히 비교 팝업 · 아래 한 줄 소식 · 결정 화면의 자금
   {await p.evaluate(()=>UI.go('dev','train'));const g=await p.evaluate(()=>{const b=document.querySelector('.gbcard');if(!b)return null;const items=b.querySelectorAll('.gbi').length;const attrs=b.querySelectorAll('.gba').length;const sec=document.querySelectorAll('.gbi')[1];if(sec)sec.click();const sel=document.querySelector('.gbi.on .gn');return {items,attrs,sel:sel&&sel.textContent};});
    g&&g.items>5&&g.attrs>=5&&g.sel?ok(`성장 정보: 목록 ${g.items}명 + 능력 ${g.attrs}개, 다른 선수 누르면 오른쪽이 바뀜 (${g.sel})`):bad('성장 정보 '+JSON.stringify(g));
@@ -29,8 +30,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    const tr=await p.evaluate(()=>{UI.go('market','trade');const ut=SL.userTeam();UI.tradeToggle('give',ut.roster[2]);const t=SL.state().teams[ui_t=SL.krTeams().find(x=>!x.isUser).id];UI.tradeToggle('get',t.roster[4]);UI.tradeSheet();const m=document.querySelector('#modal .tside');const r=m?m.querySelectorAll('.tpr').length:0;UI.closeModal();return r;});
    tr===2?ok('트레이드: 비교·제안 팝업에 양쪽 선수 나란히'):bad('트레이드 팝업 '+tr);
    const tk=await p.evaluate(()=>{const e=document.getElementById('tick');return e&&e.textContent.length>3;});tk?ok('아래 한 줄 소식 표시'):bad('소식 띠 없음');}
-  {await p.evaluate(()=>UI.go('dev','res'));const n=await p.evaluate(()=>document.querySelectorAll('.tile2').length);await p.evaluate(()=>{const t=document.querySelector('.tile2');if(t)t.click();});const r=await p.evaluate(()=>{const m=document.querySelector('#modal .sheetc .card');return m?m.innerText.slice(0,20):null;});
-   n>0&&r?ok(`타일 ${n}개 → 누르면 그 카드가 팝업으로 열림 (「${r.replace(/\n/g,' ')}」)`):bad('타일 팝업 '+n+' '+r);await p.evaluate(()=>UI.closeModal());}
+  {await p.evaluate(()=>UI.setTab('home'));const n=await p.evaluate(()=>document.querySelectorAll('.tile2').length);await p.evaluate(()=>{const t=document.querySelector('.tile2');if(t)t.click();});const r=await p.evaluate(()=>{const m=document.querySelector('#modal .sheetc .card');return m?m.innerText.slice(0,20):null;});
+   n===0?ok('감독실: 이 시드·폭에선 접히는 카드 없음 (한 화면에 다 들어감)'):r?ok(`감독실 타일 ${n}개 → 누르면 그 카드가 팝업으로 열림 (「${r.replace(/\n/g,' ')}」)`):bad('타일 팝업 '+n+' '+r);await p.evaluate(()=>UI.closeModal());}
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('자세히');await p.evaluate(()=>UI.sheet('result'));await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');await p.evaluate(()=>UI.closeModal());ok('7경기 자동 → 결과 띠 → 한 주간 보고서 창');
   {const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 홈 한 화면 (${fit.sh}/${fit.ch}px)`):bad('모바일 홈 스크롤 '+JSON.stringify(fit));}
