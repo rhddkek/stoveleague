@@ -738,3 +738,12 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .cband{margin:6px 0 8px;padding:6px 12px 8px}
 .drow2{display:flex;align-items:center;gap:8px;padding:7px 9px;margin:0 0 8px;border-radius:10px;background:rgba(243,193,75,.1);border:1px solid rgba(243,193,75,.45);font-size:13px}.drow2 .dk{font-size:11px;font-weight:800;color:var(--gold);margin-right:4px}.drow2 b{font-size:13px}.drow2 .col{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}.drow2 .col button{padding:4px 8px;font-size:12px;min-height:26px}.drow2.done{opacity:.75;border-style:dashed}
 .drow2 .dsub{-webkit-line-clamp:2}
+/* v59 선수단 통합 목록 · 액션 시트 · 협상 화면 압축 */
+.seg.sqf{flex-wrap:wrap;margin:0;gap:3px}.seg.sqf button{flex:1 0 auto;padding:6px 8px;font-size:13px;white-space:nowrap}
+.prow.sq{gap:6px;padding-right:0}.prow.sq .tap{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}.prow.sq .more{flex:0 0 36px;height:44px;border:0;background:none;color:var(--muted);font-size:20px;font-weight:900;line-height:1;border-radius:8px}.prow.sq .more:active{background:var(--sunk)}
+.prow.sq .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow.sq .chip{font-size:10px;padding:1px 6px;vertical-align:middle}
+.prow.act{cursor:pointer}.prow.act .aic{flex:0 0 30px;text-align:center;font-size:18px}.prow.act .nm{font-size:15px}
+.quick{display:flex;align-items:center;gap:6px;margin:6px 0 0;flex-wrap:wrap}
+@media(max-width:600px){.tbl2 .table-top{padding-top:6px;padding-bottom:4px}.tbl2 .seats{gap:10px}.tbl2 .seats .av,.tbl2 .seats img.px,.tbl2 .seats .emb{width:44px!important;height:44px!important}.tbl2 .seats .nm{font-size:13px}.tbl2 .seats .rl{font-size:11px}.tbl2 .vs{font-size:14px}.tbl2 .desk{display:none}.tbl2 .mood{margin-top:4px}.tbl2 .content{flex:0 0 auto!important;padding-top:6px!important}.tbl2 .chat{max-height:150px;overflow:auto}.tbl2 .offerform{margin-top:0}.tbl2{min-height:0}}
+.prow.sq .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.clamp1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.hero2 .hcap.hcar{border:0;text-align:left;cursor:pointer;width:100%;position:absolute;padding:14px 12px 7px;font-size:12px;line-height:1.25;border-radius:0}.hcar .cbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.15)}.hcar .cbar s{display:block;height:100%;background:var(--gold)}
