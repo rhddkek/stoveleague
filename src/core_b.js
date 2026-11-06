@@ -12,14 +12,14 @@ function createGame(homeId,awayId,userGame){
     lineup:[[...A.lineup],[...H.lineup]],pos:[{...A.pos},{...H.pos}],bat:[0,0],pitcher:[null,null],used:[[],[]],subbed:[[],[]],pc:{},box:{},log:[],done:false,finalized:false,
     por:[null,null],lossP:null,leadSide:-1,entryLead:{},userGame:!!userGame,paCount:0,hits:[0,0],last:null};
   for(const side of [0,1]){const t=side===1?H:A;let sp=t.rotation.length?t.rotation[t.rotIdx%t.rotation.length]:null;
-    if(sp==null||!S.players[sp]){sp=t.roster.map(id=>S.players[id]).filter(isPitcher)[0]?.id;}
+    if(sp==null||!S.players[sp]||S.players[sp].inj){sp=(t.rotation.map(id=>S.players[id]).find(p=>p&&!p.inj&&p.id!==sp)||t.roster.map(id=>S.players[id]).filter(p=>p&&isPitcher(p)&&!p.inj)[0]||{}).id;}
     if(t.rotation.length)t.rotIdx=(t.rotIdx+1)%t.rotation.length;
     lg.pitcher[side]=sp;lg.used[side].push(sp);const b=ensureBox(lg,sp);b.pGS=1;b.pG=1;lg.entryLead[sp]=0;}
   for(const side of [0,1])for(const pid of lg.lineup[side]){const b=ensureBox(lg,pid);b.g=1;}
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
 }
-function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(x){e.pid=x.pid;e.pit=x.pit;}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
+function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(x){e.pid=x.pid;e.pit=x.pit;if(x.sc0){e.sc0=x.sc0;e.sc1=x.sc1;e.on=x.on;e.o0=x.o0;}}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
 function curBatter(lg){return S.players[lg.lineup[lg.half][lg.bat[lg.half]]];}
 function curPitcher(lg){return S.players[lg.pitcher[1-lg.half]];}
 
@@ -39,7 +39,7 @@ function doPitch(lg){
   if(lg.done)return null;
   const bs=lg.half,fs=1-bs;
   const B=curBatter(lg),P=curPitcher(lg);
-  const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);
+  const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const sc0=lg.score.slice(),on0=lg.bases.map(x=>x?1:0).join(''),o0=lg.outs;
   const eff=pitEff(lg,P);
   const ctl=effAttr(P,'control')*eff,stf=effAttr(P,'stuff')*eff,mov=effAttr(P,'movement')*eff;
   let con=effAttr(B,'contact'),pow=effAttr(B,'power'),eye=effAttr(B,'eye'),sp=effAttr(B,'speed');
@@ -65,7 +65,7 @@ function doPitch(lg){
     if(tk==='hitrun'&&lg.bases[0]&&!lg.bases[1]&&lg.outs<3){const r=lg.bases[0];if(rnd()<stealP(lg,r.pid)){lg.bases[1]=r;lg.bases[0]=null;ev.text+=' · 1루 주자 2루 진루';}else{lg.bases[0]=null;addOut(lg,1);ev.text+=` · 1루 주자도 2루에서 아웃 (${lg.outs}아웃)`;}}}}
   else if(res==='foul'){if(lg.strikes<2)lg.strikes++;ev.text=`파울 ${cnt()}`;}
   else{ev=resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov);ev.paEnd=true;}
-  lg.last=ev;
+  ev.sc0=sc0;ev.on=on0;ev.o0=o0;lg.last=ev;
   if(ev.paEnd)endPA(lg,ev);
   else glog(lg,ev.text,'p');
   return ev;
@@ -147,7 +147,7 @@ function parkDim0(name){const h=strHash(name);const f=k=>((h>>>(k*5))&31)/31;con
 let PARK_REF=null;
 function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
 const PARK_MEMO={};
-function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.name);const R=parkRef();
+function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=(t.orig||t.name)+'|'+t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.orig||t.name);const R=parkRef();
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
   const city=t.name.split(' ')[0];const nick=t.name.split(' ').slice(1).join(' ');const shared=t.league==='KR'&&TEAM_NAMES.KR.filter(x=>x[0].split(' ')[0]===city).length>1;const notes=[];if(d.l<=96)notes.push('좌측 펜스가 가깝습니다');if(d.r<=96)notes.push('우측 펜스가 가깝습니다');if(d.c>=123)notes.push('중앙이 깊어 2·3루타가 잘 나옵니다');if(d.fence)notes.push('외야 펜스가 높습니다');if(d.wind)notes.push('외야 쪽으로 부는 바람이 잦아 타구가 잘 뻗습니다');if(!notes.length)notes.push('표준 규격 구장입니다');
   return PARK_MEMO[key]={name:shared?`${nick} ${d.sfx}`:`${city} ${d.sfx}`,hr,xb,dim:{l:d.l,c:d.c,r:d.r},fence:!!d.fence,wind:!!d.wind,notes,tag:hr>=1.04?'타자 친화':hr<=0.96?'투수 친화':'중립'};}
@@ -157,7 +157,7 @@ const KO_POS={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수'
 function endPA(lg,ev){
   const bs=lg.half;const bid=lg.lineup[bs][lg.bat[bs]];const bb=ensureBox(lg,bid);bb.pa++;lg.paCount++;
   lg.balls=0;lg.strikes=0;lg.bat[bs]=(lg.bat[bs]+1)%lg.lineup[bs].length;
-  glog(lg,ev.text,ev.type,lg.userGame?{pid:bid,pit:lg.pitcher[1-bs]}:null);
+  glog(lg,ev.text,ev.type,lg.userGame?{pid:bid,pit:lg.pitcher[1-bs],sc0:ev.sc0,sc1:lg.score.slice(),on:ev.on,o0:ev.o0}:null);
   if(lg.half===1&&lg.inn>=9&&lg.score[1]>lg.score[0]){finishGameState(lg,true);return;}
   if(lg.outs>=3){endHalf(lg);return;}
   aiPitchCheck(lg,1-bs,false);
@@ -175,8 +175,8 @@ function finishGameState(lg,walkoff){
   const fp=lg.pitcher[w];if(fp!=null&&fp!==wp){const el=lg.entryLead[fp];if(el!=null&&el>0&&el<=3)ensureBox(lg,fp).pSV=1;}
   glog(lg,`경기 종료${walkoff?' (끝내기)':''}: ${S.teams[lg.away].name} ${lg.score[0]} : ${lg.score[1]} ${S.teams[lg.home].name}`,'end');
 }
-function availableBullpen(lg,side){const t=teamSide(lg,side);return t.bullpen.filter(id=>!lg.used[side].includes(id)&&S.players[id]&&!S.players[id].retired&&(S.players[id].fatigue||0)<78);}
-function bench(lg,side){const t=teamSide(lg,side);return t.roster.filter(id=>{const p=S.players[id];return p&&!p.retired&&!isPitcher(p)&&!lg.lineup[side].includes(id)&&!lg.subbed[side].includes(id);});}
+function availableBullpen(lg,side){const t=teamSide(lg,side);return t.bullpen.filter(id=>!lg.used[side].includes(id)&&S.players[id]&&!S.players[id].retired&&!S.players[id].inj&&(S.players[id].fatigue||0)<78);}
+function bench(lg,side){const t=teamSide(lg,side);return t.roster.filter(id=>{const p=S.players[id];return p&&!p.retired&&!p.inj&&!isPitcher(p)&&!lg.lineup[side].includes(id)&&!lg.subbed[side].includes(id);});}
 function changePitcher(lg,side,newPid){
   if(lg.done||lg.pitcher[side]===newPid)return false;
   const t=teamSide(lg,side);if(!t.roster.includes(newPid)||lg.used[side].includes(newPid))return false;
@@ -261,6 +261,8 @@ function finalizeGame(lg){
   for(const pid in lg.box){const p=S.players[pid];if(!p)continue;const b=lg.box[pid];if(!isPost&&(lg.home===S.userTeamId||lg.away===S.userTeamId)&&(b.g||b.pG)){debutCheck(p,lg,b);if(typeof careerMs==='function')careerMs(p,b,lg);if(b.hr&&p.deb&&p.deb.s&&!(p.ms&&p.ms.hr1)&&!(p.cur.hr>0)&&!(p.hist||[]).some(h=>h.st&&h.st.hr)){const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];p.ms=Object.assign(p.ms||{},{hr1:{s:S.season,d:S.day,vs:opp?opp.name:''}});news(`[첫 홈런] ${p.name}, 1군 첫 홈런! (${opp?opp.name.split(' ')[0]:''}전)`,'growth');}}const c=isPost?(p.ps=p.ps||newStat()):p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
     if(b.pG){p.fatigue=Math.min(100,(p.fatigue||0)+b.pPit*0.55);p.xp+=b.pOuts;}
     else if(b.g){p.fatigue=Math.min(100,(p.fatigue||0)+5);p.xp+=b.pa;}
+    if(typeof injRoll==='function')injRoll(p,b,lg);
   }
+  if(typeof injAfter==='function')injAfter(lg);
   if(lg.gameRef!=null){const g=S.schedule[lg.gameRef];if(g&&!g.res)g.res={hs:lg.score[1],as:lg.score[0]};}
 }

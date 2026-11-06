@@ -1,6 +1,6 @@
 // 전체 검증: 하나라도 실패하면 종료 코드 1
 const {spawnSync}=require('child_process');
-const runs=[['verify.js','2026','10'],['verify.js','777','10'],['phase1.js'],['phase2.js'],['leagues.js'],['staff.js'],['story.js'],['play_leagues.js'],['hof_records.js'],['ui_smoke.js'],['ui_layout.js']];
+const runs=[['verify.js','2026','10'],['verify.js','777','10'],['phase1.js'],['phase2.js'],['leagues.js'],['staff.js'],['story.js'],['play_leagues.js'],['hof_records.js'],['v50_features.js'],['ui_smoke.js'],['ui_layout.js']];
 let bad=0;for(const r of runs){const t0=Date.now();const p=spawnSync('node',[__dirname+'/'+r[0],...r.slice(1)],{encoding:'utf8',maxBuffer:64<<20});
   const last=(p.stdout||'').trim().split('\n').pop();const ok=p.status===0;if(!ok)bad++;console.log(`${ok?'✔':'✘'} ${r.join(' ')} — ${last} (${((Date.now()-t0)/1000).toFixed(1)}s)`);
   if(!ok)console.log((p.stdout||'').split('\n').filter(l=>/FAIL|Error/.test(l)).slice(0,10).join('\n'),p.stderr||'');}

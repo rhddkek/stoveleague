@@ -303,7 +303,7 @@ console.log('[20] v34 경기 작전 · 트레이드 · 포지션 전환 · 드�
  const p=S.players[u.lineup.find(id=>['2B','3B','SS'].includes(S.players[id].pos))||u.lineup[0]];const from=p.pos;const to=from==='SS'?'2B':'SS';const pen0=SL.posPenalty(p,to);SL.startConv(p.id,to);const days=p.posTrain.total;
  for(let i=0;i<Math.ceil(days/2);i++)SL.playDayAuto();const mid=SL.posPenalty(p,to);mid<pen0&&mid>0?ok(`전환 훈련 중 불이익 줄어듦 (${pen0} → ${mid})`):bad('훈련 중 불이익 '+pen0+'→'+mid);
  for(let i=0;i<days;i++)if(S.phase==='season')SL.playDayAuto();p.pos===to&&p.pos2===from&&SL.posPenalty(p,from)===3&&SL.posPenalty(p,to)===0?ok(`전환 완료: ${from} → ${to}, ${from}는 부포지션(불이익 3)`):bad('전환 완료 '+p.pos+' '+p.pos2);
- const sp=S.players[u.rotation[4]];SL.startConv(sp.id,'RP');for(let i=0;i<6;i++)if(S.phase==='season')SL.playDayAuto();sp.pos==='RP'&&!u.rotation.includes(sp.id)?ok('선발 → 불펜 역할 전환 후 로테이션에서 빠짐'):bad('투수 전환 '+sp.pos+' '+u.rotation.includes(sp.id));
+ const sp=u.rotation.map(id=>S.players[id]).filter(x=>x.pos==='SP'&&!x.inj).pop();SL.startConv(sp.id,'RP');for(let i=0;i<6;i++)if(S.phase==='season')SL.playDayAuto();sp.pos==='RP'&&!u.rotation.includes(sp.id)?ok('선발 → 불펜 역할 전환 후 로테이션에서 빠짐'):bad('투수 전환 '+sp.pos+' '+u.rotation.includes(sp.id));
  SL.startConv(p.id,'SP')?ok('야수 → 투수 전환은 거절'):bad('야수 투수 허용');
  // 드래프트 5라운드 · 지명 후 계약
  SL.testCmd('endSeason');const D=S.draft;D.pool.length===SL.BAL.DRAFT_POOL&&SL.BAL.DRAFT_ROUNDS===5&&D.order.length===50?ok('드래프트: 후보 80명 · 5라운드 (50순번)'):bad('드래프트 규모 '+D.pool.length+' '+D.order.length);

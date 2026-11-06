@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v49';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v50';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -290,7 +290,7 @@ function bestLineup(bats,opt){
 function autoLineup(t,opt){
   if(t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
   opt=opt||{mode:t.lineupMode||'win',locks:t.isUser?(t.locks||{}):{}};
-  const ps=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired);
+  const ps=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&!p.inj);
   const bats=ps.filter(p=>!isPitcher(p)),pits=ps.filter(isPitcher);
   const r=bestLineup(bats,opt);t.lineup=r.order;t.pos=r.pos;
   const fat=p=>opt.mode==='rest'?(p.fatigue||0)*0.2:0;
@@ -311,7 +311,7 @@ function teamPower(t,exclude){
 }
 // 유저 팀: 빠진 선수만 교체(기존 편성 유지)
 function fixLineup(t){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
-  const alive=new Set(t.roster.filter(id=>S.players[id]&&!S.players[id].retired));
+  const alive=new Set(t.roster.filter(id=>S.players[id]&&!S.players[id].retired&&!S.players[id].inj));
   const before=JSON.stringify([t.lineup,t.rotation,t.bullpen,t.closer]);
   t.lineup=t.lineup.filter(id=>alive.has(id));for(const id in t.pos)if(!alive.has(+id))delete t.pos[id];
   t.rotation=t.rotation.filter(id=>alive.has(id));t.bullpen=t.bullpen.filter(id=>alive.has(id));
@@ -322,7 +322,7 @@ function fixLineup(t){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){c
   if(t.locks)for(const id in t.locks)if(!alive.has(+id))delete t.locks[id];
   const pits=ps.filter(isPitcher);
   for(const p of pits)if(!t.rotation.includes(p.id)&&!t.bullpen.includes(p.id))t.bullpen.push(p.id);
-  while(t.rotation.length<5&&t.bullpen.length){const sp=t.bullpen.find(id=>S.players[id].pos==='SP')||t.bullpen[0];t.bullpen=t.bullpen.filter(id=>id!==sp);t.rotation.push(sp);}
+  while(t.rotation.length<5&&t.bullpen.length){const sp=t.bullpen.find(id=>S.players[id].pos==='SP')||t.bullpen.filter(id=>id!==t.closer&&!S.players[id].rpLock).sort((a,b)=>(S.players[b].attrs.stamina||0)-(S.players[a].attrs.stamina||0))[0]||t.bullpen[0];t.bullpen=t.bullpen.filter(id=>id!==sp);t.rotation.push(sp);}
   if(t.closer==null&&t.bullpen.length)t.closer=[...t.bullpen].sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0];
   if(t.rotIdx>=t.rotation.length)t.rotIdx=0;
   return before!==JSON.stringify([t.lineup,t.rotation,t.bullpen,t.closer]);

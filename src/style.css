@@ -620,3 +620,38 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 /* v49: 낮은 PC 화면에서 경기 화면 구장 그림을 줄여 아래 경기 진행 버튼에 가리는 부분을 줄임 */
 @media(min-width:700px) and (max-height:760px){.stadc{max-width:440px}}
 @media(min-width:700px) and (max-height:640px){.stadc{max-width:360px}}
+
+/* v50: 저장 칸 */
+.slotno{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:6px;background:var(--orange);color:#fff;font-weight:800;font-size:12px}
+.title .slotrow{margin-top:6px}
+.slotsel{display:flex;align-items:center;gap:6px;margin-top:8px}.slotsel button{flex:1;min-width:0;padding:5px 4px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.slotsel button small{font-weight:400;opacity:.8}.slotsel button.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+/* v50: 구단 꾸미기 */
+.lookpv{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.lookcol{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}.lookcol button{width:30px;height:30px;min-height:0;border-radius:50%;padding:0;border:2px solid transparent}.lookcol button.on{border-color:#fff;box-shadow:0 0 0 2px var(--orange)}
+.lookemb{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.lookemb button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;min-height:0;min-width:58px}.lookemb button.on{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange) inset}.lookemb small{font-size:11px}
+
+/* v50: 첫 시즌 할 일 */
+.guide .grow1{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}.guide .grow1:last-child{border-bottom:0}
+.guide .gck{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;margin-top:1px}
+.guide .done .gck{background:var(--green);border-color:var(--green)}.guide .done .b{opacity:.6;text-decoration:line-through}
+.guide .next{background:linear-gradient(90deg,rgba(242,140,40,.12),transparent);border-radius:8px;padding-left:6px;margin-left:-6px}
+.nav .dot.gd{background:var(--orange);box-shadow:0 0 0 3px rgba(242,140,40,.3)}
+
+/* v50: 경기 연출 — 타구 궤적·착지점·큰 장면·중계 멘트·하이라이트 */
+.stad .trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.stad .trail path{fill:none;stroke:rgba(255,255,255,.75);stroke-width:.55;stroke-dasharray:100;stroke-dashoffset:100;animation:trailDraw .9s cubic-bezier(.2,.7,.3,1) forwards;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.stad .trail.good path{stroke:#f3c76b;stroke-width:2}.stad .trail path{stroke-width:1.6}
+.stad .trail.hr path{stroke:#ffd166;stroke-width:2.6;filter:drop-shadow(0 0 3px #ffb703)}
+@keyframes trailDraw{to{stroke-dashoffset:0}}
+.stad .land{width:3.6%;aspect-ratio:1;border:2px solid rgba(255,255,255,.8);border-radius:50%;background:transparent;opacity:0;animation:landPop .5s .8s ease-out forwards}
+.stad .land.good{border-color:#f3c76b}
+@keyframes landPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}100%{opacity:.85;transform:translate(-50%,-50%) scale(1)}}
+.stad .bigcall{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:clamp(26px,7vw,46px);font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 0 rgba(0,0,0,.5),0 0 18px rgba(255,183,3,.9);pointer-events:none;white-space:nowrap;animation:bigCall 1.9s .5s ease-out both}
+.stad .bigcall.op{text-shadow:0 2px 0 rgba(0,0,0,.5),0 0 18px rgba(230,57,70,.9)}
+@keyframes bigCall{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+.lpcall{font-size:12px;margin-top:2px;color:var(--muted)}.lpcall.hot{color:#f3c76b;font-weight:700}.lpcall.cool{color:#8ecae6}
+.hlc .hlr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}.hlc .hlr:last-child{border-bottom:0}.hlc .hlr.my{background:linear-gradient(90deg,rgba(243,199,107,.12),transparent)}
+.hlc .hli{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--muted);min-width:38px}.hlc .hls{flex:0 0 auto;font-size:12px;font-weight:700;white-space:nowrap}.hlc .hlb{color:#f3c76b}
+.calm .stad .trail path,.calm .stad .land,.calm .stad .bigcall{animation:none;stroke-dashoffset:0;opacity:1}
+@media (prefers-reduced-motion:reduce){.stad .trail path{animation:none;stroke-dashoffset:0}.stad .land{animation:none;opacity:.85}.stad .bigcall{animation:none;opacity:0}}
