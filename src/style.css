@@ -694,3 +694,11 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .hrow{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}.hrow b{min-width:92px;font-size:15px}.hrow .small{flex:1;min-width:0}.hrow .hgo{color:var(--muted);font-size:18px}
 .hrow.on b{color:var(--green)}.hgrp{margin:14px 0 2px;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.5px}
 .subtabs.htabs:has(+.hseg){margin-bottom:0}
+/* v53 능력치 그래프 (육각·오각) */
+.abil .abwrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.abil .radar{flex:1 1 190px;max-width:290px;min-width:0;color:var(--text)}
+.abil .rlist{flex:1 1 112px;min-width:108px;max-width:220px}
+.rrow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:14px}.rrow:last-child{border-bottom:0}
+.rrow .k{flex:1;color:var(--muted)}.rrow .k em{font-style:normal;font-size:10px;margin-left:4px;padding:0 4px;border-radius:6px;background:var(--orange);color:#fff}.rrow b{font-size:16px;min-width:26px;text-align:right}.rrow .d{min-width:38px;text-align:right;font-size:12px}
+@media(max-width:439px){.abil .rlist{display:none}.abil .radar{max-width:320px}}
+@media(min-width:440px){.abil .radar .rd{display:none}}
