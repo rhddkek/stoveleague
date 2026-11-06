@@ -900,12 +900,14 @@ function coachNotes(){const ut=userTeam();const out=[];const st=ut.staff||[];con
   const pit=ps.filter(p=>isPitcher(p)&&p.log&&p.log[0]&&p.log[0].s===S.season).sort((a,b)=>(b.log[0].d||0)-(a.log[0].d||0))[0];
   if(pit&&who('pit')&&pit.log[0].d>0)out.push({who:who('pit'),pid:pit.id,text:`${josa(pit.name,'의','의').replace('의의','의')} 공이 좋아지고 있습니다 (최근 +${pit.log[0].d}).`});
   const mis=ut.lineup.filter(id=>{const p=P_(id);const pos=ut.pos[id];return p&&pos&&pos!=='DH'&&pos!==p.pos&&posPenalty(p,pos)>=12;});
-  if(mis.length)out.push({who:who('def')||who('bat')||'수석코치',pid:mis[0],text:`${josa(P_(mis[0]).name,'이','가')} ${POS_KO[ut.pos[mis[0]]]} 수비를 어려워합니다 (적성 밖 −${posPenalty(P_(mis[0]),ut.pos[mis[0]])}).`});
+  if(mis.length){const m=P_(mis[0]),mp=ut.pos[mis[0]],pen=posPenalty(m,mp);const alt=ut.roster.map(P_).filter(q=>q&&!isPitcher(q)&&!ut.lineup.includes(q.id)&&posPenalty(q,mp)<12).sort((a,b)=>fitScore(b,mp)-fitScore(a,mp))[0];
+    if(alt&&fitScore(alt,mp)>=fitScore(m,mp))out.push({who:who('def')||who('bat')||'수석코치',pid:m.id,text:`${josa(m.name,'이','가')} ${POS_KO[mp]} 수비를 어려워합니다 (적성 밖 −${pen}). ${josa(alt.name,'을','를')} ${josa(POS_KO[mp],'으로','로')} 쓰는 게 낫겠습니다.`});
+    else out.push({who:who('def')||who('bat')||'수석코치',pid:m.id,text:`${m.name}의 ${POS_KO[mp]} 배치는 타격을 살리려는 선택입니다 (수비 −${pen} 감수 · 같은 자리 벤치보다 종합 이득).`});}
   if(S.phase==='offseason'&&S.draft&&!S.draft.done&&who('scout')){const top=S.draft.pool.map(P_).filter(Boolean).sort((a,b)=>b.scout.est-a.scout.est)[0];if(top)out.push({who:who('scout'),pid:top.id,text:`드래프트 후보 중 ${top.name}(${top.school||''} ${POS_KO[top.pos]||top.pos})의 잠재력을 높게 봅니다.`});}
   return out.slice(0,3);}
 function p_n(p){return josa(p.name,'의','의').replace('의의','의');}
 function reportStart(){const ut=userTeam();const pl={};for(const id of ut.roster.concat(ut.dev)){const p=P_(id);if(!p)continue;const c=p.cur;pl[id]={ovr:calcOvr(p),val:calcValue(p),pa:c.pa,ab:c.ab,h:c.h,hr:c.hr,bb:c.bb,rbi:c.rbi,o:c.pOuts,er:c.pER,so:c.pSO,w:c.pW};}
-  return {s:S.season,day:S.day,w:ut.rec.w,l:ut.rec.l,rs:ut.rec.rs,ra:ut.rec.ra,rank:S.phase==='season'?rankOf(ut):null,cash:ut.cash,pl};}
+  return {s:S.season,day:S.day,w:ut.rec.w,l:ut.rec.l,rs:ut.rec.rs,ra:ut.rec.ra,rank:S.phase==='season'&&(ut.rec.w+ut.rec.l+(ut.rec.tie||0))?rankOf(ut):null,cash:ut.cash,pl};}
 function reportEnd(r0){const ut=userTeam();if(!r0||r0.s!==S.season)return null;const g=(ut.rec.w-r0.w)+(ut.rec.l-r0.l);if(g<=0)return null;const ended=S.phase!=='season';
   // 시즌이 끝났으면 승강 뒤 새 부 순위가 아니라 그 시즌 최종 순위로 고정
   const rep={s:r0.s,ended,games:g,w:ut.rec.w-r0.w,l:ut.rec.l-r0.l,rs:ut.rec.rs-r0.rs,ra:ut.rec.ra-r0.ra,rankFrom:r0.rank,rankTo:ended&&S.lastSummary&&S.lastSummary.s===r0.s?S.lastSummary.rank:rankOf(ut),cash:ut.cash-r0.cash,bat:null,pit:null,grow:[]};

@@ -586,3 +586,10 @@ img.bdg{image-rendering:pixelated;flex:0 0 auto}
 .lastplay{min-height:104px}.lastplay .lpwho{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .lpwrap{position:relative}.lpwrap .ichg{position:absolute;left:0;right:0;top:-42px;margin:0;z-index:3;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 @media(max-height:700px){.stadc{aspect-ratio:2.7}.stadc .stad{margin-top:-19%}.lastplay{min-height:92px}}
+.tachelp{display:flex;align-items:center;gap:8px;margin:0 0 6px}.tachelp button{flex:0 0 auto;padding:3px 10px;min-height:0;font-size:12px}
+
+/* PC 오른쪽 칸: 고른 구단 */
+.tpanel{position:relative}.tpanel>.myt{position:absolute;top:10px;right:12px}
+.tpr2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}.tpr2 .k{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.r5{font-style:normal;display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:6px;margin-left:3px;font-size:12px;font-weight:800}.r5.W{background:var(--green-bg);color:var(--green-ink)}.r5.L{background:var(--red-bg);color:var(--red-ink)}.r5.D{background:var(--sunk);color:var(--muted)}
+.stab tr.sel td{box-shadow:inset 0 -2px 0 var(--orange)}
