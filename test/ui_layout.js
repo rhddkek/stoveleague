@@ -35,7 +35,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('자세히');await p.evaluate(()=>UI.sheet('result'));await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');await p.evaluate(()=>UI.closeModal());ok('7경기 자동 → 결과 띠 → 한 주간 보고서 창');
   {const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 홈 한 화면 (${fit.sh}/${fit.ch}px)`):bad('모바일 홈 스크롤 '+JSON.stringify(fit));}
-  await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('다음 타석');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');
+  await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('하이라이트까지');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');
   await p.evaluate(()=>UI.step('game'));await p.evaluate(()=>UI.endGame());await has('순위');ok('경기 후 결과 카드: 기록·순위·다음 판단');
   await p.evaluate(()=>{UI.go('market','buy');});await has('예산 안');if(!(await p.evaluate(()=>!!document.querySelector('input[placeholder="이름 검색"]'))))bad('이름 검색 입력 없음');const nm=await p.evaluate(()=>{UI.setBuyF('afford',false);const t=SL.krTeams().find(x=>!x.isUser);const q=SL.state().players[t.roster[0]].name;UI.setBuyF('q',q);return q;});await has(nm);ok('이적시장: 이름 검색·예산·의향·부족 포지션 필터');
   await p.evaluate(()=>{let g=0;while(SL.state().phase==='season'&&g++<40){UI.autoDays(99);for(const o of [...SL.state().market.offers])SL.respondOffer(o.id,'reject');}});await p.waitForTimeout(200);

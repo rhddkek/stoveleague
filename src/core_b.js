@@ -43,8 +43,9 @@ function doPitch(lg){
   const B=curBatter(lg),P=curPitcher(lg);
   const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const sc0=lg.score.slice(),on0=lg.bases.map(x=>x?1:0).join(''),o0=lg.outs;
   const eff=pitEff(lg,P);
-  const ctl=effAttr(P,'control')*eff,stf=effAttr(P,'stuff')*eff,mov=effAttr(P,'movement')*eff;
+  let ctl=effAttr(P,'control')*eff,stf=effAttr(P,'stuff')*eff,mov=effAttr(P,'movement')*eff;
   let con=effAttr(B,'contact'),pow=effAttr(B,'power'),eye=effAttr(B,'eye'),sp=effAttr(B,'speed');
+  {const dB=driveFx(teamSide(lg,bs)),dP=driveFx(teamSide(lg,fs));if(dB){con+=dB.contact||0;pow+=dB.power||0;eye+=dB.eye||0;sp+=dB.speed||0;}if(dP){ctl+=dP.control||0;stf+=dP.stuff||0;}}
   const risp=lg.bases[1]||lg.bases[2];
   if(risp&&B.traits.includes('클러치')){con+=4;pow+=4;}
   if(risp&&B.traits.includes('유리멘탈')){con-=3;eye-=3;}
@@ -236,7 +237,7 @@ function catcherDef(lg,fs){for(const pid of lg.lineup[fs]){if(lg.pos[fs][pid]===
 function stealP(lg,pid){const fs=1-lg.half;const P=S.players[lg.pitcher[fs]];return clamp(0.80+(spd(pid)+fast(pid)-70)*0.008-(catcherDef(lg,fs)-50)*0.004+(P&&P.throws==='L'?-0.04:0),0.35,0.93);}
 // 자동 도루 (그린라이트): 타석 시작 때 한 번, 발 빠른 주자가 앞 베이스가 비면 시도. 점수 차가 크면 하지 않음
 function autoSteal(lg){if(lg.done||lg.balls||lg.strikes||lg.stl===lg.paCount)return null;lg.stl=lg.paCount;if(tacNow(lg))return null;const bs=lg.half,b=lg.bases;const diff=lg.score[bs]-lg.score[1-bs];if(diff>=6||diff<=-6||(lg.inn>=7&&diff>=4))return null;
-  let from=-1;if(b[1]&&!b[2])from=1;else if(b[0]&&!b[1])from=0;if(from<0)return null;const r=b[from];const s=spd(r.pid)+fast(r.pid);let att=clamp((s-60)*0.011,0,0.26);if(from===1)att*=0.28;if(lg.outs===2&&from===1)att*=0.3;
+  let from=-1;if(b[1]&&!b[2])from=1;else if(b[0]&&!b[1])from=0;if(from<0)return null;const r=b[from];const s=spd(r.pid)+fast(r.pid);let att=clamp((s-60)*0.011,0,0.26);{const dx=driveFx(teamSide(lg,bs));if(dx&&dx.speed)att*=1.4;}if(from===1)att*=0.28;if(lg.outs===2&&from===1)att*=0.3;
   if(!(rnd()<att))return null;const nm=S.players[r.pid]?S.players[r.pid].name:'주자';const rb=ensureBox(lg,r.pid);const base=from===0?'2루':'3루';const sc0=lg.score.slice(),on0=b.map(x=>x?1:0).join(''),o0=lg.outs;let ev;
   if(rnd()<stealP(lg,r.pid)-(from===1?0.06:0)){b[from+1]=r;b[from]=null;rb.sb++;ev={type:'sb',text:`${nm}, ${base} 도루 성공`};}
   else{b[from]=null;rb.cs++;addOut(lg,1);ev={type:'cs',text:`${nm}, ${base} 도루 실패 — 포수 송구에 아웃 (${lg.outs}아웃)`};}
