@@ -5,9 +5,16 @@ from PIL import Image,ImageDraw
 name,start,seq=sys.argv[1],sys.argv[2],sys.argv[3]
 os.makedirs('cap/'+name,exist_ok=True)
 g=Game();e=g.e
-e.call('MF_SetAllClearTeam');g.set(1200);g.tick(3);g.key(OK);g.tick(3)
+import pickle
+if start.endswith('.sav'):
+    DS,DL=BASE+0x1e2b70,0x3802c+0x40;st=pickle.load(open(start,'rb'));e.uc.mem_write(DS,st['ds']);e.uc.mem_write(HEAP,st['heap']);e.heap=st['hp'];e.t=st['t'];e.res_by_id=st['res'];e.alloc=st.get('alloc',{});e.freel=st.get('freel',{})
+    if st.get('errno'):e._errno=st['errno']
+    g.tick(2)
+    if os.environ.get('STOVE'): e.call('MS_SetStoveLeague');g.set(85);g.tick(3)
+else:
+    e.call('MF_SetAllClearTeam');g.set(1200);g.tick(3);g.key(OK);g.tick(3)
 if start=='stove': e.call('MS_SetStoveLeague');g.set(85);g.tick(3)
-elif start.isdigit(): g.set(int(start));g.tick(3)
+elif start.isdigit() and not start.endswith('.sav'): g.set(int(start));g.tick(3)
 K={'U':UP,'D':DOWN,'L':LEFT,'R':RIGHT,'O':OK,'C':CLR,'5':ord('5'),'2':ord('2'),'8':ord('8'),'4':ord('4'),'6':ord('6'),'0':ord('0'),'S':ord('*'),'H':ord('#')}
 frames=[('start',g.state(),g.shot(f'cap/{name}/00.png'))]
 for i,k in enumerate([x for x in seq.split(',') if x]):

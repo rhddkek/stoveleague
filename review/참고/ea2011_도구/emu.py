@@ -11,7 +11,7 @@ VFS = os.path.join(HERE, '../ea_x/apk/assets/data.vfs.mp3')
 BASE = 0x40000000
 STUB = 0x60000000
 STACK = 0x7f000000; STACK_SZ = 0x200000
-HEAP = 0x50000000; HEAP_SZ = 0x08000000
+HEAP = 0x50000000; HEAP_SZ = 0x0F000000
 MAGIC = 0x6fff0000
 
 
@@ -33,6 +33,7 @@ class Emu:
         uc.mem_map(MAGIC, 0x1000)
         uc.mem_map(0x0, 0x1000)  # null page: reads 0 (tolerate)
         self.heap = HEAP + 0x1000
+        self.alloc = {}; self.freel = {}
         # symbols
         self.sym = {}; self.addr2 = []
         for s in self.elf.get_section_by_name('.dynsym').iter_symbols():
@@ -114,11 +115,19 @@ class Emu:
         return bytes(out)
     def kstr(self, a): return self.cstr(a).decode('cp949', 'replace')
     def malloc(self, n):
-        n = (n + 15) & ~15
-        a = self.heap; self.heap += max(n, 16)
-        if self.heap > HEAP + HEAP_SZ: raise MemoryError('heap')
+        n = max((n + 15) & ~15, 16)
+        fl = self.freel.get(n)
+        if fl:
+            a = fl.pop()
+        else:
+            a = self.heap; self.heap += n
+            if self.heap > HEAP + HEAP_SZ: raise MemoryError('heap')
+        self.alloc[a] = n
         self.uc.mem_write(a, b'\0' * n)
         return a
+    def free(self, a):
+        n = self.alloc.pop(a, None)
+        if n: self.freel.setdefault(n, []).append(a)
     def sa(self, name): return BASE + self.sym[name]
 
     def hook(self, name, fn):
@@ -203,7 +212,8 @@ class Emu:
             s = e.cstr(e.arg(0), 100000); p = e.malloc(len(s) + 1); e.uc.mem_write(p, s + b'\0'); return p
         def malloc(e): return e.malloc(e.arg(0))
         def calloc(e): return e.malloc(e.arg(0) * e.arg(1))
-        def free(e): return 0
+        def free(e):
+            e.free(e.arg(0)); return 0
         def znwj(e): return e.malloc(e.arg(0))
         def vsnprintf(e):
             buf, n, fmt, va = e.arg(0), e.arg(1), e.arg(2), e.arg(3)
