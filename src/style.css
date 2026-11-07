@@ -748,3 +748,8 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .prow.sq .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.clamp1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .hero2 .hcap.hcar{border:0;text-align:left;cursor:pointer;width:100%;position:absolute;padding:14px 12px 7px;font-size:12px;line-height:1.25;border-radius:0}.hcar .cbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.15)}.hcar .cbar s{display:block;height:100%;background:var(--gold)}
 .prow.sq .act1{flex:0 0 auto;padding:6px 10px;min-height:32px;font-size:12px}
+
+/* v61: 상단 고정 「다음」 버튼 */
+.club .nextb{background:var(--gold,#e0b24a);color:#1b1a14;border:0;border-radius:12px;padding:7px 11px;font-weight:800;font-size:14px;white-space:nowrap;flex:none}
+.club .nextb:active{transform:scale(.97)}
+@media (max-width:400px){.club .nextb{padding:7px 9px;font-size:13px}.cashpill{font-size:16px;padding:6px 9px}}

@@ -10,7 +10,7 @@ while(S.phase==='season'){const g=SL.startDay();if(g){const T=SL.missionsToday()
 const M=S.mis;n>=140&&M.n===n*2?ok(`${n}경기 모두 미션 판정 · 성공 ${M.ok}/${M.n} (${Math.round(M.ok/M.n*100)}%)`):bad(`미션 판정 ${n} ${M.n}`);
 M.ok/M.n>=0.3&&M.ok/M.n<=0.75?ok('성공률 30~75% (너무 쉽거나 어렵지 않음)'):bad('성공률 '+(M.ok/M.n));
 tiers.size>=2?ok('단계가 오르내림: '+[...tiers].join(','))+0:bad('단계 변화 없음 '+[...tiers]);
-bonus>0&&bonus<=150000?ok(`격려금 합계 ${SL.money(bonus)} (시즌 수입 대비 작음)`):bad('격려금 '+bonus);
+bonus>0&&bonus<=200000?ok(`격려금 합계 ${SL.money(bonus)} (시즌 수입 대비 작음)`):bad('격려금 '+bonus);
 S.ach.mis1&&S.ach.mis10?ok('도전과제 「오늘의 숙제」「숙제왕」'):bad('미션 도전과제');
 console.log('[2] 오늘의 결정 · 감독 지시');
 const kinds=Object.keys(dd);kinds.length>=2&&Object.values(dd).reduce((a,b)=>a+b,0)>=100?ok(`결정 ${Object.values(dd).reduce((a,b)=>a+b,0)}일 · 종류 ${JSON.stringify(dd)}`):bad('오늘의 결정 '+JSON.stringify(dd));

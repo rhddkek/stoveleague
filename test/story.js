@@ -50,11 +50,11 @@ SL.newGame(77,0);S=SL.state();ut4=SL.userTeam();ut4.cash=500000;const faP=S.fa.m
 let o4=SL.openTable(faP.id);let neg4=o4.neg;neg4.wantPromise=true;let res=null;for(let i=0;i<4&&!(res&&(res.done||res.ended));i++)res=SL.tableOffer(faP.id,{salary:Math.round(neg4.demand*1.3),years:2,bonus:0,promise:true});
 res&&res.done?(faP.promise&&!SL.promiseKept(ut4,faP)?ok(`주전 약속 영입 ${faP.name}(${faP.pos}): 자동 배치 없음 — 현재 「${SL.rosterRole(ut4,faP.id).text}」, 기용은 감독 판단`):bad('약속 영입이 자동 배치됨 '+SL.rosterRole(ut4,faP.id).text)):bad('약속 영입 실패 '+(res&&res.msg));
 // R004-4 자리를 떴다 다시 앉으면 이어서 (분위기·제시 횟수 유지)
-const fa2=S.fa.map(id=>S.players[id]).find(p=>p.id!==faP.id);let a1=SL.openTable(fa2.id);const n1=a1.neg;SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});const mood1=(S.market.negs.find(n=>n.pid===fa2.id)||{}).mood;
+const fa2=S.fa.map(id=>S.players[id]).find(p=>p.id!==faP.id&&p.nat==='KR');let a1=SL.openTable(fa2.id);const n1=a1.neg;SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});SL.tableOffer(fa2.id,{salary:Math.round(n1.demand*0.88),years:2});const mood1=(S.market.negs.find(n=>n.pid===fa2.id)||{}).mood;
 if(S.market.negs.find(n=>n.pid===fa2.id))SL.tableLeave(fa2.id);const a2=SL.openTable(fa2.id);
 a2.ok?(a2.neg.second&&a2.neg.maxRounds<=2&&a2.neg.mood<=mood1?ok(`두 번째 자리: 분위기 ${mood1}→${a2.neg.mood} 유지, 남은 제시 ${a2.neg.maxRounds}회 (처음 4회)`):bad('재착석 상태 '+JSON.stringify({s:a2.neg.second,m:a2.neg.maxRounds,mood:a2.neg.mood,mood1}))):ok('결렬 후 재협상 차단: '+a2.msg);
 // R004-6 시즌 중 영입 선수는 홈·상세 모두 「입단 대비」
-SL.newGame(77,0);S=SL.state();for(let i=0;i<10;i++)SL.playDayAuto();ut4=SL.userTeam();ut4.cash=900000;const tgt=S.fa.map(id=>S.players[id])[0];const o6=SL.openTable(tgt.id);let r6=null;for(let i=0;i<4&&!(r6&&(r6.done||r6.ended));i++)r6=SL.tableOffer(tgt.id,{salary:Math.round(o6.neg.demand*1.4),years:2});
+SL.newGame(77,0);S=SL.state();for(let i=0;i<10;i++)SL.playDayAuto();ut4=SL.userTeam();ut4.cash=900000;const tgt=S.fa.map(id=>S.players[id]).find(p=>p.nat==='KR');const o6=SL.openTable(tgt.id);let r6=null;for(let i=0;i<4&&!(r6&&(r6.done||r6.ended));i++)r6=SL.tableOffer(tgt.id,{salary:Math.round(o6.neg.demand*1.4),years:2});
 for(let i=0;i<8;i++)SL.playDayAuto();const gb=SL.growthBase(tgt);gb&&gb.join&&gb.label==='입단 대비'&&Math.abs(gb.ovr-tgt.joinSnap.ovr)<0.01?ok(`시즌 중 영입 ${tgt.name}: 성장 기준 「입단 대비」 (${gb.ovr} → ${Math.round(SL.calcOvr(tgt))})`):bad('합류 기준 '+JSON.stringify(gb));
 // R004-7 개막 홈: 겨울의 결과
 SL.newGame(1234,0,{arch:true});S=SL.state();while(S.phase==='season')SL.playDayAuto();ut4=SL.userTeam();while(S.week<=2&&!(S.dispatch&&S.dispatch.phase==='open'))SL.advanceWeek();const el=ut4.roster.map(id=>S.players[id]).filter(SL.dispatchEligible)[0];
@@ -227,7 +227,7 @@ console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
  const n0=u.roster.length,tr0=up.transfers.length,ct0=JSON.stringify(up.contract);const e=SL.callupSwap(up.id,down);
  !e&&u.lineup[idx]===up.id&&u.pos[up.id]===pos&&!u.lineup.includes(down)&&u.roster.includes(down)&&u.roster.length===n0&&up.transfers.length===tr0&&JSON.stringify(up.contract)===ct0?ok('맞바꾸기: 같은 타순·수비 위치, 내려간 선수는 1군 벤치(2군 출장), 이적·계약 기록 변화 없음'):bad('맞바꾸기 '+e);
  const sp=u.rotation[4],rp=u.roster.map(id=>S.players[id]).find(p=>SL.isPitcher(p)&&!u.rotation.includes(p.id)&&u.closer!==p.id&&u.bullpen.indexOf(p.id)>=4);
- if(rp){const e2=SL.callupSwap(rp.id,sp);!e2&&u.rotation[4]===rp.id&&u.bullpen.includes(sp)?ok(`투수 맞바꾸기: ${rp.name} 선발 5번, ${S.players[sp].name} 불펜 대기`):bad('투수 맞바꾸기 '+e2);}
+ if(rp){const e2=SL.callupSwap(rp.id,sp);!e2&&u.rotation[4]===rp.id&&!u.entry.includes(sp)&&!u.bullpen.includes(sp)?ok(`투수 맞바꾸기: ${rp.name} 선발 5번, ${S.players[sp].name} 2군으로`):bad('투수 맞바꾸기 '+e2);}
  /투수는 투수와/.test(SL.callupPlan(up.id,u.rotation[0]).msg||'')?ok('투수-야수 맞바꾸기는 거절'):bad('투수-야수 허용');
  // 첫 홈런 배지: 데뷔한 신인이 처음 홈런을 치면 한 번만
  const rk=S.players[up.id];rk.deb={s:1,d:1,vs:'x',line:'-'};rk.cur.hr=0;rk.hist=[];rk.attrs.power=99;rk.attrs.contact=99;let g=0;while(!(rk.ms&&rk.ms.hr1)&&g++<30&&S.phase==='season')SL.playDayAuto();
@@ -312,7 +312,7 @@ console.log('[20] v34 경기 작전 · 트레이드 · 포지션 전환 · 드�
  else ok('(이번 시드는 첫 주에 우리 차례 없음)');
  let k=0;while(SL.draftTurn()&&k++<10)SL.draftPick(SL.draftAvail()[0].id,'auto');const left=SL.draftPending();while(S.week<=SL.BAL.OFFSEASON_WEEKS)SL.advanceWeek();let rr=SL.startNewSeason();if(!rr.ok){SL.autoFillUser();rr=SL.startNewSeason();}
  left.every(p=>!S.players[p.id]||S.players[p.id].teamId==null)&&!SL.draftPending().length?ok(`개막까지 계약 안 한 ${left.length}명은 대학 진학`):bad('미계약 처리');
- SL.krTeams().filter(t=>!t.isUser).every(t=>t.roster.length+t.dev.length<=34)?ok('AI 구단 인원 과도하게 늘지 않음'):bad('AI 인원 '+SL.krTeams().map(t=>t.roster.length+t.dev.length));}
+ SL.krTeams().filter(t=>!t.isUser).every(t=>t.roster.length+t.dev.length<=SL.BAL.AI_ROSTER+4+SL.devCap(t))?ok('AI 구단 인원 과도하게 늘지 않음 (선수단 '+SL.krTeams().map(t=>t.roster.length).join('·')+')'):bad('AI 인원 '+SL.krTeams().map(t=>t.roster.length+t.dev.length));}
 console.log('[21] v35 숨은 상한 · 성장 원장 · 생일 · 단기 목표 · 도전과제 · 팜 등급 · 일괄 재계약');
 {SL.newGame(3636,9,{games:36});S=SL.state();const u=SL.userTeam();
  const p=S.players[u.lineup[0]];const c1=JSON.stringify(SL.capOf(p));delete p._cap;const c2=JSON.stringify(SL.capOf(p));c1===c2&&Object.keys(SL.capOf(p)).every(k=>SL.capOf(p)[k]>=Math.round(p.attrs[k]))?ok('숨은 상한: 선수마다 고정, 지금 능력 이상'):bad('상한 '+c1+' '+c2);
