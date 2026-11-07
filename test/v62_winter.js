@@ -58,4 +58,10 @@ console.log('[8] 결산 추천 · 저장 호환');
  const j=SL.serialize();SL.load(j);S=SL.state();SL.budgetInfo()&&S.faM?ok('저장·불러오기 뒤 예산·FA 시장 유지'):bad('저장 유지');
  SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const us=SL.overseasTeams().filter(t=>t.league==='US');us[0].roster.length>=34&&S.budget?ok(`v29 저장: 해외 하부 선수층·예산 생성 (미국 구단 ${us[0].roster.length}명)`):bad('v29 이행');
  let e=null;try{for(let i=0;i<10;i++)SL.playDayAuto();}catch(x){e=x;}e?bad('v29 진행 오류 '+e.message):ok('v29 저장 10일 진행');}
+console.log('[v64] 훈련 강도 (가볍게·보통·집중)');
+{SL.newGame(6464,1,{games:144});S=SL.state();ut=SL.userTeam();const sum=t=>{let a=0;for(const id of ut.roster){const p=P(id);for(const k of (SL.isPitcher(p)?SL.PIT_KEYS:SL.BAT_KEYS))a+=p.attrs[k];}return a;};
+ const run=(k)=>{SL.newGame(6464,1,{games:144});S=SL.state();ut=SL.userTeam();SL.setTrainInt(k);const a0=sum();for(let i=0;i<21;i++)SL.playDayAuto();let fat=0;for(const id of ut.roster)fat+=P(id).fatigue||0;return {g:sum()-a0,fat};};
+ const L=run('light'),N=run('normal'),H=run('hard');H.g>=N.g&&N.g>=L.g?ok(`3주 성장 합계: 가볍게 ${L.g.toFixed(1)} ≤ 보통 ${N.g.toFixed(1)} ≤ 집중 ${H.g.toFixed(1)}`):bad(`훈련 강도 성장 ${L.g.toFixed(1)}/${N.g.toFixed(1)}/${H.g.toFixed(1)}`);
+ L.fat<=N.fat&&N.fat<=H.fat?ok(`피로 합계: 가볍게 ${L.fat} ≤ 보통 ${N.fat} ≤ 집중 ${H.fat}`):bad(`훈련 강도 피로 ${L.fat}/${N.fat}/${H.fat}`);
+ const j=SL.serialize();SL.load(j);SL.userTeam().trainInt==='hard'?ok('저장·불러오기 뒤 훈련 강도 유지'):bad('훈련 강도 저장');}
 console.log(fails?`v62 검증 실패 ${fails}건`:'v62 검증 모두 통과');process.exit(fails?1:0);

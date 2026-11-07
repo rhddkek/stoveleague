@@ -14,6 +14,7 @@
 | `src/core_b.js` | 경기 엔진 (투구 단위, 모든 진행 버튼이 같은 엔진 사용) |
 | `src/core_c.js` | 시즌·성장·이적·FA·드래프트·해외 리그·파견·감독 평판/이직·코치진·저장/변환 |
 | `src/ui.js`, `src/style.css` | 화면 (모바일 우선, 960px 이상 PC 좌우 배치) |
+| `src/ui2.js` | v64 GPT 시안(`review/참고/GPT_UI안`) 화면. build.js가 UI 안에 이어 붙이고 같은 이름 함수는 이쪽이 쓰임(원본은 `*0`으로 이름 바꿈: renderPlayer0 등) |
 | `assets/` | 픽셀 초상화·구단 엠블럼·구장(Pixellab), 효과음(ElevenLabs; `sfx_raw`는 원본) |
 | `build.js` | 위 파일을 합쳐 `stoveleague.html`(배포용)과 `stoveleague_artifact.html`(Claude 아티팩트용) 생성 |
 | `test/` | 자동 검증과 구버전 세이브 샘플 |
