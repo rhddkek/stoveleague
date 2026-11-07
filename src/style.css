@@ -986,3 +986,29 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .mkt.sq tbody td{height:48px}
 .mkbtn3.sticky{position:sticky;bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--bg);padding:6px 0;margin-top:0;box-shadow:0 -6px 10px -8px rgba(0,0,0,.25)}
 @media (min-width:960px){.mkbtn3.sticky{position:static;box-shadow:none}}
+/* ===== v67 시작 화면(시안) · 표 정렬 · 검색 · 이전/다음 선수 ===== */
+.title.t2{background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+.thero{box-sizing:border-box;width:100%;min-height:300px;background:var(--navy) center/cover no-repeat;image-rendering:pixelated;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 16px 22px;text-align:center}
+.thero h1{font-family:var(--f-display);font-size:58px;color:#fff;margin:0;line-height:1;font-weight:400;text-shadow:0 3px 0 #0009,0 0 18px #0006;letter-spacing:1px}
+.thero p{display:flex;align-items:center;gap:12px;color:#f6f1e4;margin:10px 0 0;font-size:15px;text-shadow:0 1px 2px #000c}.thero p span{display:inline-block;width:28px;height:1.5px;background:#f6f1e4}
+.t2b{max-width:560px;margin:0 auto;padding-top:18px;padding-bottom:24px}
+.t2hd{display:flex;align-items:center;gap:12px;margin:0 0 12px}.t2hd b{font-size:22px;font-weight:900}.t2hd i{flex:1;height:1.5px;background:var(--navy);opacity:.6}.t2hd button{border:1.5px solid var(--navy);color:var(--text);background:var(--card);font-weight:800}
+.t2main{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--orange);border-radius:8px;padding:14px;margin-bottom:12px}.t2main .nm{font-size:22px;font-weight:900}
+.stag{display:inline-block;background:var(--orange);color:#fff;font-weight:800;font-size:12.5px;padding:3px 9px;border-radius:4px;white-space:nowrap}.stag.o{background:transparent;color:var(--orange-ink);border:1.5px solid var(--orange)}
+.t2stat{display:grid;grid-template-columns:repeat(3,1fr);border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);margin:12px 0 8px}.t2stat>div{text-align:center;padding:9px 4px;font-size:17px}.t2stat>div+div{border-left:1.5px solid var(--line)}
+.t2line{text-align:center;font-size:14px;color:var(--text);margin-bottom:10px}
+.t2news{display:flex;align-items:center;gap:10px;background:var(--sunk);border-radius:8px;padding:6px 12px;margin-bottom:12px;font-size:15px}.t2news .bar{width:2px;height:26px;background:var(--orange)}.t2news b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t2go{width:100%;font-size:22px!important;min-height:56px}
+.t2sep{height:1.5px;background:var(--line);margin:4px 0 12px}
+.t2slot{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:10px;color:var(--text);text-align:left;min-height:0}.t2slot b{display:block;font-size:18px}.t2slot small{color:var(--muted);font-size:14px}.t2slot .chev2{font-size:26px;color:var(--text)}
+.t2new{width:100%;min-height:56px;border:2px solid var(--navy);background:var(--card);color:var(--text);font-size:20px;font-weight:900;border-radius:8px;margin:6px 0 14px}
+.t2links{display:flex;justify-content:center;align-items:center;gap:22px}.t2links button{background:none;color:var(--text);font-size:16px;min-height:40px}.t2links i{width:1.5px;height:24px;background:var(--line)}
+.t2ver{text-align:center;color:var(--muted);margin-top:12px}
+table.asort th.asc0{cursor:pointer;user-select:none}table.asort th i.as{font-style:normal;font-size:9px;opacity:.4}table.asort th.son{background:var(--orange)!important;color:#fff!important}table.asort th.son i.as{opacity:1}
+.srchb{background:transparent;color:#fff;font-size:18px;min-height:40px;width:40px;padding:0;flex:none}
+.pnav{margin-left:auto;display:flex;align-items:center;gap:4px}.pnav button{min-height:34px;width:34px;padding:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;border-radius:6px}.pnav button:disabled{opacity:.3}.pnav small{color:var(--on-navy-dim);font-size:11.5px;min-width:38px;text-align:center}
+.pvbar .pnav+*{display:none}
+@media (max-width:400px){.thero{min-height:250px}.thero h1{font-size:46px}.t2stat>div{font-size:15px}.club.mk .srchb{width:30px;font-size:16px}.club.mk .r1{gap:6px}}
+table.asort tr th.asc0{cursor:pointer}
+.title.t2 .t2go{background:var(--orange)!important;border-color:var(--orange)!important;color:#fff}
+table.asort th{white-space:nowrap}table.asort th i.as{font-size:8px;margin-left:1px;letter-spacing:-1px}.club.mk .srchb{min-height:34px;height:34px}
