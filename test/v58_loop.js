@@ -13,7 +13,7 @@ tiers.size>=2?ok('단계가 오르내림: '+[...tiers].join(','))+0:bad('단계 
 bonus>0&&bonus<=200000?ok(`격려금 합계 ${SL.money(bonus)} (시즌 수입 대비 작음)`):bad('격려금 '+bonus);
 S.ach.mis1&&S.ach.mis10?ok('도전과제 「오늘의 숙제」「숙제왕」'):bad('미션 도전과제');
 console.log('[2] 오늘의 결정 · 감독 지시');
-const kinds=Object.keys(dd);kinds.length>=2&&Object.values(dd).reduce((a,b)=>a+b,0)>=100?ok(`결정 ${Object.values(dd).reduce((a,b)=>a+b,0)}일 · 종류 ${JSON.stringify(dd)}`):bad('오늘의 결정 '+JSON.stringify(dd));
+const kinds=Object.keys(dd);/* v68: 선택이 없는 코치 보고는 결정에서 빠짐(소식·코치 의견으로) */kinds.length>=2&&!dd.coach&&Object.values(dd).reduce((a,b)=>a+b,0)>=3?ok(`결정 ${Object.values(dd).reduce((a,b)=>a+b,0)}일 · 종류 ${JSON.stringify(dd)}`):bad('오늘의 결정 '+JSON.stringify(dd));
 ut.driveUses&&ut.driveUses.n===3&&answers.length===3?ok('감독 지시 3번 사용 (한 시즌 한도) · '+answers[0]):bad('감독 지시 '+JSON.stringify(ut.driveUses)+' '+answers.length);
 SL.setDrive('bat')!==null?ok('시즌 끝·한도 뒤엔 거절'):bad('한도 무시');
 {// 효과: 같은 시드로 타격 집중 30경기 vs 없이 — 팀 타율 비교 (엔진에 실제로 들어가는지)
