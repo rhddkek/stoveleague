@@ -981,3 +981,8 @@ details.asbest{display:inline}details.asbest summary{display:inline;cursor:point
 .mktabs4.five button{font-size:12px}
 @media (max-width:430px){.mktabs3[style*="width:80%"]{width:100%!important}.negt td{font-size:14px;padding:8px 4px}.stp2 b{min-width:48px;font-size:14px}.stp2 button{width:28px;min-height:28px}.phd2 .nm{font-size:21px}}
 .mkbtn3>button{white-space:nowrap}.fadet .mkbtn3>button.ghost{flex:1}
+/* v66 친화성: 제목 눌러 정렬 · 줄 높이 48 · 조치 바 화면 아래 고정 */
+.mkt th.srt{cursor:pointer;user-select:none}.mkt th.srt i{font-style:normal;opacity:.55;font-size:10px}.mkt th.srt.on{background:var(--orange)}.mkt th.srt.on i{opacity:1}
+.mkt.sq tbody td{height:48px}
+.mkbtn3.sticky{position:sticky;bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--bg);padding:6px 0;margin-top:0;box-shadow:0 -6px 10px -8px rgba(0,0,0,.25)}
+@media (min-width:960px){.mkbtn3.sticky{position:static;box-shadow:none}}
