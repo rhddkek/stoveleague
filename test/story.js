@@ -270,12 +270,14 @@ console.log('[19] v33 퓨처스 12팀 일정 · 올스타전 · 외국인 선수
  // 우리 2군 선수 기록 = 경기 기록과 맞는지 (안타 ≤ 타수, 홈런 ≤ 안타)
  const rp=SL.reserveIds(u).map(id=>S.players[id]).filter(p=>p.res&&p.res.pa);rp.length&&rp.every(p=>p.res.h<=p.res.ab&&p.res.hr<=p.res.h&&p.res.ab<=p.res.pa)?ok(`2군 개인 기록 정합 (${rp.length}명)`):bad('2군 개인 기록');
  while(S.phase==='season'&&g++<200)SL.playDayAuto();const RH=(S.resHist||[]).slice(-1)[0];RH&&RH.runner&&RH.n1&&RH.s1?ok(`퓨처스 챔피언결정전: ${RH.champ} 우승 (결승 상대 ${RH.runner})`):bad('퓨처스 챔프 '+JSON.stringify(RH));
- // 외국인 지명: 우리 외국인 1명을 내보내 자리를 만든 뒤 3주차
- const mine=SL.fgnList(u).find(p=>p.pos!=='RP');SL.releasePlayer(mine.id);while(S.week<3)SL.advanceWeek();SL.advanceWeek();const D=S.fdraft;
- D&&D.pool.length?ok(`외국인 지명 열림: 후보 ${D.pool.length}명 (일반 ${SL.BAL.FGN.poolGen} · 아시아 ${SL.BAL.FGN.poolAsia})`):bad('외국인 지명 없음');
- if(SL.fdTurn()){const c=SL.fdAvail().filter(p=>SL.fdFits(u,p)&&!p.fasia)[0];const r=SL.fdPick(c.id);r.ok&&u.roster.includes(c.id)&&c.contract.years===1&&c.contract.salary===c.fask?ok(`우리 차례 지명: ${c.name} 1년 ${SL.money(c.fask)}`):bad('지명 실패 '+r.msg);}else ok('우리 차례 전 AI가 진행 중 (다음 주 자동)');
- let w=0;while(S.fdraft&&!S.fdraft.done&&w++<5)SL.advanceWeek();S.fdraft.done&&SL.krTeams().every(t=>!SL.fgnStatus(t).over)?ok('지명 종료 · 모든 구단 정원 이내'):bad('지명 종료 안 됨/정원 초과');
- S.fdraft.pool.every(id=>!S.players[id]||S.players[id].teamId!=null)?ok('지명 안 된 후보 정리'):bad('후보 남음');}
+ // v62 외국인: 지명 대신 해외 시장 — 우리 외국인 1명을 내보내 자리를 만든 뒤, 해외 2군 선수와 직접 협상
+ const mine=SL.fgnList(u).find(p=>p.pos!=='RP');SL.releasePlayer(mine.id);SL.advanceWeek();
+ const cand=Object.values(S.players).filter(p=>p.teamId!=null&&S.teams[p.teamId].league==='US'&&(p.tier||1)>1&&p.nat!=='KR'&&!SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];
+ {S.budget.xfer=S.budget.used+500000;S.budget.wage=SL.payCommitted(u)+200000;const o=SL.openTable(cand.id);o.ok&&o.neg.os&&o.neg.fgn1?ok(`해외 2군 선수 협상: ${cand.name} — 이적 합의금 요구 ${SL.money(o.neg.ask)}`):bad('해외 협상 '+o.msg);
+  const r1=SL.tableOffer(cand.id,{fee:o.neg.ask});const dem=S.market.negs.find(n=>n.pid===cand.id);const r2=dem?SL.tableOffer(cand.id,{salary:Math.min(SL.BAL.FGN.genMax,Math.round(dem.demand*1.1/10)*10),years:1,bonus:0}):r1;
+  r2.done&&u.roster.includes(cand.id)&&cand.contract.years===1&&cand.contract.salary<=SL.BAL.FGN.genMax?ok(`외국인 영입: ${cand.name} 1년 ${SL.money(cand.contract.salary)} (1군 엔트리 ${u.entry.includes(cand.id)?'등록':'밖'})`):bad('외국인 영입 실패 '+(r2.msg||''));}
+ let w=0;while(S.phase==='offseason'&&S.week<=5&&w++<6)SL.advanceWeek();SL.krTeams().every(t=>!SL.fgnStatus(t).over)?ok('겨울 동안 모든 구단 외국인 정원 이내 (AI도 해외에서 영입)'):bad('정원 초과');
+ SL.krTeams().filter(t=>!t.isUser).every(t=>SL.fgnStatus(t).list.length>=2)?ok('AI 구단 외국인 2명 이상 유지'):bad('AI 외국인 부족 '+SL.krTeams().map(t=>SL.fgnStatus(t).list.length));}
 {const fs=require('fs');SL.load(fs.readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();S.res&&S.res.sched&&SL.futStand('N').length===6?ok(`v29 저장(시즌 ${S.day}일차) → 퓨처스 실제 일정으로 이어짐`):bad('v29 퓨처스 변환');let g=0;while(S.phase==='season'&&g++<60)SL.playDayAuto();S.phase==='offseason'?ok('v29 저장으로 시즌 끝까지 진행'):bad('v29 진행');}
 console.log('[20] v34 경기 작전 · 트레이드 · 포지션 전환 · 드래프트 5라운드');
 {SL.newGame(3434,9,{games:36});S=SL.state();const u=SL.userTeam();const lg=SL.startDay();const side=lg.home===u.id?1:0;

@@ -17,7 +17,7 @@ const kinds=Object.keys(dd);kinds.length>=2&&Object.values(dd).reduce((a,b)=>a+b
 ut.driveUses&&ut.driveUses.n===3&&answers.length===3?ok('감독 지시 3번 사용 (한 시즌 한도) · '+answers[0]):bad('감독 지시 '+JSON.stringify(ut.driveUses)+' '+answers.length);
 SL.setDrive('bat')!==null?ok('시즌 끝·한도 뒤엔 거절'):bad('한도 무시');
 {// 효과: 같은 시드로 타격 집중 30경기 vs 없이 — 팀 타율 비교 (엔진에 실제로 들어가는지)
-  const run=(drive)=>{SL.newGame(777,2,{games:144});const S2=SL.state();const u=SL.userTeam();let h=0,ab=0;for(let i=0;i<60;i++){const g=SL.startDay();if(g){if(drive&&!SL.driveNow(u)&&SL.driveInfo(u).left>0)SL.setDrive('bat');SL.stepGame(g);const side=g.home===u.id?1:0;for(const id of u.roster){const b=g.box[id];if(b){h+=b.h;ab+=b.ab;}}SL.endUserGame();}else SL.playDayAuto();}return h/ab;};
+  const run1=(drive,seed)=>{SL.newGame(seed,2,{games:144});const S2=SL.state();const u=SL.userTeam();let h=0,ab=0;for(let i=0;i<60;i++){const g=SL.startDay();if(g){if(drive&&!SL.driveNow(u)&&SL.driveInfo(u).left>0)SL.setDrive('bat');SL.stepGame(g);const side=g.home===u.id?1:0;for(const id of u.roster){const b=g.box[id];if(b){h+=b.h;ab+=b.ab;}}SL.endUserGame();}else SL.playDayAuto();}return [h,ab];};const run=d=>{let H=0,A=0;for(const sd of [777,778,779]){const [h,ab]=run1(d,sd);H+=h;A+=ab;}return H/A;};
   const a=run(false),b=run(true);b>a?ok(`「타격 집중」 효과: 팀 타율 ${a.toFixed(3)} → ${b.toFixed(3)}`):bad(`타격 집중 효과 없음 ${a} ${b}`);}
 console.log('[3] 성과 지원금 · 커리어');
 SL.newGame(5858,3,{games:144});S=SL.state();{const u=SL.userTeam();for(let i=0;i<30;i++){SL.playDayAuto();for(const o of [...S.market.offers])SL.respondOffer(o.id,'reject');}const gp=SL.grantProjection(u);gp.total>0&&gp.parts.length===2&&gp.proj?ok(`시즌 중 전망: ${SL.money(gp.total)} (${gp.parts.map(x=>x[1]).join(' · ')})`):bad('전망 '+JSON.stringify(gp));
