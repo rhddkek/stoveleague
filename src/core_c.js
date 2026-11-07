@@ -403,7 +403,11 @@ function openTable(pid){
   neg.log=tableLines(p,neg,'greet',{key,poor:from&&from.cash<0});if(mine&&p.grudge)neg.log.push({who:neg.agent?'agent':'player',text:'솔직히 말씀드리면, 그때 주전 약속 안 지키신 거 아직 마음에 걸립니다. 이번엔 조건으로 보여 주셔야 합니다.'});
   S.market.negs.push(neg);return {ok:true,neg};
 }
-function tableOffer(pid,offer){
+// v65: 제시 이력(neg.offers) 기록 — 재협상 회신 화면(시안 24)용
+function tableOffer(pid,offer){const neg=S.market.negs.find(n=>n.pid===pid);const st0=neg?neg.stage:null;const r=tableOffer0(pid,offer);
+  if(neg&&st0==='player'&&r&&(r.neg||r.done||r.ended)){const o={s:S.season,ph:S.phase,w:S.week,d:S.day,salary:offer.salary||0,years:offer.years||1,bonus:offer.bonus||0,promise:!!offer.promise,res:r.done?'수락':r.pending?'보류':r.ended?'결렬':r.ok?'거절':'무효'};if(r.ok!==false){neg.offers=(neg.offers||[]);neg.offers.push(o);if(neg.offers.length>8)neg.offers.shift();}}
+  return r;}
+function tableOffer0(pid,offer){
   const p=P_(pid);const ut=userTeam();const neg=S.market.negs.find(n=>n.pid===pid);if(!neg||!p)return {ok:false,msg:'진행 중인 협상이 없습니다. 테이블을 다시 여세요.'};
   const from=p.teamId!=null&&p.teamId!==S.userTeamId?S.teams[p.teamId]:null;const isFA=p.teamId==null;
   const fee=Math.round(+offer.fee||0),salary=Math.round(+offer.salary||0),years=clamp(Math.round(+offer.years||1),1,4),bonus=Math.max(0,Math.round(+offer.bonus||0)),promise=!!offer.promise;
