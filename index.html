@@ -1156,6 +1156,46 @@ details.more{margin:0 0 10px;border:1px dashed var(--line);border-radius:10px;pa
 .lu2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.lu{border-top:3px solid var(--c);background:var(--sunk);border-radius:8px;padding:4px;min-width:0}.luh{font-weight:900;font-size:13px;padding:2px 4px}.luh em{font-style:normal;font-size:9px;background:var(--gold);color:#111;border-radius:3px;padding:0 3px}
 .lur{display:grid;grid-template-columns:16px 26px 1fr;align-items:baseline;gap:0 3px;padding:3px 4px;border-radius:5px;font-size:12.5px;cursor:pointer;min-width:0}.lur .no{color:var(--muted);font-size:11px}.lur em{font-style:normal;color:var(--orange-ink);font-weight:800;font-size:11px}.lur b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lur small{grid-column:3;color:var(--muted);font-size:11px}.lur.on{background:var(--gold);color:#111}.lur.on small,.lur.on .no{color:#111}.lur.pit{border-top:1px dashed var(--line);margin-top:2px}
 @media (max-height:760px){.cmf{height:292px}}
+/* ===== v76 (R060): 이적 탭 = 스토브리그 어두운 판 (EA2011 구성 참고) · 폰 먼저 ===== */
+.stv{--bg:#0d1424;--card:#151e32;--sunk:#1c2740;--text:#eef1f7;--muted:#9aa6bd;--line:#2a3654;--green-bg:#123527;--green-ink:#63d39c;--orange-bg:#3a2a16;--orange-ink:#f3a55e;--red-bg:#3c1d1d;--red-ink:#f08a82;color-scheme:dark;
+  background:linear-gradient(180deg,#121c31,#0b1220);color:var(--text);margin:-12px -16px 0;padding:8px 16px 18px;min-height:calc(100vh - 120px)}
+.stv select,.stv input{background:var(--sunk);color:var(--text);border-color:var(--line)}
+.stv button.ghost{color:var(--text);border-color:var(--line)}
+.stvh{display:flex;align-items:center;gap:8px;margin:8px 0 6px}.stvh>b{font-size:20px;font-weight:900;font-style:italic;letter-spacing:-.4px;text-shadow:0 2px 0 rgba(0,0,0,.4)}.stvc{margin-left:auto;font-size:12.5px;color:#c9d2e3;white-space:nowrap}.stvc b{color:#f4c542}
+.stvm{display:grid;grid-template-columns:auto 1fr auto 1fr auto 1fr;gap:2px 6px;align-items:baseline;background:#05080f;border:1px solid #3a4560;border-radius:6px;padding:5px 8px;font-size:11px;color:#9aa6bd;margin-bottom:8px}.stvm b{font-size:13.5px;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stvtab{display:flex;gap:4px;margin-bottom:6px}.stvtab button{flex:0 0 auto;min-width:76px;min-height:36px;border-radius:8px 8px 0 0;background:#3a4256;color:#c9d2e3;font-weight:900;border:0}.stvtab button.on{background:#1f5fd0;color:#fff}
+.stvsort{display:flex;gap:4px;margin-bottom:6px;overflow-x:auto;scrollbar-width:none}.stvsort::-webkit-scrollbar{display:none}.stvsort button{flex:none;min-height:32px;padding:0 10px;border-radius:16px;background:var(--sunk);color:#c9d2e3;border:1px solid var(--line);font-size:12.5px;font-weight:700}.stvsort button.on{background:#f4c542;color:#111;border-color:#f4c542}
+.stvt{width:100%;border-collapse:collapse;font-size:13px;background:rgba(5,8,15,.55);border-radius:6px;overflow:hidden}
+.stvt th{background:#0a0f1b;color:#f4c542;font-weight:800;font-size:11.5px;padding:5px 3px;text-align:center;border-bottom:1px solid #2f3b58;white-space:nowrap}
+.stvt td{padding:7px 3px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}.stvt tbody tr:nth-child(even) td{background:rgba(255,255,255,.035)}
+.stvt tbody tr{cursor:pointer}.stvt tbody tr:active td{background:#1f5fd0}.stvt .tn{text-align:left;max-width:0;width:44%;overflow:hidden;text-overflow:ellipsis}.stvt .tr{text-align:right;padding-right:7px}.stvt td.tr small{display:block;color:var(--muted);font-size:10.5px}
+.stvt td.no{width:24px;color:#0d1424;background:#cfd6e4!important;font-weight:900;font-size:11.5px}.stvt tr.mine td.no{background:#f4c542!important}
+.stvt .tn small{font-size:10px;margin-left:4px;color:var(--muted)}.stvt .tn small.tg{color:#111;background:#9fd3ff;border-radius:3px;padding:0 3px}.stvt .tn small.tg.r{background:#ff9c8f}.stvt .tn small.kn{display:block;margin-left:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stvt .pin{font-style:normal;color:#f4c542;margin-right:2px}
+.stvt .ov{font-weight:900}.stvt .ov.g{color:#5ee08f}.stvt .ov.b{color:#5cb2ff}.stvt .ov.rng{color:#c9d2e3;font-size:11.5px}
+.stvt tr.ok td{background:rgba(94,224,143,.12)!important}.stvt tr.dim td{opacity:.5}.stvt tr.pick td{background:#1f5fd0!important;color:#fff}
+.dk{display:inline-block;min-width:34px;border-radius:4px;padding:1px 4px;font-size:11.5px;font-weight:800;background:var(--sunk);color:var(--muted)}.dk.keep{background:#1f8a55;color:#fff}.dk.neg{background:#c97a12;color:#fff}.dk.cut{background:#b3261e;color:#fff}
+.stvmore{width:100%;margin-top:6px;background:transparent;border:1px dashed var(--line);color:#c9d2e3;min-height:38px;border-radius:8px}
+.stvbar{margin-top:8px;font-size:11.5px;color:var(--muted);text-align:center}
+.stvsub{font-size:13px;font-weight:800;margin:4px 0 6px;color:#c9d2e3}
+.stvbar2{position:sticky;bottom:calc(var(--navh,64px) + 6px);margin-top:8px;background:#0a0f1b;border:1px solid #3a4560;border-radius:10px;padding:8px;box-shadow:0 -6px 16px rgba(0,0,0,.4);z-index:5}.stvbar2 .bt{display:grid;grid-template-columns:1fr 1.2fr 1.2fr;gap:5px;margin-top:6px}.stvbar2 button{min-height:42px;border-radius:8px;background:#3a4256;color:#fff;border:0;font-weight:800;font-size:13.5px}.stvbar2 button.go,.stvact button.go{background:#f4c542;color:#111}.stvbar2 button:disabled{opacity:.45}
+.stvdet{margin-top:10px}.stvdet>summary{cursor:pointer;font-weight:800;font-size:13px;color:#c9d2e3;padding:6px 0}
+.stvmenu{display:flex;flex-direction:column;gap:6px}.stvmenu .mt{font-weight:900;font-size:17px;margin:0 30px 4px 0}.stvmenu .mt small{display:block;font-size:12px;color:var(--muted);font-weight:600}.stvmenu button{min-height:46px;border-radius:10px;font-weight:800;font-size:15px;background:var(--sunk);color:var(--text);border:1px solid var(--line)}.stvmenu button.primary{background:#1f5fd0;color:#fff;border-color:#1f5fd0}.stvmenu button.on{outline:2px solid #f4c542}.stvmenu button.danger{color:#ff8a80}.stvmenu button.ghost{background:transparent}
+.tr2{display:grid;grid-template-columns:1fr 1fr;gap:4px}.tth{display:flex;align-items:center;justify-content:center;gap:4px;min-height:34px;background:#1f5fd0;color:#fff;font-weight:900;font-size:13.5px;border-radius:6px 6px 0 0}.tth.my{background:#a8481a}.tth button{background:transparent;border:0;color:#fff;min-width:30px;min-height:30px;font-size:14px;padding:0}.tth span{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stvt.tcol{font-size:12.5px}.stvt.tcol .tn{width:56%}.stvt.tcol td{padding:6px 2px}.tr2>div{min-width:0}.tr2 .stvt{display:block;max-height:46vh;overflow-y:auto}.tr2 .stvt thead,.tr2 .stvt tbody{display:table;width:100%;table-layout:fixed}
+.stv .trwant{margin:6px 0;border-top:0;padding-top:0;color:#c9d2e3}
+.trp{background:#0a0f1b;border:1px solid #3a4560;border-radius:8px;padding:6px;margin:6px 0}.trph{text-align:center;font-weight:900;color:#c9d2e3;background:#2a3142;border-radius:5px;padding:5px;margin-bottom:5px}.trs{display:grid;grid-template-columns:1fr 1fr;gap:4px}.trs .sl{display:flex;align-items:center;gap:4px;background:#1c2740;border-radius:4px;padding:4px 6px;margin-bottom:3px;font-size:12.5px;min-height:28px;min-width:0;cursor:pointer}.trs .sl b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trs .sl span{font-size:11px;color:var(--muted);white-space:nowrap}.trs .sl i{font-style:normal;color:var(--muted);font-size:11px}.trs .sl.e{color:#56607a;justify-content:center;cursor:default}
+.trcash{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px;font-size:12.5px;color:#c9d2e3}.trcash select{min-height:32px;padding:2px 6px}
+.trv{border-radius:8px;padding:8px 10px;margin:6px 0;font-weight:800;font-size:14px}.trv.ok{background:rgba(94,224,143,.14);color:#7ff0a8}.trv.bad{background:rgba(255,107,91,.14);color:#ff9c8f}.trv button{margin-left:6px}.trv details.more{background:transparent;margin:6px 0 0;color:var(--text);font-weight:400}
+.stvact{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:5px;position:sticky;bottom:calc(var(--navh,64px) + 6px);background:#0a0f1b;border:1px solid #3a4560;border-radius:10px;padding:6px;z-index:5}.stvact button{min-height:46px;border-radius:8px;background:#3a4256;color:#fff;border:0;font-weight:900;font-size:14.5px}.stvact button:disabled{opacity:.45}
+.stv .trres{color:var(--text)}
+@media (min-width:700px){.stv{margin:0;border-radius:12px}.tr2 .stvt{max-height:52vh}}
+.stvt tr.pick .ov{color:#fff}.stvt .ov.rng{background:none;padding:0}
+.modal:has(.stvmenu){--card:#151e32;--sunk:#1c2740;--text:#eef1f7;--muted:#9aa6bd;--line:#2a3654;background:#0d1424;color:#eef1f7;border:1px solid #3a4560}
+.modal:has(.stvmenu) .close{background:#1c2740;color:#eef1f7}
+/* 협상 화면도 같은 어두운 판 */
+.pv.tbl3{--bg:#0d1424;--card:#151e32;--sunk:#1c2740;--text:#eef1f7;--muted:#9aa6bd;--line:#2a3654;--green-bg:#123527;--green-ink:#63d39c;--orange-bg:#3a2a16;--orange-ink:#f3a55e;--red-bg:#3c1d1d;--red-ink:#f08a82;color-scheme:dark;background:linear-gradient(180deg,#121c31,#0b1220);color:var(--text)}
+.pv.tbl3 .content{background:transparent}.pv.tbl3 select,.pv.tbl3 input{background:var(--sunk);color:var(--text)}.pv.tbl3 button.ghost{color:var(--text);border-color:var(--line)}
+.pv.tbl3 button.ghost,.stv button.ghost{background:var(--sunk)!important;color:var(--text)!important;border-color:var(--line)!important}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -1166,7 +1206,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v75';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v76';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -6795,7 +6835,8 @@ function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(fa
   h+=`<div class="gobar">${S.week<=W?`<button class="mkgo ${must?'must':''}" onclick="UI.advanceWeek()">${must?'⚠ ':''}▶▶ 다음 주로 진행 <small>${S.week}주차 → ${S.week+1}주차${must?` · 확인할 일 ${must}건`:M.length?` · 남은 결정 ${M.length}건`:''}</small></button><button class="ghost sm" style="margin-top:6px;width:100%" onclick="UI.startSeason()">남은 겨울 건너뛰고 ${mkYear()+1}시즌 개막</button>`:`<button class="mkgo" onclick="UI.startSeason()">${mkYear()+1}시즌 개막 ▶</button>`}</div>`;
   return h;}
 // ---------- 시장 라우팅 ----------
-function renderMarket(){const ut=SL.userTeam();const sub=ui.sub.market;const h=hubTabs('market');const s2=ui.sub.market;if(s2==='deals')return h+renderDeals();if(s2==='renew')return h+renderRenew();if(s2==='fa')return h+renderFaMock(ut);if(s2==='fgn')return h+renderFgnMock(ut);if(s2==='draft')return h+renderDraftMock(ut);if(s2==='trade')return h+renderTrade(ut);return renderMarket0();}
+function renderMarket(){return `<div class="stv">${renderMarket1()}</div>`;}
+function renderMarket1(){const ut=SL.userTeam();const sub=ui.sub.market;const h=hubTabs('market');const s2=ui.sub.market;if(s2==='deals')return h+renderDeals();if(s2==='renew')return h+renderRenew();if(s2==='fa')return h+renderFaMock(ut);if(s2==='fgn')return h+renderFgnMock(ut);if(s2==='draft')return h+renderDraftMock(ut);if(s2==='trade')return h+renderTrade(ut);return renderMarket0();}
 // ---------- 계약 직후: 입단 팝업과 배치 화면을 하나로 (배치 화면이 곧 입단 화면) ----------
 function showPlacement(pid){const p=S.players[pid];if(!p)return;const v=ui.view;if(v&&v.type==='table'&&v.pid===pid&&v.result&&v.result.done){render();return;}go({type:'table',pid,result:{done:true}});}
 function contractCeremony(pid,neg,f,paid){const p=S.players[pid];const ut=SL.userTeam();if(p&&neg&&neg.mode!=='renew'&&p.teamId===ut.id){closeModal();showPlacement(pid);return;}return contractCeremony0(pid,neg,f,paid);}
@@ -6995,6 +7036,76 @@ function cmDone(lg,my){const ids=Object.keys(lg.box).map(Number);const by=k=>ids
   return `<div class="gut">${lineScore(lg,true)}<div class="cmres2"><div class="rt">경기결과</div><div class="wl"><div><span class="w">승리투수</span><b>${nm(W)}</b></div><div><span class="l">패전투수</span><b>${nm(Lp)}</b></div></div>${SV!=null?`<div class="sv"><span>세이브</span><b>${nm(SV)}</b></div>`:''}</div>
     <button class="gold big" onclick="UI.endGame()">결과 확인 후 계속 ▶</button><div style="height:12px"></div>${hlHtml(lg,my)}<details class="more"><summary>경기 기록 · 로그</summary>${renderBox(lg,my)}<div class="card">${hd('경기 로그')}<div class="glog" id="glog">${lg.log.slice(-40).map(l=>`<div class="${l.type}">${esc(l.text)}</div>`).join('')}</div></div></details></div>`;}
 Object.assign(A,{cmSheet(k){modal(cmSheetHtml(k));},gview(v){PREF.gview=v;prefSave();render();}});
+
+// ======================= v76 (R060): 영입·트레이드·FA·재계약 = 스토브리그 화면 (EA2011 구성 참고 · 그림은 우리 것) · 폰 먼저 =======================
+// 공통: 어두운 판 · 제목 + 구단 자금 칸 · 타자/투수 탭 · 촘촘한 표(능력 숫자 색) · 줄을 누르면 작은 메뉴 · 아래 행동 막대
+function ovC(o){return o>=80?'g':o>=74?'b':'';}
+function ovTxt(p){const r=SL.ovrRange(p);return r.exact?`<b class="ov ${ovC(r.mid)}">${Math.round(r.mid)}</b>`:`<b class="ov rng">${r.lo}~${r.hi}</b>`;}
+function stvMoney(){const ut=SL.userTeam();const I=ut.league==='KR'?SL.budgetInfo():null;return `<div class="stvm"><span>구단 자금</span><b>${Ms(ut.cash)}</b>${I?`<span>이적 잔액</span><b>${Ms(Math.max(0,I.xferLeft))}</b><span>연봉 여유</span><b class="${I.wageLeft<0?'bad':''}">${Ms(I.wageLeft)}</b>`:''}</div>`;}
+function stvHead(t,right){return `<div class="stvh"><b>${t}</b>${right||''}</div>`;}
+function stvTabs(cur,on){return `<div class="stvtab">${[['B','타자'],['P','투수']].map(x=>`<button class="${cur===x[0]?'on':''}" onclick="${on}('${x[0]}')">${x[1]}</button>`).join('')}</div>`;}
+function stvMenu(title,items){modal(`<div class="stvmenu"><div class="mt">${title}</div>${items.filter(Boolean).map(x=>`<button class="${x[2]||''}" ${x[3]?'disabled':''} onclick="UI.closeModal();${x[1]}">${x[0]}</button>`).join('')}<button class="ghost" onclick="UI.closeModal()">닫기</button></div>`);}
+// ---- FA (자유계약) 목록 ----
+function renderFaMock(ut){const f=ui.faF=ui.faF||{pos:'all',sal:'all',pin:false};const side=f.side||'B';
+  let fa=S.fa.map(id=>S.players[id]).filter(p=>p&&!p.retired&&(side==='P'?SL.isPitcher(p):!SL.isPitcher(p)));if(f.pin)fa=fa.filter(p=>S.pins.includes(p.id));
+  const askOf=p=>{const F=SL.faM(p.id);return F?F.ask.sal:SL.playerDemand(p,ut);};const so=f.sort||'ovr';const key={ovr:q=>SL.calcOvr(q),age:q=>-q.age,ask:q=>askOf(q)}[so]||(q=>SL.calcOvr(q));fa.sort((a,b)=>key(b)-key(a));
+  const n=ui.faN||30;let h=stvHead('FA 시장',`<span class="stvc">FA <b>${fa.length}</b>명</span>`)+stvMoney()+stvTabs(side,"UI.faSide");
+  h+=`<div class="stvsort">${[['ovr','능력순'],['ask','요구액순'],['age','젊은순']].map(x=>`<button class="${so===x[0]?'on':''}" onclick="UI.faF('sort','${x[0]}')">${x[1]}</button>`).join('')}<button class="${f.pin?'on':''}" onclick="UI.faF('pin',${!f.pin})">★ 관심</button></div>`;
+  h+=`<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>나이</th><th>포지션</th><th>능력</th><th class="tr">요구연봉</th></tr></thead><tbody>${fa.slice(0,n).map((p,i)=>{const F=SL.faM(p.id);const mine=F&&F.mine;const neg=(S.market.negs||[]).some(x=>x.pid===p.id);
+    return `<tr class="${mine||neg?'mine':''}" onclick="UI.faMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${S.pins.includes(p.id)?'<i class="pin">★</i>':''}${esc(p.name)}${F?`<small class="tg">${mine?'제시함':`경쟁 ${F.bids.length}`}</small>`:''}</td><td>${p.age}</td><td>${esc(p.pos2?p.pos+'/'+p.pos2:p.pos)}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(askOf(p))}${F?`<small>${F.ask.yrs}년</small>`:''}</td></tr>`;}).join('')||'<tr><td colspan="6" class="muted">해당하는 FA가 없습니다.</td></tr>'}</tbody></table>${fa.length>n?`<button class="stvmore" onclick="UI.set('faN',${n+30})">▼ 더 보기 (${fa.length-n}명)</button>`:''}`;
+  return h+`<div class="stvbar"><span>줄을 누르면 선수정보 · 협상</span></div>`;}
+// ---- 외국인(해외) 후보 ----
+function renderFgnMock(ut){const st=SL.fgnStatus(ut);const f=ui.fgF=ui.fgF||{kind:'P'};const X=SL.scState();
+  let pool=SL.overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&p.nat!=='KR'&&!SL.osWill(p,S.teams[p.teamId]).no&&(f.kind==='P'?SL.isPitcher(p):!SL.isPitcher(p)));
+  const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
+  let h=stvHead('외국인 영입',`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney()+stvTabs(f.kind,"UI.fgSide");
+  h+=`<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>L/R</th><th>능력</th><th class="tr">첫해 비용</th></tr></thead><tbody>${pool.map((p,i)=>{const c=SL.fgnCost(p);const foc=X.list.some(s=>s.focus===p.id);const neg=(S.market.negs||[]).some(x=>x.pid===p.id);
+    return `<tr class="${neg?'mine':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${foc?'<small class="tg">관찰 중</small>':''}<small class="kn">지식 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${SL.isPitcher(p)?p.throws:p.bats}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(c.first)}</td></tr>`;}).join('')}</tbody></table><button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;
+  h+=`<div class="stvbar"><span>스카우트 ${X.list.length}/${SL.scSlots()}명 파견${X.list.length?` · ${X.list.map(s=>s.focus!=null&&S.players[s.focus]?esc(S.players[s.focus].name)+' '+s.left+'주':esc(SL.SC_REG[s.reg].ko)).join(', ')}`:''}</span></div>`;
+  return h;}
+// ---- 재계약 (연봉협상) ----
+function renderRenew(){const ut=SL.userTeam();const I=ut.league==='KR'?SL.budgetInfo():null;ui.rdec=ui.rdec||{};const off=S.phase==='offseason';
+  const L=off?S.pendingFA.map(id=>S.players[id]).filter(p=>p&&p.teamId===ut.id).map(p=>({p,key:SL.keyReason(p),dem:SL.renewDemandOf(p)})).sort((a,b)=>(b.key?1:0)-(a.key?1:0)||SL.calcOvr(b.p)-SL.calcOvr(a.p)):[];
+  const dec=id=>ui.rdec[id]||'';const keep=L.filter(x=>dec(x.p.id)==='keep'),cut=L.filter(x=>dec(x.p.id)==='cut'),ng=L.filter(x=>dec(x.p.id)==='neg');const add=keep.reduce((a,x)=>a+x.dem,0);
+  let h=stvHead('연봉협상 · 재계약',`<span class="stvc">${off?(S.week<=2?`마감 <b class="${S.week===2?'bad':''}">2주차 끝</b>`:'재계약 기간 끝'):'시즌 중'}</span>`)+stvMoney();
+  if(off&&L.length){h+=`<div class="stvsub">계약 만료 ${L.length}명 · 핵심 ${L.filter(x=>x.key).length}명</div><table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>나이</th><th>포지션</th><th>능력</th><th class="tr">현재 → 요구</th><th>결정</th></tr></thead><tbody>${L.map((x,i)=>{const p=x.p;const d=dec(p.id);
+      return `<tr class="${d==='keep'?'ok':d==='cut'?'dim':''}" onclick="UI.rnMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${esc(p.name)}${x.key?`<small class="tg">${esc(x.key)}</small>`:''}${p.grudge?'<small class="tg r">서운함</small>':''}<small class="kn">${esc(renewWhyShort(p))}</small></td><td>${p.age}</td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tr"><small>${Ms(p.contract?p.contract.salary:0)}</small><br>→ ${Ms(x.dem)}</td><td><span class="dk ${d}">${{keep:'유지',neg:'협상',cut:'결별'}[d]||'-'}</span></td></tr>`;}).join('')}</tbody></table>`;
+    h+=`<div class="stvbar2"><div class="small">유지 <b>${keep.length}</b> (연봉 +${Ms(add)}) · 협상 <b>${ng.length}</b> · 결별 <b>${cut.length}</b> · 미정 <b class="${L.length-keep.length-ng.length-cut.length?'bad':''}">${L.length-keep.length-ng.length-cut.length}</b>${I?` · 연봉 여유 ${Ms(I.wageLeft)} → <b class="${I.wageLeft-add<0?'bad':''}">${Ms(I.wageLeft-add)}</b>`:''}</div><div class="bt"><button onclick="UI.rdecAuto()">추천대로</button><button onclick="UI.rdecAll()">전체 요구승낙</button><button class="go" ${keep.length+cut.length+ng.length?'':'disabled'} onclick="UI.rdecGo()">결정 실행</button></div></div>`;}
+  else if(off)h+=`<div class="stvsub">재계약할 만료 선수가 없습니다.</div>`;
+  const nx=ut.roster.concat(ut.dev).map(id=>S.players[id]).filter(p=>p&&p.contract&&p.contract.years<=1&&!(off&&S.pendingFA.includes(p.id))).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));
+  if(nx.length)h+=`<details class="stvdet" ${off&&L.length?'':'open'}><summary>내년 계약 만료 예정 ${nx.length}명</summary><table class="stvt nosort"><tbody>${nx.map(p=>`<tr onclick="UI.openPlayer(${p.id})"><td class="tn">${esc(p.name)}</td><td>${p.pos}</td><td>${p.age}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(p.contract.salary)}</td></tr>`).join('')}</tbody></table></details>`;
+  return h;}
+// ---- 트레이드: 왼쪽 우리 · 오른쪽 상대(◀ ▶로 구단 바꾸기) · 아래 제안 칸 · 상세정보/초기화/트레이드 ----
+function renderTrade(ut){const {T,teams,t,ev}=tradeCtx(ut);const f=ui.trF||'make';const side=ui.trSide||'B';
+  let h=stvHead('트레이드',`<span class="stvc">${SL.tradeOpen()?'트레이드 가능':'<b class="bad">마감</b>'}</span>`)+stvMoney()+`<div class="stvsort">${[['make','트레이드 제안'],['in','받은 제안'],['hist','이력']].map(x=>`<button class="${f===x[0]?'on':''}" onclick="UI.set('trF','${x[0]}')">${x[1]}</button>`).join('')}</div>`;
+  if(f==='in')return h+`<div class="stvsub">받은 제안 ${S.market.offers.length}건</div>${S.market.offers.map(offerCard).join('')||'<div class="stvsub muted">받은 제안이 없습니다.</div>'}`;
+  if(f==='hist'){const rows=Object.values(S.players).flatMap(p=>(p.transfers||[]).filter(x=>x.kind==='트레이드'&&(x.from===ut.name||x.to===ut.name)).map(x=>({p,x}))).sort((a,b)=>b.x.s-a.x.s).slice(0,20);return h+`<table class="stvt nosort"><thead><tr><th>시즌</th><th class="tn">선수</th><th>이동</th></tr></thead><tbody>${rows.map(r=>`<tr onclick="UI.openPlayer(${r.p.id})"><td>${mkYear(r.x.s)}</td><td class="tn">${esc(r.p.name)}</td><td class="small">${esc(r.x.from)} → ${esc(r.x.to)}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">없음</td></tr>'}</tbody></table>`;}
+  const ti=teams.findIndex(x=>x.id===t.id);const prev=teams[(ti-1+teams.length)%teams.length],next=teams[(ti+1)%teams.length];
+  const list=(team,sd)=>team.roster.map(id=>S.players[id]).filter(p=>p&&!p.loan&&(side==='P'?SL.isPitcher(p):!SL.isPitcher(p))).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));
+  const core=SL.tradeCore(t);const W=SL.tradeWants(t);
+  const col=(team,sd,arr)=>`<table class="stvt nosort tcol"><thead><tr><th class="tn">이름</th><th>능력</th><th>포지션</th></tr></thead><tbody>${arr.map(p=>{const on=(sd==='give'?T.give:T.get).includes(p.id);return `<tr class="${on?'pick':''}" onclick="UI.tradeToggle('${sd}',${p.id})"><td class="tn">${esc(p.name)}${sd==='get'&&core.includes(p.id)?'<small class="tg r">핵심</small>':''}${sd==='give'&&W.includes(p.pos)?'<small class="tg">원함</small>':''}</td><td>${ovTxt(p)}</td><td>${p.pos}</td></tr>`;}).join('')}</tbody></table>`;
+  h+=stvTabs(side,"UI.trSide");
+  h+=`<div class="tr2"><div><div class="tth my">${esc(ut.name.split(' ')[0])}</div>${col(ut,'give',list(ut))}</div><div><div class="tth"><button aria-label="이전 구단" onclick="UI.tradeSet('tid',${prev.id})">◀</button><span>${esc(t.name.split(' ')[0])}</span><button aria-label="다음 구단" onclick="UI.tradeSet('tid',${next.id})">▶</button></div>${col(t,'get',list(t))}</div></div>`;
+  h+=`<div class="trwant small">${esc(t.name)} 원하는 자리: ${W.length?W.map(x=>`<b>${esc(SL.POS_KO[x]||x)}</b>`).join(' · '):'뚜렷한 공백 없음 — 가치가 맞으면 응함'} · ${esc(SL.AIM_KO[SL.aimOf(t)]||'')}</div>`;
+  const G=T.give.map(id=>S.players[id]).filter(Boolean),R=T.get.map(id=>S.players[id]).filter(Boolean);const sal=a=>a.reduce((s,p)=>s+(p.contract?p.contract.salary:0),0);
+  const slot=(arr,sd)=>[0,1,2].map(i=>{const p=arr[i];return p?`<div class="sl" onclick="UI.tradeToggle('${sd}',${p.id})"><b>${esc(p.name)}</b><span>${ovTxt(p)} ${p.pos}</span><i>✕</i></div>`:'<div class="sl e">-</div>';}).join('');
+  h+=`<div class="trp"><div class="trph">트레이드 제안</div><div class="trs"><div>${slot(G,'give')}</div><div>${slot(R,'get')}</div></div><div class="trcash"><span>+ 현금</span><select class="sm" onchange="UI.tradeSet('cash',+this.value)">${[...new Set([0,5000,10000,20000,50000,100000,T.cash||0])].sort((a,b)=>a-b).map(v=>`<option value="${v}" ${T.cash===v?'selected':''}>${v?Ms(v):'없음'}</option>`).join('')}</select></div></div>`;
+  if(T.last&&T.last.tid===t.id)h+=`<div class="trres ${T.last.ok?'ok':'bad'}"><b>${T.last.ok?'✅ 직전 제안 성사':'❌ 직전 제안 거절'}${T.last.kind?` · ${esc(T.last.kind)}`:''}</b><div class="small">${esc(T.last.msg)}</div>${(T.last.hint||[]).map(x=>`<div class="small">→ ${esc(x)}</div>`).join('')}${T.last.ok?'':'<div class="small muted">제안 내용은 그대로 남겨 두었습니다 — 고쳐서 다시 보내세요.</div>'}</div>`;
+  {const dS=sal(R)-sal(G);h+=`<div class="sum1 small">트레이드 요약: ${G.length}명 ↔ ${R.length}명 · 연봉 ${Ms(sal(G))} → ${Ms(sal(R))} (<b class="${dS<=0?'ok':'bad'}">${dS>0?'+':''}${Ms(dS)}</b>)${ev?` · 성사 가능성 <b class="${ev.chance>=80?'ok':'bad'}">${ev.chance}%</b>`:''}</div>`;}
+  if(ev)h+=`<div class="trv ${ev.ok?'ok':'bad'}">${ev.ok?`✅ 지금 조건이면 ${esc(t.name.split(' ')[0])}${SL.josa(t.name.split(' ')[0],'이','가').slice(t.name.split(' ')[0].length)} 응합니다`:`✖ 거절 · ${esc(ev.kind||'')}${ev.short&&!ev.hard?` · 가치 ${Ms(ev.short)} 부족`:''}`}${!ev.ok&&ev.cashNeed&&!ev.hard&&ev.cashNeed+(T.cash||0)<=ut.cash?` <button class="sm" onclick="UI.tradeSet('cash',${(T.cash||0)+ev.cashNeed})">현금 ${Ms(ev.cashNeed)} 더 얹기</button>`:''}${ev.ok?'':`<details class="more"><summary>자세히 — 지금 보내면 거절되는 이유</summary><div class="small">${ev.why.map(esc).join('<br>')}</div>${(ev.hint||[]).map(x=>`<div class="small muted">→ ${esc(x)}</div>`).join('')}</details>`}</div>`;
+  h+=`<div class="stvact"><button onclick="UI.tradeSheet()" ${G.length||R.length?'':'disabled'}>상세정보</button><button onclick="UI.tradeReset()">초기화</button><button class="go" ${ev&&SL.tradeOpen()?'':'disabled'} onclick="UI.tradeGo()">트레이드</button></div>`;
+  return h;}
+Object.assign(A,{
+  faSide(s){ui.faF=ui.faF||{pos:'all',sal:'all',pin:false};ui.faF.side=s;ui.faN=30;render();},
+  fgSide(s){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.kind=s;ui.fgN=20;render();},
+  trSide(s){ui.trSide=s;ui.keepScroll=true;render();},
+  tradeReset(){const T=ui.trade||{};ui.trade={tid:T.tid,give:[],get:[],cash:0};render();},
+  faMenu(pid){const p=S.players[pid];if(!p)return;const F=SL.faM(pid);const neg=(S.market.negs||[]).some(x=>x.pid===pid);stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세${F?` · 요구 ${F.ask.yrs}년 ${Ms(F.ask.tot)}`:''}</small>`,[['선수정보',`UI.openPlayer(${pid})`],[neg?'협상 이어가기':F&&F.mine?'조건 올리기':'협상',`UI.openTable(${pid})`,'primary'],[S.pins.includes(pid)?'관심 해제':'★ 관심 선수',`UI.pin(${pid})`]]);},
+  fgMenu(pid){const p=S.players[pid];if(!p)return;const c=SL.fgnCost(p);const X=SL.scState();const foc=X.list.some(s=>s.focus===pid);const neg=(S.market.negs||[]).some(x=>x.pid===pid);
+    stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세 · 첫해 ${Ms(c.first)} · 지식 ${c.kn}%</small>`,[['스카우트 보고서',`UI.scoutReport(${pid})`],c.full?null:[foc?'관찰 중':`집중 관찰 ${c.focusWeeks}주 · ${Ms(c.focusCost)}`,`UI.scFocus(${pid})`,'',foc||X.list.length>=SL.scSlots()],[neg?'협상 이어가기':c.block?'정원 참 — 교체 대상 고르기':`협상 시작 · 첫해 ${Ms(c.first)}`,c.block&&!neg?`UI.quotaPick(${pid})`:`UI.openTable(${pid})`,'primary'],['선수정보',`UI.openPlayer(${pid})`]]);},
+  rnMenu(pid){const p=S.players[pid];if(!p)return;const d=(ui.rdec||{})[pid]||'';stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세 · 요구 ${Ms(SL.renewDemandOf(p))}</small>`,[['선수정보',`UI.openPlayer(${pid})`],['요구승낙 (유지)',`UI.rdec(${pid},'keep')`,d==='keep'?'on':'',!!p.grudge],['협상',`UI.rdec(${pid},'neg')`,d==='neg'?'on':''],['결별',`UI.rdec(${pid},'cut')`,d==='cut'?'on danger':'danger'],d?['결정 취소',`UI.rdec(${pid},'${d}')`]:null]);},
+  rdecAll(){ui.rdec=ui.rdec||{};for(const id of S.pendingFA){const p=S.players[id];if(p&&!p.grudge)ui.rdec[id]='keep';else if(p)ui.rdec[id]='neg';}ui.keepScroll=true;render();},
+});
 
 return A;
 })();
