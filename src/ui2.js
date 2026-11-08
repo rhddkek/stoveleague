@@ -513,7 +513,7 @@ function decorateTables(){ui.tsort=ui.tsort||{};const app=document.getElementByI
   for(const tb of app.querySelectorAll('table')){if(tb.classList.contains('nosort')||tb.matches('.negt,.kvt,.rnw')||(tblRows(tb)||[]).length<4)continue;const hr=tblHead(tb);if(!hr||!tblRows(tb))continue;const ths=[...hr.cells];if(ths.some(th=>th.colSpan>1))continue;
     tb.classList.add('asort');ths.forEach((th,i)=>{if(th.classList.contains('srt')||th.getAttribute('onclick'))return;if(!th.dataset.lab)th.dataset.lab=th.textContent.trim();if(!th.querySelector('i.as'))th.insertAdjacentHTML('beforeend',' <i class="as">⇅</i>');th.classList.add('asc0');th.onclick=()=>{const sig=tblSig(tb);const cur=ui.tsort[sig];const first=(()=>{const rows=tblRows(tb);if(!rows)return 1;const k=cellKey(rows[0].cells[i]);return k.n!=null&&!k.pos?-1:1;})();const dir=cur&&cur.c===i?-cur.d:first;ui.tsort[sig]={c:i,d:dir};sortTable(tb,i,dir);};});
     const st=ui.tsort[tblSig(tb)];if(st&&ths[st.c])sortTable(tb,st.c,st.d);}}
-function render(){renderBase();try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}try{bgmSync();}catch(e){}}
+function render(){renderBase();try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}try{bgmSync();}catch(e){}try{navTrack();chipScroll();topBtnSync();}catch(e){}}
 // ---- 선수 검색 ----
 function searchHtml(q){const ut=SL.userTeam();q=(q||'').trim();if(!q)return '<div class="muted small" style="padding:8px">이름 두 글자 이상 (예: 김민, 페레스)</div>';
   const all=Object.values(S.players).filter(p=>p&&!p.retired&&p.name&&p.name.includes(q));const rk=p=>(p.teamId===ut.id||ut.dev.includes(p.id)?0:p.teamId==null?1:S.teams[p.teamId]&&S.teams[p.teamId].league===ut.league?2:3);all.sort((a,b)=>rk(a)-rk(b)||SL.calcOvr(b)-SL.calcOvr(a));
@@ -1191,3 +1191,42 @@ function budgetBoxHtml(ut){if(ut.league!=='KR')return '';const I=SL.budgetInfo()
     <div class="bstep"><span>전환 횟수</span><button onclick="UI.bsSet('bsN',${Math.max(1,n-1)})">▼</button><b>${n}</b><button onclick="UI.bsSet('bsN',${Math.min(3,n+1)})">▲</button><small>${dir>0?`이적 ${3*n}억 → 연봉 ${n}억`:`연봉 ${n}억 → 이적 ${3*n}억`}</small></div>
     <div class="eqcost"><span>이적 잔액</span><b>${Ms(Math.max(0,I.xferLeft))} → <span class="${xA<0?'bad':''}">${Ms(xA)}</span></b><span>연봉 여유</span><b>${Ms(I.wageLeft)} → <span class="${wA<0?'bad':''}">${Ms(wA)}</span></b></div>
     <div class="stvact"><button class="go" ${left?'':'disabled'} onclick="UI.bShiftN(${dir},${Math.min(n,left)})">전환</button></div></div>`;}
+
+// ======================= v88 (R072): 유저 친화 조작 — 뒤로 가기 · 보던 자리 · 좌우로 밀기 · 같은 탭 다시 누르기 · 맨 위로 · PC 선수 미리보기 =======================
+// 1) 휴대폰 뒤로 가기(안드로이드 뒤로 단추·아이폰 밀기·브라우저 ←) = 게임 안에서 한 단계 뒤로: 창 닫기 → 선수 상세 닫기 → 바로 전 화면 → 감독실. 감독실에서 한 번 더 누르면 나감 안내
+const NAV={hist:[],last:null,restoring:false,armed:false,exitAt:0};
+function navKey(){return ui.tab+':'+(ui.tab==='home'?'':(ui.sub[ui.tab]||''));}
+function navTrack(){if(!S||S.liveGame)return;try{if(NAV.armed&&!NAV.inPop&&history.state&&history.state.sl===0)history.pushState({sl:1},'');}catch(e){}if(!NAV.armed){try{if('scrollRestoration' in history)history.scrollRestoration='manual';history.replaceState({sl:0},'');history.pushState({sl:1},'');NAV.armed=true;}catch(e){}}const k=navKey();if(NAV.last&&NAV.last!==k&&!NAV.restoring){NAV.hist.push(NAV.last);if(NAV.hist.length>30)NAV.hist.shift();}NAV.last=k;NAV.restoring=false;if(!PREF.swHint&&!isWide()&&ui.tab!=='home'&&!ui.view){PREF.swHint=1;try{prefSave();}catch(e){}setTimeout(()=>toast('팁: 화면을 좌우로 밀면 옆 화면 · 휴대폰 뒤로 가기는 이전 화면',3800),3000);}}
+function navBack(){const md=document.querySelector('#modal');if(md){closeModal();return true;}if(!S)return false;if(S.liveGame)return true;
+  if(ui.view){A.back();return true;}
+  while(NAV.hist.length){const prev=NAV.hist.pop();if(prev===navKey())continue;const [t,sb]=prev.split(':');NAV.restoring=true;if(sb)A.go(t,sb);else A.setTab(t);return true;}
+  if(ui.tab!=='home'){A.setTab('home');return true;}return false;}
+if(typeof window!=='undefined'&&!window.__slBack){window.__slBack=1;document.addEventListener('click',()=>{try{if(NAV.armed&&history.state&&history.state.sl===0)history.pushState({sl:1},'');}catch(e){}},true);   // 「한 번 더 누르면 나감」 안내 뒤에 다른 걸 누르면 다시 게임 안 뒤로 가기로
+  window.addEventListener('popstate',()=>{NAV.inPop=true;let h=false;try{h=navBack();}finally{NAV.inPop=false;}if(h){try{history.pushState({sl:1},'');}catch(e){}return;}
+  NAV.exitAt=Date.now();toast('뒤로 가기를 한 번 더 누르면 게임에서 나갑니다 (진행은 자동 저장)',2000);setTimeout(()=>{try{if(history.state&&history.state.sl===0)history.pushState({sl:1},'');}catch(e){}},2000);});}
+// 2) 선수 상세에서 돌아오면 목록이 보던 자리 그대로
+{const op=A.openPlayer,bk=A.back;Object.assign(A,{
+  openPlayer(pid,tab){if(!ui.view&&!isWide())ui.retScroll={k:navKey(),y:window.scrollY||0};op.call(A,pid,tab);},
+  back(){bk.call(A);if(!ui.view&&ui.retScroll&&ui.retScroll.k===navKey()&&!isWide()){const y=ui.retScroll.y;ui.retScroll=null;try{window.scrollTo(0,y);}catch(e){}}},
+  // 3) 아래 탭: 지금 탭을 다시 누르면 맨 위로 (이미 맨 위면 그 탭 첫 화면)
+  navTap(t){if(ui.tab===t&&!ui.view){if((window.scrollY||0)>40){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}return;}if(t!=='home'){const H=HUB[t]&&HUB[t]();if(H&&H.core[0]){A.go(t,H.core[0][1][0]);return;}}}A.setTab(t);},
+  secStep(d){const pg=document.querySelector('.content>.pgtabs');if(pg){const bs=[...pg.querySelectorAll('button')];const i=bs.findIndex(b=>b.classList.contains('on'));const j=i+d;if(j>=0&&j<bs.length){bs[j].click();return true;}}
+    const seq=screenSeq().filter(x=>x[0]===ui.tab);const i=seq.findIndex(x=>x[1]===(ui.sub[ui.tab]||''));const j=i+d;if(i<0||j<0||j>=seq.length)return false;A.go(seq[j][0],seq[j][1]);return true;},
+  toTop(){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}},
+});}
+// 4) 휴대폰: 화면을 좌우로 밀면 같은 묶음의 옆 화면(나눈 화면이면 옆 쪽) — 표·칩 줄·입력칸 위에서 민 건 무시
+if(typeof document!=='undefined'&&!window.__slSwipe){window.__slSwipe=1;let x0=null,y0=null,t0=0,ok0=false;
+  document.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();const tg=e.target;ok0=!!(S&&!S.liveGame&&!ui.view&&!document.querySelector('#modal')&&!isWide()&&tg.closest&&tg.closest('#app .content')&&!tg.closest('table,.tw,.mkt,.stvt,.htabs2,.pgtabs,.ftabs,input,select,textarea,.fld,.cmdia,svg,.eqgrid,.tsel5,[data-noswipe]')&&!(x0<18||x0>innerWidth-18));},{passive:true});
+  document.addEventListener('touchend',e=>{if(x0==null||!ok0){x0=null;return;}const t=e.changedTouches[0];const dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Date.now()-t0>700)return;if(Math.abs(dx)>90&&Math.abs(dy)<45){if(A.secStep(dx<0?1:-1)){try{window.scrollTo(0,0);}catch(_){}}}},{passive:true});}
+// 5) 켜진 칩이 줄 밖이면 보이게 · 긴 화면에서 「↑ 맨 위로」
+function chipScroll(){for(const r of document.querySelectorAll('.htabs2,.pgtabs')){const on=r.querySelector('.on');if(!on)continue;if(on.offsetLeft<r.scrollLeft||on.offsetLeft+on.offsetWidth>r.scrollLeft+r.clientWidth)r.scrollLeft=Math.max(0,on.offsetLeft-(r.clientWidth-on.offsetWidth)/2);}}
+function topBtnSync(){let b=document.getElementById('totop');if(!b){b=document.createElement('button');b.id='totop';b.className='totop';b.setAttribute('aria-label','맨 위로');b.innerHTML='↑<small>맨 위</small>';b.onclick=()=>A.toTop();document.body.appendChild(b);if(!window.__slTop){window.__slTop=1;window.addEventListener('scroll',()=>topBtnSync(),{passive:true});}}
+  const show=!!(S&&!S.liveGame&&!document.querySelector('#modal')&&(window.scrollY||0)>600);b.classList.toggle('on',show);}
+// 6) PC: 선수 이름·줄에 마우스를 올리면 작은 선수 카드 (누르지 않고 훑어보기)
+function hoverCardHtml(p){const t=p.teamId!=null?S.teams[p.teamId]:null;const hid=typeof hidOf==='function'&&hidOf(p);const o=Math.round(SL.calcOvr(p));const c=p.contract;
+  return `<div class="hvc">${face(p,48)}<div class="hvb"><b>${esc(p.name)}</b> <span class="ptg">${esc(p.pos)}</span><div class="small">${p.age}세${t?' · '+esc(t.name):' · FA'}</div><div class="hvr"><span>종합 <b>${hid?'?':`${SL.gradeOf(o)} ${o}`}</b></span>${c?`<span>연봉 <b>${Ms(c.salary)}</b> · ${c.years}년</span>`:''}</div><div class="small muted">${esc(String(seasonLine(p)||'').replace(/<[^>]+>/g,''))}</div></div></div>`;}
+if(typeof document!=='undefined'&&!window.__slHover){window.__slHover=1;let tm=null,cur=null;const card=()=>{let c=document.getElementById('hovcard');if(!c){c=document.createElement('div');c.id='hovcard';document.body.appendChild(c);}return c;};
+  const pidOf=el=>{const a=el.closest('[onclick*="openPlayer("],.pname,tr[onclick*="selRow("]');if(!a||!a.closest('#app'))return null;const src=a.classList.contains('pname')?a.closest('tr'):a;const m=((src&&src.getAttribute('onclick'))||'').match(/(?:openPlayer|selRow)\((\d+)/);return m?{id:+m[1],el:a}:null;};
+  document.addEventListener('mouseover',e=>{if(!S||S.liveGame||!isWide()||!(window.matchMedia&&matchMedia('(hover:hover)').matches))return;const r=pidOf(e.target);if(!r){if(cur){clearTimeout(tm);cur=null;card().classList.remove('on');}return;}if(cur&&cur.id===r.id)return;cur=r;clearTimeout(tm);
+    tm=setTimeout(()=>{const p=S.players[r.id];if(!p)return;const c=card();c.innerHTML=hoverCardHtml(p);const b=r.el.getBoundingClientRect();c.classList.add('on');const w=c.offsetWidth,h=c.offsetHeight;let x=b.left,y=b.bottom+6;if(x+w>innerWidth-8)x=innerWidth-8-w;if(y+h>innerHeight-8)y=b.top-6-h;c.style.left=Math.max(8,x)+'px';c.style.top=Math.max(8,y)+'px';},380);});
+  document.addEventListener('mousedown',()=>{clearTimeout(tm);cur=null;const c=document.getElementById('hovcard');if(c)c.classList.remove('on');});}

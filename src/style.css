@@ -1384,7 +1384,7 @@ body:has(.gamev) .toast{top:calc(3px + env(safe-area-inset-top,0px));bottom:auto
 .msec .mr:not(:has(.ml)) .mi{margin-left:0}
 .msec .mm .ml{color:var(--muted)}
 .mdense{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:14px}.mdense small{color:var(--muted)}
-.toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;top:auto!important;font-size:12.5px!important;padding:5px 14px!important;border-radius:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%!important;background:rgba(18,26,44,.92)!important}
+.toast{top:calc(6px + env(safe-area-inset-top,0px))!important;bottom:auto!important;font-size:12.5px!important;padding:5px 14px!important;border-radius:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%!important;background:rgba(18,26,44,.92)!important}
 /* PC: 왼쪽 메뉴에 모든 화면 (한 번 눌러 이동) · 아래 6칸 탭은 감춤 */
 @media (min-width:960px){
   .split.sd3{grid-template-columns:200px minmax(0,1.2fr) minmax(0,.8fr)}
@@ -1402,7 +1402,6 @@ body:has(.gamev) .toast{top:calc(3px + env(safe-area-inset-top,0px));bottom:auto
   .side .msec:not(.on) .mh{opacity:.85}
   .side .skeys{margin-top:10px;font-size:11px;line-height:1.7;color:#93a3bd}.side kbd{display:inline-block;padding:0 4px;border:1px solid rgba(255,255,255,.3);border-radius:4px;font:inherit;font-size:10.5px;color:#fff}
   .side .sdense{margin-top:8px;font-size:11.5px;color:#c9d2e3}.side .sdense label{display:flex;align-items:center;gap:6px}.side .sdense input{width:auto;margin:0}
-  .split .toast,body:has(.split) .toast{bottom:44px!important}
 }
 /* 촘촘히 보기: 표 한 줄 높이를 줄여 한 화면에 더 많이 */
 .dense .mkt td,.dense table td{padding-top:3px!important;padding-bottom:3px!important}
@@ -1427,3 +1426,12 @@ body:has(.gamev) .toast{top:calc(3px + env(safe-area-inset-top,0px))!important;b
 @media (max-width:600px){.dense .rosterq tr>:first-child{display:none}.dense .rosterq td{white-space:nowrap}.dense .rosterq td:last-child{font-size:11.5px}.dense .rosterq td:last-child br{display:none}}
 .dense .mkt.sq tbody td{height:34px}.dense .mkt .ptg.pbtn{min-height:22px;height:22px;padding-top:0;padding-bottom:0}
 .achg .achrow:not(.got)>span:last-child{display:none}.achg .achrow:not(.got){grid-template-rows:auto}
+/* v88 (R072): 손가락 크기 · 눌림 표시 · 맨 위로 · PC 선수 미리보기 */
+@media (max-width:959px){.htabs2 button{min-height:32px;padding:5px 12px;font-size:12.5px}.pgtabs button{min-height:34px}.htabs2{padding-bottom:7px}}
+@media (hover:none){button:active,.tile:active,tr[onclick]:active td{filter:brightness(.92)}button:active{transform:scale(.97)}}
+.calm button:active{transform:none}
+.totop{position:fixed;right:12px;bottom:calc(98px + env(safe-area-inset-bottom,0px));z-index:25;width:46px;height:46px;border-radius:50%;border:0;background:var(--navy);color:#fff;font-size:18px;font-weight:900;line-height:1;display:none;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.3);padding:0;min-height:0}
+.totop small{font-size:9px;font-weight:700;margin-top:1px}.totop.on{display:flex}
+@media (min-width:960px){.totop{bottom:20px;right:20px}}
+#hovcard{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:8px 10px;max-width:300px}
+#hovcard.on{opacity:1}.hvc{display:flex;gap:10px;align-items:center}.hvb{min-width:0;line-height:1.35}.hvb>b{font-size:14px}.hvr{display:flex;gap:10px;font-size:12px;margin:2px 0}
