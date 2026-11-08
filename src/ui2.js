@@ -735,3 +735,71 @@ function offseasonSteps(){if(S.phase!=='offseason')return '';const w=S.week;cons
     {t:'FA 결정',done:!faL.length,now:faL.length>0,s:faL.length?`${faL.length}명 남음${mine?` · 우리 ${mine}`:''}`:'끝',on:"UI.go('market','deals')"},
     {t:'개막 준비',done:false,now:w>=W,s:w>W?'준비 완료':`${W}주차`,on:"UI.go('roster','lineup')"}];
   const cur=steps.findIndex(x=>x.now);return `<div class="osteps st5">${steps.map((x,i)=>`<button class="ostep ${i===cur?'on':x.now?'live':x.done?'done':''}" onclick="${x.on}"><b>${x.done&&!x.now?'✓ ':''}${x.t}</b><small>${esc(x.s)}</small></button>`).join('')}</div>`;}
+
+// ======================= v74 (R058): 경기 화면 = 감독모드 (EA 프로야구 2011 감독모드의 화면 구성을 참고, 그림·글꼴은 우리 것) =======================
+// 위: 감독모드 제목 · 점수판 한 줄(팀 색 · 점수 · ▲▼회 · 볼카운트 · OUT) / 가운데: 어둡게 비친 구장 + 다이아몬드 + 타자·주자 이름표 + 방금 결과 반투명 창 / 아래: 두 팀 TODAY 칸 + 작전지시·대결정보·선수교체 + OK 진행
+function renderGame(){if(PREF.gview==='classic')return renderGame0();const lg=S.liveGame;if(!lg)return renderGame0();const H=S.teams[lg.home],A=S.teams[lg.away];const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
+  const g0=SL.userGameToday();const pi=g0&&SL.postInfo(g0);const nm=t=>esc(t.name.split(' ')[0]);
+  const ck=chgKey(lg);const chgNow=!!ck&&ui.chgShow===ck&&ui.chgSeen!==ck;
+  let h=`<div class="cmv${lg.done?' done':''}">`;
+  h+=`<div class="cmtop gut"><b class="cmt">${lg.done?(lg.score[my]>lg.score[1-my]?'YOU WIN':lg.score[my]<lg.score[1-my]?'YOU LOSE':'DRAW'):chgNow?`${lg.inn} <small>회${lg.half===0?'초':'말'}</small>`:'감독모드'}</b><small class="cme">${lg.done?'경기 종료':chgNow?'공수교대':'COACH MODE'}</small><span class="cmmeta">${pi?esc(pi.title):`시즌 ${h2hNo(lg)}차전`} · ${esc(SL.parkOf(H).name)}</span></div>`;
+  h+=`<div class="cmsb gut"><span class="tm ${lg.half===0&&!lg.done?'atk':''}"><i style="background:${A.color}"></i>${nm(A)}${my===0?'<em>MY</em>':''}<b>${lg.score[0]}</b></span><span class="tm ${lg.half===1&&!lg.done?'atk':''}"><i style="background:${H.color}"></i>${nm(H)}${my===1?'<em>MY</em>':''}<b>${lg.score[1]}</b></span>${lg.done?'':`<span class="inn">${lg.half===0?'▲':'▼'}${lg.inn}</span><span class="bs"><small>B</small>${dots(lg.balls,3,'g')}<small>S</small>${dots(lg.strikes,2,'y')}</span><span class="out"><b>${lg.outs}</b>OUT</span>`}</div>`;
+  if(lg.done)return h+cmDone(lg,my)+`</div>`;
+  if(chgNow)return h+cmInter(lg,my)+`</div>`;
+  const B=SL.curBatter(lg),P=SL.curPitcher(lg);
+  h+=`<div class="cmfield gut">${cmField(lg,my,B,P)}</div>`;
+  h+=`<div class="cmtoday gut">${cmToday(lg,0,B,P)}${cmToday(lg,1,B,P)}</div>`;
+  h+=cmControls(lg,my,B,P);
+  return h+`</div>`;}
+function dots(n,max,c){return Array.from({length:max},(_,i)=>`<i class="${i<n?c:''}"></i>`).join('');}
+function cmBig(lp){return /희생플라이/.test(lp.text)?'희생플라이':/내야안타/.test(lp.text)?'내야안타':lp.type==='so'?(/헛스윙/.test(lp.text)?'헛스윙 삼진':'루킹 삼진'):{hr:/만루/.test(lp.text)?'만루 홈런':'홈런',bb:'볼넷',walk:'볼넷',hbp:'몸에 맞는 공','1b':'안타','2b':'2루타','3b':'3루타',dp:'병살',go:'땅볼',fo:'뜬공',sb:'도루 성공',cs:'도루 실패',sf:'희생플라이',e:'실책 출루',sac:'희생 번트'}[lp.type]||'';}
+function cmPosKo(t){const m=t.match(/(투수|포수|1루수|2루수|3루수|유격수|좌익수|중견수|우익수)/);return m?m[1]:'';}
+// 가운데: 구장 + 다이아몬드 + 이름표 + 방금 결과(반투명)
+function cmField(lg,my,B,P){const bs=lg.bases;const bt=lg.half===1?S.teams[lg.home]:S.teams[lg.away];const ft=lg.half===1?S.teams[lg.away]:S.teams[lg.home];const bg=ART&&ART.stadiumGame;
+  const PA=['1b','2b','3b','hr','so','walk','bb','dp','fo','go','hbp','sf','e','sb','cs','sac'];const lp=[...lg.log].reverse().find(l=>PA.includes(l.type));
+  let h=`<div class="cmf"><i class="dirt"></i><div class="dia"><i class="bse b1 ${bs[0]?'on':''}" style="--c:${bt.color}"></i><i class="bse b2 ${bs[1]?'on':''}" style="--c:${bt.color}"></i><i class="bse b3 ${bs[2]?'on':''}" style="--c:${bt.color}"></i><i class="hp"></i><i class="mound" style="--c:${ft.color}"></i><i class="bat" style="--c:${bt.color}"></i></div>`;
+  const tag=(cls,p,k,v)=>p?`<div class="ntag ${cls}"><b>${esc(p.name)}</b><span>${k}${Math.round(v)}</span></div>`:'';
+  h+=tag('tb',B,'타격',(B.attrs.contact+B.attrs.power)/2);
+  [['t1',0],['t2',1],['t3',2]].forEach(([c,i])=>{if(bs[i]){const r=S.players[bs[i].pid];if(r)h+=tag(c,r,'주력',r.attrs.speed);}});
+  if(lp&&lp.inn===lg.inn&&lp.half===lg.half||lp&&(lg.log.length-lg.log.indexOf(lp))<=3){const hero=lp.pid!=null?S.players[lp.pid]:null;const ours=lp.half===my;const good=['hr','1b','2b','3b','bb','walk','hbp','sb','e'].includes(lp.type);const tone=good===ours?'adv':'dis';
+    let how=String(lp.text||'');if(hero)how=how.replace(new RegExp('^'+hero.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[,\\s]*'),'');const m3=how.match(/\((\d)아웃\)/);how=how.replace(/\s*\(\d아웃\)\s*$/,'');
+    const pos=cmPosKo(lp.text);const big=cmBig(lp);const call=playCall(lp,lg);const outs=m3?+m3[1]:(lp.inn===lg.inn&&lp.half===lg.half?lg.outs:3);
+    h+=`<div class="cmres ${tone}" key="r${lg.log.length}" onclick="UI.sheet2('play')">${hero?`<div class="ph">${face(hero,64)}</div>`:''}<div class="ln"><div><b>${hero?esc(hero.name):''}</b></div><div class="big">${esc((pos&&!/홈런|안타|2루타|3루타|볼넷|도루/.test(big)?pos:'')+big)}</div><div>${outs>=3?'3아웃 · 공수교대':`${outs}아웃`}</div></div><div class="cmt2"><span>해설자</span>${esc(call?call.t:how)}</div></div>`;}
+  h+=`<span class="okhint">OK 진행</span></div>`;return h;}
+// 아래 TODAY 칸: 그 팀 지금 선수(공격이면 타자, 수비면 투수)
+function cmToday(lg,side,B,P){const t=side===1?S.teams[lg.home]:S.teams[lg.away];const atk=lg.half===side;const p=atk?B:P;if(!p)return '';const b=lg.box[p.id]||{};const ut=SL.userTeam();
+  let cells;if(atk)cells=[['타수',b.ab||0],['안타',b.h||0],['홈런',b.hr||0],['타점',b.rbi||0],['도루',b.sb||0]];
+  else{const pc=lg.pc[p.id]||0;const lim=p.pos==='SP'?p.attrs.stamina*0.9+30:p.attrs.stamina*0.45+14;cells=[['투구',pc],['실점',b.pR||0],['삼진',b.pSO||0],['체력',Math.max(0,Math.round(100-Math.min(1,pc/lim)*100))],['사사구',(b.pBB||0)]];}
+  const pos=atk?(lg.pos[side]&&lg.pos[side][p.id])||p.pos:p.pos;
+  return `<div class="td" style="--c:${t.color}" onclick="UI.openPlayer(${p.id})"><div class="tdh">TODAY${t.id===ut.id?' <em>MY</em>':''}<span>${atk?`${lg.bat[side]+1}번`:'투수'}</span></div><div class="tdb"><div class="tdf">${face(p,52)}</div><div class="tdg">${cells.map(c=>`<div><span>${c[0]}</span><b>${c[1]}</b></div>`).join('')}</div></div><div class="tdn"><em>${esc(pos)}</em> ${esc(p.name)}${watchTag(p)}</div></div>`;}
+// 조작: 진행 방식 · OK 진행 · 작전지시 · 대결정보 · 선수교체
+const CM_MODES=[['pitch','공','공 하나'],['pa','타석','다음 타석'],['hl','장면','다음 장면'],['half','이닝','이닝 끝까지'],['game','경기','경기 끝까지'],['to','N회까지','N회까지 자동']];
+function cmControls(lg,my,B,P){const off=lg.half===my;const cur=SL.tacNow(lg);const T=cur&&SL.TACTICS[cur];const md=ui.stepMode||'hl';const toI=ui.toInn||7;const M=CM_MODES.find(x=>x[0]===md)||CM_MODES[2];
+  const bench=SL.bench(lg,my).length,bp=SL.availableBullpen(lg,my).length;
+  let h=`<div class="cmctl gut">`;
+  if(T)h+=`<div class="tacinfo small"><span class="tst on">작전</span> <b>${esc(T.ko)}</b> — 이번 타석 · +${esc(T.g2||T.gain)} / −${esc(T.c2||T.cost)}</div>`;
+  h+=`<div class="cmgo"><button class="gold big" onclick="UI.step('${md}')">OK 진행 · ${md==='to'?`${toI}회까지 자동 ▶▶`:esc(M[2])+' ▶'}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식">${esc(M[1])}<small>진행</small></button></div>`;
+  if(md==='to')h+=`<div class="toinn small">구간 진행: ${toI}회 시작까지 자동 → 그다음부터 <b>직접(장면마다)</b> <button class="lnk" onclick="UI.cmSheet('mode')">바꾸기</button></div>`;
+  h+=`<div class="cmbar"><button onclick="UI.cmSheet('tac')"><i>#</i>${off?'작전지시':'수비 작전'}</button><button onclick="UI.sheet2('detail')"><i>×</i>대결정보</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}><i>7</i>선수교체</button></div>`;
+  return h+`</div>`;}
+function cmSheetHtml(k){const lg=S.liveGame;if(!lg)return '';const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
+  if(k==='tac'){const off=lg.half===my;const keys=Object.keys(SL.TACTICS).filter(x=>SL.TACTICS[x].side===(off?'off':'def'));const cur=SL.tacNow(lg);
+    return `<h3>${off?'작전지시':'수비 작전'}</h3><div class="small muted" style="margin-bottom:8px">아래 줄이 이득(+)·대가(−)입니다. %는 실제 판정에 쓰는 성공률. 작전은 이번 타석에만 적용됩니다.</div><div class="tacs col">${keys.map(x=>{const c=SL.tacOk(lg,my,x);const T2=SL.TACTICS[x];const od=c.ok?SL.tacOdds(lg,x):null;return `<button class="sm tacb ${cur===x?'primary':'ghost'}" ${c.ok?'':'disabled'} onclick="UI.closeModal();UI.tac('${x}')"><b>${T2.ko}${od!=null?` <em>${od}%</em>`:''}</b><small><span class="g">+${esc(T2.g2||'')}</span> <span class="c">−${esc(T2.c2||'')}</span></small>${c.ok?'':`<small class="muted">${esc(c.why)}</small>`}</button>`;}).join('')}</div>`;}
+  if(k==='sub'){const bench=SL.bench(lg,my).length,bp=SL.availableBullpen(lg,my).length;return `<h3>선수교체</h3><div class="btns col"><button class="primary" ${lg.half===my&&bench?'':'disabled'} onclick="UI.closeModal();UI.pinchMenu()">대타 (${bench}명)${lg.half===my?'':' — 공격 때'}</button><button class="primary" ${bp?'':'disabled'} onclick="UI.closeModal();UI.pitchMenu()">투수 교체 (${bp}명)</button><button class="ghost" onclick="UI.closeModal()">닫기</button></div>`;}
+  if(k==='mode'){const md=ui.stepMode||'hl';const toI=ui.toInn||7;return `<h3>진행 방식</h3><div class="cmmodes">${CM_MODES.map(x=>`<button class="${x[0]===md?'on':''}" onclick="UI.set('stepMode','${x[0]}');UI.cmSheet('mode')"><b>${x[1]}</b><small>${x[0]==='to'?`${toI}회까지 자동, 그다음 직접`:x[2]}</small></button>`).join('')}</div>
+    <div class="toinn small" style="margin-top:10px">N회까지: <select class="sm" aria-label="자동으로 넘길 이닝" onchange="UI.set('toInn',+this.value);UI.cmSheet('mode')">${[3,4,5,6,7,8,9].map(n=>`<option value="${n}" ${n===toI?'selected':''}>${n}회</option>`).join('')}</select> <label><input type="checkbox" ${ui.toKey?'checked':''} onchange="UI.set('toKey',this.checked)"> 그 전에 접전 찬스·위기면 멈춤</label></div><div class="btns" style="margin-top:12px"><button class="primary" onclick="UI.closeModal()">확인</button></div>`;}
+  return '';}
+// 공수교대 화면: 회 · 점수표 · 공격팀 다음 타순 3명 · 수비팀 투수 · 진행 방식 고르기 (원작: PLAY / AI SIMULATION / COACH MODE)
+function lineScore(lg,full){const A=S.teams[lg.away],H=S.teams[lg.home];const n=Math.max(9,lg.inn);let r=`<table class="cmls"><tr><th></th>${Array.from({length:n},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th>${full?'<th>H</th>':''}</tr>`;
+  for(const s of [0,1]){const t=s?H:A;r+=`<tr><td class="tn"><i style="background:${t.color}"></i>${esc(t.name.split(' ')[0])}</td>${Array.from({length:n},(_,i)=>{const v=lg.innScores[s][i];const live=!lg.done&&lg.inn===i+1&&lg.half===s;return `<td class="${live?'live':''}">${v!=null?v:live?lg.halfRuns:(lg.done&&s===1&&i===n-1&&lg.innScores[1][i]==null?'X':'')}</td>`;}).join('')}<td class="r">${lg.score[s]}</td>${full?`<td>${lg.hits[s]}</td>`:''}</tr>`;}
+  return r+`</table>`;}
+function cmInter(lg,my){const bs=lg.half;const bt=bs===1?S.teams[lg.home]:S.teams[lg.away],ft=bs===1?S.teams[lg.away]:S.teams[lg.home];const P=SL.curPitcher(lg);const pb=lg.box[P.id]||{};const L=lg.lineup[bs];const toI=Math.max(lg.inn+1,ui.toInn||7);
+  const next=[0,1,2].map(k=>{const i=(lg.bat[bs]+k)%L.length;const p=S.players[L[i]];const b=lg.box[p.id]||{};return `<div class="nb">${face(p,44)}<div><div class="no">No.${i+1}</div><div><em>${esc((lg.pos[bs]&&lg.pos[bs][p.id])||p.pos)}</em> <b>${esc(p.name)}</b></div><div class="small">${b.ab||0}타수 ${b.h||0}안타${b.hr?` ${b.hr}홈런`:''}</div></div></div>`;}).join('');
+  const ip=Math.floor((pb.pOuts||0)/3)+'.'+((pb.pOuts||0)%3);
+  return `<div class="gut">${lineScore(lg)}<div class="cmint"><div class="pn" style="--c:${bt.color}"><div class="ph2">${esc(bt.name.split(' ')[0])} 타순정보${bt.id===SL.userTeam().id?' <em>MY</em>':''}</div>${next}</div><div class="pn" style="--c:${ft.color}"><div class="ph2">${esc(ft.name.split(' ')[0])} 투수정보</div><div class="nb">${face(P,44)}<div><em>${esc(P.pos)}</em> <b>${esc(P.name)}</b></div></div><div class="pg"><span>이닝</span><span>실점</span><span>탈삼진</span><b>${ip}</b><b>${pb.pR||0}</b><b>${pb.pSO||0}</b><span>사사구</span><span>투구수</span><span></span><b>${pb.pBB||0}</b><b>${lg.pc[P.id]||0}</b><b></b></div></div></div>
+    <div class="cmpick"><button onclick="UI.set('stepMode','hl');UI.step('hl')"><b>감독모드</b><small>장면마다 직접</small></button><div class="sim"><button onclick="UI.set('toInn',${toI});UI.set('stepMode','to');UI.step('to')"><b>시뮬레이션</b><small>${toI}회 시작까지 자동</small></button><span class="ud"><button aria-label="한 회 앞" onclick="UI.set('toInn',${Math.max(lg.inn+1,toI-1)})">▲</button><button aria-label="한 회 뒤" onclick="UI.set('toInn',${Math.min(9,toI+1)})">▼</button></span></div><button onclick="UI.set('stepMode','game');UI.step('game')"><b>경기 끝까지</b><small>결과만 보기</small></button></div></div>`;}
+// 경기 끝: YOU WIN / YOU LOSE · 점수표 · 승리·패전·세이브 투수
+function cmDone(lg,my){const ids=Object.keys(lg.box).map(Number);const by=k=>ids.find(id=>lg.box[id][k]);const W=by('pW'),Lp=by('pL'),SV=by('pSV');const nm=id=>id!=null&&S.players[id]?esc(S.players[id].name):'-';
+  return `<div class="gut">${lineScore(lg,true)}<div class="cmres2"><div class="rt">경기결과</div><div class="wl"><div><span class="w">승리투수</span><b>${nm(W)}</b></div><div><span class="l">패전투수</span><b>${nm(Lp)}</b></div></div>${SV!=null?`<div class="sv"><span>세이브</span><b>${nm(SV)}</b></div>`:''}</div>
+    <button class="gold big" onclick="UI.endGame()">결과 확인 후 계속 ▶</button><div style="height:12px"></div>${hlHtml(lg,my)}<details class="more"><summary>경기 기록 · 로그</summary>${renderBox(lg,my)}<div class="card">${hd('경기 로그')}<div class="glog" id="glog">${lg.log.slice(-40).map(l=>`<div class="${l.type}">${esc(l.text)}</div>`).join('')}</div></div></details></div>`;}
+Object.assign(A,{cmSheet(k){modal(cmSheetHtml(k));},gview(v){PREF.gview=v;prefSave();render();}});

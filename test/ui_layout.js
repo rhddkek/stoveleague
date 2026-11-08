@@ -34,6 +34,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>{UI.openPlayer(SL.userTeam().lineup[0]);});await over('선수 상세');await has('주요 능력치');await has('기본 정보');await p.evaluate(()=>UI.pTab('ability'));await has('비교 기준');ok('선수 상세: 능력치 비교 기준 선택');await p.evaluate(()=>UI.back());
   await p.evaluate(()=>{UI.setTab('home');UI.autoDays(7);});await has('자세히');await p.evaluate(()=>UI.sheet('result'));await has('한 주간 구단 보고서');await has('최고 타자');await over('주간 보고서');await p.evaluate(()=>UI.closeModal());ok('7경기 자동 → 결과 띠 → 한 주간 보고서 창');
   {const fit=await p.evaluate(()=>({sh:document.documentElement.scrollHeight,ch:innerHeight}));fit.sh<=fit.ch+40?ok(`모바일 홈 한 화면 (${fit.sh}/${fit.ch}px)`):bad('모바일 홈 스크롤 '+JSON.stringify(fit));}
+  await p.evaluate(()=>UI.setPref('gview','classic'));   // v74: 아래 검사는 이전 「중계 화면」 기준 (설정에서 고를 수 있음). 감독모드는 맨 끝에서 따로 검사
   await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('하이라이트까지');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');
   await p.evaluate(()=>UI.step('game'));await p.evaluate(()=>UI.endGame());await has('순위');ok('경기 후 결과 카드: 기록·순위·다음 판단');
   await p.evaluate(()=>{UI.go('market','buy');});await has('예산 안');if(!(await p.evaluate(()=>!!document.querySelector('input[placeholder="이름 검색"]'))))bad('이름 검색 입력 없음');const nm=await p.evaluate(()=>{UI.setBuyF('afford',false);const t=SL.krTeams().find(x=>!x.isUser);const q=SL.state().players[t.roster[0]].name;UI.setBuyF('q',q);return q;});await has(nm);ok('이적시장: 이름 검색·예산·의향·부족 포지션 필터');
@@ -124,5 +125,18 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    await has('공식 영입 제안');await has('대체 후보');await has('선수 의견 확인');await over('영입 제안서');ok('이적 제안 = 공식 영입 제안서 (이적료·예상 역할·의향·기한·우리 팀 영향·대체 후보)');
    const w=await p.evaluate(x=>{UI.back();const S=SL.state();const u=SL.userTeam();const id=u.lineup[0];S.pins=[id];UI.setTab('home');UI.startGame();let g=0;const lg=()=>SL.state().liveGame;while(lg()&&lg().lineup[lg().half][lg().bat[lg().half]%9]!==id&&g++<60)UI.step('pa');return !!document.querySelector('.wtag');},r);
    w?ok('경기 화면: 관심 선수 타석에 ★ 표시'):bad('관심 선수 표시 없음');await over('경기 화면 관심 표시');}
+  // v74 (R058): 감독모드 경기 화면 — 360·390·1280 폭, 점수판 한 줄 · 다이아몬드 · 결과 반투명 창 · TODAY 두 칸 · 공수교대 화면 · 경기 결과
+  {await p.evaluate(()=>{UI.closeModal();UI.setPref('gview','coach');const S=SL.state();if(S.liveGame&&!S.liveGame.done){UI.step('game');UI.endGame();}});
+   let g=0;while(g++<40&&!(await p.evaluate(()=>{const S=SL.state();if(S.phase!=='season')return true;UI.setTab('home');if(SL.userGameToday()){UI.startGame();return !!S.liveGame;}UI.autoDays(1);return false;})));
+   if(await p.evaluate(()=>!!SL.state().liveGame)){
+    for(const W of [360,390,1280]){await p.setViewportSize({width:W,height:W>1000?820:740});await p.evaluate(()=>{UI.set('stepMode','pa');UI.step('pa');});await p.waitForTimeout(80);
+     const c=await p.evaluate(()=>({sb:!!document.querySelector('.cmsb .out b'),dia:!!document.querySelector('.cmf .dia'),td:document.querySelectorAll('.cmtoday .td').length,bar:document.querySelectorAll('.cmbar button').length,tag:!!document.querySelector('.ntag.tb'),res:!!document.querySelector('.cmres .big')||!!document.querySelector('.cmint')}));
+     c.sb&&c.dia&&c.td===2&&c.bar===3&&c.tag?ok(`감독모드 ${W}px: 점수판·다이아몬드·타자 이름표·TODAY 2칸·작전지시/대결정보/선수교체`):bad('감독모드 '+W+' '+JSON.stringify(c));await over('감독모드 '+W);}
+    await p.setViewportSize({width:360,height:740});
+    const it=await p.evaluate(()=>{let g=0;while(g++<60&&!document.querySelector('.cmint')){if(SL.state().liveGame.done)break;UI.step('pa');}return {i:!!document.querySelector('.cmint'),t:document.querySelector('.cmv')?document.querySelector('.cmv').innerText:''};});
+    it.i&&/타순정보/.test(it.t)&&/투수정보/.test(it.t)&&/시뮬레이션/.test(it.t)?ok('공수교대 화면: 점수표 · 타순정보(다음 3명) · 투수정보 · 감독모드/시뮬레이션/경기 끝까지'):bad('공수교대 화면 '+it.i);await over('공수교대 화면');
+    await p.evaluate(()=>UI.cmSheet('tac'));await has('이득(+)');await p.evaluate(()=>UI.closeModal());
+    await p.evaluate(()=>{UI.set('stepMode','game');UI.step('game');});await has('결과 확인 후 계속');await has('승리투수');await has('패전투수');await over('경기 결과');ok('경기 끝: YOU WIN/LOSE · 점수표 · 승리·패전 투수');
+    await p.evaluate(()=>UI.endGame());}}
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});
