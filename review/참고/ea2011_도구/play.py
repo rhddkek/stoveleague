@@ -33,6 +33,34 @@ def prepare(apk=None):
 
 prepare(sys.argv[1] if len(sys.argv) > 1 else None)
 
+
+def ensure_parts():
+    """필요한 부품이 없으면 이 파이썬에 바로 설치한다 (pygame은 최신 파이썬도 되는 pygame-ce로)."""
+    import importlib, subprocess, site
+    need = []
+    for mod, pkg in [('unicorn', 'unicorn'), ('elftools', 'pyelftools'), ('PIL', 'pillow'), ('pygame', 'pygame-ce')]:
+        try:
+            importlib.import_module(mod)
+        except ImportError:
+            need.append(pkg)
+    if not need:
+        return
+    print('필요한 부품을 설치합니다 (처음 한 번, 1~2분):', ', '.join(need))
+    r = subprocess.call([sys.executable, '-m', 'pip', 'install', '--user', '--disable-pip-version-check', *need])
+    if r != 0:
+        r = subprocess.call([sys.executable, '-m', 'pip', 'install', '--disable-pip-version-check', *need])
+    if r != 0:
+        input('부품 설치에 실패했습니다. 인터넷 연결을 확인하거나 python.org에서 Python 3.12를 설치한 뒤 다시 실행하세요. (Enter)')
+        sys.exit(1)
+    try:
+        site.addsitedir(site.getusersitepackages())
+    except Exception:
+        pass
+    importlib.invalidate_caches()
+
+
+ensure_parts()
+
 import pygame
 from PIL import Image
 from game import Game, screen, BASE, HEAP
