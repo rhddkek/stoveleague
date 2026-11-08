@@ -367,14 +367,15 @@ const HUB={
   dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
   market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();return {core:[['영입 현황',['deals','offers'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']]],
     more:[['협상',[['neg','협상 테이블','열려 있는 협상 대화']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['scout','국내 스카우트','지역 유망주 · FA · 타 구단 보고서'],['youth','유소년','유소년 선수 육성']]]]};},
-  league:()=>({core:[['순위',['table']],['일정',['sched']],['기록실',['rec']]],
+  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']]],
     more:[['기록',[['hist','역대','시즌별 우승 · 순위 · 시상'],['hof','명예의 전당','헌액 선수 · 현역 후보'],['ach','도전과제','달성 기록']]],['리그',[['fut','2군 리그','퓨처스 순위 · 일정'],['events','올스타전','올스타 투표 · 경기'],['overseas','해외','해외 리그 순위 · 우리 출신 선수']]]]}),
   club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']]],
     more:[['구단',[['fac','시설','훈련장 · 구장 · 의료 시설'],['pres','구단 위상','명문 · 인기 · 팬'],['spon','스폰서·광고','스폰서 계약 · 선수 광고'],['alumni','옛 제자','떠난 선수들의 이후']]],['설정',[['look','꾸미기','애칭 · 색 · 엠블럼'],['data','설정·저장','저장 칸 · 백업 · 설정']]]]})};
 function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.flatMap(c=>c[1]).concat(H.more.flatMap(g=>g[1].map(x=>x[0])));if(!all.includes(cur))ui.sub[key]=H.core[0][1][0];const c0=ui.sub[key];
   ui.hubLast=ui.hubLast||{};const core=H.core.map((c,i)=>{const on=c[1].includes(c0);if(on)ui.hubLast[key+i]=c0;const go=on?c0:(ui.hubLast[key+i]||c[1][0]);return `<button class="${on?'on':''}" onclick="UI.setSub('${key}','${go}')">${c[0]}${c[3]?` <i class="hbd">${c[3]}</i>`:''}</button>`;}).join('');
   const mi=H.more.flatMap(g=>g[1]).find(x=>x[0]===c0);const mb=H.more.flatMap(g=>g[1]).reduce((a,x)=>a+(x[3]||0),0);
-  let h=`<div class="subtabs htabs" data-k="${key}">${core}${H.more.length?`<button class="${mi?'on':''} hmore" onclick="UI.hubMenu('${key}')">${mi?esc(mi[1])+' ▾':'더보기 ▾'}${!mi&&mb?' <i class="hdot"></i>':''}</button>`:''}</div>`;
+  // v85: 「더보기 ▾」 안에 숨어 있던 메뉴를 아래 줄 탭으로 꺼냄 (한 번에 보이게)
+  let h=`<div class="subtabs htabs" data-k="${key}">${core}</div>${H.more.length?`<div class="htabs2">${H.more.flatMap(g=>g[1]).map(x=>`<button class="${x[0]===c0?'on':''}" onclick="UI.setSub('${key}','${x[0]}')">${esc(x[1])}${x[3]?' <i class="hdot"></i>':''}</button>`).join('')}</div>`:''}`;
   const cc=H.core.find(c=>c[1].includes(c0));if(cc&&cc[2])h+=`<div class="seg hseg">${cc[1].map((k,i)=>`<button class="${k===c0?'on':''}" onclick="UI.setSub('${key}','${k}')">${cc[2][i]}</button>`).join('')}</div>`;
   return h;}
 function hubMenu(key){const H=HUB[key]();const c0=ui.sub[key];const T={roster:'선수단',market:'영입',league:'리그',club:'구단'}[key];
@@ -817,6 +818,8 @@ function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const 
   else if(!tickerItems().length)T.push({k:'news',ic:'📰',t:'소식',v:'',s:n0?n0.text:'아직 소식이 없습니다'});
   {const b=SL.jobBoard();if(b.list.length)T.push({k:'jobs',ic:'💼',t:'구직·구인',v:`${b.list.length}곳`,s:`감독 구하는 구단 · 내 평판 ${b.rep} (${b.grade})`});}
   {const M=SL.myPlayers(4);if(M.length){const x=M[0];const c=x.p.cur;T.splice(guideOn()?2:1,0,{k:'mine',ic:'⭐',t:'내 선수',v:`${M.length}명`,s:`${x.p.name} ${x.up?`${SL.ATTR_KO[x.up.k]} +${x.up.d}`:''}${x.ev?' · '+x.ev.line:SL.isPitcher(x.p)?'':c.ab?` · 타율 ${(c.h/c.ab).toFixed(3).replace(/^0/,'')}`:''}`,hot:!!x.up});}}
+  // v85: 타일은 6개까지(2×3 / 3×2로 딱 맞게) — 넘치면 이야기 → 성장 점검 순으로 뺌 (각자 탭에서 볼 수 있음)
+  for(const k of ['story','growth','news']){if(T.length<=6)break;const i=T.findIndex(x=>x.k===k&&!x.hot);if(i>=0)T.splice(i,1);}
   return `<div class="tiles${T.length>=5?' t3':''}">${T.map(x=>`<button class="tile${x.hot?' hot':''}" onclick="UI.sheet('${x.k}')"><div class="th"><span>${x.ic} ${x.t}</span>${x.v?`<b>${esc(x.v)}</b>`:''}</div><div class="ts">${esc(x.s)}</div></button>`).join('')}</div>`;}
 function sheetHtml(k){const ut=SL.userTeam();switch(k){
   case 'result':{const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;return hasRep?reportCard(ui.weekReport):ui.gameResult?resultCard(ui.gameResult):'';}

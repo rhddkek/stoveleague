@@ -1,0 +1,16 @@
+// v85 (R069): 「더보기」 메뉴 → 아래 줄 탭 · 성장정보(목록+능력 막대) · 팀정보(지표+리그 순위) · 예산관리(전환 칸)
+const {chromium}=require('playwright');const path=require('path');
+(async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
+  const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));
+  await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
+  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(20);UI.closeModal();});
+  {const r=await p.evaluate(()=>{const out={};for(const t of ['market','league','club']){UI.setTab(t);out[t]=[...document.querySelectorAll('.htabs2 button')].map(x=>x.textContent.trim());out[t+'More']=!!document.querySelector('.hmore');}UI.setTab('market');const d=[...document.querySelectorAll('.htabs2 button')].find(x=>/드래프트/.test(x.textContent));d.click();out.draftOn=!!document.querySelector('.htabs2 button.on')&&/드래프트/.test(document.querySelector('.htabs2 button.on').textContent);return out;});
+    r.market.join(',')==='협상 테이블,드래프트,국내 스카우트,유소년'&&!r.marketMore&&!r.leagueMore&&!r.clubMore&&r.draftOn&&r.league.length>=6&&r.club.length>=6?ok(`이적 「···」 → 아래 줄 탭: ${r.market.join(' · ')} (리그 ${r.league.length}개 · 구단 ${r.club.length}개도) · 누르면 그 탭 켜짐`):bad('아래 줄 탭 '+JSON.stringify(r));}
+  {const r=await p.evaluate(()=>{UI.go('dev','train');UI.set('trV','info');const rows=document.querySelectorAll('.gi .eql button').length;const bars=document.querySelectorAll('.gib .gir').length;const sel=SL.userTeam().roster.map(id=>SL.state().players[id]).filter(p=>!SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];const v=+document.querySelector('.gir b').textContent;UI.giSide('P');const rowsP=document.querySelectorAll('.gi .eql button').length;return {rows,bars,v,exp:Math.round(sel.attrs[SL.BAT_KEYS[0]]),rowsP};});
+    r.rows>5&&r.bars===6&&r.v===r.exp&&r.rowsP>5?ok(`성장정보: 왼쪽 타자 ${r.rows}명 · 오른쪽 능력 막대 ${r.bars}개(값 = 실제 능력) · 투수 ${r.rowsP}명`):bad('성장정보 '+JSON.stringify(r));}
+  {const r=await p.evaluate(()=>{UI.go('league','team');const t=[...document.querySelectorAll('.tit tr')].map(tr=>tr.innerText.replace(/\s+/g,' '));const ut=SL.userTeam();let ab=0,h=0;for(const id of ut.roster){const c=SL.state().players[id].cur;if(c){ab+=c.ab||0;h+=c.h||0;}}return {t,avg:(h/ab).toFixed(3).replace(/^0/,'')};});
+    r.t.length===7&&r.t[0].includes(r.avg)&&r.t.every(x=>/리그 \d+위/.test(x))?ok(`팀정보: ${r.t.slice(0,3).join(' / ')} … (타율 = 선수 기록 합)`):bad('팀정보 '+JSON.stringify(r));}
+  {const r=await p.evaluate(()=>{UI.go('club','fin');const box=document.querySelector('.bbox');if(!box)return {box:false};const I0=SL.budgetInfo();UI.bsSet('bsN',2);UI.bShiftN(1,2);const I1=SL.budgetInfo();return {box:true,dx:I0.xfer-I1.xfer,dw:I1.wage-I0.wage};});
+    r.box&&r.dx===60000&&r.dw===20000?ok('예산관리: 이적 → 연봉 2번 = 이적 6억 줄고 연봉 2억 늘어남 (전환 전 잔액 → 전환 뒤 미리 보기)'):bad('예산관리 '+JSON.stringify(r));}
+  errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
+  await b.close();console.log(fails?`v85 화면 검사 실패 ${fails}건`:'v85 화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

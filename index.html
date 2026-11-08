@@ -1319,6 +1319,14 @@ body{padding-top:env(safe-area-inset-top,0px)}#app{min-height:calc(100vh - env(s
 .stvmenu .eqcost{display:grid;grid-template-columns:1fr auto;gap:4px 10px;background:rgba(0,0,0,.25);border-radius:8px;padding:8px 12px;margin:6px 0;font-size:13px}.stvmenu .eqcost b{text-align:right;color:#ffd166}
 .stv .eql button{height:auto!important;flex:none;line-height:1.3;white-space:nowrap;overflow:hidden}.stv .eql button span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:700}
 .stv .eql .ptg,.stv .co .ptg{background:#3b5a8c;color:#fff}.stv .eql .ptg.sp{background:var(--orange)}.stv .eql .ptg.cl{background:var(--red)}
+/* v85 (R069): 더보기 → 아래 줄 탭 · 성장정보 · 팀정보 · 예산관리 */
+.htabs2{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:4px 0 6px;margin:-2px 0 6px}.htabs2::-webkit-scrollbar{display:none}.htabs2 button{flex:none;font-size:12px;padding:4px 10px;min-height:0;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-weight:700;white-space:nowrap}.htabs2 button.on{background:var(--navy);color:var(--card);border-color:var(--navy)}.htabs2 .hdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--orange);vertical-align:2px}
+.stv .gi .eql{max-height:520px}.stv .gih{display:flex;gap:8px;align-items:center}.stv .gih b{display:block;font-size:15px}.stv .gih small{display:block;font-size:11px;opacity:.8}
+.stv .gib{background:rgba(0,0,0,.25);border-radius:8px;padding:6px 8px;margin-top:6px}.stv .gibh{display:flex;align-items:baseline;gap:6px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;margin-bottom:4px}.stv .gibh b{font-size:18px;color:#ffd166}.stv .gir{display:grid;grid-template-columns:44px 1fr 24px 26px;align-items:center;gap:4px;font-size:12px;padding:1px 0}.stv .gir i{height:7px;background:rgba(255,255,255,.12);border-radius:4px;overflow:hidden}.stv .gir s{display:block;height:100%;background:#f39c12;text-decoration:none}.stv .gir b{text-align:right}.stv .gir em,.stv .gibh em,.stv .eql em{font-style:normal;font-size:11px}
+.stv .tih{display:flex;gap:10px;align-items:center;padding:8px 4px}.stv .tih b{display:block;font-size:16px}.stv .tih small{display:block;font-size:12px;opacity:.8}.stv .tit td{padding:7px 8px}
+.stv.bbox{margin-bottom:10px}.stv .bstep{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px}.stv .bstep button{min-height:0;padding:2px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:inherit}.stv .bstep b{font-size:18px;color:#ffd166;min-width:20px;text-align:center}.stv .bstep small{margin-left:auto;opacity:.8}
+.stv .eqr .stvact{display:flex}.stv .eqr .stvact button{flex:1;writing-mode:horizontal-tb;white-space:nowrap}
+@media (max-width:600px) and (max-height:700px){.tiles.t3 .tile{min-height:48px;padding:6px 7px}.tiles.t3 .tile .ts{-webkit-line-clamp:1}.today.cmp .tdband{padding:4px 12px}.rbanner{padding:7px 12px;margin-bottom:6px}}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -1329,7 +1337,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v84';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v85';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -4805,14 +4813,15 @@ const HUB={
   dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
   market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();return {core:[['영입 현황',['deals','offers'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']]],
     more:[['협상',[['neg','협상 테이블','열려 있는 협상 대화']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['scout','국내 스카우트','지역 유망주 · FA · 타 구단 보고서'],['youth','유소년','유소년 선수 육성']]]]};},
-  league:()=>({core:[['순위',['table']],['일정',['sched']],['기록실',['rec']]],
+  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']]],
     more:[['기록',[['hist','역대','시즌별 우승 · 순위 · 시상'],['hof','명예의 전당','헌액 선수 · 현역 후보'],['ach','도전과제','달성 기록']]],['리그',[['fut','2군 리그','퓨처스 순위 · 일정'],['events','올스타전','올스타 투표 · 경기'],['overseas','해외','해외 리그 순위 · 우리 출신 선수']]]]}),
   club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']]],
     more:[['구단',[['fac','시설','훈련장 · 구장 · 의료 시설'],['pres','구단 위상','명문 · 인기 · 팬'],['spon','스폰서·광고','스폰서 계약 · 선수 광고'],['alumni','옛 제자','떠난 선수들의 이후']]],['설정',[['look','꾸미기','애칭 · 색 · 엠블럼'],['data','설정·저장','저장 칸 · 백업 · 설정']]]]})};
 function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.flatMap(c=>c[1]).concat(H.more.flatMap(g=>g[1].map(x=>x[0])));if(!all.includes(cur))ui.sub[key]=H.core[0][1][0];const c0=ui.sub[key];
   ui.hubLast=ui.hubLast||{};const core=H.core.map((c,i)=>{const on=c[1].includes(c0);if(on)ui.hubLast[key+i]=c0;const go=on?c0:(ui.hubLast[key+i]||c[1][0]);return `<button class="${on?'on':''}" onclick="UI.setSub('${key}','${go}')">${c[0]}${c[3]?` <i class="hbd">${c[3]}</i>`:''}</button>`;}).join('');
   const mi=H.more.flatMap(g=>g[1]).find(x=>x[0]===c0);const mb=H.more.flatMap(g=>g[1]).reduce((a,x)=>a+(x[3]||0),0);
-  let h=`<div class="subtabs htabs" data-k="${key}">${core}${H.more.length?`<button class="${mi?'on':''} hmore" onclick="UI.hubMenu('${key}')">${mi?esc(mi[1])+' ▾':'더보기 ▾'}${!mi&&mb?' <i class="hdot"></i>':''}</button>`:''}</div>`;
+  // v85: 「더보기 ▾」 안에 숨어 있던 메뉴를 아래 줄 탭으로 꺼냄 (한 번에 보이게)
+  let h=`<div class="subtabs htabs" data-k="${key}">${core}</div>${H.more.length?`<div class="htabs2">${H.more.flatMap(g=>g[1]).map(x=>`<button class="${x[0]===c0?'on':''}" onclick="UI.setSub('${key}','${x[0]}')">${esc(x[1])}${x[3]?' <i class="hdot"></i>':''}</button>`).join('')}</div>`:''}`;
   const cc=H.core.find(c=>c[1].includes(c0));if(cc&&cc[2])h+=`<div class="seg hseg">${cc[1].map((k,i)=>`<button class="${k===c0?'on':''}" onclick="UI.setSub('${key}','${k}')">${cc[2][i]}</button>`).join('')}</div>`;
   return h;}
 function hubMenu(key){const H=HUB[key]();const c0=ui.sub[key];const T={roster:'선수단',market:'영입',league:'리그',club:'구단'}[key];
@@ -5255,6 +5264,8 @@ function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const 
   else if(!tickerItems().length)T.push({k:'news',ic:'📰',t:'소식',v:'',s:n0?n0.text:'아직 소식이 없습니다'});
   {const b=SL.jobBoard();if(b.list.length)T.push({k:'jobs',ic:'💼',t:'구직·구인',v:`${b.list.length}곳`,s:`감독 구하는 구단 · 내 평판 ${b.rep} (${b.grade})`});}
   {const M=SL.myPlayers(4);if(M.length){const x=M[0];const c=x.p.cur;T.splice(guideOn()?2:1,0,{k:'mine',ic:'⭐',t:'내 선수',v:`${M.length}명`,s:`${x.p.name} ${x.up?`${SL.ATTR_KO[x.up.k]} +${x.up.d}`:''}${x.ev?' · '+x.ev.line:SL.isPitcher(x.p)?'':c.ab?` · 타율 ${(c.h/c.ab).toFixed(3).replace(/^0/,'')}`:''}`,hot:!!x.up});}}
+  // v85: 타일은 6개까지(2×3 / 3×2로 딱 맞게) — 넘치면 이야기 → 성장 점검 순으로 뺌 (각자 탭에서 볼 수 있음)
+  for(const k of ['story','growth','news']){if(T.length<=6)break;const i=T.findIndex(x=>x.k===k&&!x.hot);if(i>=0)T.splice(i,1);}
   return `<div class="tiles${T.length>=5?' t3':''}">${T.map(x=>`<button class="tile${x.hot?' hot':''}" onclick="UI.sheet('${x.k}')"><div class="th"><span>${x.ic} ${x.t}</span>${x.v?`<b>${esc(x.v)}</b>`:''}</div><div class="ts">${esc(x.s)}</div></button>`).join('')}</div>`;}
 function sheetHtml(k){const ut=SL.userTeam();switch(k){
   case 'result':{const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;return hasRep?reportCard(ui.weekReport):ui.gameResult?resultCard(ui.gameResult):'';}
@@ -5612,7 +5623,7 @@ function renderMarket0(){
 
 // ---------- 구단 ----------
 const LEAGUE_SUBS=[['table','순위'],['sched','일정'],['fut','2군 리그'],['rec','기록실'],['hof','명예의 전당'],['events','올스타전'],['ach','도전과제'],['overseas','해외 리그'],['hist','역대']];
-function renderLeague(){let h=hubTabs('league');const sb=ui.sub.league;if(sb==='events')return h+renderEvents();if(sb==='hof')return h+renderHof();if(sb==='fut')return h+renderFutures();if(sb==='ach')return h+renderAch();return h+renderClub(sb);}
+function renderLeague0(){let h=hubTabs('league');const sb=ui.sub.league;if(sb==='events')return h+renderEvents();if(sb==='hof')return h+renderHof();if(sb==='fut')return h+renderFutures();if(sb==='ach')return h+renderAch();return h+renderClub(sb);}
 function renderClub0(forced){
   const ut=SL.userTeam();if(!forced&&['table','rec','sched','overseas','hist'].includes(ui.sub.club))ui.sub.club='mgr';let h=forced?'':hubTabs('club');const sb=forced||ui.sub.club;
   if(sb==='look'){h+=renderLook(ut);return h;}
@@ -6662,7 +6673,7 @@ function renderProspectMock(ut){const f=ui.prF=ui.prF||{pos:'all',grp:'all'};con
       ${mkSec('육성 진행도',`최근 ${pts.length}회 점검`)}${chart}
       <div class="sg2"><div>${mkSec('2군 시즌 성적','최근')}<table class="mkt mini"><thead><tr><th>시즌</th>${isP?'<th>경기</th><th>이닝</th><th>ERA</th><th>탈삼진</th>':'<th>경기</th><th>타율</th><th>홈런</th><th>타점</th>'}</tr></thead><tbody>${(hasSt(sel.res)?[{s:S.season,st:sel.res}]:[]).concat(rh).slice(0,5).map(x=>{const s=SL.statLine(sel,x.st);return `<tr><td>${mkYear(x.s)}</td>${isP?`<td>${s.g}</td><td>${s.ip}</td><td>${s.era}</td><td>${s.so}</td>`:`<td>${s.g}</td><td>${s.avg}</td><td>${s.hr}</td><td>${s.rbi}</td>`}</tr>`;}).join('')||'<tr><td colspan="5" class="muted">2군 기록 없음</td></tr>'}</tbody></table></div><div>${mkSec('조언')}<div class="advbox"><b>✅ ${res.has(sel.id)?'2군 '+(isP?'선발':'주전')+' 유지':'1군 기용 유지'}</b><ul>${advice.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div><button class="primary big" onclick="UI.openPlayer(${sel.id})">📈 육성 계획 ›</button></div></div></div>`;}
   return h;}
-function renderDev(embed){const ut=SL.userTeam();if(embed)return renderDev0(true);let h=hubTabs('dev');if(!DEV_SUBS.includes(ui.sub.dev))ui.sub.dev='train';if(ui.sub.dev==='equip')return h+`<div class="stv">${renderEquip(ut)}</div>`;if(ui.sub.dev==='train')return h+renderTrainMock(ut);if(ui.sub.dev==='res'){const r=renderReserve(ut);const i=r.indexOf('<div class="grptab">');const j=i>=0?r.indexOf('<div class="mkbtn3">',i):-1;const k=j>=0?r.indexOf('</div>',j)+6:-1;const rest=i>=0&&k>0?r.slice(0,i)+r.slice(k):r;return h+rest+renderProspectMock(ut)+mkBtn2(`<button class="ghost big" onclick="UI.go('league','fut')">🏟 2군 리그 순위·결과</button>`,`<button class="ghost big" onclick="UI.go('roster','list');UI.sqf('grp','R')">👥 2군 명단</button>`);}const inner=renderDev0(false);return inner;}
+function renderDev(embed){const ut=SL.userTeam();if(embed)return renderDev0(true);let h=hubTabs('dev');if(!DEV_SUBS.includes(ui.sub.dev))ui.sub.dev='train';if(ui.sub.dev==='equip')return h+`<div class="stv">${renderEquip(ut)}</div>`;if(ui.sub.dev==='train'){const v=ui.trV||'set';h+=`<div class="seg hseg">${[['set','훈련 설정'],['info','성장정보']].map(x=>`<button class="${v===x[0]?'on':''}" onclick="UI.set('trV','${x[0]}')">${x[1]}</button>`).join('')}</div>`;if(v==='info')return h+`<div class="stv">${renderGrowInfo(ut)}</div>`;}if(ui.sub.dev==='train')return h+renderTrainMock(ut);if(ui.sub.dev==='res'){const r=renderReserve(ut);const i=r.indexOf('<div class="grptab">');const j=i>=0?r.indexOf('<div class="mkbtn3">',i):-1;const k=j>=0?r.indexOf('</div>',j)+6:-1;const rest=i>=0&&k>0?r.slice(0,i)+r.slice(k):r;return h+rest+renderProspectMock(ut)+mkBtn2(`<button class="ghost big" onclick="UI.go('league','fut')">🏟 2군 리그 순위·결과</button>`,`<button class="ghost big" onclick="UI.go('roster','list');UI.sqf('grp','R')">👥 2군 명단</button>`);}const inner=renderDev0(false);return inner;}
 // ---------- 구단 시설과 커리어 (시안 19) ----------
 function renderFacMock(ut){const F=SL.BAL.FACILITY;const sel=ui.facSel||'train';const FD={train:['훈련장','🏟','선수 훈련 효과','훈련 성장률','피로 회복'],youth:['유소년 센터','🎓','유소년 후보 수','육성군 정원','유망주 잠재 보너스'],scout:['스카우트 조직','🔭','보고서 정확도','후보 수','해외 스카우트 지식']};const lv=ut.fac[sel];const tot=Object.values(ut.fac).reduce((a,b)=>a+b,0);const score=Math.round(40+tot/15*60);
   const C=SL.careerStages();const nx=C.next;
@@ -6678,9 +6689,9 @@ function renderFinMock(ut){const I=ut.league==='KR'?SL.budgetInfo():{wage:SL.pay
   const ps=ut.roster.concat(ut.dev).map(id=>S.players[id]).filter(p=>p&&p.contract);const s0=S.phase==='season'?S.season:S.season+1;const rows=[0,1,2].map(i=>{const sal=ps.reduce((a,p)=>a+(p.contract.years>i?p.contract.salary:0),0);return [mkYear(s0+i),sal,ps.filter(p=>p.contract.years>i).length];}).filter(r=>r[2]>0);
   const inc=[['🎟 입장 수입','tickets'],['📺 메인 스폰서','sponsor'],['🤝 광고 · 광고 수수료',null,(x)=>(x.ads||0)+(x.endorse||0)],['🏆 리그 배당 · 지원금',null,x=>(x.dividend||0)+(x.grant||0)],['💱 선수 판매','sales']];const out=[['👥 선수단 연봉 지출','salary'],['🏢 구단 운영비 (시설·육성 등)',null,x=>(x.facility||0)+(x.scout||0)+(x.staff||0)+(x.dispatch||0)+(x.other||0)],['💼 영입·계약금','buys']];
   const val=(x,k,fn)=>fn?fn(x):(x[k]||0);const cmp=(k,fn,neg)=>{if(!pf)return '';const a=val(f,k,fn),b=val(pf,k,fn);if(!b)return '<span class="muted">-</span>';const dd=a-b;if(!dd)return '<span class="muted">→ 동일</span>';const pc=Math.round(dd/b*100);return `<span class="${(neg?dd<=0:dd>=0)?'ok':'o'}">${dd>=0?'▲ +':'▼ '}${Ms(Math.abs(dd))} (${pc>=0?'+':''}${pc}%)</span>`;};
-  let h=`<div class="mkh"><span class="t">구단 재정</span><span class="r small">📅 시즌 ${mkYear()}<br>${d.m}월 ${d.d}일 (${d.w})</span></div>`;
+  let h=budgetBoxHtml(ut)+`<div class="mkh"><span class="t">구단 재정</span><span class="r small">📅 시즌 ${mkYear()}<br>${d.m}월 ${d.d}일 (${d.w})</span></div>`;
   h+=`<div class="fin3"><div><span class="ic">💵</span><small>현금</small><b>${Ms(ut.cash)}</b></div><div><span class="ic">🧢</span><small>연봉예산</small><b>${Ms(I.wage)}</b></div><div><span class="ic">👥</span><small>사용</small><b class="o">${Ms(I.pay)}</b></div></div>`;
-  h+=`<div class="mkcard"><div class="row sb"><b>연봉예산 사용 현황 (${mkYear()}시즌)</b><span class="small">예산 ${Ms(I.wage)} <span class="sep">|</span> 사용 ${Ms(I.pay)} <span class="o">(${pct}%)</span></span></div><div class="usebar"><i style="width:${pct}%">${Ms(I.pay)} (선수단 연봉)</i>${pct<85?`<span>${Ms(Math.max(0,I.wageLeft))}<br><small>(잔여)</small></span>`:''}</div><div class="legend small"><span><i class="g"></i> 선수 연봉 ${Ms(I.pay)} (${pct}%)</span><span><i class="x"></i> 잔여 예산 ${Ms(Math.max(0,I.wageLeft))} (${100-pct}%)</span></div>${ut.league==='KR'?`<div class="row" style="gap:6px;margin-top:8px"><span class="small">이적 예산 ${Ms(I.xfer-I.xferLeft)} / ${Ms(I.xfer)}</span><span class="grow"></span><button class="sm ghost" onclick="UI.bShift(1)">이적 3억 → 연봉 1억</button><button class="sm ghost" onclick="UI.bShift(-1)">연봉 1억 → 이적 3억</button></div>${budgetRuleHtml()}`:''}</div>`;
+  h+=`<div class="mkcard"><div class="row sb"><b>연봉예산 사용 현황 (${mkYear()}시즌)</b><span class="small">예산 ${Ms(I.wage)} <span class="sep">|</span> 사용 ${Ms(I.pay)} <span class="o">(${pct}%)</span></span></div><div class="usebar"><i style="width:${pct}%">${Ms(I.pay)} (선수단 연봉)</i>${pct<85?`<span>${Ms(Math.max(0,I.wageLeft))}<br><small>(잔여)</small></span>`:''}</div><div class="legend small"><span><i class="g"></i> 선수 연봉 ${Ms(I.pay)} (${pct}%)</span><span><i class="x"></i> 잔여 예산 ${Ms(Math.max(0,I.wageLeft))} (${100-pct}%)</span></div>${ut.league==='KR'?`<div class="row" style="gap:6px;margin-top:8px"><span class="small">이적 예산 ${Ms(I.xfer-I.xferLeft)} / ${Ms(I.xfer)}</span><span class="grow"></span></div>${budgetRuleHtml()}`:''}</div>`;
   h+=`<div class="mkcard" style="padding:0">${mkSec('계약상 의무 지출 (확정 기준)','단위: 억 원')}<table class="mkt"><thead><tr><th>시즌</th><th>계약 선수</th><th>연봉 합계</th><th class="hl">보장액 합계</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="tc"><b>${r[0]}</b></td><td class="tc">${r[2]}명</td><td class="tc">${Ms(r[1])}</td><td class="tc hl"><b>${Ms(r[1])}</b></td></tr>`).join('')}</tbody></table></div>`;
   h+=`<div class="mkcard" style="padding:0">${mkSec(`수입 · 지출 현황 (${mkYear()}시즌 누계)`,'단위: 억 원')}<table class="mkt fin"><thead><tr><th class="tn">항목</th><th>금액</th><th>전년 동기 대비</th></tr></thead><tbody>${inc.map(x=>`<tr><td class="tn">${x[0]}</td><td class="tc"><b>${Ms(val(f,x[1],x[2]))}</b></td><td class="tc small">${cmp(x[1],x[2],false)}</td></tr>`).join('')}${out.map(x=>`<tr><td class="tn">${x[0]}</td><td class="tc"><b>${val(f,x[1],x[2])?'-':''}${Ms(val(f,x[1],x[2]))}</b></td><td class="tc small">${cmp(x[1],x[2],true)}</td></tr>`).join('')}</tbody></table></div>`;
   h+=mkBtn2(`<button class="primary big" onclick="UI.go('club','spon')">스폰서 · 수입</button>`,`<button class="ghost big" onclick="UI.go('market','renew')">계약 · 재계약</button>`);return h;}
@@ -7478,6 +7489,40 @@ Object.assign(A,{
   coachHireAsk(id,d){const c=(S.staffPool||[]).find(x=>x.id===id);if(!c)return;const tm=SL.coachTerms(c);modal(`<div class="stvmenu"><div class="mt">${esc(c.name)} 코치 영입</div><div class="small" style="padding:4px 2px 8px">${ui.coachYears||2}년 · 연봉 ${Ms(tm.salary)}/시즌 — 이대로 영입하시겠습니까?</div><button class="primary" onclick="UI.closeModal();UI.hireCoach(${id})">영입</button><button class="ghost" onclick="UI.coachScout('${d}')">아니오</button></div>`);},
   coachMenu(id){const ut=SL.userTeam();const c=(ut.staff||[]).find(x=>x.id===id);if(!c)return;const off=S.phase==='offseason';const sev=SL.severanceOf(c);
     stvMenu(`${esc(c.name)} <small>${esc(SL.BAL.STAFF[c.dept].name)} · ${SL.gradeOf(c.rating)} ${c.rating} · ${c.years>0?c.years+'년 남음 · 연봉 '+Ms(c.salary):'계약 만료 · 요구 '+Ms(SL.renewDemand(c))}</small>`,[c.years<=0?[off?`재계약 ${ui.coachYears||2}년`:'재계약은 스토브리그에',`UI.renewCoach(${id})`,'primary',!off]:null,[`해임${sev?' (보상 '+Ms(sev)+')':''}`,`UI.fireCoach(${id})`,'danger'],[`${esc(SL.BAL.STAFF[c.dept].name)} 후보 보기`,`UI.coachScout('${c.dept}')`]]);}});
+
+// ======================= v85 (R069): EA 2011 성장관리 · 팀정보 · 예산관리 =======================
+// 성장정보 — 왼쪽 선수 목록(시즌 변화) + 오른쪽 상세(연차·연봉 · 능력 막대 + 기준 대비 변화)
+function renderGrowInfo(ut){const f=ui.giF=ui.giF||{side:'B'};const side=f.side;const ps=ut.roster.concat(ut.dev).map(id=>S.players[id]).filter(p=>p&&(side==='P'?SL.isPitcher(p):!SL.isPitcher(p))).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));const sel=ps.find(p=>p.id===f.pid)||ps[0];
+  let h=stvHead('성장정보',`<span class="stvc">${side==='P'?'투수':'타자'} ${ps.length}명</span>`)+stvTabs(side,"UI.giSide");
+  const dl=p=>{const d=SL.seasonDelta(p);return d&&d.d?`<em class="${d.d>0?'ok':'bad'}">${d.d>0?'▲':'▼'}${Math.abs(d.d)}</em>`:'<em class="muted">-</em>';};
+  h+=`<div class="eqman gi"><div class="eql">${ps.map(p=>`<button class="${sel&&p.id===sel.id?'on':''}" onclick="UI.giSel(${p.id})"><span>${esc(p.name)}</span><small>${posChip(p)} ${Math.round(SL.calcOvr(p))} ${dl(p)}</small></button>`).join('')}</div>`;
+  if(sel){const B=SL.growthBase(sel);const keys=SL.isPitcher(sel)?SL.PIT_KEYS:SL.BAT_KEYS;const yrs=(sel.hist||[]).length+1;
+    h+=`<div class="eqr"><div class="gih">${face(sel,44)}<div><b>${esc(sel.name)}</b><small>${sel.pos} · ${sel.age}세 · ${yrs}년차</small><small>연봉 ${Ms(sel.contract?sel.contract.salary:0)}${sel.contract?` · ${sel.contract.years}년 남음`:''}</small></div></div>
+      <div class="gib"><div class="gibh"><span>종합</span><b>${Math.round(SL.calcOvr(sel))}</b>${dl(sel)}</div>${keys.map(k=>{const v=Math.round(sel.attrs[k]||0);const b0=B&&B.attrs?Math.round(B.attrs[k]||0):v;const d=v-b0;return `<div class="gir"><span>${esc(SL.ATTR_KO[k])}</span><i><s style="width:${v}%"></s></i><b>${v}</b><em class="${d>0?'ok':d<0?'bad':'muted'}">${d?((d>0?'+':'')+d):''}</em></div>`;}).join('')}</div>
+      <div class="small muted" style="margin-top:4px">변화 = ${esc(B?B.label||'시즌 시작 대비':'기준 없음')} · 훈련 방향 ${esc((SL.isPitcher(sel)?SL.FOCUS_PIT:SL.FOCUS_BAT)[sel.focus||'balance']||'균형')}</div>
+      <div class="stvact"><button onclick="UI.openPlayer(${sel.id})">선수 상세</button></div></div>`;}
+  return h+`</div>`;}
+// 팀정보 — 우리 팀 지표와 리그 순위 (지금 선수단 기준 + 득실은 구단 기록)
+function teamInfoHtml(){const ut=SL.userTeam();const cp=SL.compOf(ut);const ts=SL.compTeams(cp);
+  const agg=t=>{const o={ab:0,h:0,hr:0,sb:0,bb:0,outs:0,er:0,so:0};for(const id of t.roster){const p=S.players[id];const c=p&&p.cur;if(!c)continue;o.ab+=c.ab||0;o.h+=c.h||0;o.hr+=c.hr||0;o.sb+=c.sb||0;o.bb+=c.bb||0;o.outs+=c.pOuts||0;o.er+=c.pER||0;o.so+=c.pSO||0;}
+    const g=Math.max(1,t.rec.w+t.rec.l+(t.rec.tie||0));return {avg:o.ab?o.h/o.ab:0,era:o.outs?o.er*27/o.outs:0,hr:o.hr,sb:o.sb,so:o.so,rs:(t.rec.rs||0)/g,ra:(t.rec.ra||0)/g};};
+  const A={};for(const t of ts)A[t.id]=agg(t);const rk=(k,asc)=>{const v=ts.map(t=>A[t.id][k]).sort((a,b)=>asc?a-b:b-a);return v.indexOf(A[ut.id][k])+1;};const n=ts.length;const me=A[ut.id];const played=ut.rec.w+ut.rec.l>0;
+  const rows=[['팀 타율',me.avg.toFixed(3).replace(/^0/,''),rk('avg')],['팀 방어율',me.era.toFixed(2),rk('era',true)],['팀 홈런',me.hr+'개',rk('hr')],['팀 도루',me.sb+'개',rk('sb')],['투수 탈삼진',me.so+'개',rk('so')],['경기당 득점',me.rs.toFixed(1),rk('rs')],['경기당 실점',me.ra.toFixed(1),rk('ra',true)]];
+  const st=SL.standings(cp);const r=st.findIndex(t=>t.id===ut.id)+1;
+  return `<div class="stv">${stvHead('팀정보',`<span class="stvc">${esc(SL.compName(cp))}</span>`)}<div class="tih">${emblem(ut,52)}<div><b>${esc(ut.name)}</b><small>${ut.rec.w}승 ${ut.rec.tie||0}무 ${ut.rec.l}패 · ${played?r+'위':'개막 전'}</small><small>구단 자금 ${Ms(ut.cash)}</small></div></div>
+    <table class="stvt nosort tit"><tbody>${rows.map(x=>`<tr><td class="tn">☑ ${x[0]}</td><td><b>${played?x[1]:'-'}</b></td><td class="tr">${played?`리그 <b class="${x[2]<=3?'ok':x[2]>n-3?'bad':''}">${x[2]}위</b>`:'-'}</td></tr>`).join('')}</tbody></table>
+    <div class="stvsub small muted">${n}개 구단 중 순위 · 타율·방어율·홈런·도루·탈삼진은 지금 선수단의 이번 시즌 기록 합, 득점·실점은 구단 경기 기록</div></div>`;}
+function renderLeague(){if(ui.sub.league==='team'){return hubTabs('league')+teamInfoHtml();}return renderLeague0();}
+Object.assign(A,{giSide(s){ui.giF=ui.giF||{};ui.giF.side=s;ui.giF.pid=null;render();},giSel(pid){ui.giF=ui.giF||{side:'B'};ui.giF.pid=pid;ui.keepScroll=true;render();},
+  bShiftN(dir,n){let ok=0,e=null;for(let i=0;i<n;i++){e=SL.budgetShift(dir);if(e)break;ok++;}autosave();toast(ok?`예산 전환 ${ok}번 완료${e?' · '+e:''}`:(e||'전환할 수 없습니다'),3200);ui.bsN=1;render();},
+  bsSet(k,v){ui[k]=v;ui.keepScroll=true;render();}});
+// 예산관리 — 「전환금액 ▲▼ · 바뀐 뒤 잔액」 한 칸 (원작의 볼 → 예산 전환 칸 구성)
+function budgetBoxHtml(ut){if(ut.league!=='KR')return '';const I=SL.budgetInfo();const dir=ui.bsDir||1;const n=Math.max(1,Math.min(3,ui.bsN||1));const B=SL.budget?SL.budget():null;const sh=B?(B.shift||0):0;const left=Math.max(0,dir>0?3-sh:3+sh);
+  const xA=I.xferLeft-(dir>0?30000*n:-30000*n),wA=I.wageLeft+(dir>0?10000*n:-10000*n);
+  return `<div class="stv bbox">${stvHead('예산관리',`<span class="stvc">이 방향 남은 전환 <b>${left}</b>번</span>`)}<div class="stvsort">${[[1,'이적 → 연봉'],[-1,'연봉 → 이적']].map(x=>`<button class="${dir===x[0]?'on':''}" onclick="UI.bsSet('bsDir',${x[0]})">${x[1]}</button>`).join('')}</div>
+    <div class="bstep"><span>전환 횟수</span><button onclick="UI.bsSet('bsN',${Math.max(1,n-1)})">▼</button><b>${n}</b><button onclick="UI.bsSet('bsN',${Math.min(3,n+1)})">▲</button><small>${dir>0?`이적 ${3*n}억 → 연봉 ${n}억`:`연봉 ${n}억 → 이적 ${3*n}억`}</small></div>
+    <div class="eqcost"><span>이적 잔액</span><b>${Ms(Math.max(0,I.xferLeft))} → <span class="${xA<0?'bad':''}">${Ms(xA)}</span></b><span>연봉 여유</span><b>${Ms(I.wageLeft)} → <span class="${wA<0?'bad':''}">${Ms(wA)}</span></b></div>
+    <div class="stvact"><button class="go" ${left?'':'disabled'} onclick="UI.bShiftN(${dir},${Math.min(n,left)})">전환</button></div></div>`;}
 
 return A;
 })();
