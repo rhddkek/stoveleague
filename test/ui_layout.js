@@ -130,8 +130,8 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    let g=0;while(g++<40&&!(await p.evaluate(()=>{const S=SL.state();if(S.phase!=='season')return true;UI.setTab('home');if(SL.userGameToday()){UI.startGame();return !!S.liveGame;}UI.autoDays(1);return false;})));
    if(await p.evaluate(()=>!!SL.state().liveGame)){
     for(const W of [360,390,1280]){await p.setViewportSize({width:W,height:W>1000?820:740});await p.evaluate(()=>{UI.set('stepMode','pa');UI.step('pa');});await p.waitForTimeout(80);
-     const c=await p.evaluate(()=>({sb:!!document.querySelector('.cmsb .out b'),dia:!!document.querySelector('.cmf .dia'),td:document.querySelectorAll('.cmtoday .td').length,bar:document.querySelectorAll('.cmbar button').length,tag:!!document.querySelector('.ntag.tb'),res:!!document.querySelector('.cmres .big')||!!document.querySelector('.cmint')}));
-     c.sb&&c.dia&&c.td===2&&c.bar===3&&c.tag?ok(`감독모드 ${W}px: 점수판·다이아몬드·타자 이름표·TODAY 2칸·작전지시/대결정보/선수교체`):bad('감독모드 '+W+' '+JSON.stringify(c));await over('감독모드 '+W);}
+     const c=await p.evaluate(()=>({sb:document.querySelectorAll('.cmsb .bs i').length===7&&!!document.querySelector('.cmlsw .cmls'),dia:!!document.querySelector('.cmf .dia'),td:document.querySelectorAll('.cmtoday .td').length,bar:document.querySelectorAll('.cmbar button').length,tag:!!document.querySelector('.ntag.tb'),res:!!document.querySelector('.cmres .big')||!!document.querySelector('.cmint')}));
+     c.sb&&c.dia&&c.td===2&&c.bar===4&&c.tag?ok(`감독모드 ${W}px: 점수판(B·S·O 불빛)·이닝 점수표(R H E B)·다이아몬드·타자 이름표·TODAY 2칸·하단 4칸`):bad('감독모드 '+W+' '+JSON.stringify(c));await over('감독모드 '+W);}
     await p.setViewportSize({width:360,height:740});
     const it=await p.evaluate(()=>{let g=0;while(g++<60&&!document.querySelector('.cmint')){if(SL.state().liveGame.done)break;UI.step('pa');}return {i:!!document.querySelector('.cmint'),t:document.querySelector('.cmv')?document.querySelector('.cmv').innerText:''};});
     it.i&&/타순정보/.test(it.t)&&/투수정보/.test(it.t)&&/시뮬레이션/.test(it.t)?ok('공수교대 화면: 점수표 · 타순정보(다음 3명) · 투수정보 · 감독모드/시뮬레이션/경기 끝까지'):bad('공수교대 화면 '+it.i);await over('공수교대 화면');

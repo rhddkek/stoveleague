@@ -1108,7 +1108,7 @@ details.more{margin:0 0 10px;border:1px dashed var(--line);border-radius:10px;pa
 .cmsb .tm{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.cmsb .tm i{width:13px;height:13px;border-radius:2px;display:inline-block}.cmsb .tm b{font-size:18px;margin-left:3px}.cmsb .tm em{font-style:normal;font-size:9px;background:var(--cmgold);color:#111;border-radius:3px;padding:0 3px}.cmsb .tm.atk{color:var(--cmgold)}
 .cmsb .inn{color:var(--cmor);margin-left:auto;white-space:nowrap}.cmsb .bs{display:inline-flex;align-items:center;gap:2px}.cmsb .bs small{font-size:10px;color:#9aa6bd;margin:0 2px 0 4px}.cmsb .bs i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-block}.cmsb .bs i.g{background:#42d17a}.cmsb .bs i.y{background:#f4c542}
 .cmsb .out{display:inline-flex;align-items:center;gap:3px;letter-spacing:.5px;white-space:nowrap}.cmsb .out b{background:#b3261e;color:#fff;border-radius:3px;padding:0 5px;font-size:15px}
-.cmfield{margin-top:8px}.cmf{position:relative;height:340px;border-radius:12px;overflow:hidden;border:1px solid var(--cmln);background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,.05) 26px 52px),radial-gradient(ellipse at 50% 110%,#2f6b35,#1d4a26 55%,#163a1f)}
+.cmfield{margin-top:8px}.cmf{position:relative;height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--cmln);background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,.05) 26px 52px),radial-gradient(ellipse at 50% 110%,#2f6b35,#1d4a26 55%,#163a1f)}
 .cmf .dirt{position:absolute;left:50%;top:68%;width:200px;height:200px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(150,105,62,.55),rgba(120,82,48,.35) 60%,transparent 72%)}
 .cmf .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;filter:saturate(.8)}.cmf::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,rgba(0,0,0,.05),rgba(0,0,0,.55));pointer-events:none}
 .dia{position:absolute;left:50%;top:68%;width:100px;height:100px;transform:translate(-50%,-50%) rotate(45deg);border:2px solid rgba(255,255,255,.75);z-index:1}
@@ -1144,3 +1144,12 @@ details.more{margin:0 0 10px;border:1px dashed var(--line);border-radius:10px;pa
 
 .dia .bat{display:none}
 @media (max-width:400px){.cmsb{gap:6px;font-size:13.5px}.cmsb .tm b{font-size:16px}.cmsb .bs small{margin-left:2px}.cmsb .out b{font-size:13px}.cmt{font-size:21px}}
+
+/* v75: 이닝 점수표(R H E B) · O 불빛 · 하단 4칸 · 시즌 성적 · 라인업 */
+.cmsb .bs i.r{background:#ff4d4d}.cmsb .inn{font-size:14px}
+.cmlsw .cmls{margin-top:6px;font-size:12px}.cmlsw .cmls th,.cmlsw .cmls td{padding:2px 1px}.cmls th:nth-last-child(-n+4),.cmls td:nth-last-child(-n+4){color:#fff}.cmls th:nth-last-child(4){border-left:1px solid rgba(255,255,255,.2)}
+.cmbar{grid-template-columns:repeat(4,1fr)}.cmbar button{font-size:13.5px;padding:0 2px}
+.tdn small{font-size:11px;color:#c9d2e3;font-weight:600}
+.lu2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.lu{border-top:3px solid var(--c);background:var(--sunk);border-radius:8px;padding:4px;min-width:0}.luh{font-weight:900;font-size:13px;padding:2px 4px}.luh em{font-style:normal;font-size:9px;background:var(--gold);color:#111;border-radius:3px;padding:0 3px}
+.lur{display:grid;grid-template-columns:16px 26px 1fr;align-items:baseline;gap:0 3px;padding:3px 4px;border-radius:5px;font-size:12.5px;cursor:pointer;min-width:0}.lur .no{color:var(--muted);font-size:11px}.lur em{font-style:normal;color:var(--orange-ink);font-weight:800;font-size:11px}.lur b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lur small{grid-column:3;color:var(--muted);font-size:11px}.lur.on{background:var(--gold);color:#111}.lur.on small,.lur.on .no{color:#111}.lur.pit{border-top:1px dashed var(--line);margin-top:2px}
+@media (max-height:760px){.cmf{height:292px}}
