@@ -802,16 +802,87 @@ function dots(n,max,c){return Array.from({length:max},(_,i)=>`<i class="${i<n?c:
 function cmBig(lp){return /희생플라이/.test(lp.text)?'희생플라이':/내야안타/.test(lp.text)?'내야안타':lp.type==='so'?(/헛스윙/.test(lp.text)?'헛스윙 삼진':'루킹 삼진'):{hr:/만루/.test(lp.text)?'만루 홈런':'홈런',bb:'볼넷',walk:'볼넷',hbp:'몸에 맞는 공','1b':'안타','2b':'2루타','3b':'3루타',dp:'병살',go:'땅볼',fo:'뜬공',sb:'도루 성공',cs:'도루 실패',sf:'희생플라이',e:'실책 출루',sac:'희생 번트'}[lp.type]||'';}
 function cmPosKo(t){const m=t.match(/(투수|포수|1루수|2루수|3루수|유격수|좌익수|중견수|우익수)/);return m?m[1]:'';}
 // 가운데: 구장 + 다이아몬드 + 이름표 + 방금 결과(반투명)
-function cmField(lg,my,B,P){const bs=lg.bases;const bt=lg.half===1?S.teams[lg.home]:S.teams[lg.away];const ft=lg.half===1?S.teams[lg.away]:S.teams[lg.home];const bg=ART&&ART.stadiumGame;
+// v86 (R070): 위에서 내려다본 구장 그림 — 수비수 9명 · 주자 · 타자 자리 + 방금 타구가 날아간 길(공·송구) + 주자 달리기 + 스트라이크 존(이번 타석 투구). 그림은 엔진 기록(lg.fx·lg.pz)만 따름
+const FX_W=360,FX_H=314,FX_HM=[180,290],FX_BS=[[230,240],[180,190],[130,240]],FX_M=[180,243];
+const FX_POS={P:[180,243],C:[180,302],'1B':[234,222],'2B':[210,184],SS:[150,184],'3B':[126,222],LF:[88,138],CF:[180,104],RF:[272,138]};
+function fxPt(a,r){const t=a*Math.PI/180;return [Math.round(FX_HM[0]+r*Math.sin(t)),Math.round(FX_HM[1]-r*Math.cos(t))];}
+function fxPol(p){const dx=p[0]-FX_HM[0],dy=FX_HM[1]-p[1];return [Math.atan2(dx,dy)*180/Math.PI,Math.hypot(dx,dy)];}
+function inkOf(c){const m=String(c||'').match(/^#?([0-9a-f]{6})$/i);if(!m)return '#fff';const n=parseInt(m[1],16);const l=(0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255));return l>150?'#111':'#fff';}
+// 타구 길: [공이 가는 점들, 날아가는 공인지, 걸리는 시간] — 병살은 중계 문구와 같은 수비수(좌: 3루수·유격수 / 우: 2루수 / 가운데: 유격수)
+function fxBall(fx){const t=fx.t,sd=fx.sd||'c',r2=fx.r2||0,d=fx.d||0;const H=[FX_HM[0],FX_HM[1]-4];const sgn=sd==='l'?-1:sd==='r'?1:0;
+  if(t==='p'||t==='so'||t==='walk'||t==='bb'||t==='hbp')return {pts:[FX_M,[180,286]],fly:0,dur:.35,pitch:1};
+  if(t==='sb'||t==='cs'){const mv=fxRun(fx).find(m=>m.d!==m.s);return {pts:[FX_POS.C,fxB(mv?Math.min(2,mv.d):1)],fly:0,dur:.45,thr:1};}
+  if(t==='hr'){const a=({l:-30,c:0,r:30})[sd]+(r2-0.5)*16;return {pts:[H,fxPt(a,262)],fly:1,dur:1.1,big:1};}
+  if(t==='3b'){const a=sd==='c'?(r2<.5?-14:14):sgn*(sd==='r'&&r2<.5?43:36);return {pts:[H,fxPt(a,214)],fly:1,dur:.95};}
+  if(t==='2b'){const a=sd==='c'?(d<.5?-6:6):sgn*(r2<.4?43:22);return {pts:[H,fxPt(a,206)],fly:1,dur:.9};}
+  if(t==='1b'){if(fx.inf){const f=FX_POS[sd==='r'?'2B':'SS'];const q=fxPol(f);return {pts:[H,fxPt(q[0],q[1]*.9)],fly:0,dur:.55};}
+    const a=sd==='c'?(r2<.4?-4:4):sgn*(r2<.5?22:33);return {pts:[H,fxPt(a,sd==='c'?150:r2<.5?150:140)],fly:0,dur:.7};}
+  if(t==='go'||t==='dp'||t==='e'||t==='sac'){const gp=t==='dp'?(sd==='l'?(fx.gp==='3B'?'3B':'SS'):sd==='r'?'2B':'SS'):(fx.gp||'SS');const f=FX_POS[gp]||FX_POS.SS;const q=fxPol(f);
+    if(t==='e')return {pts:[H,fxPt(q[0],q[1]*.95),fxPt(q[0]+4,q[1]*1.45)],fly:0,dur:.8};
+    const at=gp==='P'?[180,250]:fxPt(q[0],q[1]*.96);
+    if(t==='dp')return {pts:[H,at,FX_BS[1],FX_BS[0]],fly:0,dur:1.05,thr:1};
+    return {pts:gp==='1B'?[H,at,FX_BS[0]]:[H,at,FX_BS[0]],fly:0,dur:.85,thr:1};}
+  if(t==='fo'||t==='sf'){const fp=fx.fp||'CF';const f=FX_POS[fp]||FX_POS.CF;let p=f;if(fx.deep){const q=fxPol(f);p=fxPt(q[0],208);}return {pts:[H,p],fly:1,dur:.95,catch:1};}
+  return null;}
+// 주자 움직임: 같은 주자가 몇 루에서 몇 루로 (홈=−1 출발, 3=득점). 득점 수만큼 앞 주자부터 홈인, 나머지 사라진 주자는 아웃
+function fxRun(fx){const out=[];const r1=fx.r1||[null,null,null];const gone=[];
+  (fx.r0||[]).forEach((pid,i)=>{if(pid==null)return;const j=r1.indexOf(pid);if(j>=0)out.push({pid,s:i,d:j});else gone.push({pid,s:i});});
+  if(fx.b!=null&&fx.t!=='p'){const j=r1.indexOf(fx.b);if(j>=0)out.push({pid:fx.b,s:-1,d:j});else gone.push({pid:fx.b,s:-1,bat:1});}
+  gone.sort((a,b)=>b.s-a.s);let runs=fx.runs||0;gone.forEach(g=>{if(runs>0){runs--;out.push({pid:g.pid,s:g.s,d:3});}else if(!g.bat||!['so'].includes(fx.t))out.push({pid:g.pid,s:g.s,d:Math.min(3,g.s+1),out:1});});
+  return out;}
+const fxB=i=>i<0||i>=3?FX_HM:FX_BS[i];
+function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(fx0.t!=='p'&&(lg.balls||lg.strikes))?fx0:null;
+  const half=F?F.half:lg.half;const bt=half===1?S.teams[lg.home]:S.teams[lg.away];const ft=half===1?S.teams[lg.away]:S.teams[lg.home];const fs=1-half;
+  const fresh=!!F&&ui.fxSeen!==F.id;if(F)ui.fxSeen=F.id;
   const PA=['1b','2b','3b','hr','so','walk','bb','dp','fo','go','hbp','sf','e','sb','cs','sac'];const lp=[...lg.log].reverse().find(l=>PA.includes(l.type));
-  let h=`<div class="cmf"><i class="dirt"></i><div class="cmdia"><i class="bse b1 ${bs[0]?'on':''}" style="--c:${bt.color}"></i><i class="bse b2 ${bs[1]?'on':''}" style="--c:${bt.color}"></i><i class="bse b3 ${bs[2]?'on':''}" style="--c:${bt.color}"></i><i class="hp"></i><i class="mound" style="--c:${ft.color}"></i><i class="bat" style="--c:${bt.color}"></i></div>`;
-  const tag=(cls,p,k,v,x)=>p?`<div class="ntag ${cls}"><b>${esc(p.name)}</b><span>${k}${Math.round(v)}${x?` · ${esc(x)}`:''}</span></div>`:'';
-  h+=tag('tb',B,'타격',(B.attrs.contact+B.attrs.power)/2,seasonBrief(B,lg).split(' · ')[0]);
-  [['t1',0],['t2',1],['t3',2]].forEach(([c,i])=>{if(bs[i]){const r=S.players[bs[i].pid];if(r)h+=tag(c,r,'주력',r.attrs.speed);}});
+  const BL=F?fxBall(F):null;const bd=BL?BL.dur:0;const ink=inkOf(ft.color),ink2=inkOf(bt.color);
+  let sv=`<svg class="fsv" viewBox="0 0 ${FX_W} ${FX_H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">`;
+  // 구장: 외야 잔디 부채꼴 · 담장 · 내야 흙 · 내야 잔디 · 파울선
+  const pl=fxPt(-45,226),pr=fxPt(45,226);
+  sv+=`<path class="fog" d="M${FX_HM} L${pl} A226,226 0 0 1 ${pr} Z"/><path class="fwall" d="M${pl} A226,226 0 0 1 ${pr}"/>`;
+  {const a=fxPt(-45,128),b=fxPt(45,128);sv+=`<path class="fdirt" d="M${FX_HM} L${a} A128,128 0 0 1 ${b} Z"/>`;}
+  sv+=`<path class="figr" d="M180,${290-12} L${230-10},240 L180,${190+10} L${130+10},240 Z"/><path class="fline" d="M${FX_HM} L${pl} M${FX_HM} L${pr}"/><circle class="fmd" cx="${FX_M[0]}" cy="${FX_M[1]}" r="9"/><circle class="fhm" cx="180" cy="290" r="14"/>`;
+  FX_BS.forEach(b=>sv+=`<rect class="fbase" x="${b[0]-5}" y="${b[1]-5}" width="10" height="10" transform="rotate(45 ${b[0]} ${b[1]})"/>`);sv+=`<path class="fplate" d="M174,286 h12 v4 l-6,5 l-6,-5 z"/>`;
+  // 수비수 9명 (수비 팀 색)
+  const dlu=lg.lineup[fs]||[];const dpos=lg.pos[fs]||{};
+  Object.keys(FX_POS).forEach(k=>{if(k!=='P'&&k!=='C'&&!dlu.some(id=>dpos[id]===k))return;const q=FX_POS[k];sv+=`<g class="fdf"><circle cx="${q[0]}" cy="${q[1]}" r="9" style="fill:${ft.color}"/><text x="${q[0]}" y="${q[1]+3}" style="fill:${ink}">${k}</text></g>`;});
+  // 타구 길 + 공
+  if(BL){const d=BL.pts.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');const last=BL.pts[BL.pts.length-1];const hit=BL.pts[1];
+    if(!BL.pitch)sv+=`<path class="ftrail${BL.fly?' fly':''}" d="M${BL.pts[0]} L${hit}" pathLength="1"${fresh?` style="stroke-dasharray:1;stroke-dashoffset:1"><animate attributeName="stroke-dashoffset" from="1" to="0" dur="${(bd*(BL.pts.length>2?.55:1)).toFixed(2)}s" fill="freeze"/></path>`:'/>'}`;
+    if(BL.pts.length>2)sv+=`<path class="fthrow" d="M${BL.pts.slice(1).map(p=>p.join(',')).join(' L')}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(bd*.5).toFixed(2)}s" dur=".15s" fill="freeze"/></path>`:'/>'}`;
+    if(!BL.pitch)sv+=`<circle class="fland${BL.big?' big':''}" cx="${hit[0]}" cy="${hit[1]}" r="${BL.big?10:7}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(bd*(BL.pts.length>2?.55:1)).toFixed(2)}s" dur=".2s" fill="freeze"/></circle>`:'/>'}`;
+    if(fresh)sv+=`<circle class="fball" r="3.6"><animateMotion dur="${bd}s" fill="freeze" path="${d}"/>${BL.fly?`<animate attributeName="r" values="3.6;${BL.big?9:7};3.6" keyTimes="0;.5;1" dur="${bd}s" fill="freeze"/>`:''}</circle>`;
+    else sv+=`<circle class="fball" r="3.6" cx="${last[0]}" cy="${last[1]}"/>`;
+    if(F.t==='hr')sv+=`<text class="fbig" x="180" y="160"${fresh?` opacity="0"><animate attributeName="opacity" values="0;1;1" keyTimes="0;.3;1" begin="${bd}s" dur=".6s" fill="freeze"/>`:'>'}HOME RUN</text>`;
+    if(F.t==='so')sv+=`<text class="fk" x="206" y="300"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${bd}s" dur=".2s" fill="freeze"/>`:'>'}K</text>`;}
+  // 주자 (공격 팀 색) — 달린 길 따라 움직임
+  const tags=[];const runSp=.32;
+  const moves=F&&F.t!=='p'?fxRun(F):lg.bases.map((x,i)=>x?{pid:x.pid,s:i,d:i}:null).filter(Boolean);
+  moves.forEach(m=>{const pts=[];for(let k=m.s;k<=m.d;k++)pts.push(fxB(k));const end=pts[pts.length-1];const dur=Math.max(.01,(pts.length-1)*runSp);const beg=(BL&&!BL.pitch?bd*.45:.1).toFixed(2);
+    if(m.d>=3||m.out){if(!fresh)return;sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/></circle>`;if(m.d>=3&&!m.out)sv+=`<text class="fsc" x="${FX_HM[0]+22}" y="${FX_HM[1]-14}" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(+beg+dur).toFixed(2)}s" dur=".2s" fill="freeze"/>+1</text>`;return;}
+    if(fresh&&pts.length>1)sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/></circle>`;
+    else sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${end[0]}" cy="${end[1]}"/>`;
+    tags.push({pid:m.pid,b:m.d,late:fresh&&pts.length>1?(+beg+dur):0});});
+  // 타자 (다음 타자가 타석에 섬 — 왼손 타자는 1루 쪽)
+  if(!F||F.half===lg.half){const lh=B&&(B.bats==='L'||(B.bats==='S'&&P&&P.throws==='R'));sv+=`<circle class="fbat" r="7" cx="${lh?196:164}" cy="288" style="fill:${(lg.half===1?S.teams[lg.home]:S.teams[lg.away]).color}"/>`;}
+  sv+=`</svg>`;
+  const pct=(p)=>`left:${(p[0]/FX_W*100).toFixed(1)}%;top:${(p[1]/FX_H*100).toFixed(1)}%`;
+  let h=`<div class="cmf cmf2"><div class="fld">${sv}`;
+  // 주자 이름표
+  const TP=[[256,252],[180,168],[100,252]];
+  tags.forEach(t=>{const r=S.players[t.pid];if(!r)return;h+=`<div class="ftag f${t.b+1}" style="${pct(TP[t.b])}${t.late?`;animation-delay:${t.late.toFixed(2)}s`:''}"${t.late?' data-late="1"':''}><b>${esc(r.name)}</b><span>${Math.round(r.attrs.speed)}</span></div>`;});
+  // 타자 이름표 (왼쪽 아래 파울 지역)
+  if(B&&(!F||F.half===lg.half))h+=`<div class="fbt"><b>${esc(B.name)}</b><span>${lg.bat[lg.half]+1}번 · 타격${Math.round((B.attrs.contact+B.attrs.power)/2)} · ${esc(seasonBrief(B,lg).split(' · ')[0])}</span></div>`;
+  // 스트라이크 존 (오른쪽 아래): 이번 타석 투구 — 없으면 직전 타석
+  {const pz=lg.pz;const cur=pz&&pz.pa===lg.paCount&&pz.l.length;const prev=pz&&pz.pa===lg.paCount-1&&!lg.balls&&!lg.strikes&&F&&F.t!=='p';
+    if(cur||prev){const C={b:'#5ee08f',s:'#f4c542',w:'#ff9f43',f:'#b8c4d6',x:'#5cc8ff'};const L=pz.l;
+      h+=`<div class="fzone" onclick="UI.sheet2('detail')"><small>${cur?`투구 ${L.length}`:'직전 타석'}</small><svg viewBox="0 0 60 70"><rect class="zr" x="15" y="15" width="30" height="40"/><path class="zg" d="M25,15 v40 M35,15 v40 M15,28.3 h30 M15,41.7 h30"/>${L.map((q,i)=>{const x=(15+q[1]*30).toFixed(1),y=(15+q[2]*40).toFixed(1);const lastOne=i===L.length-1;return `<g class="zp${lastOne&&fresh?' nw':''}"><circle cx="${x}" cy="${y}" r="5" style="fill:${C[q[0]]||'#fff'}"/><text x="${x}" y="${(+y+2).toFixed(1)}">${i+1}</text></g>`;}).join('')}</svg></div>`;}}
+  h+=`</div>`;
+  // 방금 결과 (위쪽 띠) — 공이 떨어진 뒤에 나타남
   if(lp&&!lg.balls&&!lg.strikes&&(lp.inn===lg.inn&&lp.half===lg.half||(lg.log.length-lg.log.indexOf(lp))<=3)){const hero=lp.pid!=null?S.players[lp.pid]:null;const ours=lp.half===my;const good=['hr','1b','2b','3b','bb','walk','hbp','sb','e'].includes(lp.type);const tone=good===ours?'adv':'dis';
     let how=String(lp.text||'');if(hero)how=how.replace(new RegExp('^'+hero.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[,\\s]*'),'');const m3=how.match(/\((\d)아웃\)/);how=how.replace(/\s*\(\d아웃\)\s*$/,'');
     const pos=cmPosKo(lp.text);const big=cmBig(lp);const call=playCall(lp,lg);const outs=m3?+m3[1]:(lp.inn===lg.inn&&lp.half===lg.half?lg.outs:3);
-    h+=`<div class="cmres ${tone}" key="r${lg.log.length}" onclick="UI.sheet2('play')">${hero?`<div class="ph">${face(hero,64)}</div>`:''}<div class="ln"><div><b>${hero?esc(hero.name):''}</b></div><div class="big">${esc((pos&&!/홈런|안타|2루타|3루타|볼넷|도루/.test(big)?pos:'')+big)}</div><div>${outs>=3?'3아웃 · 공수교대':`${outs}아웃`}</div></div><div class="cmt2"><span>해설자</span>${esc(call?call.t:how)}</div></div>`;}
+    h+=`<div class="cmres ${tone}${fresh&&bd?' late':''}" key="r${lg.log.length}" onclick="UI.sheet2('play')"${fresh&&bd?` style="animation-delay:${Math.min(1.2,bd+.15).toFixed(2)}s"`:''}>${hero?`<div class="ph">${face(hero,40)}</div>`:''}<div class="ln"><b class="nm">${hero?esc(hero.name):''}</b><b class="big">${esc((pos&&!/홈런|안타|2루타|3루타|볼넷|도루/.test(big)?pos:'')+big)}</b><span class="oc">${outs>=3?'3아웃 · 공수교대':`${outs}아웃`}</span></div><div class="cmt2"><span>해설</span>${esc(call?call.t:how)}</div></div>`;}
   {const cp=ui.cmPitch;if(cp&&cp.pa===lg.paCount&&cp.inn===lg.inn&&cp.half===lg.half&&(lg.balls||lg.strikes))h+=`<div class="cmpitch" key="p${lg.balls}${lg.strikes}">${esc(cp.t)}</div>`;}
   return h+`</div>`;}
 // 아래 TODAY 칸: 그 팀 지금 선수(공격이면 타자, 수비면 투수)

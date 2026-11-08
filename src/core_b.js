@@ -19,7 +19,7 @@ function createGame(homeId,awayId,userGame){
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
 }
-function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(lg.tc){if(type==='e')lg.tc.e[1-lg.half]++;else if(type==='dp')lg.tc.dp[lg.half]++;}if(x){e.pid=x.pid;e.pit=x.pit;if(x.sc0){e.sc0=x.sc0;e.sc1=x.sc1;e.on=x.on;e.o0=x.o0;}}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
+function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};lg.evN=(lg.evN||0)+1;if(lg.tc){if(type==='e')lg.tc.e[1-lg.half]++;else if(type==='dp')lg.tc.dp[lg.half]++;}if(x){e.pid=x.pid;e.pit=x.pit;if(x.sc0){e.sc0=x.sc0;e.sc1=x.sc1;e.on=x.on;e.o0=x.o0;}}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
 function curBatter(lg){return S.players[lg.lineup[lg.half][lg.bat[lg.half]]];}
 function curPitcher(lg){return S.players[lg.pitcher[1-lg.half]];}
 
@@ -38,7 +38,8 @@ function fast(pid){const p=S.players[pid];return p&&p.traits.includes('빠른발
 
 function doPitch(lg){
   if(lg.done)return null;
-  {const st=autoSteal(lg);if(st)return st;}
+  const r0=lg.userGame?lg.bases.map(x=>x?x.pid:null):null,h0=lg.half,i0=lg.inn;
+  {const st=autoSteal(lg);if(st){if(r0)setFx(lg,{t:st.type,r0,r1:st.r1||lg.bases.map(x=>x?x.pid:null),half:h0,inn:i0,runs:0});return st;}}
   const bs=lg.half,fs=1-bs;
   const B=curBatter(lg),P=curPitcher(lg);
   const bb=ensureBox(lg,B.id),pb=ensureBox(lg,P.id);const sc0=lg.score.slice(),on0=lg.bases.map(x=>x?1:0).join(''),o0=lg.outs;
@@ -69,10 +70,18 @@ function doPitch(lg){
   else if(res==='foul'){if(lg.strikes<2)lg.strikes++;ev.text=`파울 ${cnt()}`;}
   else{ev=resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov);ev.paEnd=true;}
   ev.sc0=sc0;ev.on=on0;ev.o0=o0;lg.last=ev;
+  let fx=null;if(r0){recPitch(lg,inZone,res,P,B);if(ev.paEnd){fx={t:ev.type,r0,b:B.id,r1:lg.bases.map(x=>x?x.pid:null),half:h0,inn:i0,runs:lg.score[h0]-sc0[h0],inf:/내야안타/.test(ev.text),o1:lg.outs};if(res==='inplay'){const d=playDir(lg,B);fx.sd=d.side;fx.d=d.r;fx.r2=d.r2;fx.gp=d.gp;fx.fp=d.fp;fx.deep=!!d.deep;}}else fx={t:'p',half:h0,inn:i0,r0,r1:r0};}
   if(ev.paEnd)endPA(lg,ev);
   else glog(lg,ev.text,'p');
+  if(fx)setFx(lg,fx);
   return ev;
 }
+// v86 (R070): 경기 연출용 기록 — 유저 경기에서만, 난수를 쓰지 않음(경기 결과·밸런스 그대로). 투구 위치는 타석·투구 번호로 정한 그림용 값
+function fxHash(a,b,c){let x=(a*2654435761+b*40503+c*97)>>>0;x^=x>>>15;x=Math.imul(x,2246822519)>>>0;x=(x^(x>>>13))>>>0;return (x%10000)/10000;}
+function recPitch(lg,inZone,res,P,B){if(!lg.pz||lg.pz.pa!==lg.paCount)lg.pz={pa:lg.paCount,l:[]};const n=lg.pz.l.length;const h1=fxHash(lg.paCount,n,P.id),h2=fxHash(B.id,n+7,lg.paCount),h3=fxHash(n,lg.paCount,B.id+P.id);
+  let x,y;if(inZone){x=0.1+0.8*h1;y=0.1+0.8*h2;}else{const o=1.12+h3*0.22;const sd=Math.floor(h3*4);if(sd===0){x=-(o-1);y=h2;}else if(sd===1){x=o;y=h2;}else if(sd===2){x=h1;y=-(o-1);}else{x=h1;y=o;}}
+  lg.pz.l.push([{ball:'b',strike:'s',whiff:'w',foul:'f',inplay:'x'}[res]||'b',Math.round(x*100)/100,Math.round(y*100)/100]);}
+function setFx(lg,fx){fx.id=((lg.fx&&lg.fx.id)||0)+1;fx.n=lg.evN||0;lg.fx=fx;}
 function doWalk(lg,B,bb,pb){
   bb.bb++;pb.pBB++;const b=lg.bases,P=lg.pitcher[1-lg.half];
   if(b[0]){if(b[1]){if(b[2])scoreRun(lg,lg.half,b[2],true,bb);b[2]=b[1];}b[1]=b[0];}
@@ -140,7 +149,7 @@ function playDir(lg,B){const P=S.players[lg.pitcher[1-lg.half]];const bats=B.bat
   out.x1=side==='L'?(r2<0.5?'3유간 빠지는 좌전 안타':'좌전 안타'):side==='R'?(r2<0.5?'1·2루간 빠지는 우전 안타':'우전 안타'):(r2<0.4?'투수 옆 빠지는 중전 안타':'중전 안타');
   out.x2=side==='L'?(r2<0.4?'좌익선상 2루타':'좌중간 가르는 2루타'):side==='R'?(r2<0.4?'우익선상 2루타':'우중간 가르는 2루타'):'중견수 키 넘기는 2루타';
   out.x3=side==='L'?'좌중간 깊숙한 3루타':side==='R'?(r2<0.5?'우익선상 3루타':'우중간 깊숙한 3루타'):'가운데 펜스 맞히는 3루타';
-  out.hr=side==='L'?'좌측 담장 넘기는':side==='R'?'우측 담장 넘기는':'가운데 담장 넘기는';return out;}
+  out.hr=side==='L'?'좌측 담장 넘기는':side==='R'?'우측 담장 넘기는':'가운데 담장 넘기는';out.gp=goPos;out.fp=foPos;out.r2=r2;return out;}
 // ---------- 구장 ----------
 // 구단마다 홈구장 규격(좌·중·우 펜스)이 조금씩 다르다. 홈런은 평균보다 최대 ±8%, 2·3루타는 ±4% 정도로만 차이를 둔다 (국내 10개 구장 평균 ≈ 1.00).
 // 규격은 구단 이름에서 정해지는 가상 값이라 저장이 필요 없고 시드와 무관하게 늘 같다 (실제 구장 규격·이름은 쓰지 않음).
