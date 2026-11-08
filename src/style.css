@@ -1225,3 +1225,41 @@ body:has(.gamev) .toast{bottom:auto;top:44%;background:rgba(10,16,30,.88);font-s
 .cmcmp .bar{display:flex;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}.cmcmp .bar.l{justify-content:flex-end}.cmcmp .bar>i{display:block;height:100%;border-radius:4px;transition:width .3s}
 .cmres2+.cmcmp{margin-top:8px}
 @media (max-width:400px){.cmpick>button,.cmpick .sim>button{font-size:14px;word-break:keep-all}.cmpick>button b,.cmpick .sim>button b{white-space:nowrap;letter-spacing:-.3px}}
+/* v79 (R063): 폰에서 선수 상세 간격 줄이기 — 한 화면에 최대한 */
+@media (max-width:600px){
+ .pv .phd{margin:0 0 6px;gap:10px}.pv .phd .pf .av,.pv .phd .pf img,.pv .phd .pf svg{width:70px!important;height:70px!important}.pv .phd .nm{font-size:20px}.pv .phd .no{font-size:11px;padding:1px 5px}
+ .pv .mktabs4{margin-bottom:6px}.pv .mktabs4 button{min-height:34px}
+ .pv .mkcard{padding:7px 12px;margin-bottom:6px}.pv .mkcard:not([style*="padding:0"]):not([style*="padding: 0"])>.mksec{margin:-7px -12px 6px}.pv .mkcard .mkhd{margin-bottom:3px;font-size:12.5px}
+ .pv .kv2{gap:6px}.pv .kv2>div{padding:5px 10px}.pv .stline{margin-top:6px;padding:4px 8px}.pv .stline b{font-size:15px}
+ .pv .arow2{padding:1px 0}.pv .arow2 .mkbar{height:8px}.pv .arow2 b{font-size:13px}
+ .pv .kvt td{padding:3px 2px;font-size:12.5px}
+ .pv .card{padding:9px 12px;margin-bottom:8px}.pv .card .hd{margin-bottom:4px}
+ .pv .mkt td,.pv .mkt th{padding:4px 4px}
+ .pv .mkbtn2{margin:4px 0 8px}.pv .mkbtn2>button{min-height:42px}
+ .pv .sg2{gap:0}
+ .pv .pvbar{min-height:44px}
+}
+@media (max-width:600px){
+ .pv .sg2{grid-template-columns:1fr 1fr;gap:0}.pv .sg2>.mkcard{margin-left:0;margin-right:0}.pv .sg2>.mkcard:first-child{margin-left:-16px;border-right:1px solid var(--line)}.pv .sg2>.mkcard:last-child{margin-right:-16px}
+ .pv .sg2 .arow2>span:first-child{flex-basis:40px;font-size:12px}.pv .sg2 .arow2 b{flex-basis:26px}.pv .sg2 .kvt td{font-size:11.5px;padding:3px 0}.pv .sg2 .kvt td:first-child{width:auto;white-space:nowrap;padding-right:4px}
+ .pv details.fbox{margin:0 0 6px}.pv details.fbox>summary{padding:8px 12px}
+}
+@media (max-width:600px){.pv .abrow{padding:3px 0;gap:8px}.pv .abrow .k{font-size:13px}.pv .abrow b{font-size:14px}.pv .abrow .mkbar{height:10px}.pv .pvcmp{min-height:38px;font-size:13.5px}
+ .pv details.pvf>summary,.pv details.pvg>summary{display:block;border-radius:8px}}
+/* v79 (R063): 이닝 점수표 칸 맞춤 · 경기 끝 화면(수훈선수 · 접는 칸) */
+.cmls{table-layout:fixed}.cmls col.ctn{width:28%}.cmls.xi col.ctn{width:24%}.cmls th.i,.cmls td.i{text-align:center}.cmls th.s,.cmls td.s{text-align:center;color:#fff}.cmls th.s1,.cmls td.s1{border-left:1px solid rgba(255,255,255,.2)}
+.cmls th:nth-last-child(4){border-left:0}.cmls th.s1{border-left:1px solid rgba(255,255,255,.2)}.cmls td.tn{max-width:none}.cmls.xi th.i,.cmls.xi td.i{font-size:11px;letter-spacing:-.5px}
+.cmres2.c1{display:flex;justify-content:space-around;align-items:center;padding:7px 8px;margin:8px 0}.cmres2.c1>div{display:flex;align-items:center;gap:6px;min-width:0}.cmres2.c1 span{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;font-size:12px;font-weight:900;color:#fff}.cmres2.c1 .w{background:#2f6fe0}.cmres2.c1 .l{background:#e0552f}.cmres2.c1 .s{background:#2b9b5b}.cmres2.c1 b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmmvp{background:var(--cmbg);border:1px solid var(--cmln);border-top:3px solid var(--c);border-radius:10px;padding:8px 10px;margin:0 0 10px}.cmmvp .mh{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}.cmmvp .mh span{font-weight:900;color:var(--cmgold);font-size:13px}.cmmvp .mh small{margin-left:auto;font-size:11px;color:#9aa6bd}.cmmvp .mh em{font-style:normal;font-size:9px;background:var(--cmgold);color:#111;border-radius:3px;padding:0 3px}
+.cmmvp .mb{display:flex;gap:10px;align-items:center;cursor:pointer}.cmmvp .mn{font-size:17px;font-weight:900}.cmmvp .mn em{font-style:normal;color:var(--cmgold);font-size:13px}.cmmvp .ml{font-size:13px;color:#dfe6f3;margin-top:2px}
+.cmmvp .mq{margin-top:7px;background:rgba(255,255,255,.06);border-radius:8px;padding:7px 10px;font-size:13px;line-height:1.45;color:#eef2f8}
+.cmfds{margin-top:10px}.cmfd{background:var(--cmbg);border:1px solid var(--cmln);border-radius:10px;margin-bottom:6px;overflow:hidden}.cmfd>summary{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;list-style:none}.cmfd>summary::-webkit-details-marker{display:none}.cmfd>summary::after{content:'▾';margin-left:auto;color:#9aa6bd}.cmfd[open]>summary::after{content:'▴'}.cmfd>summary b{font-size:14px}.cmfd>summary small{font-size:11px;color:#9aa6bd}
+.cmfd>.cmcmp{margin:0;border:0;border-top:1px solid var(--cmln);border-radius:0}.cmfd>.card{margin:0;border-radius:0}.cmfd .card{margin:6px}
+/* v79 (R063): 감독실 타일 — 안쪽 스크롤 칸으로 잘리지 않게, 5개 이상이면 폰에서 3칸 2줄 */
+@media (max-width:600px) and (max-height:800px){.tiles.t3{grid-template-columns:repeat(3,1fr);gap:6px}.tiles.t3 .tile{min-height:54px;padding:7px 8px}.tiles.t3 .tile .th{font-size:12px;flex-wrap:wrap;gap:1px 4px}.tiles.t3 .tile .th b{font-size:12px}.tiles.t3 .tile .ts{font-size:11px;margin-top:2px}}
+@media (max-width:600px){
+ .today.cmp .tdvs{gap:6px}.today.cmp .tdvs .tdn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+ .today.cmp .tdmeta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+ .today.cmp .misl{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px;margin-bottom:6px}.today.cmp .misl::-webkit-scrollbar{display:none}.today.cmp .misl>*{flex:none;white-space:nowrap}.today.cmp .misl .mi{padding:2px 6px}
+}
+@media (max-width:400px){.today.cmp .tdvs .tdn{font-size:14px;letter-spacing:-.3px}.today.cmp .tdvs .av,.today.cmp .tdvs svg,.today.cmp .tdvs img{width:34px!important;height:34px!important}.today.cmp .tdvs .vs{font-size:16px;margin:0}}
