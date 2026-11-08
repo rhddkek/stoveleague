@@ -1363,3 +1363,67 @@ body{padding-top:env(safe-area-inset-top,0px)}#app{min-height:calc(100vh - env(s
 @media (max-height:760px){.cmf2 .fld{width:min(100%,330px)}}
 body:has(.gamev) .toast{top:calc(3px + env(safe-area-inset-top,0px));bottom:auto;font-size:12px;padding:4px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%;border-radius:14px}
 .fithide{display:none!important}
+
+/* v87 (R071): 조작 정리 — 탭 두 줄 · 전체 메뉴(☰ / PC 왼쪽 메뉴) · 촘촘히 보기 · 알림 한 줄 */
+.htabs2.hs{padding-top:2px}
+.htabs2 .sg{font-weight:800;border-color:var(--orange);color:var(--orange);background:transparent}
+.htabs2 .sg.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+.htabs2 .hsep{flex:none;width:1px;align-self:stretch;margin:3px 4px;background:var(--line)}
+.menub{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:42px;min-height:40px;padding:2px 6px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font-size:19px;line-height:1}
+.menub small{font-size:9.5px;margin-top:1px;opacity:.85}
+.mnu input[type=search]{width:100%;font-size:16px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px}
+.mnu .msr{max-height:40vh;overflow:auto;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.msec{padding:6px 0 7px;border-bottom:1px solid var(--line)}.msec:last-of-type{border-bottom:0}
+.msec .mh{display:flex;align-items:center;gap:6px;background:none;border:0;padding:2px 0 4px;min-height:0;color:var(--text);font-size:15px;width:auto}
+.msec .mh svg,.msec .mh .ico{width:18px;height:18px}.msec .mh.on b{color:var(--orange)}
+.msec .mr{display:flex;align-items:baseline;gap:6px;margin:3px 0}
+.msec .ml{flex:none;width:62px;font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msec .mi{display:flex;flex-wrap:wrap;gap:4px}
+.msec .mi button{font-size:13px;padding:5px 10px;min-height:0;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);width:auto}
+.msec .mi button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.msec .mr:not(:has(.ml)) .mi{margin-left:0}
+.msec .mm .ml{color:var(--muted)}
+.mdense{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:14px}.mdense small{color:var(--muted)}
+.toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;top:auto!important;font-size:12.5px!important;padding:5px 14px!important;border-radius:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:94%!important;background:rgba(18,26,44,.92)!important}
+/* PC: 왼쪽 메뉴에 모든 화면 (한 번 눌러 이동) · 아래 6칸 탭은 감춤 */
+@media (min-width:960px){
+  .split.sd3{grid-template-columns:200px minmax(0,1.2fr) minmax(0,.8fr)}
+  .split.sd3 .nav .in{display:none}
+  .side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--navy);color:#e9eef7;padding:10px 10px 14px;border-right:1px solid var(--line);scrollbar-width:thin}
+  .side .msec{border-bottom:1px solid rgba(255,255,255,.1);padding:5px 0 6px}
+  .side .msec .mh{color:#fff;font-size:14px;padding:3px 0}.side .msec .mh.on b{color:#ffb36b}
+  .side .msec .mr{display:block;margin:1px 0 2px}
+  .side .msec .ml{display:block;width:auto;color:#93a3bd;font-size:10.5px;margin:3px 0 1px 2px}
+  .side .msec .mi{gap:3px}.side .msec .mr:not(:has(.ml)) .mi{margin-left:0}
+  .side .msec .mi button{font-size:12px;padding:3px 8px;background:transparent;border-color:rgba(255,255,255,.18);color:#dfe6f2}
+  .side .msec .mi button:hover{border-color:#ffb36b;color:#fff}
+  .side .msec .mi button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+  .side .msec:not(.on) .mr{display:none}
+  .side .msec:not(.on) .mh{opacity:.85}
+  .side .skeys{margin-top:10px;font-size:11px;line-height:1.7;color:#93a3bd}.side kbd{display:inline-block;padding:0 4px;border:1px solid rgba(255,255,255,.3);border-radius:4px;font:inherit;font-size:10.5px;color:#fff}
+  .side .sdense{margin-top:8px;font-size:11.5px;color:#c9d2e3}.side .sdense label{display:flex;align-items:center;gap:6px}.side .sdense input{width:auto;margin:0}
+  .split .toast,body:has(.split) .toast{bottom:44px!important}
+}
+/* 촘촘히 보기: 표 한 줄 높이를 줄여 한 화면에 더 많이 */
+.dense .mkt td,.dense table td{padding-top:3px!important;padding-bottom:3px!important}
+.dense .mkt th,.dense table th{padding-top:4px!important;padding-bottom:4px!important}
+.dense table .av,.dense .mkt .av{width:22px!important;height:22px!important}
+.dense .prow{padding-top:4px!important;padding-bottom:4px!important}.dense .prow .av{width:28px!important;height:28px!important}
+.dense .card{padding-top:10px;padding-bottom:10px}
+body:has(.gamev) .toast{top:calc(3px + env(safe-area-inset-top,0px))!important;bottom:auto!important}
+.pghide{display:none!important}
+.pgtabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 0 8px;padding:2px 0}.pgtabs::-webkit-scrollbar{display:none}
+.pgtabs button{flex:1 0 auto;min-height:0;font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);white-space:nowrap}
+.pgtabs button small{display:inline-block;min-width:15px;height:15px;line-height:15px;border-radius:8px;background:var(--line);color:var(--muted);font-size:10px;margin-right:4px;text-align:center}
+.pgtabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}.pgtabs button.on small{background:var(--orange);color:#fff}
+/* 도전과제: 두 칸 격자 (한 줄 설명) — 42개를 절반 높이로 */
+.achg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.achg .achrow{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:0 6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin:0;align-items:start}
+.achg .achrow .achi{grid-row:span 2}.achg .achrow .grow{min-width:0}.achg .achrow b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.achg .achrow .small.dim{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.achg .achrow>span:last-child{grid-column:2;font-size:10.5px}
+.achg .achrow.got{border-color:var(--orange);background:rgba(240,138,36,.07)}
+@media (min-width:960px){.achg{grid-template-columns:1fr 1fr 1fr}}
+@media (max-width:600px){.dense .rosterq tr>:first-child{display:none}.dense .rosterq td{white-space:nowrap}.dense .rosterq td:last-child{font-size:11.5px}.dense .rosterq td:last-child br{display:none}}
+.dense .mkt.sq tbody td{height:34px}.dense .mkt .ptg.pbtn{min-height:22px;height:22px;padding-top:0;padding-bottom:0}
+.achg .achrow:not(.got)>span:last-child{display:none}.achg .achrow:not(.got){grid-template-rows:auto}
