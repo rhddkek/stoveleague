@@ -818,6 +818,17 @@ function genJobOffers(){S.jobOffers=[];const ut=userTeam();const rep=S.mgr.rep!=
   for(const c of cand){if(S.jobOffers.length>=3)break;if(seen.has(c.t.id))continue;const pr=c.kind==='return'?1:clamp(0.2+c.w/40,0.15,0.85);if(rnd()>pr)continue;seen.add(c.t.id);
     const o=teamOutlook(c.t);S.jobOffers.push({id:S.nextOfferId++,team:c.t.id,kind:c.kind,goal:o.goal,rankExp:o.rank,n:o.n,expires:2,reason:jobReason(c.t,c.kind)});}
   if(S.jobOffers.length)news(`감독 제의 ${S.jobOffers.length}건이 도착했습니다 (평판 ${rep} · ${repGrade(rep)}). 스토브리그 2주차까지 결정하세요.`,'sys');}
+// v82: 감독 구인 게시판 — 한국·일본·대만·미국에서 이번 시즌 감독을 구하는 구단 (지난 시즌 하위권은 40%, 나머지는 10%가 감독 교체). 같은 시즌 안에서는 목록이 바뀌지 않음
+const JOB_BOARD_LG=['KR','JP','TW','US'];
+function repNeedOf(t){if(t.league==='KR')return BAL.REP_NEED[1]+(presOf(t)>=80?10:presOf(t)>=60?4:0);return BAL.REP_NEED[t.league]!=null?BAL.REP_NEED[t.league]:72;}
+function jobBoard(){const rep=S.mgr?(S.mgr.rep!=null?S.mgr.rep:calcRep()):25;const out=[];const former=new Set(((S.mgr&&S.mgr.career)||[]).map(c=>c.team));
+  for(const t of Object.values(S.teams)){if(!JOB_BOARD_LG.includes(t.league)||t.isUser)continue;const n=compTeams(compOf(t)).length;const lr=t.lastRank||null;const h=(((S.seed|0)^(S.season*7919+t.id*104729))*2654435761>>>0)%100;const bottom=lr?lr>Math.ceil(n/2):false;if(!(bottom?h<40:h<10))continue;
+    const need=repNeedOf(t);out.push({t,need,ok:rep>=need,rank:lr,n,former:former.has(t.id),why:bottom?`지난 시즌 ${lr}위 — 감독 교체`:'감독 계약 만료',applied:(S.jobApplied||{})[t.id]===S.season,offered:(S.jobOffers||[]).some(o=>o.team===t.id)});}
+  return {rep,grade:repGrade(rep),list:out.sort((a,b)=>(b.ok-a.ok)||(a.t.league==='KR'?0:1)-(b.t.league==='KR'?0:1)||a.need-b.need)};}
+function applyJob(tid){if(S.phase!=='offseason')return '지원은 스토브리그에만 할 수 있습니다.';if(S.week>2)return '감독 이동은 스토브리그 2주차까지입니다.';const b=jobBoard();const x=b.list.find(y=>y.t.id===tid);if(!x)return '감독을 구하는 구단이 아닙니다.';
+  S.jobApplied=S.jobApplied||{};if(x.offered)return '이미 제의를 받은 구단입니다.';if(S.jobApplied[tid]===S.season)return '이번 겨울엔 이미 지원했습니다.';S.jobApplied[tid]=S.season;
+  if(!x.ok)return `${x.t.name}: 평판이 부족해 서류에서 떨어졌습니다 (필요 ${x.need} · 지금 ${b.rep}).`;
+  const o=teamOutlook(x.t);S.jobOffers=S.jobOffers||[];S.jobOffers.push({id:S.nextOfferId++,team:tid,kind:'job',goal:o.goal,rankExp:o.rank,n:o.n,expires:2,reason:'지원서를 보고 연락 — '+jobReason(x.t,'job')});news(`${x.t.name}에 감독 지원 → 면접 뒤 제의가 왔습니다 (2주차까지 결정)`,'sys');return null;}
 // 감독 제의 이유: 내 강점(평판 구성) × 그 구단의 사정
 function jobReason(t,kind){if(kind==='return')return '친정 구단이 어려움에 빠져 당신의 복귀를 요청합니다';const P=repParts();const top=Object.entries({dev:P.dev,perf:P.perf,ops:P.ops,abroad:P.abroad}).sort((a,b)=>b[1]-a[1])[0][0];
   const ps=t.roster.map(P_).filter(Boolean);const age=ps.reduce((a,p)=>a+p.age,0)/Math.max(1,ps.length);const n=compTeams(compOf(t)).length;
@@ -2370,7 +2381,7 @@ function planCands(k,n){const ut=userTeam();if(ut.league!=='KR')return [];const 
   for(const p of overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_))){if(!p||!unitMatch(p,k)||knOf(p)<45||p.nat==='KR'&&false)continue;if(osWill(p,S.teams[p.teamId]).no)continue;const r=ovrRange(p);if(r.mid>=R.v-1)out.push({p,src:'os',v:r.mid});}
   return out.filter(x=>x.v>=R.v-2).sort((a,b)=>b.v-a.v).slice(0,n||3);}
 
-return {markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,

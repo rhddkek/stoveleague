@@ -16,7 +16,8 @@ const office=fs.existsSync(A+'/office.png')?b64(A+'/office.png','image/png'):nul
 const stadiumHome=fs.existsSync(A+'/stadium_home.png')?b64(A+'/stadium_home.png','image/png'):null;const stadiumGame=fs.existsSync(A+'/stadium_game.png')?b64(A+'/stadium_game.png','image/png'):null;
 const badges={};if(fs.existsSync(A+'/badges'))for(const f of fs.readdirSync(A+'/badges'))if(f.endsWith('.png'))badges[f.replace(/\.png$/,'')]=b64(A+'/badges/'+f,'image/png');
 const bgm={};if(fs.existsSync(A+'/bgm'))for(const f of fs.readdirSync(A+'/bgm'))if(/\.mp3$/.test(f))bgm[path.basename(f,'.mp3')]=b64(A+'/bgm/'+f,'audio/mpeg');   // v71: 배경 음악
-const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,stadiumHome,stadiumGame,badges,office,bgm})+';';
+const leagues={};if(fs.existsSync(A+'/leagues'))for(const f of fs.readdirSync(A+'/leagues'))if(f.endsWith('.png'))leagues[f.replace(/\.png$/,'')]=b64(A+'/leagues/'+f,'image/png');   // v82: 리그 마크 (픽셀랩, 국기 모티프)
+const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,stadiumHome,stadiumGame,badges,office,bgm,leagues})+';';
 const html=`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>

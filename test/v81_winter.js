@@ -43,6 +43,11 @@ const {chromium}=require('playwright');const path=require('path');
       return {n:pd.length,m1:m1.slice(0,40),signed:!p0.drafted&&p0.teamId===SL.userTeam().id,focus:p0.focus===k,next:/신인 계약 1\/\d/.test(m2)&&m2.includes(pd[1].name),k:F[k]};});
     if(r.skip!=null)ok('신인 계약 창: 이 시드에선 계약 대기 '+r.skip+'명');else r.signed&&r.focus&&r.next?ok(`신인 계약 창: 계약 + 훈련 「${r.k}」 지정 → 바로 다음 신인 (${r.n}명)`):bad('신인 계약 창 '+JSON.stringify(r));
     await p.evaluate(()=>UI.closeModal());}
+  // 9 (v82). 구직·구인 겨울 지원: 평판 부족 → 서류 탈락 / 평판 충분 → 감독 제의가 처리할 일에
+  {const r=await p.evaluate(()=>{const S=SL.state();if(S.week>2)return {skip:true};const B=SL.jobBoard();if(!B.list.length)return {skip:true};const rep0=S.mgr.rep;const lo=B.list.find(x=>!x.ok);let e1=null;if(lo)e1=SL.applyJob(lo.t.id);
+      S.mgr.rep=99;const B2=SL.jobBoard();const hi=B2.list.find(x=>x.ok&&!x.applied);const e2=hi?SL.applyJob(hi.t.id):'없음';const offered=hi&&S.jobOffers.some(o=>o.team===hi.t.id);const again=hi?SL.applyJob(hi.t.id):null;UI.setTab('home');const t=document.querySelector('.mkcard.todo').innerText;
+      S.jobOffers=S.jobOffers.filter(o=>!hi||o.team!==hi.t.id);S.mgr.rep=rep0;return {e1,e2,offered,again,inTodo:/감독 제의|감독 구인/.test(t),hi:hi&&hi.t.name};});
+    r.skip?ok('구직 지원: 이 시드·주차엔 해당 없음'):(r.e2===null&&r.offered&&r.again&&r.inTodo&&(r.e1===null||/평판이 부족/.test(r.e1))?ok(`구직 지원: 평판 부족은 「${(r.e1||'-').slice(0,26)}…」 · 충분하면 ${r.hi} 감독 제의 → 처리할 일 · 같은 구단 재지원 막힘`):bad('구직 지원 '+JSON.stringify(r)));}
   // 8. 한 화면: 390×844 · 360×740 에서 겨울 감독실 스크롤 없음
   for(const [w,h] of [[390,844],[360,740]]){await p.setViewportSize({width:w,height:h});await p.evaluate(()=>UI.setTab('home'));await p.waitForTimeout(60);const r=await T();r.sh<=r.ih+4?ok(`겨울 감독실 ${w}×${h} 한 화면 (처리할 일 ${r.titles.length}줄)`):bad(`겨울 감독실 ${w}×${h} ${r.sh}/${r.ih} `+r.titles.join(' / '));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
