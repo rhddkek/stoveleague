@@ -1240,8 +1240,8 @@ body:has(.gamev) .toast{bottom:auto;top:44%;background:rgba(10,16,30,.88);font-s
  .pv .pvbar{min-height:44px}
 }
 @media (max-width:600px){
- .pv .sg2{grid-template-columns:1fr 1fr;gap:0}.pv .sg2>.mkcard{margin-left:0;margin-right:0}.pv .sg2>.mkcard:first-child{margin-left:-16px;border-right:1px solid var(--line)}.pv .sg2>.mkcard:last-child{margin-right:-16px}
- .pv .sg2 .arow2>span:first-child{flex-basis:40px;font-size:12px}.pv .sg2 .arow2 b{flex-basis:26px}.pv .sg2 .kvt td{font-size:11.5px;padding:3px 0}.pv .sg2 .kvt td:first-child{width:auto;white-space:nowrap;padding-right:4px}
+ .pv .sg2.ovsg{grid-template-columns:1fr 1fr;gap:0}.pv .sg2.ovsg>.mkcard{margin-left:0;margin-right:0}.pv .sg2.ovsg>.mkcard:first-child{margin-left:-16px;border-right:1px solid var(--line)}.pv .sg2.ovsg>.mkcard:last-child{margin-right:-16px}
+ .pv .sg2.ovsg .arow2>span:first-child{flex-basis:40px;font-size:12px}.pv .sg2.ovsg .arow2 b{flex-basis:26px}.pv .sg2.ovsg .kvt td{font-size:11.5px;padding:3px 0}.pv .sg2.ovsg .kvt td:first-child{width:auto;white-space:nowrap;padding-right:4px}
  .pv details.fbox{margin:0 0 6px}.pv details.fbox>summary{padding:8px 12px}
 }
 @media (max-width:600px){.pv .abrow{padding:3px 0;gap:8px}.pv .abrow .k{font-size:13px}.pv .abrow b{font-size:14px}.pv .abrow .mkbar{height:10px}.pv .pvcmp{min-height:38px;font-size:13.5px}
@@ -1263,3 +1263,10 @@ body:has(.gamev) .toast{bottom:auto;top:44%;background:rgba(10,16,30,.88);font-s
  .today.cmp .misl{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px;margin-bottom:6px}.today.cmp .misl::-webkit-scrollbar{display:none}.today.cmp .misl>*{flex:none;white-space:nowrap}.today.cmp .misl .mi{padding:2px 6px}
 }
 @media (max-width:400px){.today.cmp .tdvs .tdn{font-size:14px;letter-spacing:-.3px}.today.cmp .tdvs .av,.today.cmp .tdvs svg,.today.cmp .tdvs img{width:34px!important;height:34px!important}.today.cmp .tdvs .vs{font-size:16px;margin:0}}
+
+/* v80 (R064): 선수 상세 하위 탭 — 능력(능력치·그래프·훈련·진단·성장 기록) · 기록(시즌·리그 비교·세부 지표) */
+.pvsub{display:flex;gap:4px;margin:0 0 8px;overflow-x:auto;scrollbar-width:none}.pvsub::-webkit-scrollbar{display:none}
+.pvsub button{flex:1 0 auto;min-height:32px;padding:0 10px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:12.5px;font-weight:800;white-space:nowrap}
+.pvsub button.on{background:var(--navy);border-color:var(--navy);color:var(--card)}
+.ea[data-theme="dark"] .pvsub button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+@media (max-width:600px){.pv .advg{gap:5px}.pv .adv{padding:5px 7px;border-radius:8px}.pv .adv .v{font-size:17px}.pv .adv .l{font-size:10.5px}.pv .adv .chip{margin-top:2px;font-size:10px;padding:1px 6px}.pv .card .small.muted{font-size:11.5px}}
