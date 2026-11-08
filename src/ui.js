@@ -364,7 +364,7 @@ function ftabsScroll(){for(const r of document.querySelectorAll('.ftabs')){const
 // v52 허브 탭: 탭마다 자주 쓰는 3칸 + 「더보기」 목록. 한 칸에 둘이 묶이면(예: 타순·수비 / 투수진) 그 칸 안에 작은 전환
 const HUB={
   roster:()=>({core:[['선수',['list']],['타순·수비',['lineup']],['투수진',['pitch']]],more:[]}),
-  dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']]],more:[]};},
+  dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
   market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();return {core:[['영입 현황',['deals','offers'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']]],
     more:[['협상',[['neg','협상 테이블','열려 있는 협상 대화']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['scout','국내 스카우트','지역 유망주 · FA · 타 구단 보고서'],['youth','유소년','유소년 선수 육성']]]]};},
   league:()=>({core:[['순위',['table']],['일정',['sched']],['기록실',['rec']]],
@@ -380,7 +380,7 @@ function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.
 function hubMenu(key){const H=HUB[key]();const c0=ui.sub[key];const T={roster:'선수단',market:'영입',league:'리그',club:'구단'}[key];
   modal(`<h3>${T} 메뉴</h3>${H.core.map(c=>`<div class="hrow ${c[1].includes(c0)?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${c[1][0]}')"><b>${c[0]}</b><span class="dim small">${c[2]?c[2].join(' · '):''}</span></div>`).join('')}
   ${H.more.map(g=>`<div class="hgrp">${esc(g[0])}</div>${g[1].map(x=>`<div class="hrow ${x[0]===c0?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${x[0]}')"><b>${esc(x[1])}${x[3]?' <i class="hdot"></i>':''}</b><span class="dim small">${esc(x[2])}</span><span class="hgo">›</span></div>`).join('')}`).join('')}`);}
-const DEV_IN_ROSTER=[],DEV_IN_MARKET=['draft','fgn','scout','youth'];const DEV_SUBS=['train','res','dev','winter'];
+const DEV_IN_ROSTER=[],DEV_IN_MARKET=['draft','fgn','scout','youth'];const DEV_SUBS=['train','res','dev','winter','equip'];
 function navOf(t,sub){if(t==='dev'){if(DEV_IN_MARKET.includes(sub))return ['market',sub];return ['dev',DEV_SUBS.includes(sub)?sub:'train'];}if(t==='roster'&&DEV_SUBS.includes(sub))return ['dev',sub];return [t,sub];}
 function subtabs(key,items){return `<div class="subtabs">${items.map(i=>`<button class="${ui.sub[key]===i[0]?'on':''}" onclick="UI.setSub('${key}','${i[0]}')">${i[1]}</button>`).join('')}</div>`;}
 function decisions(){let n=S.market.offers.length+((S.jobOffers||[]).length);if(SL.draftTurn())n++;if(S.phase==='offseason')n+=S.pendingFA.length;return n;}

@@ -213,7 +213,7 @@ function finishDay(){
     for(const pid of userTeam().roster)improveScout(P_(pid),0.06);scoutWatch();}
   promiseTick();grievanceTick();convTick(1);if(d<=BAL.SEASON_GAMES){bdayTick(d);if(d%7===0)wgoalTick(d);}achCheck();if(d%7===0)try{achSeason();}catch(e){}
   if(d===dayAt(0.5)){interestCheck();aiAims(false);farmCheck();}
-  if(d%7===0&&d<=BAL.SEASON_GAMES){osMoves(7);scoutTick();draftWatchTick();}if(d===dayAt(0.6))draftClassMake();
+  if(d%7===0&&d<=BAL.SEASON_GAMES){osMoves(7);scoutTick();eqSweep();draftWatchTick();}if(d===dayAt(0.6))draftClassMake();
   if(d===asDay()&&(asLg()!=='KR'||krTeams().length===BAL.KR_TEAMS)&&(!S.allstar||S.allstar.s!==S.season))allStar();
   S.day++;S.clock++;
   const ut=userTeam();if(ut.cash<0)warn(`현금이 ${money(ut.cash)}입니다. 선수 판매, 긴급 대출(재정 탭) 등 회복 조치가 필요합니다.`);
@@ -818,6 +818,30 @@ function genJobOffers(){S.jobOffers=[];const ut=userTeam();const rep=S.mgr.rep!=
   for(const c of cand){if(S.jobOffers.length>=3)break;if(seen.has(c.t.id))continue;const pr=c.kind==='return'?1:clamp(0.2+c.w/40,0.15,0.85);if(rnd()>pr)continue;seen.add(c.t.id);
     const o=teamOutlook(c.t);S.jobOffers.push({id:S.nextOfferId++,team:c.t.id,kind:c.kind,goal:o.goal,rankExp:o.rank,n:o.n,expires:2,reason:jobReason(c.t,c.kind)});}
   if(S.jobOffers.length)news(`감독 제의 ${S.jobOffers.length}건이 도착했습니다 (평판 ${rep} · ${repGrade(rep)}). 스토브리그 2주차까지 결정하세요.`,'sys');}
+// v84 (R068): 장비 — EA 2011 「상점 → 아이템 / 관리 → 장비관리」를 참고. 구단 자금으로 사서(보관함) 선수에게 3칸까지 끼움.
+// 경기 엔진이 읽는 능력(컨택·파워·선구안·주력·구위·제구·변화)에만 붙고, 한 능력에 장비 합 +3까지. 한 시즌용 — 정규 시즌이 끝나 겨울로 넘어갈 때 닳아 없어짐(겨울에 산 건 다음 시즌 끝까지)
+const EQUIP={
+  b_pow:{side:'B',ic:'🏏',name:'파워 배트',fx:{power:2,contact:-1},cost:25000},
+  b_con:{side:'B',ic:'🏏',name:'교타 배트',fx:{contact:2,power:-1},cost:25000},
+  b_bal:{side:'B',ic:'🏏',name:'밸런스 배트',fx:{contact:1,power:1},cost:30000},
+  b_glv:{side:'B',ic:'🧤',name:'배팅 장갑',fx:{contact:1},cost:12000},
+  b_hel:{side:'B',ic:'⛑️',name:'시야 고글 헬멧',fx:{eye:2},cost:20000},
+  b_spk:{side:'B',ic:'👟',name:'경량 스파이크',fx:{speed:2},cost:18000},
+  p_pow:{side:'P',ic:'🥎',name:'구위 글러브',fx:{stuff:2,control:-1},cost:25000},
+  p_ctl:{side:'P',ic:'🥎',name:'제구 글러브',fx:{control:2,stuff:-1},cost:25000},
+  p_brk:{side:'P',ic:'🧤',name:'그립 장갑',fx:{movement:2},cost:22000},
+  p_bal:{side:'P',ic:'🎽',name:'밸런스 밴드',fx:{control:1,movement:1},cost:28000},
+  p_spk:{side:'P',ic:'👟',name:'투수 스파이크',fx:{stuff:1},cost:12000}};
+function eqBonus(p,k){let b=0;for(const it of p.eq){const E=EQUIP[it];if(E&&E.fx[k])b+=E.fx[k];}return clamp(b,-3,3);}
+function eqState(){S.eqInv=S.eqInv||{};return S.eqInv;}
+function eqSideOf(p){return isPitcher(p)?'P':'B';}
+function eqBuy(key){const E=EQUIP[key];if(!E)return '없는 장비입니다.';const ut=userTeam();if(ut.cash<E.cost)return `자금 부족 (필요 ${money(E.cost)})`;ut.cash-=E.cost;ut.fin.other=(ut.fin.other||0)+E.cost;const I=eqState();I[key]=(I[key]||0)+1;return null;}
+function eqOn(pid,key){const p=P_(pid);const E=EQUIP[key];const ut=userTeam();if(!p||p.teamId!==ut.id)return '우리 선수에게만 끼울 수 있습니다.';if(!E)return '없는 장비입니다.';if(E.side!==eqSideOf(p))return E.side==='P'?'투수 장비입니다.':'타자 장비입니다.';
+  p.eq=p.eq||[];if(p.eq.length>=3)return '장비 칸 3개가 모두 찼습니다 — 하나를 빼고 끼우세요.';if(p.eq.includes(key))return '같은 장비는 하나만 끼울 수 있습니다.';const I=eqState();if(!(I[key]>0))return '보관함에 없습니다 — 상점에서 사세요.';I[key]--;p.eq.push(key);return null;}
+function eqOff(pid,i){const p=P_(pid);if(!p||!p.eq||!p.eq[i])return '빈 칸입니다.';const key=p.eq.splice(i,1)[0];const I=eqState();I[key]=(I[key]||0)+1;if(!p.eq.length)delete p.eq;return null;}
+// 우리 구단을 떠난 선수의 장비는 보관함으로 돌아옴 · 시즌이 끝나면 모두 닳음
+function eqSweep(){const ut=userTeam();const I=eqState();for(const id in S.players){const p=S.players[id];if(p.eq&&p.teamId!==ut.id){for(const k of p.eq)I[k]=(I[k]||0)+1;delete p.eq;}}}
+function eqWear(){let n=0;for(const id in S.players){const p=S.players[id];if(p.eq){n+=p.eq.length;delete p.eq;}}const I=eqState();for(const k in I){n+=I[k];}S.eqInv={};if(n)news(`[장비] 시즌이 끝나 장비 ${n}개가 닳았습니다 — 겨울에 새로 갖추세요.`,'sys');}
 // v82: 감독 구인 게시판 — 한국·일본·대만·미국에서 이번 시즌 감독을 구하는 구단 (지난 시즌 하위권은 40%, 나머지는 10%가 감독 교체). 같은 시즌 안에서는 목록이 바뀌지 않음
 const JOB_BOARD_LG=['KR','JP','TW','US'];
 function repNeedOf(t){if(t.league==='KR')return BAL.REP_NEED[1]+(presOf(t)>=80?10:presOf(t)>=60?4:0);return BAL.REP_NEED[t.league]!=null?BAL.REP_NEED[t.league]:72;}
@@ -932,7 +956,7 @@ function endSeason(){
   interestCheck();
   try{winterPlanStart(s);}catch(e){}
   {if(ut.league==='KR'){achGet('season');const R=rec.post?postReach(rec.post)[ut.id]:null;if(R)achGet('ps');if(R==='ks'||R==='champ')achGet('ks');if(R==='champ')achGet('champ');const F=S.resHist&&S.resHist.slice(-1)[0];if(F&&F.s===s&&F.cid===ut.id)achGet('fut');const fin=ut.fin||{};const inc=(fin.tickets||0)+(fin.sponsor||0)+(fin.ads||0)+(fin.endorse||0)+(fin.dividend||0)+(fin.sales||0)+(fin.other||0),out=(fin.salary||0)+(fin.buys||0)+(fin.scout||0)+(fin.facility||0)+(fin.dispatch||0)+(fin.staff||0);if(inc>out)achGet('black');}}
-  S.phase='offseason';S.week=1;S.clock++;
+  S.phase='offseason';S.week=1;S.clock++;eqWear();
   {const pl=playLg();if(pl&&DRAFT_LG[pl]){createDraft('KR');draftStep();S.draftKR=S.draft;createDraft(pl);draftStep();}else{createDraft();draftStep();}}
   createDispatch();
   for(const t of krTeams())if(!t.isUser)autoLineup(t);fixLineup(userTeam());
@@ -945,7 +969,7 @@ function advanceWeek(){
   if(S.phase!=='offseason')return false;S.warn=[];
   const ut=userTeam();
   if(S.draft&&!S.draft.done){if(draftTurn())draftAuto();draftStep();}
-  dispatchWeek();scoutWatch();scoutTick();draftWatchTick();grievanceTick();convTick(7);achCheck();if(S.week===3)staffWeek3();
+  dispatchWeek();scoutWatch();scoutTick();eqSweep();draftWatchTick();grievanceTick();convTick(7);achCheck();if(S.week===3)staffWeek3();
   if(S.jobOffers&&S.jobOffers.length&&S.week>=2){for(const o of S.jobOffers)news(`${S.teams[o.team].name}의 감독 제의가 만료되었습니다.`,'sys');S.jobOffers=[];}
   faBidsWeek();faDecideWeek();
   if(S.week===2){for(const pid of [...S.pendingFA]){const p=P_(pid);if(!p||p.teamId!==ut.id)continue;removeFromTeam(ut,p);S.fa.push(pid);p.transfers.push({s:S.season,from:ut.name,to:'FA',fee:0,kind:'계약 만료'});news(`${josa(p.name,'이','가')} FA로 떠났습니다.`,'contract');if(faIsMajor(p))faMarketAdd(p,3);}S.pendingFA=[];fixLineup(ut);}
@@ -2387,7 +2411,7 @@ function planCands(k,n){const ut=userTeam();if(ut.league!=='KR')return [];const 
   for(const p of overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_))){if(!p||!unitMatch(p,k)||knOf(p)<45||p.nat==='KR'&&false)continue;if(osWill(p,S.teams[p.teamId]).no)continue;const r=ovrRange(p);if(r.mid>=R.v-1)out.push({p,src:'os',v:r.mid});}
   return out.filter(x=>x.v>=R.v-2).sort((a,b)=>b.v-a.v).slice(0,n||3);}
 
-return {scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
