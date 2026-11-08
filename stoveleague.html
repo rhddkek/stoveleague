@@ -1294,6 +1294,14 @@ body{padding-top:env(safe-area-inset-top,0px)}#app{min-height:calc(100vh - env(s
 .form2 .fnx{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}.form2 .fnx .k{font-size:11px;font-weight:800;color:var(--muted);writing-mode:horizontal-tb;flex:none;width:34px;line-height:1.2}.form2 .fnx .grow{min-width:0}.form2 .fnx b{font-size:14px}
 .lgb{vertical-align:-5px;margin-right:5px;flex-shrink:0}.ovseg .lgb{vertical-align:-4px;margin-right:2px}
 .jobs .jrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}.jobs .jrow:last-of-type{border-bottom:0}.jobs .jrow .grow{min-width:0}.jobs .jrow .nm{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jobs .jrow .nm small{font-weight:400;margin-left:2px}.jobs .jrow .lgb{vertical-align:-3px;margin:0 2px 0 4px}.jobs .jrow>.chip,.jobs .jrow>button{flex:none}
+/* v83 (R067): 해외 선수 찾기 — 추천 · 리그·구단 · 관찰 명단 · 스카우트 */
+.stv .fgv{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.stv .fgv::-webkit-scrollbar{display:none}.stv .fgv button{flex:1 0 auto;white-space:nowrap}
+.stv .fglg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0}.stv .fglg button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:inherit;font-size:11px;min-height:0}.stv .fglg button.on{border-color:var(--orange);background:rgba(240,120,40,.18)}.stv .fglg .lgb{margin:0}
+.stv .fgth{display:flex;align-items:center;gap:8px;padding:8px 4px}.stv .fgth>button:first-child{font-size:22px;background:none;border:0;color:inherit;padding:0 4px;min-height:0}.stv .fgth .grow{min-width:0}.stv .fgth b{display:block;font-size:15px}.stv .fgth small{font-size:11px;opacity:.75}
+.stv .fgsc .r{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08)}.stv .fgsc .r span{flex:1;min-width:0;font-weight:700;font-size:13px}.stv .fgsc .r small{opacity:.7;font-size:11px}.stv .fgsc .r.e{opacity:.6}
+.stv .grd{display:inline-block;min-width:22px;text-align:center;border-radius:4px;padding:1px 4px;background:rgba(255,255,255,.12)}.stv .grd.A{background:#c0392b;color:#fff}.stv .grd.B{background:#e67e22;color:#fff}.stv .grd.C{background:#2d6cdf;color:#fff}
+.stv tr.dim td{opacity:.55}
+.stv td[colspan]{white-space:normal;line-height:1.4;padding:10px}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -1304,7 +1312,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v82';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v83';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -4285,17 +4293,23 @@ function scoutSend(reg,weeks){const R=SC_REG[reg];if(!R)return '지역을 고르
   const ut=userTeam();const cost=R.cost*weeks;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg,left:weeks,weeks,seen:0});news(`[스카우트] ${R.ko}에 ${weeks}주 파견 (${money(cost)})`,'scout');return null;}
 function scoutFocus(pid){const p=P_(pid);if(!p||!scRegOf(p))return '해외 리그 선수만 집중 관찰할 수 있습니다.';const X=scState();if(X.list.some(s=>s.focus===pid))return '이미 집중 관찰 중입니다.';if(X.list.length>=scSlots())return `파견할 스카우트가 없습니다 (${scSlots()}명 모두 파견 중).`;
   const ut=userTeam();const cost=Math.round(SC_REG[scRegOf(p)].cost*0.8)*2;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg:scRegOf(p),focus:pid,left:2,weeks:2,seen:0});news(`[스카우트] ${p.name}(${S.teams[p.teamId].name}) 2주 집중 관찰 (${money(cost)})`,'scout');return null;}
+// v83: 구단 관찰 — 해외 구단 하나에 스카우트를 붙여 그 구단 선수 전원을 매주 관찰 (지역 파견보다 좁고 깊게)
+function scTeamReg(t){if(!t||t.league==='KR'||t.isUser)return null;return t.league==='US'?'US1':t.league==='JP'?'JP':t.league==='MX'||t.league==='CB'?'LAT':'ASIA';}
+function scTeamCost(t){const r=scTeamReg(t);return r?SC_REG[r].cost:0;}
+function scoutTeam(tid,weeks){const t=S.teams[tid];const reg=scTeamReg(t);if(!reg)return '해외 구단만 관찰할 수 있습니다.';weeks=[2,4].includes(+weeks)?+weeks:2;const X=scState();if(X.list.some(s=>s.team===tid))return '이미 관찰 중인 구단입니다.';if(X.list.length>=scSlots())return `파견할 스카우트가 없습니다 (${scSlots()}명 모두 파견 중). 스카우트 조직 Lv3·Lv5에서 늘어납니다.`;
+  const ut=userTeam();const cost=scTeamCost(t)*weeks;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg,team:tid,left:weeks,weeks,seen:0});news(`[스카우트] ${t.name} ${weeks}주 구단 관찰 (${money(cost)})`,'scout');return null;}
 function scoutRecall(id){const X=scState();X.list=X.list.filter(s=>s.id!==id);return null;}
 function scRec(p){const r=ovrRange(p);const L=BAL.LEVEL_OVR.KR1;const m=r.mid;return m>=L+6?{g:'A',t:'즉시 전력 (에이스·중심 타자급)'}:m>=L+2?{g:'B',t:'주전급'}:m>=L-2?{g:'C',t:'보강 자원'}:{g:'D',t:'관찰 유지'};}
 function scoutTick(){const X=scState();if(!X.list.length)return;const ut=userTeam();const mul=1+(ut.fac.scout-1)*0.12+(staffFx(ut).conf||0);const found=[];
-  for(const s of X.list){if(s.focus!=null){const p=P_(s.focus);if(p&&scRegOf(p)){p.kn=Math.min(100,knOf(p)+Math.round(38*mul));s.seen++;if(knOf(p)>=60)found.push(p);}else s.left=0;}
+  for(const s of X.list){if(s.team!=null){const t=S.teams[s.team];if(!t||!scTeamReg(t)){s.left=0;continue;}for(const p of t.roster.map(P_).filter(p=>p&&knOf(p)<100)){p.kn=Math.min(100,knOf(p)+Math.round((SC_REG[s.reg].gain+ri(0,6))*mul));s.seen++;if(knOf(p)>=50&&scRec(p).g<='C'&&!osWill(p,t).no)found.push(p);}s.left--;continue;}
+    if(s.focus!=null){const p=P_(s.focus);if(p&&scRegOf(p)){p.kn=Math.min(100,knOf(p)+Math.round(38*mul));s.seen++;if(knOf(p)>=60)found.push(p);}else s.left=0;}
     else{const pool=scPool(s.reg).filter(p=>knOf(p)<100);const n=Math.round(10+ut.fac.scout*2);const pickd=pool.map(p=>({p,v:calcOvr(p)+gauss()*7-(p.age>=34?6:0)})).sort((a,b)=>b.v-a.v).slice(0,n);
       for(const x of pickd){const p=x.p;p.kn=Math.min(100,knOf(p)+Math.round((SC_REG[s.reg].gain+ri(0,6))*mul));s.seen++;if(knOf(p)>=50&&scRec(p).g<='C'&&!osWill(p,S.teams[p.teamId]).no)found.push(p);}}
     s.left--;}
   const fin=X.list.filter(s=>s.left<=0);X.list=X.list.filter(s=>s.left>0);
   const uniq=[...new Set(found)];for(const p of uniq){X.rep=X.rep.filter(r=>r.pid!==p.id);X.rep.unshift({pid:p.id,c:S.clock,g:scRec(p).g});}X.rep=X.rep.filter(r=>P_(r.pid)).slice(0,30);
   const good=uniq.filter(p=>scRec(p).g<='B');if(uniq.length)news(`[스카우트] 보고서 ${uniq.length}건${good.length?` — 추천: ${good.slice(0,3).map(p=>`${p.name}(${S.teams[p.teamId].name} · ${POS_KO[p.pos]||p.pos})`).join(', ')}`:''}`,'scout');
-  for(const s of fin)news(`[스카우트] ${s.focus!=null&&P_(s.focus)?P_(s.focus).name+' 집중 관찰':SC_REG[s.reg].ko+' 파견'} 종료 — 선수 ${s.seen}명분 관찰`,'scout');}
+  for(const s of fin)news(`[스카우트] ${s.team!=null&&S.teams[s.team]?S.teams[s.team].name+' 구단 관찰':s.focus!=null&&P_(s.focus)?P_(s.focus).name+' 집중 관찰':SC_REG[s.reg].ko+' 파견'} 종료 — 선수 ${s.seen}명분 관찰`,'scout');}
 // 스카우트 보고: 지식도에 따라 드러나는 정보 (경력·구종·부상·적응 위험·KBO 예상)
 function scoutNotes(p){const k=knOf(p);const out=[];const t=p.teamId!=null?S.teams[p.teamId]:null;
   const os=(p.hist||[]).filter(h=>!String(h.lg||'').startsWith('KR')).slice(-3);if(os.length)out.push({k:'경력',t:os.map(h=>`${h.s} ${h.tn}`).join(' → ')});
@@ -4359,7 +4373,7 @@ function planCands(k,n){const ut=userTeam();if(ut.league!=='KR')return [];const 
   for(const p of overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_))){if(!p||!unitMatch(p,k)||knOf(p)<45||p.nat==='KR'&&false)continue;if(osWill(p,S.teams[p.teamId]).no)continue;const r=ovrRange(p);if(r.mid>=R.v-1)out.push({p,src:'os',v:r.mid});}
   return out.filter(x=>x.v>=R.v-2).sort((a,b)=>b.v-a.v).slice(0,n||3);}
 
-return {jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
@@ -7256,14 +7270,41 @@ function renderFaMock(ut){const f=ui.faF=ui.faF||{pos:'all',sal:'all',pin:false}
     return `<tr class="${mine||neg?'mine':''}" onclick="UI.faMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${S.pins.includes(p.id)?'<i class="pin">★</i>':''}${esc(p.name)}${F?`<small class="tg">${mine?'제시함':`경쟁 ${F.bids.length}`}</small>`:''}</td><td>${p.age}</td><td>${esc(p.pos2?p.pos+'/'+p.pos2:p.pos)}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(askOf(p))}${F?`<small>${F.ask.yrs}년</small>`:''}</td></tr>`;}).join('')||'<tr><td colspan="6" class="muted">해당하는 FA가 없습니다.</td></tr>'}</tbody></table>${fa.length>n?`<button class="stvmore" onclick="UI.set('faN',${n+30})">▼ 더 보기 (${fa.length-n}명)</button>`:''}`;
   return h+`<div class="stvbar"><span>줄을 누르면 선수정보 · 협상</span></div>`;}
 // ---- 외국인(해외) 후보 ----
-function renderFgnMock(ut){const st=SL.fgnStatus(ut);const f=ui.fgF=ui.fgF||{kind:'P'};const X=SL.scState();
-  let pool=SL.overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&p.nat!=='KR'&&!SL.osWill(p,S.teams[p.teamId]).no&&(f.kind==='P'?SL.isPitcher(p):!SL.isPitcher(p)));
-  const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
-  let h=stvHead('외국인 영입',`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney()+stvTabs(f.kind,"UI.fgSide");
-  h+=`<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>L/R</th><th>능력</th><th class="tr">첫해 비용</th></tr></thead><tbody>${pool.map((p,i)=>{const c=SL.fgnCost(p);const foc=X.list.some(s=>s.focus===p.id);const neg=(S.market.negs||[]).some(x=>x.pid===p.id);
-    return `<tr class="${neg?'mine':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${foc?'<small class="tg">관찰 중</small>':''}<small class="kn">지식 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${SL.isPitcher(p)?p.throws:p.bats}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(c.first)}</td></tr>`;}).join('')}</tbody></table><button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;
-  h+=`<div class="stvbar"><span>스카우트 ${X.list.length}/${SL.scSlots()}명 파견${X.list.length?` · ${X.list.map(s=>s.focus!=null&&S.players[s.focus]?esc(S.players[s.focus].name)+' '+s.left+'주':esc(SL.SC_REG[s.reg].ko)).join(', ')}`:''}</span></div>`;
+// v83 (R067): 해외 선수 찾기 — FM처럼 리그 → 구단 → 선수단을 직접 보고, 선수(집중 관찰)·구단(구단 관찰)·지역(파견)에 스카우트를 보냄
+function scLabel(s){const fp=s.focus!=null?S.players[s.focus]:null;const t=s.team!=null?S.teams[s.team]:null;return t?`${esc(t.name)} 구단 관찰`:fp?`${esc(fp.name)} 집중 관찰`:`${esc(SL.SC_REG[s.reg].ko)} 파견`;}
+const FG_LG=['JP','US','TW','MX','AU','CB'];
+function fgRow(p,i,X,showTeam){const c=SL.fgnCost(p);const foc=X.list.some(s=>s.focus===p.id);const tw=X.list.some(s=>s.team===p.teamId);const neg=(S.market.negs||[]).some(x=>x.pid===p.id);const no=SL.osWill(p,S.teams[p.teamId]).no;const pin=(S.pins||[]).includes(p.id);
+  return `<tr class="${neg?'mine':''} ${no?'dim':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${pin?' <span class="o">★</span>':''}${foc?'<small class="tg">관찰 중</small>':tw?'<small class="tg">구단 관찰</small>':''}${no?'<small class="tg r">이적 불가</small>':''}<small class="kn">${showTeam?esc(S.teams[p.teamId].name)+' · ':''}${p.tier>1?'2군 · ':''}${p.age}세 · 지식 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tr">${no?'-':Ms(c.first)}</td></tr>`;}
+function fgTable(ps,X,showTeam){return `<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>능력</th><th class="tr">첫해 비용</th></tr></thead><tbody>${ps.map((p,i)=>fgRow(p,i,X,showTeam)).join('')||'<tr><td colspan="5" class="muted">없음</td></tr>'}</tbody></table>`;}
+function renderFgnMock(ut){const st=SL.fgnStatus(ut);const f=ui.fgF=ui.fgF||{kind:'P'};f.v=f.v||'rec';const X=SL.scState();const sl=SL.scSlots();const LG=SL.BAL.LEAGUES;
+  let h=stvHead('해외 선수 찾기',`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney();
+  const watchN=new Set((S.pins||[]).filter(id=>S.players[id]&&SL.scRegOf(S.players[id])).concat((X.rep||[]).map(r=>r.pid))).size;
+  h+=`<div class="stvsort fgv">${[['rec','추천'],['club','리그·구단'],['list',`관찰 명단${watchN?' '+watchN:''}`],['sc',`스카우트 ${X.list.length}/${sl}`]].map(x=>`<button class="${f.v===x[0]?'on':''}" onclick="UI.fgV('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
+  const side=p=>f.kind==='P'?SL.isPitcher(p):!SL.isPitcher(p);
+  if(f.v==='rec'){let pool=SL.overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&p.nat!=='KR'&&!SL.osWill(p,S.teams[p.teamId]).no&&side(p));
+    const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
+    h+=stvTabs(f.kind,"UI.fgSide")+fgTable(pool,X,true)+`<button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;}
+  else if(f.v==='club'){const lg=FG_LG.includes(f.lg)?f.lg:'JP';
+    h+=`<div class="fglg">${FG_LG.map(k=>`<button class="${k===lg?'on':''}" onclick="UI.fgLg('${k}')">${lgBadge(k,20)}<span>${esc(LG[k].short)}</span></button>`).join('')}</div>`;
+    const T=f.tid!=null&&S.teams[f.tid]&&S.teams[f.tid].league===lg?S.teams[f.tid]:null;
+    if(!T){const teams=SL.overseasTeams().filter(t=>t.league===lg&&!t.isUser).sort((a,b)=>(b.rec.w-b.rec.l)-(a.rec.w-a.rec.l)||a.name.localeCompare(b.name));
+      h+=`<table class="stvt nosort"><thead><tr><th class="tn">구단</th><th>성적</th><th>평균 지식</th><th>관찰</th></tr></thead><tbody>${teams.map(t=>{const ps=t.roster.map(id=>S.players[id]).filter(Boolean);const kn=ps.length?Math.round(ps.reduce((a,p)=>a+SL.knOf(p),0)/ps.length):0;const on=X.list.some(s=>s.team===t.id);
+        return `<tr onclick="UI.fgTeam(${t.id})"><td class="tn"><span class="tfn">${emblem(t,24)}<span>${esc(t.name)}<small class="kn">${esc(SL.compName(SL.compOf(t)))}</small></span></span></td><td>${t.rec.w}-${t.rec.l}</td><td>${kn}%</td><td>${on?'<small class="tg">관찰 중</small>':'›'}</td></tr>`;}).join('')}</tbody></table>`;}
+    else{const ps=T.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&side(p)).sort((a,b)=>(a.tier||1)-(b.tier||1)||SL.ovrRange(b).mid-SL.ovrRange(a).mid);const on=X.list.find(s=>s.team===T.id);const cost=SL.scTeamCost(T);const free=X.list.length<sl;
+      h+=`<div class="fgth"><button aria-label="구단 목록" onclick="UI.fgTeam(null)">‹</button>${emblem(T,30)}<div class="grow"><b>${esc(T.name)}</b><small>${esc(SL.compName(SL.compOf(T)))} · ${T.rec.w}승 ${T.rec.l}패</small></div>${on?`<span class="tg">관찰 ${on.left}주 남음</span>`:`<button class="sm ${free?'primary':''}" ${free?'':'disabled'} onclick="UI.fgTeamScout(${T.id})">🔭 구단 관찰</button>`}</div>`;
+      if(!on)h+=`<div class="stvsub small">구단 관찰: 스카우트 1명이 이 구단 선수 전원을 매주 봅니다 (주당 ${Ms(cost)}) — 선수 한 명만 깊게 보려면 선수를 눌러 「집중 관찰」${free?'':' · <b class="bad">지금 남는 스카우트가 없습니다</b>'}</div>`;
+      h+=stvTabs(f.kind,"UI.fgSide")+fgTable(ps,X,false);}}
+  else if(f.v==='list'){const ids=[...new Set((S.pins||[]).filter(id=>S.players[id]&&SL.scRegOf(S.players[id])).concat((X.rep||[]).map(r=>r.pid)))].map(id=>S.players[id]).filter(p=>p&&SL.scRegOf(p));const g=p=>{const r=(X.rep||[]).find(x=>x.pid===p.id);return r?r.g:'';};
+    const ps=ids.sort((a,b)=>(g(a)||'Z').localeCompare(g(b)||'Z')||SL.ovrRange(b).mid-SL.ovrRange(a).mid);
+    h+=`<div class="stvsub small">★ 관심 선수와 스카우트 보고서가 온 선수 — 등급 A(즉시 전력) → D 순</div><table class="stvt nosort"><thead><tr><th>등급</th><th class="tn">이름</th><th>포지션</th><th>능력</th><th class="tr">첫해 비용</th></tr></thead><tbody>${ps.map(p=>{const c=SL.fgnCost(p);return `<tr onclick="UI.fgMenu(${p.id})"><td><b class="grd ${g(p)}">${g(p)||'★'}</b></td><td class="tn">${flag(p.nat)} ${esc(p.name)}<small class="kn">${esc(S.teams[p.teamId].name)} · ${p.age}세 · 지식 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tr">${Ms(c.first)}</td></tr>`;}).join('')||'<tr><td colspan="5" class="muted">아직 없습니다 — 선수를 눌러 ★ 관심 선수로 넣거나 스카우트를 보내세요</td></tr>'}</tbody></table>`;}
+  else{h+=`<div class="stvsub small">스카우트 ${sl}명 (스카우트 조직 Lv3·Lv5, 스카우트 코치로 늘어남) · 매주 지식이 쌓이고 보고서가 옵니다</div><div class="fgsc">${X.list.map(s=>`<div class="r"><span>🔭 ${scLabel(s)}</span><small>${s.left}/${s.weeks}주 · 관찰 ${s.seen}명분</small><button class="sm ghost" onclick="UI.scRecall(${s.id})">불러들이기</button></div>`).join('')}${Array.from({length:Math.max(0,sl-X.list.length)},()=>`<div class="r e"><span>🔭 대기 중</span><small>선수 · 구단 · 지역에 보낼 수 있음</small></div>`).join('')}</div>
+      <div class="stvsub b">지역 파견 — 넓게 훑기</div><div class="scgrid">${Object.entries(SL.SC_REG).map(([k,R])=>`<button class="screg" ${X.list.length<sl?'':'disabled'} onclick="UI.scSendMenu('${k}')"><b>${esc(R.short)}</b><span>주당 ${Ms(R.cost)}</span></button>`).join('')}</div>
+      <div class="stvsub small muted">구단 관찰은 「리그·구단」에서 구단을 고른 뒤, 선수 한 명 집중 관찰은 선수를 눌러서</div>`;}
+  if(f.v!=='sc')h+=`<div class="stvbar"><span>스카우트 ${X.list.length}/${sl}명${X.list.length?` · ${X.list.map(s=>scLabel(s)+' '+s.left+'주').join(', ')}`:' · 대기 중'}</span></div>`;
   return h;}
+Object.assign(A,{fgV(v){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.v=v;render();scrollTop();},fgLg(k){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.lg=k;ui.fgF.tid=null;render();},fgTeam(tid){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.tid=tid;render();scrollTop();},
+  fgTeamScout(tid){const t=S.teams[tid];if(!t)return;const c=SL.scTeamCost(t);stvMenu(`${esc(t.name)} 구단 관찰 <small>스카우트 1명 · 주당 ${Ms(c)}</small>`,[[`2주 · ${Ms(c*2)}`,`UI.fgTeamGo(${tid},2)`,'primary'],[`4주 · ${Ms(c*4)}`,`UI.fgTeamGo(${tid},4)`]]);},
+  fgTeamGo(tid,w){const e=SL.scoutTeam(tid,w);toast(e||'스카우트를 보냈습니다. 매주 이 구단 선수 지식이 쌓입니다.',3200);autosave();render();}});
 // ---- 재계약 (연봉협상) ----
 function renderRenew(){const ut=SL.userTeam();const I=ut.league==='KR'?SL.budgetInfo():null;ui.rdec=ui.rdec||{};const off=S.phase==='offseason';
   const L=off?S.pendingFA.map(id=>S.players[id]).filter(p=>p&&p.teamId===ut.id).map(p=>({p,key:SL.keyReason(p),dem:SL.renewDemandOf(p)})).sort((a,b)=>(b.key?1:0)-(a.key?1:0)||SL.calcOvr(b.p)-SL.calcOvr(a.p)):[];
@@ -7303,7 +7344,7 @@ Object.assign(A,{
   tradeReset(){const T=ui.trade||{};ui.trade={tid:T.tid,give:[],get:[],cash:0};render();},
   faMenu(pid){const p=S.players[pid];if(!p)return;const F=SL.faM(pid);const neg=(S.market.negs||[]).some(x=>x.pid===pid);stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세${F?` · 요구 ${F.ask.yrs}년 ${Ms(F.ask.tot)}`:''}</small>`,[['선수정보',`UI.openPlayer(${pid})`],[neg?'협상 이어가기':F&&F.mine?'조건 올리기':'협상',`UI.openTable(${pid})`,'primary'],[S.pins.includes(pid)?'관심 해제':'★ 관심 선수',`UI.pin(${pid})`]]);},
   fgMenu(pid){const p=S.players[pid];if(!p)return;const c=SL.fgnCost(p);const X=SL.scState();const foc=X.list.some(s=>s.focus===pid);const neg=(S.market.negs||[]).some(x=>x.pid===pid);
-    stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세 · 첫해 ${Ms(c.first)} · 지식 ${c.kn}%</small>`,[['스카우트 보고서',`UI.scoutReport(${pid})`],c.full?null:[foc?'관찰 중':`집중 관찰 ${c.focusWeeks}주 · ${Ms(c.focusCost)}`,`UI.scFocus(${pid})`,'',foc||X.list.length>=SL.scSlots()],[neg?'협상 이어가기':c.block?'정원 참 — 교체 대상 고르기':`협상 시작 · 첫해 ${Ms(c.first)}`,c.block&&!neg?`UI.quotaPick(${pid})`:`UI.openTable(${pid})`,'primary'],['선수정보',`UI.openPlayer(${pid})`]]);},
+    stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세 · 첫해 ${Ms(c.first)} · 지식 ${c.kn}%</small>`,[['스카우트 보고서',`UI.scoutReport(${pid})`],c.full?null:[foc?'관찰 중':`집중 관찰 ${c.focusWeeks}주 · ${Ms(c.focusCost)}`,`UI.scFocus(${pid})`,'',foc||X.list.length>=SL.scSlots()],SL.osWill(p,S.teams[p.teamId]).no?['이적 불가 — 한국행 관심 없음','', '',true]:[neg?'협상 이어가기':c.block?'정원 참 — 교체 대상 고르기':`협상 시작 · 첫해 ${Ms(c.first)}`,c.block&&!neg?`UI.quotaPick(${pid})`:`UI.openTable(${pid})`,'primary'],[(S.pins||[]).includes(pid)?'★ 관심 해제':'☆ 관심 선수 (관찰 명단)',`UI.pin(${pid})`],['선수정보',`UI.openPlayer(${pid})`]]);},
   rnMenu(pid){const p=S.players[pid];if(!p)return;const d=(ui.rdec||{})[pid]||'';stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세 · 요구 ${Ms(SL.renewDemandOf(p))}</small>`,[['선수정보',`UI.openPlayer(${pid})`],['요구승낙 (유지)',`UI.rdec(${pid},'keep')`,d==='keep'?'on':'',!!p.grudge],['협상',`UI.rdec(${pid},'neg')`,d==='neg'?'on':''],['결별',`UI.rdec(${pid},'cut')`,d==='cut'?'on danger':'danger'],d?['결정 취소',`UI.rdec(${pid},'${d}')`]:null]);},
   rdecAll(){ui.rdec=ui.rdec||{};for(const id of S.pendingFA){const p=S.players[id];if(p&&!p.grudge)ui.rdec[id]='keep';else if(p)ui.rdec[id]='neg';}ui.keepScroll=true;render();},
 });

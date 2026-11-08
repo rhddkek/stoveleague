@@ -2307,17 +2307,23 @@ function scoutSend(reg,weeks){const R=SC_REG[reg];if(!R)return '지역을 고르
   const ut=userTeam();const cost=R.cost*weeks;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg,left:weeks,weeks,seen:0});news(`[스카우트] ${R.ko}에 ${weeks}주 파견 (${money(cost)})`,'scout');return null;}
 function scoutFocus(pid){const p=P_(pid);if(!p||!scRegOf(p))return '해외 리그 선수만 집중 관찰할 수 있습니다.';const X=scState();if(X.list.some(s=>s.focus===pid))return '이미 집중 관찰 중입니다.';if(X.list.length>=scSlots())return `파견할 스카우트가 없습니다 (${scSlots()}명 모두 파견 중).`;
   const ut=userTeam();const cost=Math.round(SC_REG[scRegOf(p)].cost*0.8)*2;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg:scRegOf(p),focus:pid,left:2,weeks:2,seen:0});news(`[스카우트] ${p.name}(${S.teams[p.teamId].name}) 2주 집중 관찰 (${money(cost)})`,'scout');return null;}
+// v83: 구단 관찰 — 해외 구단 하나에 스카우트를 붙여 그 구단 선수 전원을 매주 관찰 (지역 파견보다 좁고 깊게)
+function scTeamReg(t){if(!t||t.league==='KR'||t.isUser)return null;return t.league==='US'?'US1':t.league==='JP'?'JP':t.league==='MX'||t.league==='CB'?'LAT':'ASIA';}
+function scTeamCost(t){const r=scTeamReg(t);return r?SC_REG[r].cost:0;}
+function scoutTeam(tid,weeks){const t=S.teams[tid];const reg=scTeamReg(t);if(!reg)return '해외 구단만 관찰할 수 있습니다.';weeks=[2,4].includes(+weeks)?+weeks:2;const X=scState();if(X.list.some(s=>s.team===tid))return '이미 관찰 중인 구단입니다.';if(X.list.length>=scSlots())return `파견할 스카우트가 없습니다 (${scSlots()}명 모두 파견 중). 스카우트 조직 Lv3·Lv5에서 늘어납니다.`;
+  const ut=userTeam();const cost=scTeamCost(t)*weeks;if(ut.cash<cost)return `자금 부족 (필요 ${money(cost)})`;ut.cash-=cost;ut.fin.scout+=cost;X.list.push({id:X.nid++,reg,team:tid,left:weeks,weeks,seen:0});news(`[스카우트] ${t.name} ${weeks}주 구단 관찰 (${money(cost)})`,'scout');return null;}
 function scoutRecall(id){const X=scState();X.list=X.list.filter(s=>s.id!==id);return null;}
 function scRec(p){const r=ovrRange(p);const L=BAL.LEVEL_OVR.KR1;const m=r.mid;return m>=L+6?{g:'A',t:'즉시 전력 (에이스·중심 타자급)'}:m>=L+2?{g:'B',t:'주전급'}:m>=L-2?{g:'C',t:'보강 자원'}:{g:'D',t:'관찰 유지'};}
 function scoutTick(){const X=scState();if(!X.list.length)return;const ut=userTeam();const mul=1+(ut.fac.scout-1)*0.12+(staffFx(ut).conf||0);const found=[];
-  for(const s of X.list){if(s.focus!=null){const p=P_(s.focus);if(p&&scRegOf(p)){p.kn=Math.min(100,knOf(p)+Math.round(38*mul));s.seen++;if(knOf(p)>=60)found.push(p);}else s.left=0;}
+  for(const s of X.list){if(s.team!=null){const t=S.teams[s.team];if(!t||!scTeamReg(t)){s.left=0;continue;}for(const p of t.roster.map(P_).filter(p=>p&&knOf(p)<100)){p.kn=Math.min(100,knOf(p)+Math.round((SC_REG[s.reg].gain+ri(0,6))*mul));s.seen++;if(knOf(p)>=50&&scRec(p).g<='C'&&!osWill(p,t).no)found.push(p);}s.left--;continue;}
+    if(s.focus!=null){const p=P_(s.focus);if(p&&scRegOf(p)){p.kn=Math.min(100,knOf(p)+Math.round(38*mul));s.seen++;if(knOf(p)>=60)found.push(p);}else s.left=0;}
     else{const pool=scPool(s.reg).filter(p=>knOf(p)<100);const n=Math.round(10+ut.fac.scout*2);const pickd=pool.map(p=>({p,v:calcOvr(p)+gauss()*7-(p.age>=34?6:0)})).sort((a,b)=>b.v-a.v).slice(0,n);
       for(const x of pickd){const p=x.p;p.kn=Math.min(100,knOf(p)+Math.round((SC_REG[s.reg].gain+ri(0,6))*mul));s.seen++;if(knOf(p)>=50&&scRec(p).g<='C'&&!osWill(p,S.teams[p.teamId]).no)found.push(p);}}
     s.left--;}
   const fin=X.list.filter(s=>s.left<=0);X.list=X.list.filter(s=>s.left>0);
   const uniq=[...new Set(found)];for(const p of uniq){X.rep=X.rep.filter(r=>r.pid!==p.id);X.rep.unshift({pid:p.id,c:S.clock,g:scRec(p).g});}X.rep=X.rep.filter(r=>P_(r.pid)).slice(0,30);
   const good=uniq.filter(p=>scRec(p).g<='B');if(uniq.length)news(`[스카우트] 보고서 ${uniq.length}건${good.length?` — 추천: ${good.slice(0,3).map(p=>`${p.name}(${S.teams[p.teamId].name} · ${POS_KO[p.pos]||p.pos})`).join(', ')}`:''}`,'scout');
-  for(const s of fin)news(`[스카우트] ${s.focus!=null&&P_(s.focus)?P_(s.focus).name+' 집중 관찰':SC_REG[s.reg].ko+' 파견'} 종료 — 선수 ${s.seen}명분 관찰`,'scout');}
+  for(const s of fin)news(`[스카우트] ${s.team!=null&&S.teams[s.team]?S.teams[s.team].name+' 구단 관찰':s.focus!=null&&P_(s.focus)?P_(s.focus).name+' 집중 관찰':SC_REG[s.reg].ko+' 파견'} 종료 — 선수 ${s.seen}명분 관찰`,'scout');}
 // 스카우트 보고: 지식도에 따라 드러나는 정보 (경력·구종·부상·적응 위험·KBO 예상)
 function scoutNotes(p){const k=knOf(p);const out=[];const t=p.teamId!=null?S.teams[p.teamId]:null;
   const os=(p.hist||[]).filter(h=>!String(h.lg||'').startsWith('KR')).slice(-3);if(os.length)out.push({k:'경력',t:os.map(h=>`${h.s} ${h.tn}`).join(' → ')});
@@ -2381,7 +2387,7 @@ function planCands(k,n){const ut=userTeam();if(ut.league!=='KR')return [];const 
   for(const p of overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_))){if(!p||!unitMatch(p,k)||knOf(p)<45||p.nat==='KR'&&false)continue;if(osWill(p,S.teams[p.teamId]).no)continue;const r=ovrRange(p);if(r.mid>=R.v-1)out.push({p,src:'os',v:r.mid});}
   return out.filter(x=>x.v>=R.v-2).sort((a,b)=>b.v-a.v).slice(0,n||3);}
 
-return {jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
