@@ -2,7 +2,7 @@
 const SL=require('./run.js');const fs=require('fs');let S;let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
 console.log('[1] 우리 경기 기록 규칙 (매 경기 검사)');
 SL.newGame(5252,3,{games:144});S=SL.state();
-let games=0,e={wsv:0,svhd:0,svNotLast:0,svStarter:0,svLoser:0,hdLast:0,hdNoOut:0,svNoOut:0,svBig:0},stealLogs=0,sbBox=0,svN=0,hdN=0,bsN=0,stopSteal=0,paChecks=0;
+let tcG=0,tcE=0,tcD=0,tcBad=[];let games=0,e={wsv:0,svhd:0,svNotLast:0,svStarter:0,svLoser:0,hdLast:0,hdNoOut:0,svNoOut:0,svBig:0},stealLogs=0,sbBox=0,svN=0,hdN=0,bsN=0,stopSteal=0,paChecks=0;
 while(S.phase==='season'&&S.day<=100){const g=SL.startDay();if(g){
     // 타석 단위로 진행: 도루가 나오면 그 장면에서 멈추고, 3아웃이면 이닝이 바뀌는 데서 멈춘다
     while(!g.done){const h0=g.inn*2+g.half,c0=g.paCount;const ev=SL.stepPA(g);paChecks++;if(ev&&ev.steal){stopSteal++;if(g.paCount!==c0)bad('도루 장면에서 타석이 같이 진행됨');}
@@ -13,9 +13,13 @@ while(S.phase==='season'&&S.day<=100){const g=SL.startDay();if(g){
       if(b.pHD&&+pid===g.pitcher[side])e.hdLast++;if(b.pHD&&!(b.pOuts>=1))e.hdNoOut++;if(b.pSV&&!(b.pOuts>=1))e.svNoOut++;
       if(b.pSV){const sv=g.svs[pid];if(!(sv&&sv.lead>0&&((sv.lead<=3&&b.pOuts>=3)||sv.tie||b.pOuts>=9)))e.svBig++;}
       svN+=b.pSV||0;hdN+=b.pHD||0;bsN+=b.pBS||0;sbBox+=b.sb||0;}
+    // v78 (R062): 공수교대 화면 비교 막대 — 실책·병살은 경기 중 따로 셈, 로그·기록과 같아야 함
+    if(!g.tc)bad('경기 실책·병살 집계(tc) 없음');else{tcG++;for(const sd of [0,1]){const tid=sd?g.home:g.away;const hb=Object.keys(g.box).reduce((a,id)=>a+(S.players[id]&&S.players[id].teamId===tid?(g.box[id].h||0):0),0);if(hb!==g.hits[sd])tcBad.push('안타 '+hb+'≠'+g.hits[sd]);
+      if(g.log.length<400){const le=g.log.filter(l=>l.type==='e'&&l.half===1-sd).length,ld=g.log.filter(l=>l.type==='dp'&&l.half===sd).length;tcE+=g.tc.e[sd];tcD+=g.tc.dp[sd];if(le!==g.tc.e[sd]||ld!==g.tc.dp[sd])tcBad.push(`실책 ${g.tc.e[sd]}/${le} 병살 ${g.tc.dp[sd]}/${ld}`);}}}
     stealLogs+=g.log.filter(l=>l.type==='sb').length;SL.endUserGame();}else SL.playDayAuto();
   for(const o of [...S.market.offers])SL.respondOffer(o.id,'reject');}
 const E=Object.entries(e).filter(([k,v])=>v);E.length?bad('규칙 위반 '+JSON.stringify(e)):ok(`${games}경기: 승리·세이브 중복 없음 · 세이브는 이긴 팀 마지막 투수(선발 아님, 3점 이내 1이닝↑ / 동점 주자 상황 / 3이닝↑) · 홀드는 아웃 1개 이상 잡고 리드 지킨 채 교체된 불펜`);
+!tcBad.length&&tcG>0&&tcD>0?ok(`v78 경기 기록 비교: ${tcG}경기 병살 ${tcD}(로그와 같음, 실책 ${tcE}) · 안타가 선수 기록 합과 일치`):bad('경기 집계 '+tcBad.slice(0,3).join(' / ')+' 실책 '+tcE+' 병살 '+tcD);
 svN>0&&hdN>0?ok(`우리 경기 세이브 ${svN} · 홀드 ${hdN} · 블론 ${bsN}`):bad(`세이브 ${svN} 홀드 ${hdN}`);
 stealLogs>0&&sbBox>=stealLogs?ok(`도루 ${sbBox}개 기록 · 도루 장면에서 따로 멈춘 진행 ${stopSteal}번`):bad(`도루 로그 ${stealLogs} 기록 ${sbBox}`);
 console.log('[2] 한 시즌 리그 기록 (현실 범위)');

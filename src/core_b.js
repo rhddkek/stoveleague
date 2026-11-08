@@ -10,7 +10,7 @@ function createGame(homeId,awayId,userGame){
   const H=S.teams[homeId],A=S.teams[awayId];
   const lg={home:homeId,away:awayId,inn:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],score:[0,0],innScores:[[],[]],halfRuns:0,
     lineup:[[...A.lineup],[...H.lineup]],pos:[{...A.pos},{...H.pos}],bat:[0,0],pitcher:[null,null],used:[[],[]],subbed:[[],[]],pc:{},box:{},log:[],done:false,finalized:false,
-    por:[null,null],lossP:null,leadSide:-1,entryLead:{},userGame:!!userGame,paCount:0,hits:[0,0],last:null};
+    por:[null,null],lossP:null,leadSide:-1,entryLead:{},userGame:!!userGame,paCount:0,hits:[0,0],tc:{e:[0,0],dp:[0,0]},last:null};
   for(const side of [0,1]){const t=side===1?H:A;let sp=t.rotation.length?t.rotation[t.rotIdx%t.rotation.length]:null;
     if(sp==null||!S.players[sp]||S.players[sp].inj){sp=(t.rotation.map(id=>S.players[id]).find(p=>p&&!p.inj&&p.id!==sp)||t.roster.map(id=>S.players[id]).filter(p=>p&&isPitcher(p)&&!p.inj)[0]||{}).id;}
     if(t.rotation.length)t.rotIdx=(t.rotIdx+1)%t.rotation.length;
@@ -19,7 +19,7 @@ function createGame(homeId,awayId,userGame){
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
 }
-function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(x){e.pid=x.pid;e.pit=x.pit;if(x.sc0){e.sc0=x.sc0;e.sc1=x.sc1;e.on=x.on;e.o0=x.o0;}}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
+function glog(lg,text,type,x){const e={inn:lg.inn,half:lg.half,text,type:type||'n'};if(lg.tc){if(type==='e')lg.tc.e[1-lg.half]++;else if(type==='dp')lg.tc.dp[lg.half]++;}if(x){e.pid=x.pid;e.pit=x.pit;if(x.sc0){e.sc0=x.sc0;e.sc1=x.sc1;e.on=x.on;e.o0=x.o0;}}lg.log.push(e);if(lg.log.length>400)lg.log.splice(0,lg.log.length-400);}
 function curBatter(lg){return S.players[lg.lineup[lg.half][lg.bat[lg.half]]];}
 function curPitcher(lg){return S.players[lg.pitcher[1-lg.half]];}
 
