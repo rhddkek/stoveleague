@@ -509,7 +509,7 @@ function decorateTables(){ui.tsort=ui.tsort||{};const app=document.getElementByI
   for(const tb of app.querySelectorAll('table')){if(tb.classList.contains('nosort')||tb.matches('.negt,.kvt,.rnw')||(tblRows(tb)||[]).length<4)continue;const hr=tblHead(tb);if(!hr||!tblRows(tb))continue;const ths=[...hr.cells];if(ths.some(th=>th.colSpan>1))continue;
     tb.classList.add('asort');ths.forEach((th,i)=>{if(th.classList.contains('srt')||th.getAttribute('onclick'))return;if(!th.dataset.lab)th.dataset.lab=th.textContent.trim();if(!th.querySelector('i.as'))th.insertAdjacentHTML('beforeend',' <i class="as">⇅</i>');th.classList.add('asc0');th.onclick=()=>{const sig=tblSig(tb);const cur=ui.tsort[sig];const first=(()=>{const rows=tblRows(tb);if(!rows)return 1;const k=cellKey(rows[0].cells[i]);return k.n!=null&&!k.pos?-1:1;})();const dir=cur&&cur.c===i?-cur.d:first;ui.tsort[sig]={c:i,d:dir};sortTable(tb,i,dir);};});
     const st=ui.tsort[tblSig(tb)];if(st&&ths[st.c])sortTable(tb,st.c,st.d);}}
-function render(){renderBase();try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}}
+function render(){renderBase();try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}try{bgmSync();}catch(e){}}
 // ---- 선수 검색 ----
 function searchHtml(q){const ut=SL.userTeam();q=(q||'').trim();if(!q)return '<div class="muted small" style="padding:8px">이름 두 글자 이상 (예: 김민, 페레스)</div>';
   const all=Object.values(S.players).filter(p=>p&&!p.retired&&p.name&&p.name.includes(q));const rk=p=>(p.teamId===ut.id||ut.dev.includes(p.id)?0:p.teamId==null?1:S.teams[p.teamId]&&S.teams[p.teamId].league===ut.league?2:3);all.sort((a,b)=>rk(a)-rk(b)||SL.calcOvr(b)-SL.calcOvr(a));
