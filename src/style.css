@@ -1270,3 +1270,16 @@ body:has(.gamev) .toast{bottom:auto;top:44%;background:rgba(10,16,30,.88);font-s
 .pvsub button.on{background:var(--navy);border-color:var(--navy);color:var(--card)}
 .ea[data-theme="dark"] .pvsub button.on{background:var(--orange);border-color:var(--orange);color:#fff}
 @media (max-width:600px){.pv .advg{gap:5px}.pv .adv{padding:5px 7px;border-radius:8px}.pv .adv .v{font-size:17px}.pv .adv .l{font-size:10.5px}.pv .adv .chip{margin-top:2px;font-size:10px;padding:1px 6px}.pv .card .small.muted{font-size:11.5px}}
+/* v81 (R065): 겨울 감독실 = 맨 위 주차·마감 / 처리할 일 하나 / 보강 목표 2개 / 하단 진행 */
+.mkcard.todo .mksec .waitb{font-size:12px;font-weight:800;padding:3px 10px;border-radius:12px;border:1px solid var(--line);background:var(--sunk);color:var(--text);min-height:0}
+.mail.td{padding:7px 10px;gap:8px}.mail.td .t{font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mail.td .s{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mail.td .s .due{color:var(--orange);font-weight:800}.mail.td .grow{min-width:0}.mail.td>button{flex:none}
+.mail.td.hot{background:var(--orange-bg,rgba(240,120,40,.08))}.mail.td.hot .t{color:inherit}
+details.tdone{border-top:1px solid var(--line)}details.tdone>summary{padding:7px 12px;font-size:12px;color:var(--muted);cursor:pointer}
+.wgoal .goal2{display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 10px;margin:4px 0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;text-align:left}.wgoal .goal2 b{font-size:14px}.wgoal .goal2 .rk{color:var(--red);font-size:12px;margin-left:4px}.wgoal .goal2 span{font-size:12.5px;color:var(--orange);font-weight:700}.wgoal .goal2.done span{color:var(--green)}.wgoal .goal2.prog span{color:var(--muted)}
+.dsf{display:flex;flex-wrap:wrap;gap:6px}.dsf button{padding:6px 10px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:13px;min-height:0}.dsf button.on{background:var(--navy);color:var(--card);border-color:var(--navy)}
+.gobar.g2{display:flex;gap:6px;align-items:stretch}.gobar.g2 .mkgo{flex:1;margin:0;padding-top:9px;padding-bottom:9px}.gobar.g2 .skipb{flex:none;width:84px;font-size:11.5px;line-height:1.25;padding:4px 6px;border-radius:10px}
+.mail.td .mic{width:36px;height:36px;font-size:18px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wkbar{flex-wrap:nowrap!important;white-space:nowrap;overflow:hidden}.wkbar>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:600px){.wkbar{padding:8px 12px!important;margin-bottom:8px!important}.wkbar>span{font-size:12px}.wgoal .goal2{padding:7px 10px;margin:3px 0}.mkcard.todo,.mkcard.wgoal{margin-bottom:8px}}
+.wgoal .g2w{display:grid;grid-template-columns:1fr 1fr;gap:6px}.wgoal .g2w .goal2{flex-direction:column;align-items:flex-start;gap:2px;margin:0}.wgoal .g2w .goal2:only-child{grid-column:1/-1;flex-direction:row;align-items:center}
+@media (max-width:600px){.mail.td{padding:6px 10px}.mkcard.todo .mksec,.mkcard.wgoal .mksec{padding-top:7px;padding-bottom:7px}details.tdone>summary{padding:5px 12px}}

@@ -1,7 +1,7 @@
 const fs=require('fs');const r=n=>fs.readFileSync('src/'+n,'utf8');
 const core=['core_a.js','core_b.js','core_c.js'].map(r).join('\n');
 // v64: ui2.js(GPT 시안 화면)를 UI IIFE 안에 끼워 넣고, 재사용할 원본 함수는 *0 이름으로 바꾼다.
-function uiJs(){let u=r('ui.js');const ren=[['renderHome','renderSeasonHome0'],['renderPlayer','renderPlayer0'],['renderTable','renderTable0'],['renderMarket','renderMarket0'],['renderDev','renderDev0'],['renderClub','renderClub0'],['renderClubBar','renderClubBar0'],['nextBtn','nextBtn0'],['renderRoster','renderRoster0'],['renderTitle','renderTitle0'],['render','renderBase'],['contractCeremony','contractCeremony0'],['rightPaneFor','rightPaneFor0'],['renderGame','renderGame0']];
+function uiJs(){let u=r('ui.js');const ren=[['renderHome','renderSeasonHome0'],['renderPlayer','renderPlayer0'],['renderTable','renderTable0'],['renderMarket','renderMarket0'],['renderDev','renderDev0'],['renderClub','renderClub0'],['renderClubBar','renderClubBar0'],['nextBtn','nextBtn0'],['renderRoster','renderRoster0'],['renderTitle','renderTitle0'],['render','renderBase'],['contractCeremony','contractCeremony0'],['rightPaneFor','rightPaneFor0'],['renderGame','renderGame0'],['decisionItems','decisionItems0']];
   for(const [a,b] of ren){const re=new RegExp('^function '+a+'\\(','m');if(!re.test(u))throw new Error('build: '+a+' 없음');u=u.replace(re,'function '+b+'(');}
   const tail='return A;\n})();';const i=u.lastIndexOf(tail);if(i<0)throw new Error('build: UI IIFE 끝 못 찾음');
   return u.slice(0,i)+'\n// ===== v64 ui2.js =====\n'+r('ui2.js')+'\n'+u.slice(i);}

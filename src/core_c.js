@@ -2255,7 +2255,9 @@ function placePlan(pid){const ut=userTeam();const p=P_(pid);if(!p||p.teamId!==ut
   if(!best||best.g<=0.5)return {kind:'bench',text:`${josa(p.name,'은','는')} 지금 주전보다 낮아 벤치에서 시작합니다. 라인업 탭에서 언제든 바꿀 수 있습니다.`,none:true};
   const lin=ut.lineup.map(id=>({p:P_(id),pos:ut.pos[id]})).filter(x=>x.p);const v=x=>x.pos==='DH'?offVal(x.p)+5:posOvr(x.p,x.pos);const b0=avg(lin.map(v));const a0=avg(lin.map(x=>x.p.id===best.cur?best.mine:v(x)));
   return {kind:'bat',pos:best.pos,out:best.cur,short:`${p.name} 주전 ${POS_KO[best.pos]||best.pos}${best.cp?` · ${best.cp.name} 벤치`:''}`,text:`${josa(p.name,'을','를')} 주전 ${josa(POS_KO[best.pos]||best.pos,'으로')} 넣을까요?${best.cp?` 기존 ${josa(best.cp.name,'은','는')} 벤치로 갑니다.`:''}`,unit:'라인업 평균',before:b0,after:a0};}
-function placeApply(pid){const ut=userTeam();const pl=placePlan(pid);if(!pl||pl.done||pl.none)return pl?pl.text:'배치할 수 없습니다.';const p=P_(pid);entryEnsure(ut,pid);
+// v81: 배치를 정하면(제안대로든 다른 자리든) 모든 「처리할 일」 목록에서 함께 사라지게 표시
+function markPlaced(pid){for(const q of (S.signQ||[]))if(q.pid===pid)q.placed=true;for(const r of (S.myRes||[]))if(r.pid===pid&&r.ok)r.seen=true;}
+function placeApply(pid){const ut=userTeam();const pl=placePlan(pid);if(!pl||pl.done||pl.none)return pl?pl.text:'배치할 수 없습니다.';const p=P_(pid);entryEnsure(ut,pid);markPlaced(pid);
   if(pl.kind==='sp'){const i=ut.rotation.indexOf(pl.out);ut.bullpen=ut.bullpen.filter(x=>x!==pid);if(ut.closer===pid)ut.closer=null;if(i>=0){ut.rotation[i]=pid;if(!ut.bullpen.includes(pl.out))ut.bullpen.push(pl.out);}else ut.rotation.push(pid);
     // 강한 투수가 앞 순번으로
     ut.rotation.sort((a,b)=>calcOvr(P_(b))-calcOvr(P_(a)));}
@@ -2368,7 +2370,7 @@ function planCands(k,n){const ut=userTeam();if(ut.league!=='KR')return [];const 
   for(const p of overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_))){if(!p||!unitMatch(p,k)||knOf(p)<45||p.nat==='KR'&&false)continue;if(osWill(p,S.teams[p.teamId]).no)continue;const r=ovrRange(p);if(r.mid>=R.v-1)out.push({p,src:'os',v:r.mid});}
   return out.filter(x=>x.v>=R.v-2).sort((a,b)=>b.v-a.v).slice(0,n||3);}
 
-return {BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
