@@ -274,7 +274,7 @@ function stepGame(lg){let n=0;while(!lg.done&&n<20000){doPitch(lg);n++;}return l
 // 1군 데뷔: 우리 구단 선수가 프로 첫 1군 경기에 나서면 한 번만 기록 (등록만으로는 데뷔가 아님)
 function debutCheck(p,lg,b){if(p.deb||p.teamId!==S.userTeamId||p.age>25)return;if((p.hist||[]).some(h=>h.st&&(h.st.g||h.st.pG)))return;if((p.cur.g||0)+(p.cur.pG||0)>0){p.deb=1;return;}
   const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];const line=b.pG?`${Math.floor(b.pOuts/3)}${b.pOuts%3?'.'+b.pOuts%3:''}이닝 ${b.pR}실점 ${b.pSO}삼진`:`${b.ab}타수 ${b.h}안타${b.hr?' '+b.hr+'홈런':''}${b.rbi?' '+b.rbi+'타점':''}`;
-  p.deb={s:S.season,d:S.day,vs:opp?opp.name:'',line};news(`[1군 데뷔] ${p.name}(${p.age}세), ${opp?opp.name.split(' ')[0]:''}전 첫 1군 경기 — ${line}`,'growth');}
+  p.deb={s:S.season,d:S.day,vs:opp?opp.name:'',line};news(`[1군 데뷔] ${p.name}(${p.age}세), ${opp?opp.name:''}전 첫 1군 경기 — ${line}`,'growth');}
 function finalizeGame(lg){
   if(!lg.done||lg.finalized)return;lg.finalized=true;
   const H=S.teams[lg.home],A=S.teams[lg.away];
@@ -283,7 +283,7 @@ function finalizeGame(lg){
   if(!(sg&&sg.post)){H.rec[hw?'w':'l']++;A.rec[hw?'l':'w']++;H.rec.rs+=lg.score[1];H.rec.ra+=lg.score[0];A.rec.rs+=lg.score[0];A.rec.ra+=lg.score[1];}
   const isPost=!!(sg&&sg.post);
   for(const pid in lg.box){const p=S.players[pid];if(!p)continue;const b=lg.box[pid];if(!isPost&&(lg.home===S.userTeamId||lg.away===S.userTeamId)&&(b.g||b.pG)){debutCheck(p,lg,b);
-    if(p.teamId===S.userTeamId){/* v65: 우리 선수 경기별 기록(월별·상대별·홈/원정) — 이번 시즌만 */if(!p.gl||p.gl.s!==S.season)p.gl={s:S.season,l:[]};p.gl.l.push([S.day,lg.home===S.userTeamId?lg.away:lg.home,lg.home===S.userTeamId?1:0,b.pOuts,b.pH,b.pER,b.pBB,b.pSO,b.pW,b.pL,b.pSV,b.pa,b.ab,b.h,b.d2,b.d3,b.hr,b.bb,b.so,b.r,b.rbi,b.sb,b.cs,b.pG||0,b.pGS||0,b.pHR||0].map(x=>x||0));if(p.gl.l.length>170)p.gl.l.shift();}if(typeof careerMs==='function')careerMs(p,b,lg);if(b.hr&&p.deb&&p.deb.s&&!(p.ms&&p.ms.hr1)&&!(p.cur.hr>0)&&!(p.hist||[]).some(h=>h.st&&h.st.hr)){const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];p.ms=Object.assign(p.ms||{},{hr1:{s:S.season,d:S.day,vs:opp?opp.name:''}});news(`[첫 홈런] ${p.name}, 1군 첫 홈런! (${opp?opp.name.split(' ')[0]:''}전)`,'growth');}}const c=isPost?(p.ps=p.ps||newStat()):p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
+    if(p.teamId===S.userTeamId){/* v65: 우리 선수 경기별 기록(월별·상대별·홈/원정) — 이번 시즌만 */if(!p.gl||p.gl.s!==S.season)p.gl={s:S.season,l:[]};p.gl.l.push([S.day,lg.home===S.userTeamId?lg.away:lg.home,lg.home===S.userTeamId?1:0,b.pOuts,b.pH,b.pER,b.pBB,b.pSO,b.pW,b.pL,b.pSV,b.pa,b.ab,b.h,b.d2,b.d3,b.hr,b.bb,b.so,b.r,b.rbi,b.sb,b.cs,b.pG||0,b.pGS||0,b.pHR||0].map(x=>x||0));if(p.gl.l.length>170)p.gl.l.shift();}if(typeof careerMs==='function')careerMs(p,b,lg);if(b.hr&&p.deb&&p.deb.s&&!(p.ms&&p.ms.hr1)&&!(p.cur.hr>0)&&!(p.hist||[]).some(h=>h.st&&h.st.hr)){const opp=S.teams[lg.home===S.userTeamId?lg.away:lg.home];p.ms=Object.assign(p.ms||{},{hr1:{s:S.season,d:S.day,vs:opp?opp.name:''}});news(`[첫 홈런] ${p.name}, 1군 첫 홈런! (${opp?opp.name:''}전)`,'growth');}}const c=isPost?(p.ps=p.ps||newStat()):p.cur;for(const k in b)c[k]=(c[k]||0)+b[k];
     if(b.pG){p.fatigue=Math.min(100,(p.fatigue||0)+b.pPit*0.55);p.xp+=b.pOuts;if(!b.pGS&&!isPost){p.apD=(p.apD||[]).filter(d=>d>=S.day-2&&d<S.day);p.apD.push(S.day);}}
     else if(b.g){p.fatigue=Math.min(100,(p.fatigue||0)+5);p.xp+=b.pa;}
     if(typeof injRoll==='function')injRoll(p,b,lg);

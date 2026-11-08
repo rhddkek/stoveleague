@@ -130,13 +130,22 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
    let g=0;while(g++<40&&!(await p.evaluate(()=>{const S=SL.state();if(S.phase!=='season')return true;UI.setTab('home');if(SL.userGameToday()){UI.startGame();return !!S.liveGame;}UI.autoDays(1);return false;})));
    if(await p.evaluate(()=>!!SL.state().liveGame)){
     for(const W of [360,390,1280]){await p.setViewportSize({width:W,height:W>1000?820:740});await p.evaluate(()=>{UI.set('stepMode','pa');UI.step('pa');});await p.waitForTimeout(80);
-     const c=await p.evaluate(()=>({sb:document.querySelectorAll('.cmsb .bs i').length===7&&!!document.querySelector('.cmlsw .cmls'),dia:!!document.querySelector('.cmf .dia'),td:document.querySelectorAll('.cmtoday .td').length,bar:document.querySelectorAll('.cmbar button').length,tag:!!document.querySelector('.ntag.tb'),res:!!document.querySelector('.cmres .big')||!!document.querySelector('.cmint')}));
+     const c=await p.evaluate(()=>({sb:document.querySelectorAll('.cmsb .bs i').length===7&&!!document.querySelector('.cmlsw .cmls'),dia:!!document.querySelector('.cmf .cmdia'),td:document.querySelectorAll('.cmtoday .td').length,bar:document.querySelectorAll('.cmbar button').length,tag:!!document.querySelector('.ntag.tb'),res:!!document.querySelector('.cmres .big')||!!document.querySelector('.cmint')}));
      c.sb&&c.dia&&c.td===2&&c.bar===4&&c.tag?ok(`감독모드 ${W}px: 점수판(B·S·O 불빛)·이닝 점수표(R H E B)·다이아몬드·타자 이름표·TODAY 2칸·하단 4칸`):bad('감독모드 '+W+' '+JSON.stringify(c));await over('감독모드 '+W);}
     await p.setViewportSize({width:360,height:740});
     const it=await p.evaluate(()=>{let g=0;while(g++<60&&!document.querySelector('.cmint')){if(SL.state().liveGame.done)break;UI.step('pa');}return {i:!!document.querySelector('.cmint'),t:document.querySelector('.cmv')?document.querySelector('.cmv').innerText:''};});
-    it.i&&/타순정보/.test(it.t)&&/투수정보/.test(it.t)&&/시뮬레이션/.test(it.t)?ok('공수교대 화면: 점수표 · 타순정보(다음 3명) · 투수정보 · 감독모드/시뮬레이션/경기 끝까지'):bad('공수교대 화면 '+it.i);await over('공수교대 화면');
+    it.i&&/타순정보/.test(it.t)&&/투수정보/.test(it.t)&&/시뮬레이션/.test(it.t)?ok('공수교대 화면: 점수표 · 타순정보(다음 3명) · 투수정보 · 직접 지휘/시뮬레이션/경기 끝까지'):bad('공수교대 화면 '+it.i);await over('공수교대 화면');
+    // v77 (R061): 공 하나씩 — 볼카운트가 남아 있으면 타석 결과 창을 미리 보여 주지 않음 · 알림이 진행 버튼을 덮어도 실제 손가락 누름이 통함 · 감독모드 제목 없음
+    {await p.evaluate(()=>{if(document.querySelector('.cmint'))document.querySelectorAll('.cmpick button')[0].click();UI.set('stepMode','pitch');});let seen=0,bad1=0,miss=0,toastHit=0;
+     for(let i=0;i<70;i++){const st=await p.evaluate(()=>{const lg=SL.state().liveGame;if(!lg||lg.done)return 'done';return document.querySelector('.cmint')?'int':'go';});if(st==='done')break;
+      if(st==='int'){await p.evaluate(()=>document.querySelectorAll('.cmpick button')[0].click());continue;}
+      if(i%10===0)await p.evaluate(()=>{const b=document.querySelector('.cmgo .gold').getBoundingClientRect();const t=document.getElementById('toast')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'toast',className:'toast'}));t.textContent='시험 알림 — 버튼 위';t.style.display='block';});
+      try{await p.click('.cmgo .gold',{timeout:1200});}catch(e){miss++;}
+      const r=await p.evaluate(()=>{const lg=SL.state().liveGame;return {c:!!(lg.balls||lg.strikes),res:!!document.querySelector('.cmres')};});if(r.c){seen++;if(r.res)bad1++;}}
+     const tt=await p.evaluate(()=>document.querySelector('.cmv')?document.querySelector('.cmv').innerText:'');
+     seen&&!bad1&&!miss&&!/COACH MODE|감독모드/.test(tt)?ok(`공 하나씩: 볼카운트 장면 ${seen}번 모두 결과 창 숨김 · 알림이 떠도 진행 버튼 눌림 · 제목 글자 없음`):bad(`공 하나씩 seen ${seen} 결과노출 ${bad1} 눌림실패 ${miss}`);}
     await p.evaluate(()=>UI.cmSheet('tac'));await has('이득(+)');await p.evaluate(()=>UI.closeModal());
-    await p.evaluate(()=>{UI.set('stepMode','game');UI.step('game');});await has('결과 확인 후 계속');await has('승리투수');await has('패전투수');await over('경기 결과');ok('경기 끝: YOU WIN/LOSE · 점수표 · 승리·패전 투수');
+    await p.evaluate(()=>{UI.set('stepMode','game');UI.step('game');});await has('결과 확인 후 계속');await has('승리투수');await has('패전투수');await over('경기 결과');ok('경기 끝: 승리/패배 · 점수표 · 승리·패전 투수');
     await p.evaluate(()=>UI.endGame());}}
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' | '));
   await b.close();console.log(fails?`화면 검사 실패 ${fails}건`:'화면 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});
