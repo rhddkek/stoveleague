@@ -225,14 +225,14 @@ function aiPitchCheck(lg,side,halfStart){
 // ---------- 경기 작전 (EA 2011의 「이득 / 대가」 한 줄 설명 방식을 우리 식으로) ----------
 // 유저 경기에서만 쓴다 (AI 구단은 기존 엔진 그대로라 밸런스 기준값 유지). 작전은 그 타석에만 적용
 const TACTICS={
-  bunt:{ko:'보내기 번트',side:'off',now:true,gain:'주자 한 베이스 진루',cost:'타자는 아웃 · 실패하면 앞 주자가 잡힘'},
-  steal:{ko:'도루',side:'off',now:true,gain:'주자 한 베이스 진루 (발 빠를수록 성공↑)',cost:'실패하면 주자 아웃 · 포수 어깨가 좋으면 위험'},
-  dsteal:{ko:'이중 도루',side:'off',now:true,gain:'1·2루 주자 동시 진루',cost:'실패하면 앞 주자 아웃'},
-  hitrun:{ko:'히트 앤드 런',side:'off',gain:'안타 때 1루 주자 3루까지 · 병살 없음',cost:'장타 감소 · 삼진이면 주자도 위험'},
-  team:{ko:'팀배팅',side:'off',gain:'아웃돼도 주자 진루 · 희생플라이 잘 나옴',cost:'장타 크게 감소'},
-  wait:{ko:'공 기다리기',side:'off',gain:'볼넷 증가',cost:'루킹 삼진 증가'},
-  ibb:{ko:'고의사구',side:'def',now:true,gain:'강타자를 피함',cost:'주자를 공짜로 내보냄'},
-  gb:{ko:'땅볼 유도',side:'def',gain:'땅볼·병살 증가',cost:'맞으면 장타 위험 증가'}};
+  bunt:{ko:'보내기 번트',side:'off',now:true,g2:'진루',c2:'타자 아웃',gain:'주자 한 베이스 진루',cost:'타자는 아웃 · 실패하면 앞 주자가 잡힘'},
+  steal:{ko:'도루',side:'off',now:true,g2:'한 베이스',c2:'실패=아웃',gain:'주자 한 베이스 진루 (발 빠를수록 성공↑)',cost:'실패하면 주자 아웃 · 포수 어깨가 좋으면 위험'},
+  dsteal:{ko:'이중 도루',side:'off',now:true,g2:'둘 다 진루',c2:'앞 주자 위험',gain:'1·2루 주자 동시 진루',cost:'실패하면 앞 주자 아웃'},
+  hitrun:{ko:'히트 앤드 런',side:'off',g2:'1→3루·병살 없음',c2:'장타↓·삼진 위험',gain:'안타 때 1루 주자 3루까지 · 병살 없음',cost:'장타 감소 · 삼진이면 주자도 위험'},
+  team:{ko:'팀배팅',side:'off',g2:'진루타·희생플라이',c2:'장타↓↓',gain:'아웃돼도 주자 진루 · 희생플라이 잘 나옴',cost:'장타 크게 감소'},
+  wait:{ko:'공 기다리기',side:'off',g2:'볼넷↑',c2:'루킹 삼진↑',gain:'볼넷 증가',cost:'루킹 삼진 증가'},
+  ibb:{ko:'고의사구',side:'def',now:true,g2:'강타자 피함',c2:'주자 1명 공짜',gain:'강타자를 피함',cost:'주자를 공짜로 내보냄'},
+  gb:{ko:'땅볼 유도',side:'def',g2:'땅볼·병살↑',c2:'맞으면 장타',gain:'땅볼·병살 증가',cost:'맞으면 장타 위험 증가'}};
 function catcherDef(lg,fs){for(const pid of lg.lineup[fs]){if(lg.pos[fs][pid]==='C'){const p=S.players[pid];return p?p.attrs.defense:50;}}return 50;}
 function stealP(lg,pid){const fs=1-lg.half;const P=S.players[lg.pitcher[fs]];return clamp(0.80+(spd(pid)+fast(pid)-70)*0.008-(catcherDef(lg,fs)-50)*0.004+(P&&P.throws==='L'?-0.04:0),0.35,0.93);}
 // 자동 도루 (그린라이트): 타석 시작 때 한 번, 발 빠른 주자가 앞 베이스가 비면 시도. 점수 차가 크면 하지 않음
