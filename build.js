@@ -22,6 +22,8 @@ const html=`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 ${r('style.css')}
+${r('unslop_gen.css')}
+${r('unslop.css')}
 </style></head><body><div id="app"></div>
 <script id="assets">
 ${assetsJs}
@@ -36,4 +38,6 @@ window.UI=UI;
 </script>
 </body></html>`;
 fs.writeFileSync('stoveleague.html',html);fs.writeFileSync('index.html',html); // GitHub Pages 주소(rhddkek.github.io/stoveleague)용
-const art=`<title>스토브리그</title>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">\n<meta name="claude:viewport-fit-sides" content="cover">\n<style>\n${r('style.css')}\n</style>\n<div id="app"></div>\n<script>\n${assetsJs}\n</script>\n<script>\n${core}\nwindow.SL=SL;\n</script>\n<script>\n${uiJs()}\nwindow.UI=UI;\n</script>`;fs.writeFileSync('stoveleague_artifact.html',art);console.log('built',(html.length/1024).toFixed(0),'KB');
+const art=`<title>스토브리그</title>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">\n<meta name="claude:viewport-fit-sides" content="cover">\n<style>\n${r('style.css')}
+${r('unslop_gen.css')}
+${r('unslop.css')}\n</style>\n<div id="app"></div>\n<script>\n${assetsJs}\n</script>\n<script>\n${core}\nwindow.SL=SL;\n</script>\n<script>\n${uiJs()}\nwindow.UI=UI;\n</script>`;fs.writeFileSync('stoveleague_artifact.html',art);console.log('built',(html.length/1024).toFixed(0),'KB');

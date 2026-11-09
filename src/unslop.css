@@ -1,0 +1,93 @@
+/* v93 (R077) unslop — 전광판 방향 (손으로 쓴 층)
+   바탕: 밤색 사다리(거의 무채색) · 강조: 전광판 노랑 하나 · 선택: 회백색 · 핵심 숫자: 같은 폭 노랑
+   모든 규칙은 body:not(.ingame) 아래 — 경기 화면은 예전 그대로 */
+
+/* ── 1. 색: 밤색 사다리 + 노랑 하나 (어두운 테마, 기본) ── */
+:root.ea[data-theme="dark"],:root.ea[data-theme="dark"] body:not(.ingame){background:#0c0d10}
+:root.ea[data-theme="dark"] body:not(.ingame){
+  --navy:#0c0d10;--navy2:#181a1f;--navy3:#f2c14e;--on-navy:#eceef2;--on-navy-dim:#9aa0ad;
+  --bg:#111317;--card:#181a1f;--sunk:#21242b;--text:#eceef2;--muted:#9aa0ad;--line:#2a2d35;
+  --orange:#f2c14e;--orange-bg:#2a2416;--orange-ink:#f5d27a;--gold:#f2c14e;
+  --green:#3fbf7f;--green-bg:#15291f;--green-ink:#6fd6a0;--red:#e5534b;--red-bg:#2e1819;--red-ink:#f08a82;
+  --blue:#6f9cf2;--gray:#7c818d;--acc:#f2c14e;--acc-ink:#15171c;--sel:#eceef2;--sel-ink:#15171c;--hair:rgba(236,238,242,.08)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv,:root.ea[data-theme="dark"] body:not(.ingame) .pv.tbl3{
+  --bg:#111317;--card:#181a1f;--sunk:#21242b;--text:#eceef2;--muted:#9aa0ad;--line:#2a2d35;
+  --orange-bg:#2a2416;--orange-ink:#f5d27a;--green-bg:#15291f;--green-ink:#6fd6a0;--red-bg:#2e1819;--red-ink:#f08a82;background:var(--bg)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv.bbox{background:var(--bg)}
+
+/* ── 2. 주 단추 = 노랑 하나 (평평하게, 어두운 글자) ── */
+:root.ea[data-theme="dark"] body:not(.ingame) button.primary,
+:root.ea[data-theme="dark"] body:not(.ingame) button.gold,
+:root.ea[data-theme="dark"] body:not(.ingame) .club .nextb,
+:root.ea[data-theme="dark"] body:not(.ingame) .mkbtn3>button.primary{background:var(--acc)!important;color:var(--acc-ink)!important;border-color:var(--acc)!important;box-shadow:none!important;text-shadow:none}
+:root.ea[data-theme="dark"] body:not(.ingame) button.primary.alt{background:var(--green)!important;color:#0f1a14!important}
+body:not(.ingame) button.gold{background:var(--gold);box-shadow:none}
+body:not(.ingame) .nextb.must,body:not(.ingame) .club .nextb.must{animation:none;background:var(--red)!important;color:#fff!important}
+
+/* ── 3. 선택 상태 = 회백색 한 가지 (주황 채움 대신) ── */
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.chiprow button.on,.htabs2 button.on,.htabs2 .sg.on,.seg button.on,.mktabs2 button.on,.mktabs3 button.on,.mktabs4 button.on,.grptab button.on,.rtag.on,.pgtabs button.on,.fbox[open]>summary,.tg.hot){background:var(--sel)!important;color:var(--sel-ink)!important;border-color:var(--sel)!important;box-shadow:none!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .grptab button.on::after{border-top-color:var(--sel)}
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.htabs2 .sg,.chiprow button,.mktabs2 button,.mktabs3 button,.mktabs4 button,.rtag){border-color:var(--line);color:var(--muted);background:transparent}
+:root.ea[data-theme="dark"] body:not(.ingame) .gtabs button.on,:root.ea[data-theme="dark"] body:not(.ingame) .htabs button.on{color:var(--text)!important;border-bottom-color:var(--acc)!important}
+/* 알약 → 모서리 8 */
+body:not(.ingame) :is(.htabs2 .sg,.htabs2 button,.chiprow button,.chip,.rtag,.mktabs3 button){border-radius:8px}
+
+/* ── 4. 표 머리: 파란 띠 → 올린 면 + 흐린 글자, 정렬 중인 칸만 노랑 글자 ── */
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.mkt th,.stvt th,.ptab th,.thd){background:var(--sunk)!important;color:var(--muted)!important;border-color:var(--line)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.mkt th.hl,.stvt th.on,.stvt th.srt.on,th.srt.on,.thd.alt){background:var(--sunk)!important;color:var(--acc)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.ptg,.statrow,.tg,.draftbn,.evalbox,.totbox,.stp button){background:var(--sunk);border-color:var(--line);color:var(--text)}
+:root.ea[data-theme="dark"] body:not(.ingame) .rsel2{background:var(--sunk);border-color:var(--line);color:var(--text)}
+
+/* ── 5. 선수 이름: 링크 모양 → 글자 (PC에서 마우스를 올리면 밑줄) ── */
+body:not(.ingame) .pname,body:not(.ingame) .stv .pname,body:not(.ingame) .stv a.pname{color:var(--text);font-weight:500;text-decoration:none}
+@media (hover:hover) and (pointer:fine){body:not(.ingame) .pname:hover{text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}}
+
+/* ── 6. 오늘 경기 띠: 빨간 판 → 카드 위 글자 + 구단색 세로줄 하나 ── */
+body:not(.ingame) .tdband{background:transparent;color:var(--text);text-shadow:none;font-weight:600;border-left:3px solid var(--tc,var(--acc));padding-left:11px;margin-left:-14px;margin-right:-14px}
+body:not(.ingame) .stvh>b{text-shadow:none;font-weight:400}
+
+/* ── 7. 우리 게임만의 표시: 전광판 숫자 (같은 폭 · 노랑) ── */
+body:not(.ingame) :is(table,.mkr,.cashpill,.gnum,.stvc,.dfgrid,.f5b,.r5,.tile .tv,.decide,.mline){font-variant-numeric:tabular-nums}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkr b,:root.ea[data-theme="dark"] body:not(.ingame) .cashpill{color:var(--acc)}
+:root.ea[data-theme="dark"] body:not(.ingame) .cashpill{background:var(--sunk);border-color:var(--line)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvc b,:root.ea[data-theme="dark"] body:not(.ingame) .dfgrid b{color:var(--acc)}
+
+/* ── 8. 아이콘: 선 아이콘 한 벌, 글자색을 따름 ── */
+svg.li{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.17em;flex:none;margin-right:.08em}
+.cc{display:inline-block;font-size:.72em;line-height:1;padding:2px 4px;border:1px solid var(--line);border-radius:4px;color:var(--muted);vertical-align:.12em;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+body:not(.ingame) .nav button svg{width:22px;height:22px}
+
+/* ── 9. 알림 띠: 올린 면 + 가는 테, 소식 줄 바로 위 ── */
+:root.ea[data-theme="dark"] body:not(.ingame) .toast{background:#21242b!important;color:var(--text)!important;border:1px solid rgba(236,238,242,.1);box-shadow:0 6px 18px rgba(0,0,0,.35)!important}
+
+/* ── 10. 움직임: 한 가지 곡선, 넓이·위치 대신 색·투명도만 ── */
+body:not(.ingame) :is(button,.tile,.chip,.sg){transition-property:background-color,border-color,color,opacity,transform;transition-duration:.15s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+/* ── 11. 남은 것: 굵은 b(부모가 600이면 bolder = 900), 정렬 단추, 장비 선택, 우리 팀 줄, 성적 띠, 진행 막대 ── */
+:where(body:not(.ingame)) :where(b,strong){font-weight:600}
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.stvsort button.on,.eql button.on,.stv .eqgrid button.on){background:var(--sel)!important;color:var(--sel-ink)!important;border-color:var(--sel)!important;box-shadow:none!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvact button.go{background:var(--acc)!important;color:var(--acc-ink)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) tr.me td{background:rgba(242,193,78,.09)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .rbanner{background:var(--card)!important;border-color:var(--line)!important;border-left:3px solid var(--gray)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .rbanner.win{border-left-color:var(--green)!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .rbanner.loss{border-left-color:var(--red)!important}
+body:not(.ingame) .knbar i{background:var(--muted)}
+body:not(.ingame) .postband{background:var(--gold);color:#15171c}
+body:not(.ingame) .guide .next{background:rgba(242,193,78,.08)}
+body:not(.ingame) .hlc .hlr.my{background:rgba(242,193,78,.08)}
+:root.ea[data-theme="dark"] body:not(.ingame) :is(.prow .ovr.rng,.gbadge .ovr.rng){color:var(--text)}
+
+/* ── 12. 고르는 단추(전체·25세 이하 …)·옆 메뉴 칩·타자/투수 판 탭·번호 칸 ── */
+:root.ea[data-theme="dark"] body:not(.ingame) :is(button.tgl.primary,.msec .mi button.on,.stvtab button.on){background:var(--sel)!important;color:var(--sel-ink)!important;border-color:var(--sel)!important;box-shadow:none!important}
+:root.ea[data-theme="dark"] body:not(.ingame) button.tgl.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvtab button{background:var(--sunk);color:var(--muted)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt td.no{background:var(--sunk)!important;color:var(--muted)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt tr.mine td.no{background:var(--acc)!important;color:var(--acc-ink)}
+/* 머리띠 숫자는 조용하게 (강조는 본문 핵심 숫자에만) */
+:root.ea[data-theme="dark"] body:not(.ingame) .mkr b{color:var(--text)}
+/* 밝은 테마: 선택은 진한 먹색, 주 단추는 노랑 + 어두운 글자 */
+:root.ea[data-theme="light"] body:not(.ingame) :is(.chiprow button.on,.htabs2 button.on,.htabs2 .sg.on,.seg button.on,.mktabs2 button.on,.mktabs3 button.on,.mktabs4 button.on,.grptab button.on,.rtag.on,.pgtabs button.on,.stvsort button.on,.msec .mi button.on,.stvtab button.on,button.tgl.primary){background:#1e2027!important;color:#fff!important;border-color:#1e2027!important;box-shadow:none!important}
+:root.ea[data-theme="light"] body:not(.ingame) :is(.htabs2 .sg,button.tgl.ghost){border-color:#d9d6cd;color:#5d6872;background:#fff}
+:root.ea[data-theme="light"] body:not(.ingame) :is(button.primary:not(.tgl):not(.alt),.club .nextb,button.gold,.stvact button.go){background:#f2c14e!important;color:#15171c!important;border-color:#f2c14e!important}
+:root.ea[data-theme="light"] body:not(.ingame) .nav button.on{background:#1e2027;color:#fff}
+:root.ea[data-theme="light"] body:not(.ingame) :is(.gtabs button.on,.htabs button.on){border-bottom-color:#1e2027!important;color:#1e2027!important}

@@ -14,6 +14,7 @@
 | `src/core_b.js` | 경기 엔진 (투구 단위, 모든 진행 버튼이 같은 엔진 사용) |
 | `src/core_c.js` | 시즌·성장·이적·FA·드래프트·해외 리그·파견·감독 평판/이직·코치진·저장/변환 |
 | `src/ui.js`, `src/style.css` | 화면 (모바일 우선, 960px 이상 PC 좌우 배치) |
+| `src/unslop_gen.css`, `src/unslop.css` | v93 디자인 층(style.css 뒤에 붙음). `_gen` 은 `python3 tools/unslop_gen.py` 가 style.css 에서 만든 덮어쓰기(굵기·모서리·밤색), 나머지는 손으로 쓴 층. 모두 `body:not(.ingame)` 아래라 경기 화면엔 적용 안 됨. **style.css 를 고친 뒤엔 생성기를 다시 돌린다** |
 | `src/ui2.js` | v64 GPT 시안(`review/참고/GPT_UI안`) 화면. build.js가 UI 안에 이어 붙이고 같은 이름 함수는 이쪽이 쓰임(원본은 `*0`으로 이름 바꿈: renderPlayer0 등) |
 | `assets/` | 픽셀 초상화·구단 엠블럼·구장(Pixellab), 효과음(ElevenLabs; `sfx_raw`는 원본) |
 | `build.js` | 위 파일을 합쳐 `stoveleague.html`(배포용)과 `stoveleague_artifact.html`(Claude 아티팩트용) 생성 |

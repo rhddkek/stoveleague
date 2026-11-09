@@ -1,0 +1,413 @@
+/* v93 (R077) unslop — tools/unslop_gen.py 가 만든 파일. 직접 고치지 말고 생성기를 다시 돌린다.
+   style.css 의 규칙 중 바뀐 값만, 경기 밖(body:not(.ingame))에서만 덮어쓴다. */
+:root body:not(.ingame){--navy:#22242b;--navy2:#2e313a;--navy3:#3d414d;--on-navy:#ffffff;--on-navy-dim:#b9c3da;--bg:#f2eee5;--card:#ffffff;--sunk:#ebe6da;--text:#1e2027;--muted:#4f5869;--line:#ddd6c7;--green:#1f8a55;--green-bg:#e3f4ea;--green-ink:#17704a;--orange:#d9711c;--orange-bg:#fdeedd;--orange-ink:#a8520c;--red:#cc3f36;--red-bg:#fbe5e3;--red-ink:#a92f27;--gold:#c9970f;--blue:#3a6fd8;--gray:#8b909b;--f-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]) body:not(.ingame){--bg:#14161a;--card:#1e2027;--sunk:#262930;--text:#e9e6de;--muted:#a2abc0;--line:#30343d;--green-bg:#16362a;--green-ink:#63d39c;--orange-bg:#3a2a16;--orange-ink:#f3a55e;--red-bg:#3c1d1d;--red-ink:#f08a82;--navy2:#333741;--navy3:#4a4f5e}
+}
+:root[data-theme="dark"] body:not(.ingame){--bg:#14161a;--card:#1e2027;--sunk:#262930;--text:#e9e6de;--muted:#a2abc0;--line:#30343d;--green-bg:#16362a;--green-ink:#63d39c;--orange-bg:#3a2a16;--orange-ink:#f3a55e;--red-bg:#3c1d1d;--red-ink:#f08a82;--navy2:#333741;--navy3:#4a4f5e}
+:root.ea[data-theme="dark"] body:not(.ingame){--navy:#16181c;--navy2:#23252c;--navy3:#ff7a1a;--on-navy:#ffffff;--on-navy-dim:#9fb0d4;--bg:#191b20;--card:#23262d;--sunk:#2d3039;--text:#eef2fa;--muted:#93a4c9;--line:#323640;--green:#2fbf71;--green-bg:#113a2b;--green-ink:#6be3a3;--orange:#ff7a1a;--orange-bg:#3a2412;--orange-ink:#ffab66;--red:#f0524a;--red-bg:#3d1a1e;--red-ink:#ff8f87;--gold:#f3c14b;--blue:#5b93ff;--gray:#7d8aa8}
+:root.ea[data-theme="light"] body:not(.ingame){--navy:#2b3a47;--navy2:#3a4b5a;--navy3:#d9601a;--on-navy:#ffffff;--on-navy-dim:#c3ccd4;--bg:#f4f2ec;--card:#ffffff;--sunk:#edebe4;--text:#1e2a33;--muted:#5d6872;--line:#d9d6cd;--green:#2e8b4f;--green-bg:#e3f1e6;--green-ink:#1f6b3c;--orange:#d9601a;--orange-bg:#fbe9dc;--orange-ink:#b14c10;--red:#c8382f;--red-bg:#f9e3e1;--red-ink:#a52a22;--gold:#c9970f;--blue:#2f6fb5;--gray:#8b909b}
+body:not(.ingame) button.sm{border-radius:8px}
+body:not(.ingame) .nav button.on{font-weight:600}
+body:not(.ingame) .hd h3{font-weight:600}
+body:not(.ingame) .b{font-weight:600}
+body:not(.ingame) .grade{border-radius:8px;font-weight:600}
+body:not(.ingame) .up{font-weight:600}
+body:not(.ingame) .dn{font-weight:600}
+body:not(.ingame) .decide .tagline{font-weight:600;border-radius:8px}
+body:not(.ingame) .decide .ttl{font-weight:600}
+body:not(.ingame) .dpill{font-weight:600}
+body:not(.ingame) .prow .nm{font-weight:600}
+body:not(.ingame) tr.me td{font-weight:600}
+body:not(.ingame) .pvbar .t{font-weight:600}
+body:not(.ingame) .gban .l{font-weight:600}
+body:not(.ingame) .attr .v{font-weight:600}
+body:not(.ingame) .bar{border-radius:4px}
+body:not(.ingame) .bar i{border-radius:4px}
+body:not(.ingame) .bar s{border-radius:4px}
+body:not(.ingame) .seats .nm{font-weight:600}
+body:not(.ingame) .bub .who{font-weight:600}
+body:not(.ingame) .bub.sys{font-style:normal}
+body:not(.ingame) .stepper input{font-weight:600}
+body:not(.ingame) .modal{border-radius:16px 16px 0 0}
+@media(min-width:700px){
+body:not(.ingame) .modal{border-radius:16px}
+}
+body:not(.ingame) .modal .close{border-radius:16px}
+body:not(.ingame) .diamond i{border-radius:4px}
+body:not(.ingame) .glog .hr{font-weight:600}
+body:not(.ingame) .glog .inn{font-weight:600}
+body:not(.ingame) .story{border-radius:16px}
+body:not(.ingame) .story .ttl{font-weight:600}
+body:not(.ingame) .dtag{font-weight:600}
+body:not(.ingame) .dec .nm{font-weight:600}
+body:not(.ingame) .cere .ctag{font-weight:600}
+body:not(.ingame) .cere .cface img,body:not(.ingame) .cere .cface svg{border-radius:16px}
+body:not(.ingame) .cere .cbig{font-weight:600}
+body:not(.ingame) .contcard{border-radius:16px}
+body:not(.ingame) .atag{font-weight:600}
+body:not(.ingame) .score .atk .tn{font-weight:600}
+body:not(.ingame) .postc .drow .nm{font-weight:600}
+body:not(.ingame) .chip.y{font-weight:600}
+body:not(.ingame) .spl{font-weight:600}
+body:not(.ingame) .mu .mul.b{font-weight:600}
+body:not(.ingame) .stam{border-radius:4px}
+body:not(.ingame) button.gold{font-weight:600}
+body:not(.ingame) .sech{font-weight:600}
+body:not(.ingame) .hero2 .hboard{font-weight:600}
+body:not(.ingame) .tdband{font-weight:600}
+body:not(.ingame) .tdvs .tdn{font-weight:600}
+body:not(.ingame) .phero2 .pno{font-style:normal}
+body:not(.ingame) .sbt{font-weight:600}
+body:not(.ingame) .bso{font-weight:600}
+body:not(.ingame) .gdet summary{font-weight:600}
+body:not(.ingame) span.rz{font-weight:600}
+body:not(.ingame) .postband{font-weight:600}
+body:not(.ingame) .post2 .pstake{font-weight:600}
+body:not(.ingame) .tile .th{font-weight:600}
+body:not(.ingame) .bk .bt{font-weight:600}
+body:not(.ingame) .bk .bm{font-weight:600}
+body:not(.ingame) .pcard .pc2 .ov{font-weight:600}
+body:not(.ingame) .pcard .pc3 em{font-weight:600}
+body:not(.ingame) .wtag{font-weight:600}
+body:not(.ingame) .cutag{font-weight:600}
+body:not(.ingame) .prib{font-weight:600}
+body:not(.ingame) .asn{font-weight:600}
+body:not(.ingame) .asrow.me{font-weight:600}
+body:not(.ingame) .attr .k em{font-weight:600}
+body:not(.ingame) .ws.on{font-weight:600}
+body:not(.ingame) .lvrow.me .ln{font-weight:600}
+body:not(.ingame) .tst{font-weight:600}
+body:not(.ingame) .wct{font-weight:600}
+body:not(.ingame) .chiprow button.on{font-weight:600}
+body:not(.ingame) .fbox>summary{font-weight:600}
+body:not(.ingame) .tsel5 .n{font-weight:600}
+body:not(.ingame) .gba .v{font-weight:600}
+body:not(.ingame) .ptab .tn{font-weight:600}
+body:not(.ingame) .ptab .to{font-weight:600}
+body:not(.ingame) .gl{font-weight:600}
+body:not(.ingame) .wdot{font-weight:600}
+body:not(.ingame) .rl.ok{font-weight:600}
+body:not(.ingame) .tch{font-weight:600}
+body:not(.ingame) .tpr .tpn{font-weight:600}
+body:not(.ingame) .ticker .tk-l{font-weight:600}
+body:not(.ingame) .gtabs button.on{font-weight:600}
+.ea body:not(.ingame) tr.me td{font-weight:600}
+body:not(.ingame) .mvs .vs{font-weight:600}
+.ea body:not(.ingame) .subtabs:not(.gtabs) button.on{font-weight:600}
+body:not(.ingame) .myt{font-weight:600}
+body:not(.ingame) .ichg span{font-weight:600}
+body:not(.ingame) .r5{font-weight:600}
+body:not(.ingame) .lgseg button{font-weight:600}
+body:not(.ingame) .lbrk .lrt{font-weight:600}
+body:not(.ingame) .lgpick select{font-weight:600}
+body:not(.ingame) tr.tot td{font-weight:600}
+body:not(.ingame) .pslim .nm{font-weight:600}
+body:not(.ingame) .slotno{font-weight:600}
+body:not(.ingame) .slotsel button{font-weight:600}
+body:not(.ingame) .guide .gck{font-weight:600}
+body:not(.ingame) .stad .bigcall{font-weight:400}
+body:not(.ingame) .lpcall.hot{font-weight:600}
+body:not(.ingame) .hlc .hli{font-weight:600}
+body:not(.ingame) .hlc .hls{font-weight:600}
+body:not(.ingame) .chgscr .ct{font-weight:600}
+body:not(.ingame) .mvs.pend::after{font-weight:600}
+body:not(.ingame) .posbig{font-weight:600}
+body:not(.ingame) .tpvbar .l{font-weight:600}
+body:not(.ingame) .tpvbar .r{font-weight:600}
+body:not(.ingame) .hgrp{font-weight:600}
+body:not(.ingame) .ptag{font-weight:600}
+body:not(.ingame) .dslot .dn{font-weight:600}
+body:not(.ingame) .dslot .dpos{font-weight:600}
+body:not(.ingame) .mvx .att b{font-weight:600}
+body:not(.ingame) .crow .cn{font-weight:600}
+body:not(.ingame) .crow.now{font-weight:600}
+body:not(.ingame) .misl .mt{font-weight:600}
+body:not(.ingame) .rline .pgl{font-style:normal}
+body:not(.ingame) .drow2 .dk{font-weight:600}
+body:not(.ingame) .prow.sq .more{font-weight:600}
+body:not(.ingame) .club .nextb{font-weight:600}
+body:not(.ingame) .prow .ovr.rng{letter-spacing:0}
+body:not(.ingame) .knm{border-radius:4px}
+body:not(.ingame) .plbox .b{font-weight:600}
+body:not(.ingame) .wplan .wpk,body:not(.ingame) .wrev .wpk{font-weight:600}
+body:not(.ingame) .bgbar{border-radius:4px}
+body:not(.ingame) .wpmini .wpt span{font-weight:600}
+body:not(.ingame) .selbar .who .nm{font-weight:600}
+body:not(.ingame) .sres .srk{font-weight:600}
+body:not(.ingame) .needrow{font-weight:600}
+body:not(.ingame) .stab .po{font-weight:600;border-radius:4px}
+body:not(.ingame) .club.mk .nm{font-weight:600}
+body:not(.ingame) .mkr{font-weight:600}
+body:not(.ingame) .mksec{font-weight:600}
+body:not(.ingame) .mksec .lnk{font-weight:600}
+body:not(.ingame) .mkcard>.mksec{border-radius:8px 8px 0 0}
+body:not(.ingame) .mkcard[style*="padding:0"]>.mksec,body:not(.ingame) .mkcard[style*="padding: 0"]>.mksec{border-radius:8px 8px 0 0}
+body:not(.ingame) .mkcard .mkhd{font-weight:600}
+body:not(.ingame) .mkt th{font-weight:600}
+body:not(.ingame) .mkt .tn b{font-weight:600}
+body:not(.ingame) .mkt .st.부족{font-weight:600}
+body:not(.ingame) .mkt .st.보통{font-weight:600}
+body:not(.ingame) .mkt .st.충분{font-weight:600}
+body:not(.ingame) .mktabs2 button,body:not(.ingame) .mktabs3 button,body:not(.ingame) .mktabs4 button{font-weight:600}
+body:not(.ingame) .grptab button{font-weight:600}
+body:not(.ingame) .mkfilt select.on{font-weight:600}
+body:not(.ingame) .mkfilt .lb{font-weight:600}
+body:not(.ingame) .mkbtn2>button,body:not(.ingame) .mkbtn3>button{font-weight:600}
+body:not(.ingame) .mkh .t{font-weight:600}
+body:not(.ingame) .draftbn .l{font-weight:600}
+body:not(.ingame) .chk2 i{font-weight:600}
+body:not(.ingame) .mkt .pri{font-weight:600}
+body:not(.ingame) .mail .t{font-weight:600}
+body:not(.ingame) .sres2 .t{font-weight:600}
+body:not(.ingame) .sres2 .rk{font-weight:600}
+body:not(.ingame) .sub2{font-weight:600}
+body:not(.ingame) .needrow .dot{font-weight:600}
+body:not(.ingame) .mkgo{font-weight:600}
+body:not(.ingame) .phd .no{font-weight:600}
+body:not(.ingame) .phd .nm{font-weight:600}
+body:not(.ingame) .ptg{font-weight:600}
+body:not(.ingame) .gnum{font-weight:600}
+body:not(.ingame) .lr{font-weight:600;border-radius:4px}
+body:not(.ingame) .rtag{font-weight:600;border-radius:4px}
+body:not(.ingame) .drag{letter-spacing:0}
+body:not(.ingame) .rsel2{border-radius:4px;font-weight:600}
+body:not(.ingame) .cmp2 .arr{font-weight:600}
+body:not(.ingame) .tg{font-weight:600}
+body:not(.ingame) .opin{font-weight:600}
+body:not(.ingame) .rng{border-radius:8px}
+body:not(.ingame) .rng .band{border-radius:8px}
+body:not(.ingame) .evalbox .k{font-weight:600}
+body:not(.ingame) .prevpk .l{font-weight:600}
+body:not(.ingame) .thd{font-weight:600}
+body:not(.ingame) .negg .hd2{font-weight:600}
+body:not(.ingame) .stp input{font-weight:600}
+body:not(.ingame) .stp button{font-weight:600}
+body:not(.ingame) .abox .b{font-weight:600}
+body:not(.ingame) .tibox .k{font-weight:600}
+body:not(.ingame) .fac .nm{font-weight:600}
+body:not(.ingame) .fac .lv{font-weight:600}
+body:not(.ingame) .lvb{font-weight:600}
+body:not(.ingame) .chev span{font-weight:600}
+body:not(.ingame) .usebar{font-weight:600}
+body:not(.ingame) .hl{font-weight:600}
+body:not(.ingame) .mkcard>.mksec{border-radius:8px 8px 0 0}
+body:not(.ingame) .mkcard[style*="padding:0"]>.mksec{border-radius:8px 8px 0 0}
+body:not(.ingame) .gbadge2{border-radius:4px;font-weight:600}
+body:not(.ingame) .gl2{font-weight:600}
+body:not(.ingame) .phd2 .nm{font-weight:600}
+body:not(.ingame) .abrow .k{font-weight:600}
+body:not(.ingame) .abrow .mkbar{border-radius:4px}
+body:not(.ingame) .abrow .mkbar i{border-radius:4px}
+body:not(.ingame) .focusbox{font-weight:600}
+body:not(.ingame) .mrow .k{font-weight:600}
+body:not(.ingame) .verdict{font-weight:600}
+body:not(.ingame) .steps3 span{font-weight:600}
+body:not(.ingame) .negt th{font-weight:600}
+body:not(.ingame) .negt tr.tot td{font-weight:600}
+body:not(.ingame) .stp2 button{font-weight:600}
+body:not(.ingame) .budrow .k{font-weight:600}
+body:not(.ingame) .box2{font-weight:600}
+body:not(.ingame) .quote.big{font-weight:600}
+body:not(.ingame) .ribbon{font-weight:600}
+body:not(.ingame) .cb{font-weight:600}
+body:not(.ingame) .jno{border-radius:4px}
+body:not(.ingame) .t2hd b{font-weight:600}
+body:not(.ingame) .t2hd button{font-weight:600}
+body:not(.ingame) .t2main .nm{font-weight:600}
+body:not(.ingame) .stag{font-weight:600}
+body:not(.ingame) .t2new{font-weight:600}
+body:not(.ingame) table.asort th i.as{letter-spacing:0}
+body:not(.ingame) .pname{font-weight:600}
+body:not(.ingame) .stg i{border-radius:4px}
+body:not(.ingame) .rseg button{font-weight:600}
+body:not(.ingame) .wkbar .bad{font-weight:600}
+body:not(.ingame) .subtabs.htabs:has(>button:nth-child(5)) button{letter-spacing:0}
+body:not(.ingame) .impact>span{font-weight:600}
+body:not(.ingame) .chk1 .ok{font-weight:600}
+body:not(.ingame) .chk1 .bad{font-weight:600}
+body:not(.ingame) details.more>summary{font-weight:600}
+body:not(.ingame) .cmt{font-weight:600;letter-spacing:0;font-style:normal}
+body:not(.ingame) .cme{font-weight:600}
+body:not(.ingame) .cmsb{font-weight:600}
+body:not(.ingame) .cmsb .tm em{border-radius:4px}
+body:not(.ingame) .cmsb .out b{border-radius:4px}
+body:not(.ingame) .cmf .okhint{font-weight:600}
+body:not(.ingame) .cmres .ln>div{font-weight:600}
+body:not(.ingame) .cmres .cmt2 span{font-weight:600}
+body:not(.ingame) .tdh{font-weight:600}
+body:not(.ingame) .tdh em{border-radius:4px}
+body:not(.ingame) .tdh span{font-weight:600}
+body:not(.ingame) .tdn{font-weight:600}
+body:not(.ingame) .tdn em{font-weight:600}
+body:not(.ingame) .cmmd{font-weight:600}
+body:not(.ingame) .cmmd small{font-weight:600}
+body:not(.ingame) .cmbar button{font-weight:600}
+body:not(.ingame) .cmbar button i{border-radius:4px}
+body:not(.ingame) .cmls th{font-weight:600}
+body:not(.ingame) .cmls td{font-weight:600}
+body:not(.ingame) .cmint .ph2{font-weight:600}
+body:not(.ingame) .cmint .ph2 em{border-radius:4px}
+body:not(.ingame) .cmint .nb em{font-weight:600}
+body:not(.ingame) .cmint .no{font-weight:600}
+body:not(.ingame) .cmres2 .rt{font-weight:600}
+body:not(.ingame) .cmres2 .w{font-weight:600}
+body:not(.ingame) .cmres2 .l{font-weight:600}
+body:not(.ingame) .cmres2 .sv span{font-weight:600}
+body:not(.ingame) .luh{font-weight:600}
+body:not(.ingame) .luh em{border-radius:4px}
+body:not(.ingame) .lur{border-radius:4px}
+body:not(.ingame) .lur em{font-weight:600}
+body:not(.ingame) .stvh>b{font-weight:600;font-style:normal;letter-spacing:0}
+body:not(.ingame) .stvtab button{font-weight:600}
+body:not(.ingame) .stvsort button{font-weight:600}
+body:not(.ingame) .stvt th{font-weight:600}
+body:not(.ingame) .stvt td.no{font-weight:600}
+body:not(.ingame) .stvt .tn small.tg{border-radius:4px}
+body:not(.ingame) .stvt .ov{font-weight:600}
+body:not(.ingame) .dk{font-weight:600}
+body:not(.ingame) .stvsub{font-weight:600}
+body:not(.ingame) .stvbar2 button{font-weight:600}
+body:not(.ingame) .stvdet>summary{font-weight:600}
+body:not(.ingame) .stvmenu .mt{font-weight:600}
+body:not(.ingame) .stvmenu button{font-weight:600}
+body:not(.ingame) .tth{font-weight:600}
+body:not(.ingame) .trph{font-weight:600;border-radius:4px}
+body:not(.ingame) .trv{font-weight:600}
+body:not(.ingame) .stvact button{font-weight:600}
+body:not(.ingame) .cmpitch{border-radius:16px;font-weight:600}
+body:not(.ingame) .cmcmp .cch b{font-weight:600}
+body:not(.ingame) .cmcmp .cch span{font-weight:600;font-style:normal}
+body:not(.ingame) .cmcmp .cch em{border-radius:4px}
+body:not(.ingame) .cmcmp .ccr>b{font-weight:600}
+@media (max-width:400px){
+body:not(.ingame) .cmpick>button b,body:not(.ingame) .cmpick .sim>button b{letter-spacing:0}
+}
+body:not(.ingame) .cmls.xi th.i,body:not(.ingame) .cmls.xi td.i{letter-spacing:0}
+body:not(.ingame) .cmres2.c1 span{font-weight:600}
+body:not(.ingame) .cmmvp .mh span{font-weight:600}
+body:not(.ingame) .cmmvp .mh em{border-radius:4px}
+body:not(.ingame) .cmmvp .mn{font-weight:600}
+@media (max-width:400px){
+body:not(.ingame) .today.cmp .tdvs .tdn{letter-spacing:0}
+}
+body:not(.ingame) .pvsub button{font-weight:600}
+body:not(.ingame) .mkcard.todo .mksec .waitb{font-weight:600}
+body:not(.ingame) .mail.td .t{font-weight:600}
+body:not(.ingame) .mail.td .s .due{font-weight:600}
+body:not(.ingame) .wgoal .goal2 span{font-weight:600}
+body:not(.ingame) .form2 .fh span{font-weight:600}
+body:not(.ingame) .f5b .r5{border-radius:4px}
+body:not(.ingame) .f5b small{font-weight:600}
+body:not(.ingame) .form2 .fnx .k{font-weight:600}
+body:not(.ingame) .jobs .jrow .nm{font-weight:600}
+body:not(.ingame) .stv .fgsc .r span{font-weight:600}
+body:not(.ingame) .stv .co .e{font-weight:600}
+body:not(.ingame) .stv em.g,body:not(.ingame) .stvmenu em.g{font-weight:600}
+body:not(.ingame) .stv .eql button span{font-weight:600}
+body:not(.ingame) .htabs2 button{font-weight:600}
+body:not(.ingame) .fsv .fdf text{font-weight:600}
+body:not(.ingame) .fsv .fbig{font-weight:600}
+body:not(.ingame) .fsv .fk{font-weight:600}
+body:not(.ingame) .fsv .fsc{font-weight:600}
+body:not(.ingame) .ftag span{font-weight:600}
+body:not(.ingame) .fbt small{font-weight:600}
+body:not(.ingame) .fzone small{font-weight:600}
+body:not(.ingame) .fzone text{font-weight:600}
+body:not(.ingame) .cmf2 .cmres .ln .oc{font-weight:600}
+body:not(.ingame) .htabs2 .sg{font-weight:600}
+body:not(.ingame) .msec .ml{font-weight:600}
+body:not(.ingame) .pgtabs button{font-weight:600}
+body:not(.ingame) .totop{font-weight:600}
+body:not(.ingame) .totop small{font-weight:600}
+body:not(.ingame) .pmg{font-weight:600}
+body:not(.ingame) .luh{letter-spacing:0}
+body:not(.ingame) .lughost{font-weight:600}
+body:not(.ingame) .fsel{font-weight:600}
+body:not(.ingame) .fpick button i{font-weight:600}
+@media (max-width:440px){
+body:not(.ingame) .subtabs.htabs:has(>button:nth-child(5)) button{letter-spacing:0}
+}
+:root.ea[data-theme="dark"] body:not(.ingame) button.warn{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .decide .tagline{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .modal-bg{background:rgba(17,18,21,.55)}
+:root.ea[data-theme="dark"] body:not(.ingame) .tut{background:rgba(17,18,21,.7)}
+:root.ea[data-theme="dark"] body:not(.ingame) .field i{border:2px solid #22242b}
+:root.ea[data-theme="dark"] body:not(.ingame) .archsel button.on{background:#2b2e37}
+:root.ea[data-theme="dark"] body:not(.ingame) .story button.primary{color:#23252c}
+:root.ea[data-theme="dark"] body:not(.ingame) .hero2 .hcap{background:linear-gradient(180deg,transparent,rgba(19,21,25,.85))}
+:root.ea[data-theme="dark"] body:not(.ingame) .tdetail{background:#2b2e37}
+:root.ea[data-theme="dark"] body:not(.ingame) .asn.blue{background:#565c6e}
+:root.ea[data-theme="dark"] body:not(.ingame) .ws.on{background:#3c404c}
+:root.ea[data-theme="dark"] body:not(.ingame) .lvrow .bar i{background:#3c404c}
+:root.ea[data-theme="dark"] body:not(.ingame) .tst.on{background:#3c404c}
+:root.ea[data-theme="dark"] body:not(.ingame) .wcol.prog .wct{color:#3c404c}
+:root.ea[data-theme="dark"] body:not(.ingame) .tsel5 button.on{background:#2b2e37}
+:root.ea[data-theme="dark"] body:not(.ingame) button.primary{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .fbox[open]>summary{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .chiprow button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .gbi.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .title .divrow button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .slotno{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .slotsel button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .rrow .k em{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .dslot.empty{background:rgba(19,21,25,.6)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stab .po{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mktabs2 button.on,:root.ea[data-theme="dark"] body:not(.ingame) .mktabs3 button.on,:root.ea[data-theme="dark"] body:not(.ingame) .mktabs4 button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkfilt button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkbtn3>button.primary{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkh .badge{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkt .pri{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .mkgo{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .agrid .tot{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .opin{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .lvb.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .chev span.now{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .usebar i{color:#15171c}
+.ea[data-theme="dark"] body:not(.ingame) .mkt th,.ea[data-theme="dark"] body:not(.ingame) .grptab button.on,.ea[data-theme="dark"] body:not(.ingame) .ptg,.ea[data-theme="dark"] body:not(.ingame) .rtag,.ea[data-theme="dark"] body:not(.ingame) .rsel2,.ea[data-theme="dark"] body:not(.ingame) .thd,.ea[data-theme="dark"] body:not(.ingame) .draftbn,.ea[data-theme="dark"] body:not(.ingame) .evalbox,.ea[data-theme="dark"] body:not(.ingame) .totbox,.ea[data-theme="dark"] body:not(.ingame) .statrow,.ea[data-theme="dark"] body:not(.ingame) .tg,.ea[data-theme="dark"] body:not(.ingame) .stp button,.ea[data-theme="dark"] body:not(.ingame) .mkbtn3>button{background:#3d414d;border-color:#3d414d}
+.ea[data-theme="dark"] body:not(.ingame) .grptab button.on::after{border-top-color:#3d414d}
+:root.ea[data-theme="dark"] body:not(.ingame) .steps3 span.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .ribbon{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .stag{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) table.asort th.son{color:#15171c!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .title.t2 .t2go{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .rseg button.on.neg{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmv{--cmbg:rgba(14,14,17,.82);background:#131418 linear-gradient(180deg,#1b1d23,#111216)}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmres{background:rgba(10,11,13,.78)}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmbar button{color:#1e2027}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmpick>button:first-child{background:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmpick .sim>button{background:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv{--bg:#131418;--card:#1b1c22;--sunk:#22242b;--line:#2d313a;background:linear-gradient(180deg,#191b20,#111216)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvm{background:#090a0c}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvtab button.on{background:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt{background:rgba(9,10,12,.55)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt th{background:#0f1013;border-bottom:1px solid #31343e}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt tbody tr:active td{background:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt td.no{color:#131418}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvt tr.pick td{background:#545a6b!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvbar2{background:#0f1013}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvmenu button.primary{background:#545a6b;border-color:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .tth{background:#545a6b}
+:root.ea[data-theme="dark"] body:not(.ingame) .trp{background:#0f1013}
+:root.ea[data-theme="dark"] body:not(.ingame) .trs .sl{background:#22242b}
+:root.ea[data-theme="dark"] body:not(.ingame) .stvact{background:#0f1013}
+:root.ea[data-theme="dark"] body:not(.ingame) .modal:has(.stvmenu){--card:#1b1c22;--sunk:#22242b;--line:#2d313a;background:#131418}
+:root.ea[data-theme="dark"] body:not(.ingame) .modal:has(.stvmenu) .close{background:#22242b}
+:root.ea[data-theme="dark"] body:not(.ingame) .pv.tbl3{--bg:#131418;--card:#1b1c22;--sunk:#22242b;--line:#2d313a;background:linear-gradient(180deg,#191b20,#111216)}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv .ptab th,:root.ea[data-theme="dark"] body:not(.ingame) .stv .mkt th{background:#0f1013!important;border-color:#31343e!important}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmpitch{background:rgba(10,11,13,.82)}
+.ea[data-theme="dark"] body:not(.ingame) .pvsub button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv .eqgrid button i{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .stv .eql .ptg,:root.ea[data-theme="dark"] body:not(.ingame) .stv .co .ptg{background:#474b5a}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmf.cmf2{background:radial-gradient(ellipse at 50% 0%,#24262d,#121317 72%)}
+:root.ea[data-theme="dark"] body:not(.ingame) .ftag{background:rgba(10,11,13,.82)}
+:root.ea[data-theme="dark"] body:not(.ingame) .fbt{background:rgba(10,11,13,.82)}
+:root.ea[data-theme="dark"] body:not(.ingame) .fzone{background:rgba(10,11,13,.82)}
+:root.ea[data-theme="dark"] body:not(.ingame) .cmf2 .cmres{background:rgba(10,11,13,.84)}
+:root.ea[data-theme="dark"] body:not(.ingame) .htabs2 .sg.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .msec .mi button.on{color:#15171c}
+:root.ea[data-theme="dark"] body:not(.ingame) .toast{background:rgba(24,25,30,.92)!important}
+@media (min-width:960px){
+:root.ea[data-theme="dark"] body:not(.ingame) .side .msec .mi button.on{color:#15171c}
+}
+:root.ea[data-theme="dark"] body:not(.ingame) .pgtabs button.on small{color:#15171c}
