@@ -70,7 +70,7 @@ function doPitch(lg){
   else if(res==='foul'){if(lg.strikes<2)lg.strikes++;ev.text=`파울 ${cnt()}`;}
   else{ev=resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov);ev.paEnd=true;}
   ev.sc0=sc0;ev.on=on0;ev.o0=o0;lg.last=ev;
-  let fx=null;if(r0){recPitch(lg,inZone,res,P,B);if(ev.paEnd){fx={t:ev.type,r0,b:B.id,r1:lg.bases.map(x=>x?x.pid:null),half:h0,inn:i0,runs:lg.score[h0]-sc0[h0],inf:/내야안타/.test(ev.text),o1:lg.outs};if(res==='inplay'){const d=playDir(lg,B);fx.sd=d.side;fx.d=d.r;fx.r2=d.r2;fx.gp=d.gp;fx.fp=d.fp;fx.deep=!!d.deep;}}else fx={t:'p',half:h0,inn:i0,r0,r1:r0};}
+  let fx=null;if(r0){recPitch(lg,inZone,res,P,B);if(ev.paEnd){fx={t:ev.type,r0,b:B.id,r1:lg.bases.map(x=>x?x.pid:null),half:h0,inn:i0,runs:lg.score[h0]-sc0[h0],inf:/내야안타/.test(ev.text),o1:lg.outs,fc:ev.fc?1:0};if(res==='inplay'){const d=playDir(lg,B);fx.sd=d.side;fx.d=d.r;fx.r2=d.r2;fx.gp=d.gp;fx.fp=d.fp;fx.deep=!!d.deep;}}else fx={t:'p',half:h0,inn:i0,r0,r1:r0};}
   if(ev.paEnd)endPA(lg,ev);
   else glog(lg,ev.text,'p');
   if(fx)setFx(lg,fx);
@@ -93,6 +93,12 @@ function advRunners(lg,hitType,B,bb,def){
   if(hitType==='hr'){for(const r of [b[2],b[1],b[0]])if(r)score(r);score({pid:B.id,resp:P});}
   else if(hitType==='3b'){for(const r of [b[2],b[1],b[0]])if(r)score(r);nb[2]={pid:B.id,resp:P};}
   else if(hitType==='2b'){if(b[2])score(b[2]);if(b[1])score(b[1]);if(b[0]){if(rnd()<0.45+(spd(b[0].pid)+fast(b[0].pid)-50)*0.006-(def-50)*0.003)score(b[0]);else nb[2]=b[0];}nb[1]={pid:B.id,resp:P};}
+  else if(hitType==='1bi'){ // v94 (R078): 내야안타 — 주자는 한 베이스씩만 (밀려서 3루 주자만 득점)
+    if(b[2]){if(b[1])score(b[2]);else nb[2]=b[2];}
+    if(b[1])nb[2]=b[1];
+    if(b[0])nb[1]=b[0];
+    nb[0]={pid:B.id,resp:P};
+  }
   else{ // single
     if(b[2])score(b[2]);
     if(b[1]){if(rnd()<0.62+(spd(b[1].pid)+fast(b[1].pid)-50)*0.006-(def-50)*0.003)score(b[1]);else nb[2]=b[1];}
@@ -113,8 +119,8 @@ function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
     const xb=clamp((0.17+(pow-50)*0.0035+(sp-50)*0.0012)*PK.xb,0.05,0.45);const r=rnd();
     let type='1b';if(r<xb*0.1+Math.max(0,(sp-50))*0.0006)type='3b';else if(r<xb)type='2b';
     if(type==='3b'){bb.d3++;}else if(type==='2b'){bb.d2++;}
-    const b0=lg.bases[0];const runs=advRunners(lg,type,B,bb,def);if(tk==='hitrun'&&type==='1b'&&b0&&lg.bases[1]===b0&&!lg.bases[2]){lg.bases[2]=b0;lg.bases[1]=null;}
-    ev.type=type;const dd=playDir(lg,B);const inf=type==='1b'&&dd.r<0.12&&sp>=60;ev.text=`${B.name}, ${cntWord(lg)} ${inf?`${dd.inf} 깊은 곳 내야안타`:type==='3b'?dd.x3:type==='2b'?dd.x2:dd.x1}${runs?` (${runs}득점)`:''}`;return ev;
+    const dd=playDir(lg,B);const inf=type==='1b'&&dd.r<0.12&&sp>=60;const b0=lg.bases[0];const runs=advRunners(lg,inf?'1bi':type,B,bb,def);if(tk==='hitrun'&&type==='1b'&&!inf&&b0&&lg.bases[1]===b0&&!lg.bases[2]){lg.bases[2]=b0;lg.bases[1]=null;}
+    ev.type=type;ev.text=`${B.name}, ${cntWord(lg)} ${inf?`${dd.inf} 깊은 곳 내야안타`:type==='3b'?dd.x3:type==='2b'?dd.x2:dd.x1}${runs?` (${runs}득점)`:''}`;return ev;
   }
   const gP=clamp(0.52+(mov-50)*0.003-(pow-50)*0.002+(tk==='gb'?0.1:0)+(tk==='team'?0.08:0),0.3,0.82);const b=lg.bases;
   if(rnd()<gP){
@@ -123,10 +129,11 @@ function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
       if(rnd()<dp){addOut(lg,2);if(before===0){if(b[2])scoreRun(lg,bs,b[2],false,bb);lg.bases=[null,null,b[1]||null];}else lg.bases=[null,null,null];
         ev.type='dp';const d=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${d.dp} 병살타${ro()}`;return ev;}
     }
-    {const ih=Math.max(0,sp-55)*0.0045+(B.traits.includes('빠른발')?0.03:0);if(ih>0&&rnd()<ih){bb.h++;pb.pH++;lg.hits[bs]++;const runs=advRunners(lg,'1b',B,bb,def);const d=playDir(lg,B);ev.type='1b';ev.text=`${B.name}, ${cntWord(lg)} ${d.inf} 쪽 땅볼 — 빠른 발로 내야안타${runs?` (${runs}득점)`:''}`;return ev;}}
+    {const ih=Math.max(0,sp-55)*0.0045+(B.traits.includes('빠른발')?0.03:0);if(ih>0&&rnd()<ih){bb.h++;pb.pH++;lg.hits[bs]++;const runs=advRunners(lg,'1bi',B,bb,def);const d=playDir(lg,B);ev.type='1b';ev.text=`${B.name}, ${cntWord(lg)} ${d.inf} 쪽 땅볼 — 빠른 발로 내야안타${runs?` (${runs}득점)`:''}`;return ev;}}
     addOut(lg,1);ev.type='go';let extra='';
-    if(before<2){const adv=tk==='team'||tk==='hitrun';const nb=[b[0],null,null];if(tk==='hitrun'&&b[0]){nb[1]=b[0];nb[0]=null;}if(b[2]){if(rnd()<(adv?0.75:0.5)){scoreRun(lg,bs,b[2],true,bb);extra=' (1득점)';}else nb[2]=b[2];}if(b[1]){if(!nb[2]&&rnd()<(adv?0.9:0.5))nb[2]=b[1];else nb[1]=b[1];}lg.bases=nb;}
-    {const d=playDir(lg,B);ev.text=`${B.name}, ${cntWord(lg)} ${d.go} 땅볼 아웃 — ${d.goBy}${extra}${ro()}`;}return ev;
+    // v94 (R078): 1루 주자는 땅볼 때 가만있지 않음 — 2루로 가거나(타자 1루 아웃), 2루에서 포스 아웃(타자 1루 세이프, 야수 선택)
+    let fc=false;if(before<2){const adv=tk==='team'||tk==='hitrun';const nb=[b[0],null,null];if(b[0]){if(!adv&&rnd()<0.3){fc=true;nb[0]={pid:B.id,resp:P.id};}else{nb[1]=b[0];nb[0]=null;}}if(b[2]){if(rnd()<(adv?0.75:0.5)){scoreRun(lg,bs,b[2],true,bb);extra=' (1득점)';}else nb[2]=b[2];}if(b[1]){if(!nb[2]&&(b[0]&&!fc&&nb[1]===b[0]||rnd()<(adv?0.9:0.5)))nb[2]=b[1];else if(!nb[1])nb[1]=b[1];else if(!nb[2])nb[2]=b[1];else{scoreRun(lg,bs,b[1],true,bb);extra+=' (1득점)';}}lg.bases=nb;}
+    {const d=playDir(lg,B);const r0n=b[0]?S.players[b[0].pid]:null;ev.text=fc&&r0n?`${B.name}, ${cntWord(lg)} ${d.go} 땅볼 — 1루 주자 ${r0n.name} 2루 포스 아웃, 타자는 1루에 삽니다${extra}${ro()}`:`${B.name}, ${cntWord(lg)} ${d.go} 땅볼 아웃 — ${d.goBy}${extra}${ro()}`;if(fc)ev.fc=1;}return ev;
   }
   addOut(lg,1);ev.type='fo';let extra='';
   if(before<2){const nb=[b[0],b[1],null];if(b[2]){if(rnd()<(tk==='team'?0.82:0.65)){scoreRun(lg,bs,b[2],true,bb);extra=' sf';}else nb[2]=b[2];}if(b[1]&&!nb[2]&&rnd()<0.22){nb[2]=b[1];nb[1]=null;}lg.bases=nb;}

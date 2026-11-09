@@ -91,3 +91,23 @@ body:not(.ingame) .hlc .hlr.my{background:rgba(242,193,78,.08)}
 :root.ea[data-theme="light"] body:not(.ingame) :is(button.primary:not(.tgl):not(.alt),.club .nextb,button.gold,.stvact button.go){background:#f2c14e!important;color:#15171c!important;border-color:#f2c14e!important}
 :root.ea[data-theme="light"] body:not(.ingame) .nav button.on{background:#1e2027;color:#fff}
 :root.ea[data-theme="light"] body:not(.ingame) :is(.gtabs button.on,.htabs button.on){border-bottom-color:#1e2027!important;color:#1e2027!important}
+
+/* ── v94 (R078): 리그 결과 · 도전과제 두 쪽 ── */
+.scdh{align-items:center;margin-bottom:8px}.scdh b{font-size:15px;font-variant-numeric:tabular-nums}
+.sctbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.sctbl td{padding:9px 4px;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+.sctbl td.r{text-align:right}.sctbl td.sc{text-align:center;width:72px;color:var(--muted)}.sctbl td.sc b{color:var(--text);font-size:16px;font-weight:500}
+.sctbl td.w,.sctbl td.sc b.w{font-weight:600;color:var(--text)}.sctbl td:not(.w):not(.sc){color:var(--muted)}
+.sctbl .scd{display:inline-block;width:8px;height:8px;border-radius:4px;margin:0 6px 1px;vertical-align:middle}
+/* v94 (R078): 미션 보상 — 미리 보이고, 받으면 크게 */
+.misl .mrw{padding:3px 8px;border-radius:8px;background:rgba(242,193,78,.12);color:var(--gold,#f2c14e);font-weight:600;font-variant-numeric:tabular-nums}
+.rwd{display:inline-block;padding:4px 10px;border-radius:8px;background:rgba(242,193,78,.14);border:1px solid rgba(242,193,78,.45);color:var(--gold,#f2c14e);font-weight:600;font-variant-numeric:tabular-nums}
+:root.ea[data-theme="light"] .misl .mrw,:root.ea[data-theme="light"] .rwd{color:#8a5a00;background:#fbf1d6;border-color:#e8c36a}
+/* v94: 난이도 고르기 */
+.dfsel{display:flex;align-items:center;gap:6px;margin-top:10px}.dfsel>span{font-size:13px;color:var(--muted);margin-right:4px}
+.dfsel button{flex:1;min-height:36px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:600}
+.dfsel button.on{background:var(--sel,#eceef2);color:var(--sel-ink,#15171c);border-color:var(--sel,#eceef2)}
+:root.ea[data-theme="light"] .dfsel button.on{background:#1e2027;color:#fff;border-color:#1e2027}
+.dfwhy{margin-top:4px}
+/* v94: 새 반 이닝 첫 화면 띠 */
+.cmres.hstart .big{font-size:15px}

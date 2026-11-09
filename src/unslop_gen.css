@@ -328,6 +328,7 @@ body:not(.ingame) .fpick button i{font-weight:600}
 @media (max-width:440px){
 body:not(.ingame) .subtabs.htabs:has(>button:nth-child(5)) button{letter-spacing:0}
 }
+body:not(.ingame) .fsv .fdf text.fnm{font-weight:600}
 :root.ea[data-theme="dark"] body:not(.ingame) button.warn{color:#15171c}
 :root.ea[data-theme="dark"] body:not(.ingame) .decide .tagline{color:#15171c}
 :root.ea[data-theme="dark"] body:not(.ingame) .modal-bg{background:rgba(17,18,21,.55)}
