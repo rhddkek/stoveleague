@@ -46,7 +46,7 @@ rp4&&rp4.ended&&rp4.rankTo===S.lastSummary.rank?ok(`시즌 마지막 주 보고�
 SL.newGame(77,0,{arch:true});S=SL.state();let ut4=SL.userTeam();let mism=0,nNeg=0,nOk=0;for(const t of SL.krTeams().filter(x=>!x.isUser))for(const id of t.roster.slice(0,6)){const p=S.players[id];const lv=SL.willingInfo(p,ut4).level;const o=SL.openTable(id);if(o.ok)SL.tableLeave(id);if(lv==='부정적'){nNeg++;if(o.ok)mism++;}else{if(!o.ok&&/관심이 없/.test(o.msg))mism++;else nOk++;}}
 mism===0?ok(`의향 표시 = 협상 판정 (부정적 ${nNeg}명 거절, 그 외 ${nOk}명 착석)`):bad('의향 불일치 '+mism);
 // R004-3 주전 약속 영입은 바로 주전 자리에
-SL.newGame(77,0);S=SL.state();ut4=SL.userTeam();ut4.cash=500000;const faP=S.fa.map(id=>S.players[id]).filter(p=>SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0]||S.fa.map(id=>S.players[id])[0];
+SL.newGame(77,0);S=SL.state();ut4=SL.userTeam();ut4.cash=500000;const faP=S.fa.map(id=>S.players[id]).filter(p=>SL.isPitcher(p)&&!SL.isFgn(p)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0]||S.fa.map(id=>S.players[id])[0];
 let o4=SL.openTable(faP.id);let neg4=o4.neg;neg4.wantPromise=true;let res=null;for(let i=0;i<4&&!(res&&(res.done||res.ended));i++)res=SL.tableOffer(faP.id,{salary:Math.round(neg4.demand*1.3),years:2,bonus:0,promise:true});
 res&&res.done?(faP.promise&&!SL.promiseKept(ut4,faP)?ok(`주전 약속 영입 ${faP.name}(${faP.pos}): 자동 배치 없음 — 현재 「${SL.rosterRole(ut4,faP.id).text}」, 기용은 감독 판단`):bad('약속 영입이 자동 배치됨 '+SL.rosterRole(ut4,faP.id).text)):bad('약속 영입 실패 '+(res&&res.msg));
 // R004-4 자리를 떴다 다시 앉으면 이어서 (분위기·제시 횟수 유지)
@@ -81,7 +81,7 @@ const le=SL.loanPlayer(ly.id,lo8[0].team.id);const bt=S.teams[lo8[0].team.id];
 !le&&bt.roster.includes(ly.id)&&!u8.roster.includes(ly.id)&&u8.loaned.includes(ly.id)?ok(`임대: ${ly.name} → ${bt.name} (${lo8[0].role})`):bad('임대 실패 '+le);
 Math.abs((pay0-SL.payroll(u8))-Math.round(sal8*lo8[0].pay))<=2?ok(`연봉 분담: 총연봉 ${SL.money(pay0)} → ${SL.money(SL.payroll(u8))} (${Math.round(lo8[0].pay*100)}% 임대 구단 부담)`):bad('연봉 분담 '+pay0+' '+SL.payroll(u8));
 SL.openTable(ly.id).ok?bad('임대 선수 협상 열림'):ok('임대 중 선수는 협상 불가');
-const bench8=u8.roster.map(id=>S.players[id]).find(p=>!u8.lineup.includes(p.id)&&!SL.isPitcher(p));
+const bench8=u8.roster.map(id=>S.players[id]).find(p=>!u8.lineup.includes(p.id)&&!SL.isPitcher(p)&&!(u8.entry||[]).includes(p.id));   // v96: 1군 엔트리 밖(2군에서 뛰는) 야수
 for(let i=0;i<7;i++)SL.playDayAuto();
 const tb8=SL.reserveTable();const gp8=tb8.map(x=>x.w+x.l+x.tie);tb8.length===12&&gp8.every(g=>g===gp8[0]&&g>0)?ok(`퓨처스 순위: 12개 팀 ${gp8[0]}경기씩, 1위 ${tb8[0].t.name} ${tb8[0].w}승`):bad('2군 순위 '+tb8.length+' '+gp8);
 bench8.res&&(bench8.res.pa>0)&&bench8.resWeek?ok(`1군 벤치 ${bench8.name} 2군 ${bench8.res.pa}타석`):bad('벤치 2군 기록 없음');
@@ -212,13 +212,14 @@ console.log('[16] R017 육성·운영 설계서 반영');
  const bench=SL.reserveIds(u).map(id=>S.players[id]).find(p=>p.resRole==='bench');bench&&bench.log[0]&&bench.log[0].f.some(x=>/2군 벤치/.test(x))?ok('2군 벤치는 「출장 적음」으로 구분'):ok('(2군 벤치 선수 없음)');
  const cu=SL.callupCands(3);cu.every(x=>x.rival&&x.rival.id!==x.p.id&&!u.lineup.includes(x.p.id))?ok(`콜업 후보 ${cu.length}명 (2군 선수 vs 1군 같은 자리, 본인과 비교 없음)`):bad('콜업 후보');
  let neg=0;for(const id in S.players){const p=S.players[id];const b=SL.perfBonus(p);if(b&&b.v<0)neg++;}neg===0?ok('성과 보너스는 좋은 기록일 때만 (음수 없음)'):bad('성과 보너스 음수 '+neg);
- const rk=u.roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&!u.lineup.includes(p.id));const R=JSON.parse(JSON.stringify(rk));
+ const rk=u.roster.map(id=>S.players[id]).find(p=>!SL.isPitcher(p)&&!u.lineup.includes(p.id)&&(u.entry||u.roster).includes(p.id));   // v96: 1군 엔트리 안 벤치 야수const R=JSON.parse(JSON.stringify(rk));
  const nb={...rk};delete rk.deb;rk.hist=[];rk.age=19;rk.cur.g=0;rk.cur.pa=0;rk.cur.ab=0;u.lineup[8]=rk.id;u.pos[rk.id]=u.pos[u.lineup[8]]||rk.pos;u.locks=u.locks||{};
  {const lg=SL.startDay();if(lg){SL.stepGame(lg);SL.endUserGame();}}rk.deb&&rk.deb.s===S.season&&S.news.some(n=>/1군 데뷔/.test(n.text)&&n.text.includes(rk.name))?ok(`1군 데뷔 기록: ${rk.name} — ${rk.deb.line}`):bad('데뷔 '+JSON.stringify(rk.deb));
  const d2=JSON.stringify(rk.deb);{const lg=SL.startDay();if(lg){SL.stepGame(lg);SL.endUserGame();}}JSON.stringify(rk.deb)===d2?ok('데뷔는 한 번만 기록'):bad('데뷔 중복');
  const st=SL.stallList(3);st.every(x=>x.why&&x.why.t&&x.why.a)?ok(`정체 주의 ${st.length}명 (원인·권장 행동)`):bad('정체 목록');}
-{SL.load(require('fs').readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const okA=SL.krTeams().filter(t=>!t.isUser).every(t=>SL.AIM_KO[t.aim]);let g=0;while(S.phase==='season'&&g++<80)SL.playDayAuto();
- okA&&S.phase==='offseason'&&!S.news.some(n=>/1군 데뷔/.test(n.text))?ok('v29 저장(시즌 중) 불러오기 → AI 목표 채움 · 시즌 완주 · 기존 선수 가짜 데뷔 없음'):bad('v29 저장 호환');}
+{SL.load(require('fs').readFileSync(__dirname+'/v29_save.json','utf8'));S=SL.state();const okA=SL.krTeams().filter(t=>!t.isUser).every(t=>SL.AIM_KO[t.aim]);const pl0=new Set(Object.values(S.players).filter(q=>((q.cur&&(q.cur.g||0)+(q.cur.pG||0))>0)||(q.hist||[]).some(h=>h.st&&((h.st.g||0)+(h.st.pG||0))>0)).map(q=>q.name));let g=0;while(S.phase==='season'&&g++<80)SL.playDayAuto();
+ /* v96: 불러올 때 이미 1군 경기를 뛴 선수에게 데뷔가 붙으면 가짜 데뷔. 저장 시점까지 1군 경험이 없던 선수의 첫 출장은 진짜 데뷔라 제외 */const oldDeb=S.news.filter(n=>/1군 데뷔/.test(n.text)).filter(n=>{const m=n.text.match(/\] (\S+)\(/);return m&&pl0.has(m[1]);});
+ okA&&S.phase==='offseason'&&!oldDeb.length?ok('v29 저장(시즌 중) 불러오기 → AI 목표 채움 · 시즌 완주 · 기존 선수 가짜 데뷔 없음'):bad('v29 저장 호환');}
 console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
 {SL.newGame(1818,9,{arch:true,games:36});S=SL.state();const u=SL.userTeam();
  u.roster.every(id=>S.players[id].joinSnap&&S.players[id].joinSnap.role)?ok('시작 선수단에 입단 당시 역할 기록 (「입단 이후」 화면용)'):bad('입단 역할 없음');
@@ -337,7 +338,7 @@ console.log('[22] v36 23세 이후 잠재력 감소: 2군 주전·집중은 제�
  bn.length?(bn.every(p=>p.pot<pot0[p.id]&&p.log[0].f.some(f=>/잠재력 조금 감소/.test(f)))?ok(`2군 벤치 ${bn.length}명: 감소 + 성장 요인에 표시`):bad('벤치 감소 안 됨')):ok('(이번 시드는 2군 벤치 야수 없음)');}
 console.log('[23] v37 해외 하부 리그 (미국 2군·3군, 일본 2군)');
 {SL.newGame(3838,9,{games:36});S=SL.state();const u=SL.userTeam();const us=SL.overseasTeams().find(t=>t.league==='US');
- const ps=u.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(a)-SL.calcOvr(b));const weak=ps[0],star=ps[ps.length-1];
+ const ps=u.roster.map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)).sort((a,b)=>SL.calcOvr(a)-SL.calcOvr(b));const weak=ps[0],star=ps[ps.length-1];for(const k in star.attrs)star.attrs[k]=Math.min(99,star.attrs[k]+8);   // v96: 고정 선수단에선 이 구단 간판 타자가 미국 1군 수준에 조금 못 미쳐, 「강한 선수」가 되게 올림
  /시작$/.test(SL.expectedRole(weak,us))&&!/시작$/.test(SL.expectedRole(star,us))?ok(`예상 역할: 약한 선수 「${SL.expectedRole(weak,us)}」, 강한 선수 「${SL.expectedRole(star,us)}」`):bad('예상 역할 '+SL.expectedRole(weak,us)+' / '+SL.expectedRole(star,us));
  SL.transferPlayer(weak.id,us.id,1000,{salary:10000,years:3},'해외 이적');weak.tier>1&&S.news.some(n=>n.text.includes(weak.name)&&/부터 시작/.test(n.text))?ok(`해외 이적: ${weak.name} ${SL.farmKo('US',weak.tier)}부터 시작 (소식)`):bad('하부 시작 '+weak.tier);
  const o0=SL.calcOvr(weak);while(S.phase==='season')SL.playDayAuto();const h=weak.hist.slice(-1)[0];h.lg==='US'+weak.tier&&h.st.pa>=300&&/미국 [23]군/.test(h.tn)?ok(`하부에서 꾸준히 출장: ${h.tn} ${h.st.pa}타석`):bad('하부 기록 '+JSON.stringify([h.lg,h.tn,h.st.pa]));

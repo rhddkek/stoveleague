@@ -2,11 +2,11 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v95';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v96';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
-  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:75,US2:68,US3:63,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6,
+  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:75,US2:68,US3:63,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6, ROSTER_SEED:20260409, LEVEL_SD_LG:{}, STARS:{KR:{slug:1,pw:10,ace:3,ap:8},JP:{slug:2,pw:16,ace:2,ap:3},TW:{slug:1,pw:8,ace:1,ap:3},US:{slug:3,pw:8,ace:2,ap:3}},
   // 국내는 10개 구단 단일 리그(1군) + 2군. 승강제 없음. 경제 기준값은 1군 하나, 구단별 차이는 위상(시장 크기)으로만
   START_CASH:{1:900000},                                   // 만원 (AI 기준값)
   TICKET:{1:9000},                                         // 홈경기당 기본 입장수입(만원)
@@ -19,8 +19,8 @@ const BAL={
   SALARY_RATE:0.22, SALARY_MIN:1500,
   LEAGUE_VALUE:{1:1.15,JP:1.6,US:2.4,TW:1.1,MX:1.1,AU:0.85,CB:0.95},
   // 해외 무대: 리그 구조·팀 수는 실제 리그를 따르고, 구단명은 실제 연고 도시 + 가상 애칭 (실존 구단명·로고 미사용)
-  // v95 (R079): 리그 환경 — 실제 최근 시즌 수준에 맞춘 타격 환경 (홈 구장 리그 기준). hit=안타 확률 배수, hr=홈런 확률 배수, zone=스트라이크 존 비율 더하기(−면 볼넷↑), con=배트에 맞힐 확률 더하기(−면 삼진↑)
-  ENV:{KR:{hit:0.91,hr:1.08,zone:-0.03,con:0},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025},TW:{hit:0.97,hr:1,zone:-0.01,con:0},US:{hit:0.815,hr:1.28,zone:-0.02,con:-0.025}},
+  // v95 (R079): 리그 환경 — 실제 최근 시즌 수준에 맞춘 타격 환경 (홈 구장 리그 기준). hit=안타 확률 배수, hr=홈런 확률 배수, zone=스트라이크 존 비율 더하기(−면 볼넷↑), con=배트에 맞힐 확률 더하기(−면 삼진↑), hx=파워 85 넘는 거포의 홈런 가산(1점당, v96 — 리그 홈런왕 수준)
+  ENV:{KR:{hit:0.89,hr:1.05,zone:-0.03,con:0,hx:0.04},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025,hx:0.05},TW:{hit:1.0,hr:1.2,zone:-0.03,con:0},US:{hit:0.79,hr:1.15,zone:-0.02,con:-0.025}},
   LEAGUES:{JP:{name:'일본 프로야구',short:'일본',style:'12개 구단 · 양대 리그',games:143,roster:26,subs:['센트럴리그','퍼시픽리그']},
     US:{name:'메이저리그',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
     TW:{name:'대만 프로야구',short:'대만',style:'6개 구단 단일 리그',games:120,roster:24},
@@ -117,7 +117,10 @@ const TWS=['천','린','황','장','리','왕','우','류','차이','양','쉬',
 const TWG=['즈하오','웨이','쥔제','청언','보원','위천','관위','쯔쉬안','자하오','이천','핀루이','칭룽','젠훙','밍제','성안','쉬안','하오위','쥔훙'];
 const ESF=['호세','루이스','카를로스','미겔','후안','라파엘','펠릭스','라몬','훌리오','안드레스','에두아르도','빅토르','레오넬','라울','다니엘','헤수스','마누엘','프란시스코','오마르','엔리케'];
 const ESL=['로드리게스','마르티네스','곤살레스','에르난데스','페레스','산체스','라미레스','토레스','플로레스','디아스','크루스','레예스','모랄레스','오르티스','구티에레스','차베스','멘도사','바르가스','카스티요','게레로'];
-function genName(nat){if(nat==='JP')return pick(JS)+' '+pick(JG);if(nat==='US'||nat==='AU')return pick(UF)+' '+pick(UL);if(nat==='TW')return pick(TWS)+' '+pick(TWG);if(nat==='MX'||nat==='CB')return pick(ESF)+' '+pick(ESL);return pick(KS)+pick(KG);}
+const KS_W=[21.5,14.7,8.4,4.7,4.3,2.3,2.1,2.1,2.0,1.6,1.5,1.5,1.5,1.5,1.4,1.4,1.4,1.3,0.4,1.1,1.1,0.9,0.9,0.9,0.9,0.8,0.8,0.7,1.1,0.6,0.5,0.5,0.5,0.4,0.4,0.4,0.4,0.4,0.4,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.2,0.2,0.2,0.2,0.2,0.2,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05];
+// v96 (R080): 한국 성씨는 실제 인구 비율(2015 인구총조사 근사)대로 — 김·이·박이 흔하고 국·탁은 드묾
+function pickKS(){let tot=0;for(let i=0;i<KS.length;i++)tot+=KS_W[i]||0.05;let r=rnd()*tot;for(let i=0;i<KS.length;i++){r-=KS_W[i]||0.05;if(r<0)return KS[i];}return KS[0];}
+function genName(nat){if(nat==='JP')return pick(JS)+' '+pick(JG);if(nat==='US'||nat==='AU')return pick(UF)+' '+pick(UL);if(nat==='TW')return pick(TWS)+' '+pick(TWG);if(nat==='MX'||nat==='CB')return pick(ESF)+' '+pick(ESL);return pickKS()+pick(KG);}
 const NAT_KO={KR:'한국',JP:'일본',US:'미국',TW:'대만',MX:'멕시코',AU:'호주',CB:'도미니카'};
 // 이전 버전 구단명 → 새 구단명 (실존 구단명과 겹치거나 지역이 모호한 이름 교체)
 const TEAM_RENAME={'뉴저지 메트로스':'뉴욕 스카이라인스','텍사스 롱혼스':'댈러스 스탈리온스','캘리포니아 서퍼스':'샌디에이고 서퍼스','플로리다 게이터즈':'마이애미 플라밍고스','타이베이 드래곤스':'타이베이 매그파이즈','타이중 라이온스':'타이중 썬더볼츠',
@@ -192,7 +195,7 @@ function genAge(){const r=rnd();return r<0.18?ri(18,21):r<0.5?ri(22,25):r<0.82?r
 function genPlayer(o){
   const pos=o.pos;const isP=pos==='SP'||pos==='RP';const nat=o.nat||'KR';
   const age=o.age!=null?o.age:genAge();
-  let target=o.lvl+gauss()*BAL.LEVEL_SD;
+  let target=o.lvl+gauss()*(o.sd!=null?o.sd:BAL.LEVEL_SD);
   if(age<=21)target-=(22-age)*2.5;if(age>=33)target-=(age-32)*1.2;
   target=clamp(target,30,91);
   const attrs={};const keys=isP?PIT_KEYS:BAT_KEYS;const shape=POS_SHAPE[pos]||{};
@@ -257,7 +260,7 @@ function fillRoster(t){
   for(const pos of ROSTER_TEMPLATE){if(t.roster.length>=size)break;if(have[pos]>0){have[pos]--;continue;}
     // 국내 구단: 선발 2명·야수 1명은 외국인, 불펜 1명은 아시아쿼터 (KBO 2026처럼 구단마다 3+1)
     let fg=null;if(F){if(pos==='SP'&&F.sp<2){F.sp++;fg='gen';}else if(['1B','LF','RF','DH'].includes(pos)&&F.bat<1){F.bat++;fg='gen';}else if(pos==='RP'&&F.asia<1){F.asia++;fg='asia';}}
-    const p=fg?genPlayer({pos,lvl:lvl+(fg==='gen'?BAL.FGN.lvl:0),nat:fg==='asia'?pick(['JP','TW','AU']):pick(['US','US','US','MX','CB']),age:ri(25,31)}):genPlayer({pos,lvl,nat:(t.league==='KR'?'KR':(rnd()<0.1?pick(['KR','US','MX']):nat))});
+    const p=fg?genPlayer({pos,lvl:lvl+(fg==='gen'?BAL.FGN.lvl:0),nat:fg==='asia'?pick(['JP','TW','AU']):pick(['US','US','US','MX','CB']),age:ri(25,31)}):genPlayer({pos,lvl,sd:BAL.LEVEL_SD_LG[t.league],nat:(t.league==='KR'?'KR':(rnd()<0.1?pick(['KR','US','MX']):nat))});
     addToTeam(p,t,fg?{salary:fg==='asia'?Math.min(BAL.FGN.asiaCap,Math.max(BAL.SALARY_MIN*2,Math.round(salaryFor(p)*0.9/10)*10)):Math.min(BAL.FGN.genMax,Math.max(BAL.FGN.genMin,Math.round(salaryFor(p)*BAL.FGN.genMul/100)*100)),years:1}:{salary:Math.round(salaryFor(p)*(0.85+rnd()*0.3)/10)*10,years:ri(1,4)});
   }
   // 국내 구단: 2군(퓨처스) 선수층 — 1군 엔트리 밖 젊은 선수 (v61: 1군 26명 고정, 선수단 상한 없음)

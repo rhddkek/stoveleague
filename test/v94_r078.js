@@ -40,7 +40,7 @@ const {chromium}=require('playwright');const path=require('path');
     r.h-r.n===8&&r.n-r.e===8&&r.z==='normal'?ok(`난이도: 트레이드 응하는 기준 쉬움 ${r.e}% · 보통 ${r.n}% · 어려움 ${r.h}% · 예전 저장 = 보통`):bad('난이도 '+JSON.stringify(r));}
   // 6. 새 게임 화면에 난이도 고르기
   {const q=await b.newPage({viewport:{width:390,height:844}});await q.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await q.waitForTimeout(300);
-    const r=await q.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);const bs=[...document.querySelectorAll('.dfsel button')].map(x=>x.textContent);[...document.querySelectorAll('.dfsel button')].find(x=>x.textContent==='어려움').click();UI.newGame();return {bs,d:SL.state().diff};});await q.close();
+    const r=await q.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);const bs=[...document.querySelectorAll('.dfsel:not(.rosel) button')].map(x=>x.textContent);[...document.querySelectorAll('.dfsel:not(.rosel) button')].find(x=>x.textContent==='어려움').click();UI.newGame();return {bs,d:SL.state().diff};});await q.close();
     r.bs.join()==='쉬움,보통,어려움'&&r.d==='hard'?ok('새 게임: 「난이도 쉬움 · 보통 · 어려움」 → 어려움으로 시작하면 저장에 남음'):bad('새 게임 난이도 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v94 검사 실패 ${fails}건`:'v94 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

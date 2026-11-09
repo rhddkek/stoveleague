@@ -111,3 +111,17 @@ body:not(.ingame) .hlc .hlr.my{background:rgba(242,193,78,.08)}
 .dfwhy{margin-top:4px}
 /* v94: 새 반 이닝 첫 화면 띠 */
 .cmres.hstart .big{font-size:15px}
+
+/* v96 (R080): 결정적 장면 · 트레이드 시장 · 구단 라인업 */
+body:not(.ingame) .kmom{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:8px;padding:8px 10px;margin:6px 0 8px;background:var(--sunk)}
+body:not(.ingame) .kmom.opp{border-left-color:var(--muted,#8a8f98)}
+body:not(.ingame) .kmom .kmk{font-size:12px;font-weight:600;color:var(--acc);margin-bottom:4px;letter-spacing:0}
+body:not(.ingame) .kmom.opp .kmk{color:inherit;opacity:.75}
+body:not(.ingame) .kmom b{display:block;line-height:1.35}
+body:not(.ingame) table.thub td,body:not(.ingame) table.thub th{white-space:nowrap}
+body:not(.ingame) table.thub td.tn{max-width:9.5em;overflow:hidden;text-overflow:ellipsis}
+body:not(.ingame) table.tsht{width:100%}
+body:not(.ingame) table.tsht tr{cursor:pointer}
+body:not(.ingame) .lnbtns{display:flex;gap:8px;flex-wrap:wrap}
+body:not(.ingame) .lnbtns button{flex:1 1 140px}
+body:not(.ingame) .prow .rk{width:18px;text-align:center;font-variant-numeric:tabular-nums}
