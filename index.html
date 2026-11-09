@@ -1447,6 +1447,34 @@ button.primary.sign{background:#1f8f4d;border-color:#1f8f4d}
 @media (min-width:960px){.toast{bottom:60px!important}}
 /* v89: 선수 상세의 주 단추(비교 · 협상/라인업)는 휴대폰에서 아래에 붙어 있음 — 긴 상세를 내려가지 않아도 바로 누름 */
 @media (max-width:959px){.pv .pvact{position:sticky;bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:5;margin:10px -4px 0;padding:6px 4px 2px;background:linear-gradient(to top,var(--bg) 70%,transparent)}.pv .pvact .mkbtn2{margin:0}.pv .pvact .mkbtn2>button{box-shadow:0 4px 12px rgba(0,0,0,.18)}}
+/* v90 (R074): 디자인 한 벌 — 밝은 테마에서는 이적·리그·장비·코치 등 「어두운 판(.stv)」과 협상 화면(.tbl3)도 같은 밝은 카드로 (경기 화면만 구장 장면이라 어두움 유지) */
+:root[data-theme="light"] .stv,:root[data-theme="light"] .pv.tbl3{--bg:#f2eee5;--card:#ffffff;--sunk:#ebe6da;--text:#18213a;--muted:#4f5869;--line:#ddd6c7;--green-bg:#e3f4ea;--green-ink:#17704a;--orange-bg:#fdeedd;--orange-ink:#a8520c;--red-bg:#fbe5e3;--red-ink:#a92f27;color-scheme:light;background:var(--bg);color:var(--text)}
+:root[data-theme="light"] .stvh>b{text-shadow:none}
+:root[data-theme="light"] .stvc,:root[data-theme="light"] .stvsub,:root[data-theme="light"] .stvdet>summary,:root[data-theme="light"] .stvmore,:root[data-theme="light"] .stv .trwant,:root[data-theme="light"] .trcash,:root[data-theme="light"] .stvt .ov.rng{color:var(--muted)}
+:root[data-theme="light"] .stvc b{color:var(--orange)}
+:root[data-theme="light"] .stvm{background:var(--card);border-color:var(--line);color:var(--muted)}:root[data-theme="light"] .stvm b{color:var(--text)}
+:root[data-theme="light"] .stvtab button{background:var(--sunk);color:var(--text)}:root[data-theme="light"] .stvtab button.on{background:var(--navy);color:#fff}
+:root[data-theme="light"] .stvsort button{color:var(--text);background:var(--card)}:root[data-theme="light"] .stvsort button.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+:root[data-theme="light"] .stvt{background:var(--card);border:1px solid var(--line)}
+:root[data-theme="light"] .stvt th,:root[data-theme="light"] .stv .ptab th,:root[data-theme="light"] .stv .mkt th{background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important}
+:root[data-theme="light"] .stvt td{border-bottom-color:var(--line)}:root[data-theme="light"] .stvt tbody tr:nth-child(even) td,:root[data-theme="light"] .stv .ptab tbody tr:nth-child(even) td,:root[data-theme="light"] .stv .mkt tbody tr:nth-child(even) td{background:rgba(0,0,0,.025)!important}
+:root[data-theme="light"] .stvt tbody tr:active td{background:var(--orange-bg)}
+:root[data-theme="light"] .stvt td.no{background:var(--sunk)!important;color:var(--muted)}:root[data-theme="light"] .stvt tr.mine td.no{background:var(--orange)!important;color:#fff}
+:root[data-theme="light"] .stvt .pin{color:var(--orange)}
+:root[data-theme="light"] .stvt .ov.g{color:var(--green-ink)}:root[data-theme="light"] .stvt .ov.b{color:var(--blue)}
+:root[data-theme="light"] .stvt tr.ok td{background:var(--green-bg)!important}:root[data-theme="light"] .stvt tr.pick td{background:var(--navy)!important;color:#fff}
+:root[data-theme="light"] .stvbar2,:root[data-theme="light"] .stvact,:root[data-theme="light"] .trp{background:var(--card);border-color:var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.08)}
+:root[data-theme="light"] .stvbar2 button,:root[data-theme="light"] .stvact button{background:var(--sunk);color:var(--text)}:root[data-theme="light"] .stvact button.go,:root[data-theme="light"] .stvbar2 button.primary,:root[data-theme="light"] .stvact button.primary{background:var(--orange);color:#fff}
+:root[data-theme="light"] .trph{background:var(--sunk);color:var(--text)}:root[data-theme="light"] .trs .sl{background:var(--sunk)}
+:root[data-theme="light"] .tth{background:var(--navy)}:root[data-theme="light"] .tth.my{background:var(--orange)}
+:root[data-theme="light"] .trv.ok{background:var(--green-bg);color:var(--green-ink)}:root[data-theme="light"] .trv.bad{background:var(--red-bg);color:var(--red-ink)}
+:root[data-theme="light"] .modal:has(.stvmenu){--card:#ffffff;--sunk:#ebe6da;--text:#18213a;--muted:#4f5869;--line:#ddd6c7;background:var(--card);color:var(--text);border-color:var(--line)}
+:root[data-theme="light"] .modal:has(.stvmenu) .close{background:var(--sunk);color:var(--text)}
+:root[data-theme="light"] .stvmenu button.primary{background:var(--orange);color:#fff}
+:root[data-theme="light"] .pv.tbl3 .content{background:transparent}
+:root[data-theme="light"] .pv.tbl3 button.ghost,:root[data-theme="light"] .stv button.ghost{background:var(--card)!important;color:var(--text)!important;border-color:var(--line)!important}
+:root[data-theme="light"] .stv .eql button{background:var(--card);border-color:var(--line)}:root[data-theme="light"] .stv .eql button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+:root[data-theme="light"] .stv .eqslots,:root[data-theme="light"] .stv .cod,:root[data-theme="light"] .stv .co{background:var(--card);border-color:var(--line)}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -1457,7 +1485,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v89';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v90';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -5425,7 +5453,7 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
 function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
-  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:'처리할 일이 없습니다',hot:it.length>0});
+  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 — 경기를 진행하세요':'없음 — 다음 주로 넘기세요'),hot:it.length>0});
   T.push({k:'story',ic:'📖',t:'이번 주 이야기',v:'',s:st.title});
   if(off&&S.awards&&S.awards[S.season]&&S.week<=3){const L=S.lastSummary;const aw=(L&&L.awards)||[];T.push({k:'awards',ic:'🏆',t:'시상식',v:aw.length?`우리 ${aw.length}건`:'',s:aw[0]||'수상 결과 보기',hot:aw.length>0});}
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total?`이 페이스면 내년 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});
@@ -5440,7 +5468,7 @@ function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const 
 function sheetHtml(k){const ut=SL.userTeam();switch(k){
   case 'result':{const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;return hasRep?reportCard(ui.weekReport):ui.gameResult?resultCard(ui.gameResult):'';}
   case 'guide':return guideCard()||'<div class="card"><div class="muted">첫 시즌 할 일을 모두 마쳤습니다.</div></div>';
-  case 'dec':return decisionCard()||'<div class="card"><div class="muted">지금 결정할 일이 없습니다.</div></div>';
+  case 'dec':return decisionCard()||`<div class="card"><div class="muted" style="margin-bottom:10px">지금 결정할 일이 없습니다.</div><div class="row" style="gap:8px"><button class="primary big grow" onclick="UI.closeModal();${S.phase==='season'?(SL.userGameToday()?'UI.startGame()':'UI.autoDays(1)'):'UI.setTab(\'home\')'}">${S.phase==='season'?(SL.userGameToday()?'▶ 오늘 경기 보기':'▶▶ 하루 진행'):'감독실로'}</button><button class="ghost big" onclick="UI.closeModal();UI.go('market','deals')">영입 현황</button></div></div>`;
   case 'story':return storyCard(SL.weeklyStory());
   case 'race':return raceCard(ut)||'<div class="muted">시즌 중에 볼 수 있습니다.</div>';
   case 'career':return careerCard();

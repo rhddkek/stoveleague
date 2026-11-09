@@ -1,0 +1,22 @@
+// v90 (R074): 디자인 한 벌 — 밝은 테마에서 이적·리그·장비·코치·협상 화면도 같은 밝은 카드 · 「결정할 일 없음」 → 다음 할 일로 이어짐
+const {chromium}=require('playwright');const path=require('path');
+(async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
+  const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));
+  await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
+  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(3);UI.closeModal();});
+  const lum=c=>{const m=c.match(/\d+(\.\d+)?/g);if(!m)return 255;const [r,g,b2,a]=m.map(Number);if(a===0)return null;return 0.299*r+0.587*g+0.114*b2;};
+  // 1. 밝은 테마: 모든 탭 화면의 바탕·표 바탕이 밝음 (예전엔 이적·리그 일부가 검은 판)
+  {const r=await p.evaluate(()=>{const out=[];const theme=document.documentElement.dataset.theme;for(const t of ['roster','dev','market','league','club']){UI.setTab(t);const keys=[...document.querySelectorAll('.htabs button,.htabs2 button')].map(b=>(b.getAttribute('onclick')||'').match(/setSub\('(\w+)','(\w+)'\)/)).filter(Boolean).map(m=>m[2]);for(const k of new Set(keys)){UI.go(t,k);const c=document.querySelector('.content');const stv=c.querySelector('.stv');const el=stv||c;const bg=getComputedStyle(el).backgroundColor;const bgi=getComputedStyle(el).backgroundImage;const tbl=c.querySelector('.stvt,.mkt');out.push({k:t+'/'+k,stv:!!stv,bg,grad:bgi!=='none',th:tbl?getComputedStyle(tbl.querySelector('th')||tbl).color:'',td:tbl&&tbl.querySelector('td')?getComputedStyle(tbl.querySelector('td')).color:''});}}return {theme,out};});
+    const dark=r.out.filter(x=>{const l=lum(x.bg);return (l!=null&&l<120)||(x.td&&lum(x.td)>180)});
+    r.theme==='light'&&!dark.length?ok(`밝은 테마: ${r.out.length}개 화면 모두 밝은 바탕 · 표 글자 어두움 (어두운 판이었던 ${r.out.filter(x=>x.stv).length}개 화면 포함)`):bad('테마 '+r.theme+' '+JSON.stringify(dark.slice(0,4)));}
+  // 2. 협상 화면·줄 메뉴 창도 밝음
+  {const r=await p.evaluate(()=>{UI.go('market','fa');document.querySelector('.stvt tbody tr').click();[...document.querySelectorAll('.pvact button')].find(x=>/협상/.test(x.textContent)).click();const pv=document.querySelector('.pv.tbl3');const bg=getComputedStyle(pv).backgroundColor;const tx=getComputedStyle(pv).color;UI.back();UI.back();UI.go('league','overseas');const tr=document.querySelector('.stvt tbody tr');let mbg='';if(tr){tr.click();const m=document.querySelector('#modal .modal');mbg=m?getComputedStyle(m).backgroundColor:'';UI.closeModal();}return {bg,tx,mbg};});
+    lum(r.bg)>200&&lum(r.tx)<100&&(!r.mbg||lum(r.mbg)>200)?ok('협상 화면·해외 선수 줄 메뉴 창: 밝은 바탕에 어두운 글자'):bad('협상·창 '+JSON.stringify(r));}
+  // 3. 어두운 테마를 고르면 전부 어두움 (한 벌 유지)
+  {const r=await p.evaluate(()=>{document.documentElement.dataset.theme='dark';UI.go('market','fa');const a=getComputedStyle(document.querySelector('.stv')).backgroundColor;UI.go('roster','list');const b2=getComputedStyle(document.querySelector('#app')).backgroundColor;document.documentElement.dataset.theme='light';UI.setTab('home');return {a,b2};});
+    lum(r.a)<80&&lum(r.b2)<80?ok('어두운 테마: 이적·선수단 모두 어두운 바탕'):bad('어두운 테마 '+JSON.stringify(r));}
+  // 4. 「결정할 일 없음」 타일 → 창에 「▶ 오늘 경기 보기 / 하루 진행」과 「영입 현황」 단추
+  {const r=await p.evaluate(()=>{UI.setTab('home');const S=SL.state();const t=[...document.querySelectorAll('.tile')].find(x=>/결정할 일/.test(x.innerText));if(!t)return {no:'tile'};const sub=t.innerText;t.click();const m=document.querySelector('#modal');const btns=m?[...m.querySelectorAll('button')].map(x=>x.textContent.trim()):[];UI.closeModal();return {sub:sub.replace(/\s+/g,' '),btns};});
+    r.btns&&r.btns.some(x=>/오늘 경기 보기|하루 진행/.test(x))&&r.btns.includes('영입 현황')&&/경기를 진행하세요|건/.test(r.sub)?ok(`결정할 일 타일(${r.sub.slice(0,30)}) → 창 단추: ${r.btns.filter(x=>x!=='닫기').join(' · ')}`):bad('결정 타일 '+JSON.stringify(r));}
+  errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
+  await b.close();console.log(fails?`v90 검사 실패 ${fails}건`:'v90 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

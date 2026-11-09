@@ -850,7 +850,7 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
 function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
-  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:'처리할 일이 없습니다',hot:it.length>0});
+  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 — 경기를 진행하세요':'없음 — 다음 주로 넘기세요'),hot:it.length>0});
   T.push({k:'story',ic:'📖',t:'이번 주 이야기',v:'',s:st.title});
   if(off&&S.awards&&S.awards[S.season]&&S.week<=3){const L=S.lastSummary;const aw=(L&&L.awards)||[];T.push({k:'awards',ic:'🏆',t:'시상식',v:aw.length?`우리 ${aw.length}건`:'',s:aw[0]||'수상 결과 보기',hot:aw.length>0});}
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total?`이 페이스면 내년 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});
@@ -865,7 +865,7 @@ function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const 
 function sheetHtml(k){const ut=SL.userTeam();switch(k){
   case 'result':{const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;return hasRep?reportCard(ui.weekReport):ui.gameResult?resultCard(ui.gameResult):'';}
   case 'guide':return guideCard()||'<div class="card"><div class="muted">첫 시즌 할 일을 모두 마쳤습니다.</div></div>';
-  case 'dec':return decisionCard()||'<div class="card"><div class="muted">지금 결정할 일이 없습니다.</div></div>';
+  case 'dec':return decisionCard()||`<div class="card"><div class="muted" style="margin-bottom:10px">지금 결정할 일이 없습니다.</div><div class="row" style="gap:8px"><button class="primary big grow" onclick="UI.closeModal();${S.phase==='season'?(SL.userGameToday()?'UI.startGame()':'UI.autoDays(1)'):'UI.setTab(\'home\')'}">${S.phase==='season'?(SL.userGameToday()?'▶ 오늘 경기 보기':'▶▶ 하루 진행'):'감독실로'}</button><button class="ghost big" onclick="UI.closeModal();UI.go('market','deals')">영입 현황</button></div></div>`;
   case 'story':return storyCard(SL.weeklyStory());
   case 'race':return raceCard(ut)||'<div class="muted">시즌 중에 볼 수 있습니다.</div>';
   case 'career':return careerCard();
