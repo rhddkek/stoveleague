@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v94';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v95';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -19,6 +19,8 @@ const BAL={
   SALARY_RATE:0.22, SALARY_MIN:1500,
   LEAGUE_VALUE:{1:1.15,JP:1.6,US:2.4,TW:1.1,MX:1.1,AU:0.85,CB:0.95},
   // 해외 무대: 리그 구조·팀 수는 실제 리그를 따르고, 구단명은 실제 연고 도시 + 가상 애칭 (실존 구단명·로고 미사용)
+  // v95 (R079): 리그 환경 — 실제 최근 시즌 수준에 맞춘 타격 환경 (홈 구장 리그 기준). hit=안타 확률 배수, hr=홈런 확률 배수, zone=스트라이크 존 비율 더하기(−면 볼넷↑), con=배트에 맞힐 확률 더하기(−면 삼진↑)
+  ENV:{KR:{hit:0.91,hr:1.08,zone:-0.03,con:0},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025},TW:{hit:0.97,hr:1,zone:-0.01,con:0},US:{hit:0.815,hr:1.28,zone:-0.02,con:-0.025}},
   LEAGUES:{JP:{name:'일본 프로야구',short:'일본',style:'12개 구단 · 양대 리그',games:143,roster:26,subs:['센트럴리그','퍼시픽리그']},
     US:{name:'메이저리그',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
     TW:{name:'대만 프로야구',short:'대만',style:'6개 구단 단일 리그',games:120,roster:24},

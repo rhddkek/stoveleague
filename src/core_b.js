@@ -53,6 +53,7 @@ function doPitch(lg){
   const tk=tacNow(lg);if(tk==='hitrun'){con+=3;pow-=5;}else if(tk==='team'){pow-=8;con+=2;}else if(tk==='gb'){/* 아래 resolveInPlay에서 */}
   lg.pc[P.id]=(lg.pc[P.id]||0)+1;pb.pPit++;
   let zone=clamp(0.40+ctl*0.0032,0.45,0.78);if(lg.balls>=2)zone+=0.06;if(lg.strikes===2)zone-=0.07;if(lg.balls===3)zone+=0.05;
+  const EV=envOf(lg);zone+=EV.zone;
   const inZone=rnd()<zone;
   let swing;
   if(inZone)swing=0.62+(lg.strikes===2?0.25:0)-(lg.balls===3&&lg.strikes<2?0.2:0)+(lg.balls===0&&lg.strikes===0?-0.15:0);
@@ -61,7 +62,7 @@ function doPitch(lg){
   swing=clamp(swing,0.05,0.95);
   let res;
   if(rnd()>=swing)res=inZone?'strike':'ball';
-  else{let cp=clamp(0.76+(con-50)*0.0045-(stf-50)*0.004+(inZone?0.06:-0.14),0.3,0.95);if(rnd()>=cp)res='whiff';else res=rnd()<0.46?'foul':'inplay';}
+  else{let cp=clamp(0.76+EV.con+(con-50)*0.0045-(stf-50)*0.004+(inZone?0.06:-0.14),0.3,0.95);if(rnd()>=cp)res='whiff';else res=rnd()<0.46?'foul':'inplay';}
   let ev={type:res,text:'',paEnd:false};lg.c0=[lg.balls,lg.strikes];
   const cnt=()=>`(${lg.balls}B-${lg.strikes}S)`;
   if(res==='ball'){lg.balls++;ev.text=`볼 ${cnt()}`;if(lg.balls===4){doWalk(lg,B,bb,pb);ev.type='walk';ev.text=`${B.name} 볼넷${lg.c0[1]===2?' (풀카운트 승부)':''}`;ev.paEnd=true;}}
@@ -109,11 +110,11 @@ function advRunners(lg,hitType,B,bb,def){
 }
 function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
   bb.ab++;const bs=lg.half,fs=1-bs;const def=teamDef(lg,fs);const before=lg.outs;
-  const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;
+  const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;const EV=envOf(lg);hrP*=EV.hr;
   const ev={type:'',text:'',paEnd:true};
   const ro=()=>lg.outs>0?` (${lg.outs}아웃)`:'';
   if(rnd()<hrP){bb.h++;bb.hr++;pb.pH++;pb.pHR++;const runs=advRunners(lg,'hr',B,bb,def);lg.hits[bs]++;ev.type='hr';const hd=playDir(lg,B);const fz=PK.dim[hd.side];const dist=Math.round(fz+2+hd.r*16+Math.max(0,pow-50)*0.18);ev.text=`${B.name}, ${cntWord(lg)} ${hd.hr} ${runs===4?'만루':runs>1?runs+'점':'솔로'} 홈런! (비거리 ${dist}m · 펜스 ${fz}m)`;return ev;}
-  const hitP=clamp(0.34+(con-50)*0.003+(sp-50)*0.001-(def-50)*0.003-(mov-50)*0.0018,0.15,0.5);
+  const hitP=clamp(0.34+(con-50)*0.003+(sp-50)*0.001-(def-50)*0.003-(mov-50)*0.0018,0.15,0.5)*EV.hit;
   if(rnd()<hitP){
     bb.h++;pb.pH++;lg.hits[bs]++;
     const xb=clamp((0.17+(pow-50)*0.0035+(sp-50)*0.0012)*PK.xb,0.05,0.45);const r=rnd();
@@ -166,6 +167,8 @@ function parkDim0(name){const h=strHash(name);const f=k=>((h>>>(k*5))&31)/31;con
 let PARK_REF=null;
 function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
 const PARK_MEMO={};
+// v95 (R079): 경기 리그의 타격 환경 (BAL.ENV, 홈 구단 리그 기준)
+function envOf(lg){const L=(S.teams[lg.home]||{}).league;return (BAL.ENV&&BAL.ENV[L])||{hit:1,hr:1,zone:0,con:0};}
 function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=(t.orig||t.name)+'|'+t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.orig||t.name);const R=parkRef();
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
   const city=t.name.split(' ')[0];const nick=t.name.split(' ').slice(1).join(' ');const shared=t.league==='KR'&&TEAM_NAMES.KR.filter(x=>x[0].split(' ')[0]===city).length>1;const notes=[];if(d.l<=96)notes.push('좌측 펜스가 가깝습니다');if(d.r<=96)notes.push('우측 펜스가 가깝습니다');if(d.c>=123)notes.push('중앙이 깊어 2·3루타가 잘 나옵니다');if(d.fence)notes.push('외야 펜스가 높습니다');if(d.wind)notes.push('외야 쪽으로 부는 바람이 잦아 타구가 잘 뻗습니다');if(!notes.length)notes.push('표준 규격 구장입니다');

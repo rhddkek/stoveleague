@@ -27,7 +27,7 @@ while(S.phase==='season'){SL.playDayAuto();for(const o of [...S.market.offers])S
 {const T=SL.krTeams();const ps=Object.values(S.players).filter(p=>p.hist&&p.hist.some(h=>h.s===1&&h.lg==='KR1'));const st=p=>p.hist.find(h=>h.s===1&&h.lg==='KR1').st;
   let sb=0,cs=0,rs=0,g=0,sv=0,hd=0;for(const p of ps){const s=st(p);sb+=s.sb||0;cs+=s.cs||0;sv+=s.pSV||0;hd+=s.pHD||0;}for(const t of T){rs+=t.rec.rs;g+=t.rec.w+t.rec.l+(t.rec.tie||0);}
   const top=k=>Math.max(...ps.map(p=>st(p)[k]||0));const rpg=rs/g,sbg=sb/g,rate=sb/(sb+cs);
-  rpg>=4.3&&rpg<=5.3?ok(`경기당 득점 ${rpg.toFixed(2)}`):bad('득점 '+rpg);
+  rpg>=3.9&&rpg<=5.1?ok(`경기당 득점 ${rpg.toFixed(2)} (v95: 실제 2025 KBO 4.6 ± 시드 차이)`):bad('득점 '+rpg);
   sbg>=0.5&&sbg<=1.4&&rate>=0.66&&rate<=0.82?ok(`팀 경기당 도루 ${sbg.toFixed(2)} · 성공률 ${(rate*100).toFixed(0)}% · 도루 1위 ${top('sb')}개`):bad(`도루 ${sbg} 성공률 ${rate}`);
   top('sb')>=25&&top('sb')<=75?ok('도루왕 개수 현실 범위'):bad('도루 1위 '+top('sb'));
   const tsv=sv/T.length,thd=hd/T.length;tsv>=25&&tsv<=55&&thd>=35&&thd<=95?ok(`구단당 세이브 ${tsv.toFixed(0)} · 홀드 ${thd.toFixed(0)} · 세이브 1위 ${top('pSV')} · 홀드 1위 ${top('pHD')}`):bad(`세이브 ${tsv} 홀드 ${thd}`);
