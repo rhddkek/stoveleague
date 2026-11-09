@@ -17,6 +17,6 @@ const {chromium}=require('playwright');const path=require('path');
     lum(r.a)<80&&lum(r.b2)<80?ok('어두운 테마(기본): 이적·선수단 모두 어두운 바탕'):bad('어두운 테마 '+JSON.stringify(r));}
   // 4. 「결정할 일 없음」 타일 → 창에 「▶ 오늘 경기 보기 / 하루 진행」과 「영입 현황」 단추
   {const r=await p.evaluate(()=>{UI.setTab('home');const S=SL.state();const t=[...document.querySelectorAll('.tile')].find(x=>/결정할 일/.test(x.innerText));if(!t)return {no:'tile'};const sub=t.innerText;t.click();const m=document.querySelector('#modal');const btns=m?[...m.querySelectorAll('button')].map(x=>x.textContent.trim()):[];UI.closeModal();return {sub:sub.replace(/\s+/g,' '),btns};});
-    r.btns&&r.btns.some(x=>/오늘 경기 보기|하루 진행/.test(x))&&r.btns.includes('영입 현황')&&/경기를 진행하세요|건/.test(r.sub)?ok(`결정할 일 타일(${r.sub.slice(0,30)}) → 창 단추: ${r.btns.filter(x=>x!=='닫기').join(' · ')}`):bad('결정 타일 '+JSON.stringify(r));}
+    r.btns&&r.btns.some(x=>/오늘 경기 보기|하루 진행/.test(x))&&r.btns.includes('영입 현황')&&/경기 진행|건/.test(r.sub)?ok(`결정할 일 타일(${r.sub.slice(0,30)}) → 창 단추: ${r.btns.filter(x=>x!=='닫기').join(' · ')}`):bad('결정 타일 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v90 검사 실패 ${fails}건`:'v90 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

@@ -366,12 +366,10 @@ function ftabsScroll(){for(const r of document.querySelectorAll('.ftabs')){const
 const HUB={
   roster:()=>({core:[['선수',['list']],['타순·수비',['lineup']],['투수진',['pitch']]],more:[]}),
   dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
-  market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();return {core:[['영입 현황',['deals','offers'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']]],
-    more:[['협상',[['neg','협상 테이블','열려 있는 협상 대화']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['scout','국내 스카우트','지역 유망주 · FA · 타 구단 보고서'],['youth','유소년','유소년 선수 육성']]]]};},
-  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']]],
-    more:[['기록',[['hist','역대','시즌별 우승 · 순위 · 시상'],['hof','명예의 전당','헌액 선수 · 현역 후보'],['ach','도전과제','달성 기록']]],['리그',[['fut','2군 리그','퓨처스 순위 · 일정'],['events','올스타전','올스타 투표 · 경기'],['overseas','해외','해외 리그 순위 · 우리 출신 선수']]]]}),
-  club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']]],
-    more:[['구단',[['fac','시설','훈련장 · 구장 · 의료 시설'],['pres','구단 위상','명문 · 인기 · 팬'],['spon','스폰서·광고','스폰서 계약 · 선수 광고'],['alumni','옛 제자','떠난 선수들의 이후']]],['설정',[['look','꾸미기','애칭 · 색 · 엠블럼'],['data','설정·저장','저장 칸 · 백업 · 설정']]]]})};
+  // v92 (R076): 예전 「더 있는 메뉴」(역대·명예의 전당 · 협상 테이블·드래프트 · 시설·설정 …)는 위 줄의 큰 탭 하나로 묶음 → 위 줄 최대 5칸, 아래 줄엔 「지금 고른 탭의 세부」만 (순위 화면에 역대·명예의 전당이 같이 붙어 나오던 것 없앰)
+  market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();const dt=SL.draftTurn()?1:0;return {core:[['영입 현황',['deals','offers','neg'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`,'협상 테이블'],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']],['발굴',['draft','scout','youth'],[`드래프트${dt?' ●':''}`,'국내 스카우트','유소년'],dt]],more:[]};},
+  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']],['역대',['hist','hof','ach'],['시즌별','명예의 전당','도전과제']],['다른 리그',['fut','events','overseas'],['2군 리그','올스타전','해외']]],more:[]}),
+  club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']],['구단',['fac','pres','spon','alumni'],['시설','구단 위상','스폰서·광고','옛 제자']],['설정',['data','look'],['설정·저장','꾸미기']]],more:[]})};
 function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.flatMap(c=>c[1]).concat(H.more.flatMap(g=>g[1].map(x=>x[0])));if(!all.includes(cur))ui.sub[key]=H.core[0][1][0];const c0=ui.sub[key];
   ui.hubLast=ui.hubLast||{};const core=H.core.map((c,i)=>{const on=c[1].includes(c0);if(on)ui.hubLast[key+i]=c0;const go=on?c0:(ui.hubLast[key+i]||c[1][0]);return `<button class="${on?'on':''}" onclick="UI.setSub('${key}','${go}')">${c[0]}${c[3]?` <i class="hbd">${c[3]}</i>`:''}</button>`;}).join('');
   const mi=H.more.flatMap(g=>g[1]).find(x=>x[0]===c0);const mb=H.more.flatMap(g=>g[1]).reduce((a,x)=>a+(x[3]||0),0);
@@ -851,7 +849,7 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
 function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
-  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 — 경기를 진행하세요':'없음 — 다음 주로 넘기세요'),hot:it.length>0});
+  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 · 경기 진행':'없음 · 다음 주로'),hot:it.length>0});
   T.push({k:'story',ic:'📖',t:'이번 주 이야기',v:'',s:st.title});
   if(off&&S.awards&&S.awards[S.season]&&S.week<=3){const L=S.lastSummary;const aw=(L&&L.awards)||[];T.push({k:'awards',ic:'🏆',t:'시상식',v:aw.length?`우리 ${aw.length}건`:'',s:aw[0]||'수상 결과 보기',hot:aw.length>0});}
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total?`이 페이스면 내년 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 /* 레이아웃: 모바일 세로 단일 컬럼(최대 560px), 상단 구단 바 + 하단 5탭. 결정(주황) → 성장(초록) → 진행(네이비) 순 */
 :root{
@@ -1485,6 +1485,24 @@ tr.lurow.ludrop td{background:var(--orange-bg)!important;box-shadow:inset 0 2px 
 body.ludragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .lumv{display:flex;align-items:center;gap:8px;background:var(--orange-bg);color:var(--orange-ink);border:1px solid var(--orange);border-radius:10px;padding:6px 10px;margin:6px 0;font-size:13px}.lumv button{margin-left:auto}
 .dia .dslot{touch-action:none}
+/* v92 (R076): 어두운 테마에서 안 보이던 글자 · 탭 정리 · 훈련 고르기 · 아이폰 확대 방지 */
+.mkr{color:#fff}.mkr small{color:rgba(233,238,247,.72)}
+.htabs2 button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.gl.S{color:#3a2a00}
+/* 아이폰은 글자 16px 미만 입력칸·선택 상자를 누르면 화면을 확대함 → 아래 탭이 화면 가운데 뜸. 손가락 기기에선 16px로 */
+@media (pointer:coarse){input,select,textarea{font-size:16px!important}}
+.fsel{min-height:32px;min-width:74px;padding:3px 10px;border-radius:16px;border:1px solid var(--line);background:var(--sunk);color:var(--text);font-size:13px;font-weight:800;white-space:nowrap}
+.fsel i{font-style:normal;font-size:10px;opacity:.7;margin-left:2px}.fsel.set{border-color:var(--orange);color:var(--orange)}
+.fpick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fpick button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 12px;min-height:58px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.fpick button b{font-size:15px}.fpick button small{font-size:11.5px;color:var(--muted)}.fpick button i{font-style:normal;font-size:11px;color:var(--orange);font-weight:800}
+.fpick button.on{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange)}
+.dfgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.dfgrid>div{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center;line-height:1.25}
+.dfgrid small{display:block;font-size:11px;color:var(--muted)}.dfgrid b{display:block;font-size:18px;color:var(--orange);margin:2px 0}.dfgrid span{font-size:10.5px;color:var(--muted)}
+/* 위 줄 5칸: 휴대폰에서 글자가 잘리지 않게 */
+@media (max-width:440px){.subtabs.htabs:has(>button:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))!important}.subtabs.htabs:has(>button:nth-child(5)) button{font-size:12.5px!important;letter-spacing:-.3px;padding-left:1px!important;padding-right:1px!important}}
+body:has(#modal) .toast{top:calc(10px + env(safe-area-inset-top,0px))!important;bottom:auto!important}
 
 </style></head><body><div id="app"></div>
 <script id="assets">
@@ -1495,7 +1513,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v91';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v92';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -4979,12 +4997,10 @@ function ftabsScroll(){for(const r of document.querySelectorAll('.ftabs')){const
 const HUB={
   roster:()=>({core:[['선수',['list']],['타순·수비',['lineup']],['투수진',['pitch']]],more:[]}),
   dev:()=>{const ut=SL.userTeam();return {core:[['훈련·성장',['train']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
-  market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();return {core:[['영입 현황',['deals','offers'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']]],
-    more:[['협상',[['neg','협상 테이블','열려 있는 협상 대화']]],['발굴',[['draft','드래프트',SL.draftTurn()?'우리 지명 차례입니다':'신인 지명',SL.draftTurn()?1:0],['scout','국내 스카우트','지역 유망주 · FA · 타 구단 보고서'],['youth','유소년','유소년 선수 육성']]]]};},
-  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']]],
-    more:[['기록',[['hist','역대','시즌별 우승 · 순위 · 시상'],['hof','명예의 전당','헌액 선수 · 현역 후보'],['ach','도전과제','달성 기록']]],['리그',[['fut','2군 리그','퓨처스 순위 · 일정'],['events','올스타전','올스타 투표 · 경기'],['overseas','해외','해외 리그 순위 · 우리 출신 선수']]]]}),
-  club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']]],
-    more:[['구단',[['fac','시설','훈련장 · 구장 · 의료 시설'],['pres','구단 위상','명문 · 인기 · 팬'],['spon','스폰서·광고','스폰서 계약 · 선수 광고'],['alumni','옛 제자','떠난 선수들의 이후']]],['설정',[['look','꾸미기','애칭 · 색 · 엠블럼'],['data','설정·저장','저장 칸 · 백업 · 설정']]]]})};
+  // v92 (R076): 예전 「더 있는 메뉴」(역대·명예의 전당 · 협상 테이블·드래프트 · 시설·설정 …)는 위 줄의 큰 탭 하나로 묶음 → 위 줄 최대 5칸, 아래 줄엔 「지금 고른 탭의 세부」만 (순위 화면에 역대·명예의 전당이 같이 붙어 나오던 것 없앰)
+  market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();const dt=SL.draftTurn()?1:0;return {core:[['영입 현황',['deals','offers','neg'],[`진행 중${dl?' '+dl:''}`,`받은 제안${n?' '+n:''}`,'협상 테이블'],n+dl||0],['선수 찾기',['buy','fa','fgn'],['국내 구단','FA','해외·외국인']],['계약 관리',['renew','list'],[`재계약${pf?' '+pf:''}`,'판매 등록'],pf],['트레이드',['trade']],['발굴',['draft','scout','youth'],[`드래프트${dt?' ●':''}`,'국내 스카우트','유소년'],dt]],more:[]};},
+  league:()=>({core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched']],['기록실',['rec']],['역대',['hist','hof','ach'],['시즌별','명예의 전당','도전과제']],['다른 리그',['fut','events','overseas'],['2군 리그','올스타전','해외']]],more:[]}),
+  club:()=>({core:[['감독',['mgr','jobs'],['내 실적','구직·구인']],['코치진',['staff']],['재정',['fin']],['구단',['fac','pres','spon','alumni'],['시설','구단 위상','스폰서·광고','옛 제자']],['설정',['data','look'],['설정·저장','꾸미기']]],more:[]})};
 function hubTabs(key){const H=HUB[key]();const cur=ui.sub[key];const all=H.core.flatMap(c=>c[1]).concat(H.more.flatMap(g=>g[1].map(x=>x[0])));if(!all.includes(cur))ui.sub[key]=H.core[0][1][0];const c0=ui.sub[key];
   ui.hubLast=ui.hubLast||{};const core=H.core.map((c,i)=>{const on=c[1].includes(c0);if(on)ui.hubLast[key+i]=c0;const go=on?c0:(ui.hubLast[key+i]||c[1][0]);return `<button class="${on?'on':''}" onclick="UI.setSub('${key}','${go}')">${c[0]}${c[3]?` <i class="hbd">${c[3]}</i>`:''}</button>`;}).join('');
   const mi=H.more.flatMap(g=>g[1]).find(x=>x[0]===c0);const mb=H.more.flatMap(g=>g[1]).reduce((a,x)=>a+(x[3]||0),0);
@@ -5464,7 +5480,7 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
 function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
-  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 — 경기를 진행하세요':'없음 — 다음 주로 넘기세요'),hot:it.length>0});
+  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:'결정할 일',v:it.length?`${it.length}건`:'없음',s:it[0]?it[0].title:(S.phase==='season'?'없음 · 경기 진행':'없음 · 다음 주로'),hot:it.length>0});
   T.push({k:'story',ic:'📖',t:'이번 주 이야기',v:'',s:st.title});
   if(off&&S.awards&&S.awards[S.season]&&S.week<=3){const L=S.lastSummary;const aw=(L&&L.awards)||[];T.push({k:'awards',ic:'🏆',t:'시상식',v:aw.length?`우리 ${aw.length}건`:'',s:aw[0]||'수상 결과 보기',hot:aw.length>0});}
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total?`이 페이스면 내년 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});
@@ -6827,7 +6843,13 @@ function renderScoutReport(v){const p=S.players[v.pid];if(!p)return '';const ut=
 function renderDraftMock(ut){return draftPendCard()+renderDraftMock0(ut);}
 function draftPendCard(){const pend=SL.draftPending();if(!pend.length)return '';return `<div class="mkcard" style="padding:0">${mkSec('지명 선수 계약',`${pend.length}명 대기 · 개막 전까지 · 계약금 합 ${Ms(pend.reduce((a,p)=>a+p.drafted.ask,0))}`)}${pend.map(p=>`<div class="deal"><div class="row" style="gap:10px;align-items:center">${face(p,40)}<div class="grow"><a class="pname" onclick="UI.openPlayer(${p.id})">${esc(p.name)}</a> <span class="muted small">${p.drafted.round}라운드 ${p.drafted.no}순위 · ${p.pos} · ${p.age}세</span><div class="small">잠재 ${SL.potText(p)} · 계약금 <b>${Ms(p.drafted.ask)}</b> · 최저 연봉 3년</div></div><button class="sm primary" onclick="UI.dsignView(${p.id})">계약</button><button class="sm ghost" onclick="UI.draftSign(${p.id},false)">포기</button></div></div>`).join('')}${pend.length>1?`<div style="padding:8px 12px"><button class="primary" style="width:100%" onclick="UI.draftSignAll()">${pend.length}명 모두 계약 (${Ms(pend.reduce((a,p)=>a+p.drafted.ask,0))})</button></div>`:''}<div class="small muted" style="padding:4px 12px 10px">지명만으로는 입단하지 않습니다. 개막까지 계약하지 않으면 대학에 진학합니다.</div></div>`;}
 function renderDraftMock0(ut){const D=S.draft;const C=S.dclass&&S.dclass.s===S.season?S.dclass:null;
-  if(!D||D.done){if(C)return mkMarketTabs()+draftClassCard(ut);return mkMarketTabs()+`<div class="mkcard">${mkSec('신인 드래프트')}<div class="muted small">시즌 60% 지점에 후보 ${SL.BAL.DRAFT_POOL}명이 공개되고, 시즌이 끝나면 스토브리그 첫 주에 지명합니다.${D&&D.done?' 이번 시즌 드래프트는 끝났습니다.':''}</div>${D&&D.done?`<div style="margin-top:8px">${D.picks.filter(x=>x.team===ut.id&&x.pid&&S.players[x.pid]).map(x=>prow(S.players[x.pid],`${x.round}라운드 ${x.no}순위`)).join('')}</div>`:''}</div>`;}
+  if(!D||D.done){if(C)return mkMarketTabs()+draftClassCard(ut);
+    // v92: 후보 공개 전에도 빈 화면이 아니게 — 언제 열리는지 · 지금 순위면 몇 순위로 뽑는지 · 그 전에 할 일
+    const pre=!D&&S.phase==='season'&&ut.league==='KR';let info='';
+    if(pre){const openD=SL.dayAt(0.6);const left=Math.max(0,openD-S.day);const rk=SL.rankOf(ut);const n=SL.standings(SL.compOf?SL.compOf(ut):1).length||10;const pick=n+1-rk;
+      info=`<div class="dfgrid"><div><small>후보 공개</small><b>${left?`${left}일 뒤`:'곧'}</b><span>${openD}일차 · ${SL.BAL.DRAFT_POOL}명</span></div><div><small>지금 순위면</small><b>${pick}순위</b><span>${rk}위 → 하위 팀부터</span></div><div><small>지명</small><b>${SL.BAL.DRAFT_ROUNDS}라운드</b><span>스토브리그 첫 주</span></div></div>
+        <div class="row" style="gap:8px;margin-top:10px"><button class="primary grow" onclick="UI.setSub('market','scout')">🔭 국내 스카우트로 유망주 미리 보기</button><button class="ghost" onclick="UI.setSub('market','youth')">유소년</button></div>`;}
+    return mkMarketTabs()+`<div class="mkcard">${mkSec('신인 드래프트')}${info}<div class="muted small"${info?' style="margin-top:8px"':''}>시즌 60% 지점에 후보 ${SL.BAL.DRAFT_POOL}명이 공개되고, 시즌이 끝나면 스토브리그 첫 주에 지명합니다.${D&&D.done?' 이번 시즌 드래프트는 끝났습니다.':''}</div>${D&&D.done?`<div style="margin-top:8px">${D.picks.filter(x=>x.team===ut.id&&x.pid&&S.players[x.pid]).map(x=>prow(S.players[x.pid],`${x.round}라운드 ${x.no}순위`)).join('')}</div>`:''}</div>`;}
   const n=D.n||SL.krTeams().length;const idx=D.idx;const round=Math.floor(idx/n)+1;const cur=S.teams[D.order[idx]];const myTurn=SL.draftTurn();const mySlots=D.order.map((t,i)=>t===ut.id?i:-1).filter(i=>i>=idx);const nextMine=mySlots[0];const nextT=D.order[idx+1]!=null?S.teams[D.order[idx+1]]:null;
   const f=ui.drF=ui.drF||{tab:'all',pos:'all'};const mock=SL.draftMock();const W=S.draftWatch||[];let avail=SL.draftAvail();
   if(f.tab==='pos'&&f.pos!=='all')avail=avail.filter(p=>f.pos==='P'?SL.isPitcher(p):f.pos==='B'?!SL.isPitcher(p):p.pos===f.pos);else if(f.tab==='sc')avail=avail.slice().sort((a,b)=>b.scout.conf-a.scout.conf);else if(f.tab==='pin')avail=avail.filter(p=>W.includes(p.id));
@@ -6870,7 +6892,7 @@ function renderTrainMock(ut){const ti=ut.trainInt||'normal';const f=ui.trKind||'
   let h=`<div class="mkh"><span class="t">육성 - 훈련</span><span class="r small">📅 ${wk}주차 (${d.m}/${d.d}~)</span></div>`;
   h+=`<div class="mkcard">${mkSec('주간 훈련 설정','선수별 훈련을 배정하고, 주간 육성 변화를 확인합니다.')}<div class="tibox"><span class="k">훈련 강도 <small>(팀 공통)</small></span><div class="mktabs3">${[['light','가볍게'],['normal','보통'],['hard','집중']].map(x=>`<button class="${ti===x[0]?'on':''}" onclick="UI.trainInt('${x[0]}')">${x[1]}</button>`).join('')}</div><div class="small" style="margin-top:6px">${ti==='hard'?'<span class="ok">▲ 훈련 효과 +15%</span> <span class="sep">|</span> <span class="o">▲ 피로 회복 −3/일</span>':ti==='light'?'<span class="o">▼ 훈련 효과 −15%</span> <span class="sep">|</span> <span class="ok">▲ 피로 회복 +2/일</span>':'훈련 효과 기본 <span class="sep">|</span> 피로 회복 기본'}</div></div></div>`;
   h+=`<div class="row" style="gap:6px;margin-bottom:6px">${[['all','전체'],['young','25세 이하'],['P','투수'],['B','야수']].map(x=>`<button class="sm ${f===x[0]?'primary':'ghost'}" onclick="UI.set('trKind','${x[0]}')">${x[1]}</button>`).join('')}</div>`;
-  h+=`<div class="mkcard" style="padding:0"><table class="mkt sq"><thead><tr><th>선수</th><th class="tn">이름</th><th>집중 훈련</th><th>변화(예상)</th><th>피로</th></tr></thead><tbody>${ps.slice(0,ui.trN||14).map(p=>{const F=SL.isPitcher(p)?SL.FOCUS_PIT:SL.FOCUS_BAT;const e=exp(p);return `<tr class="${sel&&sel.id===p.id?'sel':''}" onclick="UI.selRow(${p.id})"><td class="tc"><span class="tfn">${face(p,30)}${posChip(p)}</span></td><td class="tn"><b>${esc(p.name)}</b> <small class="muted">(${p.age})</small></td><td class="tc"><select class="sm" onclick="event.stopPropagation()" onchange="UI.setFocus(${p.id},this.value)">${Object.entries(F).map(([k,v])=>`<option value="${k}" ${(p.focus||'balance')===k?'selected':''}>${v}</option>`).join('')}</select></td><td class="tc"><b class="${e>0?'ok':e<0?'bad':'muted'}">${e>0?'▲ +'+e:e<0?'▼ '+e:'→ ±0'}</b></td><td class="tc">${Math.round(p.fatigue||0)}%</td></tr>`;}).join('')}</tbody></table>${ps.length>(ui.trN||14)?`<button class="ghost" style="width:100%;border-radius:0 0 10px 10px" onclick="UI.set('trN',${(ui.trN||14)+14})">더 보기</button>`:''}</div>`;
+  h+=`<div class="mkcard" style="padding:0"><table class="mkt sq"><thead><tr><th>선수</th><th class="tn">이름</th><th>집중 훈련</th><th>변화(예상)</th><th>피로</th></tr></thead><tbody>${ps.slice(0,ui.trN||14).map(p=>{const F=SL.isPitcher(p)?SL.FOCUS_PIT:SL.FOCUS_BAT;const e=exp(p);return `<tr class="${sel&&sel.id===p.id?'sel':''}" onclick="UI.selRow(${p.id})"><td class="tc"><span class="tfn">${face(p,30)}${posChip(p)}</span></td><td class="tn"><b>${esc(p.name)}</b> <small class="muted">(${p.age})</small></td><td class="tc"><button class="fsel${(p.focus||'balance')!=='balance'?' set':''}" onclick="event.stopPropagation();UI.focusPick(${p.id})">${F[p.focus||'balance']||'균형'} <i>▾</i></button></td><td class="tc"><b class="${e>0?'ok':e<0?'bad':'muted'}">${e>0?'▲ +'+e:e<0?'▼ '+e:'→ ±0'}</b></td><td class="tc">${Math.round(p.fatigue||0)}%</td></tr>`;}).join('')}</tbody></table>${ps.length>(ui.trN||14)?`<button class="ghost" style="width:100%;border-radius:0 0 10px 10px" onclick="UI.set('trN',${(ui.trN||14)+14})">더 보기</button>`:''}</div>`;
   if(sel){const isP=SL.isPitcher(sel);const F=isP?SL.FOCUS_PIT:SL.FOCUS_BAT;const fk=sel.focus&&sel.focus!=='balance'?sel.focus:null;const dg=SL.diagnose(sel);const keys=fk?[fk,...(isP?SL.PIT_KEYS:SL.BAT_KEYS).filter(k=>k!==fk).slice(0,1)]:(isP?SL.PIT_KEYS:SL.BAT_KEYS).slice(0,2);const g=sel.age<=24?3:sel.age<=28?1:0;const stage=sel.age<=23?'성장기':sel.age<=29?'전성기':'노련기';
     h+=`<div class="mkcard"><div class="row" style="gap:12px;align-items:center">${face(sel,64)}<div><b style="font-size:20px">${esc(sel.name)}</b> <small>(${sel.age})</small><div class="small muted">${isP?'투수':'야수'} <span class="sep">|</span> ${sel.throws==='L'?'좌투':'우투'}${sel.bats==='L'?'좌타':'우타'}</div></div><div class="grow"></div><table class="kvt right"><tr><td>성장 유형</td><td class="ok"><b>${esc(dg.arch)}</b></td></tr><tr><td>개발 단계</td><td class="ok"><b>${stage}${sel.devStart!=null?`(${Math.max(1,S.season-((sel.joinSnap&&sel.joinSnap.s)||S.season)+1)}년차)`:''}</b></td></tr></table></div>
       ${mkSec('훈련 상세')}<table class="mkt mini"><thead><tr><th class="tn">능력치</th><th>훈련 전</th><th></th><th class="hl">훈련 후(예상)</th></tr></thead><tbody>${keys.map((k,i)=>{const v=Math.round(sel.attrs[k]);const dlt=i===0&&fk?g:0;return `<tr><td class="tn">${SL.ATTR_KO[k]}</td><td class="tc"><b>${v}</b> ${mkBar(v,100,'g')}</td><td class="tc">▸</td><td class="tc hl"><b>${v+dlt}</b> <span class="${dlt>0?'ok':'muted'}">(${dlt>0?'+'+dlt:'±0'})</span> ${mkBar(v+dlt,100,'g')}</td></tr>`;}).join('')}</tbody></table>
@@ -7887,6 +7909,13 @@ if(typeof document!=='undefined'&&!window.__slDrag){window.__slDrag=1;let D=null
   // 끌어다 놓은 뒤 따라오는 click은 무시 (줄 선택·자리 고르기 창이 같이 열리지 않게)
   let swallow=0;document.addEventListener('pointerup',e=>{if(D||document.body.classList.contains('ludragging')){swallow=Date.now();setTimeout(()=>{swallow=0;},250);}},true);
   document.addEventListener('click',e=>{if(swallow&&Date.now()-swallow<400){swallow=0;e.stopPropagation();e.preventDefault();}},true);}
+
+// ======================= v92 (R076): 훈련 방향 고르기 창 =======================
+const FOCUS_WHAT={balance:'모든 능력 고르게',contact:'컨택(정타) ↑',power:'장타력 ↑',eye:'선구안(볼 고르기) ↑',speed:'주루·도루 ↑',defense:'수비 ↑',stuff:'구위(구속·힘) ↑',control:'제구 ↑',movement:'변화구 ↑',stamina:'체력(긴 이닝) ↑'};
+Object.assign(A,{
+  focusPick(pid){const p=S.players[pid];if(!p)return;const F=SL.isPitcher(p)?SL.FOCUS_PIT:SL.FOCUS_BAT;const cur=p.focus||'balance';
+    modal(`<h3 style="margin:0 0 4px">${esc(p.name)} 집중 훈련</h3><div class="muted small" style="margin-bottom:10px">${p.age}세 · ${esc(p.pos)} — 고른 능력이 이번 주부터 더 빨리 오릅니다</div><div class="fpick">${Object.entries(F).map(([k,v])=>`<button class="${k===cur?'on':''}" onclick="UI.closeModal();UI.setFocus(${p.id},'${k}');UI.set('trN',ui.trN||14)"><b>${esc(v)}</b><small>${esc(FOCUS_WHAT[k]||'')}</small>${k===cur?'<i>✓ 지금</i>':''}</button>`).join('')}</div>`);},
+});
 
 return A;
 })();

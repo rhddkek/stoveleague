@@ -19,7 +19,7 @@ const bgm={};if(fs.existsSync(A+'/bgm'))for(const f of fs.readdirSync(A+'/bgm'))
 const leagues={};if(fs.existsSync(A+'/leagues'))for(const f of fs.readdirSync(A+'/leagues'))if(f.endsWith('.png'))leagues[f.replace(/\.png$/,'')]=b64(A+'/leagues/'+f,'image/png');   // v82: 리그 마크 (픽셀랩, 국기 모티프)
 const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,stadiumHome,stadiumGame,badges,office,bgm,leagues})+';';
 const html=`<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 ${r('style.css')}
 </style></head><body><div id="app"></div>
