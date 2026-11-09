@@ -1472,3 +1472,13 @@ button.primary.sign{background:#1f8f4d;border-color:#1f8f4d}
 :root[data-theme="light"] .pv.tbl3 button.ghost,:root[data-theme="light"] .stv button.ghost{background:var(--card)!important;color:var(--text)!important;border-color:var(--line)!important}
 :root[data-theme="light"] .stv .eql button{background:var(--card);border-color:var(--line)}:root[data-theme="light"] .stv .eql button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 :root[data-theme="light"] .stv .eqslots,:root[data-theme="light"] .stv .cod,:root[data-theme="light"] .stv .co{background:var(--card);border-color:var(--line)}
+/* v91 (R075): 타순·수비 끌어다 놓기 */
+.luh{display:inline-block;min-height:0;min-width:22px;height:30px;padding:0 4px;margin-right:4px;background:transparent;border:0;color:var(--muted);font-size:13px;letter-spacing:-3px;cursor:grab;touch-action:none;vertical-align:middle}
+.luh:active{cursor:grabbing}
+tr.lurow.mv td{background:var(--orange-bg)!important}tr.lurow.tgt td{cursor:pointer}tr.lurow.tgt:hover td{background:var(--sunk)}
+tr.lurow.ludrop td{background:var(--orange-bg)!important;box-shadow:inset 0 2px 0 var(--orange),inset 0 -2px 0 var(--orange)}
+.dia .dslot.ludrop{outline:3px solid var(--orange);outline-offset:2px}
+.lughost{position:fixed;z-index:80;transform:translate(-50%,-120%);pointer-events:none;background:var(--navy);color:#fff;font-weight:800;font-size:13px;padding:6px 12px;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.35);white-space:nowrap}
+body.ludragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
+.lumv{display:flex;align-items:center;gap:8px;background:var(--orange-bg);color:var(--orange-ink);border:1px solid var(--orange);border-radius:10px;padding:6px 10px;margin:6px 0;font-size:13px}.lumv button{margin-left:auto}
+.dia .dslot{touch-action:none}
