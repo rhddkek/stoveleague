@@ -161,3 +161,54 @@ body:not(.ingame) :is(.stvsort,.chiprow,.stv .lvrow) button.on{background:var(--
 body:not(.ingame) .stvh{margin:4px 0 8px}
 body:not(.ingame) .stvh>b,body:not(.ingame) .mkh .t{font-size:18px!important;font-weight:600!important;font-style:normal;letter-spacing:0}
 body:not(.ingame) .mkh{margin:4px 0 8px}
+
+/* v99 (R083): 앞으로 2주 띠 · 경기 전 준비 · 스쿼드 플래너 · 용어집 · 자주 가는 화면 */
+body:not(.ingame) .dstrip{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+body:not(.ingame) .dstrip::-webkit-scrollbar{display:none}
+body:not(.ingame) .dcell{flex:0 0 62px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;min-height:0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--text);font-weight:600}
+body:not(.ingame) .dcell small{font-size:11px;color:var(--muted);white-space:nowrap}
+body:not(.ingame) .dcell .dha{font-size:11px;color:var(--muted)}
+body:not(.ingame) .dcell .dno{font-size:11px;color:var(--muted);height:26px;line-height:26px}
+body:not(.ingame) .dcell.now{border-color:var(--acc)}
+body:not(.ingame) .dcell.off{opacity:.55}
+body:not(.ingame) .dcell em{font-style:normal;font-size:10px;line-height:1.2;color:var(--acc);text-align:center}
+body:not(.ingame) .dcell b{font-size:12px}
+body:not(.ingame) .pmb{width:100%;margin:6px 0 8px}
+#modal .pmvs{display:flex;align-items:center;gap:8px;margin:6px 0}
+#modal .pmvs>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#modal .pmvs>div:nth-of-type(2){text-align:right;align-items:flex-end}
+#modal .pmvs small{color:var(--muted);font-size:12px}
+#modal .pmvs .vs{font-weight:600;color:var(--muted)}
+#modal .pmt{width:100%;margin:6px 0}
+#modal .pmsp{display:flex;gap:8px;margin:8px 0}
+#modal .pmsp>div{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;flex-direction:column}
+#modal .pmsp small{color:var(--muted);font-size:12px}
+#modal .pmsp b span{cursor:pointer}
+body:not(.ingame) table.plant{width:100%;table-layout:fixed}
+body:not(.ingame) table.plant td{vertical-align:top;padding:4px}
+body:not(.ingame) table.plant th:first-child,body:not(.ingame) table.plant td:first-child{width:62px}
+body:not(.ingame) table.plant td.weak{background:rgba(220,38,38,.12)}
+body:not(.ingame) .pln{display:flex;justify-content:space-between;gap:4px;font-size:12.5px;line-height:1.5;cursor:pointer}
+body:not(.ingame) .pln span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body:not(.ingame) .pln.last span{text-decoration:underline;text-decoration-style:dotted}
+body:not(.ingame) .pln.none{color:var(--muted)}
+body:not(.ingame) .plb{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body:not(.ingame) .plgo{display:block;margin-top:4px;padding:2px 6px;min-height:0;font-size:11px}
+body:not(.ingame) .plk.last{text-decoration:underline;text-decoration-style:dotted}
+body:not(.ingame) .plk.weak{background:rgba(220,38,38,.18);padding:0 4px;border-radius:4px}
+#modal .gls{display:flex;flex-direction:column;gap:2px;padding:7px 0;border-bottom:1px solid var(--line)}
+#modal .gls span{font-size:13px;color:var(--muted)}
+#modal .srh{margin:8px 0 2px;color:var(--muted)}
+#modal .mfav{margin:8px 0 4px}
+#modal .mfav .chiprow{margin:4px 0 0}
+#modal .mfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+body:not(.ingame) .env.nw{color:var(--acc)}
+/* 폰 감독실이 한 화면에 들어가도록 줄일 때(.today.cmp)는 「경기 전 준비」 단추를 감추고 VS 줄을 누르면 열림 */
+body:not(.ingame) .today.cmp .pmb{display:none}
+body:not(.ingame) .today .tdvs{cursor:pointer}
+#modal .dstrip{margin:4px 0 8px}
+body:not(.ingame) .dcell.sel{background:var(--sunk);border-color:var(--sel,#eceef2)}
+
+/* v100 (R083): 선수단에 한마디 · 기자 질문 */
+body:not(.ingame) .talk,#modal .talk{margin:8px 0 4px;padding-top:8px;border-top:1px solid var(--line)}
+body:not(.ingame) .talk .chiprow,#modal .talk .chiprow{margin:6px 0 0}

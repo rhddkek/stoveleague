@@ -1,6 +1,6 @@
 // ===================== 코어 (B: 경기 엔진) =====================
 function ensureBox(lg,pid){if(!lg.box[pid])lg.box[pid]={g:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,bb:0,so:0,r:0,rbi:0,pG:0,pGS:0,pOuts:0,pH:0,pR:0,pER:0,pBB:0,pSO:0,pPit:0,pW:0,pL:0,pSV:0,pHR:0,sb:0,cs:0,pHD:0,pBS:0};return lg.box[pid];}
-function effAttr(p,k){let v=p.attrs[k]+(p.eq&&p.eq.length?eqBonus(p,k):0)+(p.cond||0)+((p.morale||60)-60)*0.04;const f=p.fatigue||0;if(f>70)v-=(f-70)*0.25;return clamp(v,10,99);}
+function effAttr(p,k){let v=p.attrs[k]+(p.eq&&p.eq.length?eqBonus(p,k):0)+(p.cond||0)+((p.morale||60)-60)*0.04;if(S.prep&&S.prep.left>0&&S.liveGame&&p.teamId===S.userTeamId)v+=(PREP_FX[S.prep.k]||{})[k]||0;   /* v100: 경기 준비 훈련 (우리 경기만) */const f=p.fatigue||0;if(f>70)v-=(f-70)*0.25;return clamp(v,10,99);}
 function pitchLimit(p){return p.pos==='SP'?p.attrs.stamina*0.9+30:p.attrs.stamina*0.45+14;}
 function pitEff(lg,p){const pc=lg.pc[p.id]||0;const over=Math.max(0,pc-pitchLimit(p));return clamp(1-over*0.006,0.6,1);}
 function teamSide(lg,side){return S.teams[side===1?lg.home:lg.away];}
@@ -50,6 +50,7 @@ function doPitch(lg){
   const risp=lg.bases[1]||lg.bases[2];
   if(risp&&B.traits.includes('클러치')){con+=4;pow+=4;}
   if(risp&&B.traits.includes('유리멘탈')){con-=3;eye-=3;}
+  if(lg.inn>=7&&Math.abs(lg.score[0]-lg.score[1])<=1){const d=(perOf(B).mt-perOf(P).mt)*0.04;con+=d;eye+=d*0.5;ctl-=d*0.5;}   // v100: 7회 이후 1점 차 이내 — 멘탈 차이(최대 ±3)
   const tk=tacNow(lg);if(tk==='hitrun'){con+=3;pow-=5;}else if(tk==='team'){pow-=8;con+=2;}else if(tk==='gb'){/* 아래 resolveInPlay에서 */}
   lg.pc[P.id]=(lg.pc[P.id]||0)+1;pb.pPit++;
   let zone=clamp(0.40+ctl*0.0032,0.45,0.78);if(lg.balls>=2)zone+=0.06;if(lg.strikes===2)zone-=0.07;if(lg.balls===3)zone+=0.05;

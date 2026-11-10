@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v98';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v100';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
@@ -215,6 +215,12 @@ function genPlayer(o){
   p.snap={s:S.season||1,ovr:r1(calcOvr(p)),val:0,attrs:JSON.parse(JSON.stringify(attrs))};
   return p;
 }
+// v100 (R083): 성격 능력치 3가지 — 리더십(ld)·성실성(wk)·멘탈(mt). 선수 번호에서 나온 고정 값(난수 흐름을 건드리지 않아 고정 선수단·시즌 결과가 그대로)
+// 특성과 맞춤: 리더 → 리더십↑ · 성실/게으름 → 성실성↑↓ · 클러치·강심장/유리멘탈 → 멘탈↑↓. 예전 저장은 처음 볼 때 같은 식으로 채움
+function perOf(p){if(!p)return {ld:50,wk:55,mt:50};if(p._per)return p._per;   /* 저장 파일에 안 들어감(번호로 다시 계산) — 저장 크기 그대로 */let h=((p.id+7)*2654435761)>>>0;const u=()=>{h^=h<<13;h>>>=0;h^=h>>>17;h^=h<<5;h>>>=0;return (h%100003)/100003;};const n=()=>(u()+u()+u()-1.5)*2;const T=p.traits||[];
+  const ld=clamp(Math.round(50+n()*13+(p.age-26)*1.1+(T.includes('리더')?25:0)),15,95),wk=clamp(Math.round(55+n()*13+(T.includes('성실')?22:0)-(T.includes('게으름')?22:0)),15,95),mt=clamp(Math.round(50+n()*13+(T.includes('클러치')?18:0)+(T.includes('강심장')?12:0)-(T.includes('유리멘탈')?20:0)),15,95);
+  const v={ld,wk,mt};Object.defineProperty(p,'_per',{value:v,enumerable:false,writable:true});return v;}
+const PER_KO={ld:'리더십',wk:'성실성',mt:'멘탈'};
 function newStat(){return {g:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,bb:0,so:0,r:0,rbi:0,pG:0,pGS:0,pOuts:0,pH:0,pR:0,pER:0,pBB:0,pSO:0,pPit:0,pW:0,pL:0,pSV:0,pHR:0,sb:0,cs:0,pHD:0,pBS:0};}
 
 // ---------- 가치/연봉 ----------
