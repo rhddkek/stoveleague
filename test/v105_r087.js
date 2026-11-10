@@ -17,6 +17,6 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 4. 리그 → 다른 리그 → 해외 → 리그 수준 비교: 화면 숫자 = 지금 선수단으로 잰 값 · 큰 값부터
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});SL.state().tutorialDone=true;UI.setTab('home');UI.closeModal();UI.go('league','overseas');const pg=document.querySelectorAll('.pgtabs button');if(pg[0])pg[0].click();
       const rows=[...document.querySelectorAll('.lvrow')].map(x=>({n:x.querySelector('.ln').textContent,v:+x.querySelector('b').textContent}));const V=SL.lvLive();const kr=rows.find(x=>x.n==='한국 1군');return {rows:rows.length,kr:kr&&kr.v,live:V.KR1,sorted:rows.every((x,i)=>i===0||rows[i-1].v>=x.v),first:rows[0]&&rows[0].n};});
-    r.rows>=10&&r.kr===r.live&&r.sorted&&r.first==='메이저리그'?ok(`리그 수준 비교 ${r.rows}줄: 한국 1군 ${r.kr} = 지금 잰 값 · 큰 값부터(맨 위 ${r.first})`):bad('리그 수준 화면 '+JSON.stringify(r));}
+    r.rows>=10&&r.kr===r.live&&r.sorted&&r.first==='미국 1군'?ok(`리그 수준 비교 ${r.rows}줄: 한국 1군 ${r.kr} = 지금 잰 값 · 큰 값부터(맨 위 ${r.first})`):bad('리그 수준 화면 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v105 검사 실패 ${fails}건`:'v105 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
   await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});SL.state().tutorialDone=true;UI.setTab('home');UI.closeModal();});
   // 1. 첫 시즌: 리그별 탭 · 단계 줄 · 기록이 없으면 능력순
   {const r=await p.evaluate(()=>{UI.go('market','fgn');UI.fgV('lv');const tabs=[...document.querySelectorAll('.fgv button')].map(x=>x.textContent.trim());const lv=[...document.querySelectorAll('.lvrow button')].map(x=>x.textContent.trim());const sub=(document.querySelector('.stvsub')||{}).innerText||'';return {tabs,lv,sub,rows:document.querySelectorAll('table.lvt tbody tr').length};});
-    r.tabs.some(x=>/^리그별/.test(x))&&['일본 1군','일본 2군','메이저리그','미국 2군','미국 3군','대만'].every(k=>r.lv.includes(k))&&/능력순/.test(r.sub)&&r.rows>=10?ok(`해외 선수 찾기 「리그별」: 단계 ${r.lv.length}칸(${r.lv.join('·')}) · 첫 시즌은 능력순 ${r.rows}명`):bad('리그별 '+JSON.stringify(r));}
+    r.tabs.some(x=>/^리그별/.test(x))&&['일본 1군','일본 2군','미국 1군','미국 2군','미국 3군','대만'].every(k=>r.lv.includes(k))&&/능력순/.test(r.sub)&&r.rows>=10?ok(`해외 선수 찾기 「리그별」: 단계 ${r.lv.length}칸(${r.lv.join('·')}) · 첫 시즌은 능력순 ${r.rows}명`):bad('리그별 '+JSON.stringify(r));}
   // 2. 한 시즌 뒤: 일본 2군 타자 성적순 = 그 선수 지난 시즌 기록(해외 2군 hist)과 같고, OPS 높은 순 · 다른 단계 선수 섞이지 않음 · 미국 2군 투수 평균자책 낮은 순
   await p.evaluate(()=>{SL.testCmd('nextSeason');UI.closeModal();});
   {const r=await p.evaluate(()=>{const S=SL.state();UI.go('market','fgn');UI.fgV('lv');UI.fgLv('JP2');UI.fgSide('B');UI.fgSort('st');UI.set('fgN',400);

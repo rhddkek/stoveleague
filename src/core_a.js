@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v107';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v108';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -28,7 +28,7 @@ const BAL={
   // v95 (R079): 리그 환경 — 실제 최근 시즌 수준에 맞춘 타격 환경 (홈 구장 리그 기준). hit=안타 확률 배수, hr=홈런 확률 배수, zone=스트라이크 존 비율 더하기(−면 볼넷↑), con=배트에 맞힐 확률 더하기(−면 삼진↑), hx=파워 85 넘는 거포의 홈런 가산(1점당, v96 — 리그 홈런왕 수준)
   ENV:{KR:{hit:0.905,hr:1.12,zone:-0.03,con:0,hx:0.04},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025,hx:0.05},TW:{hit:1.0,hr:1.2,zone:-0.03,con:0},US:{hit:0.79,hr:1.15,zone:-0.02,con:-0.025}},
   LEAGUES:{JP:{name:'일본 프로야구',short:'일본',style:'12개 구단 · 양대 리그',games:143,roster:26,subs:['센트럴리그','퍼시픽리그']},
-    US:{name:'메이저리그',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
+    US:{name:'미국 프로야구',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
     TW:{name:'대만 프로야구',short:'대만',style:'6개 구단 단일 리그',games:120,roster:24},
     MX:{name:'멕시칸리그',short:'멕시코',style:'20개 구단 · 북부/남부 지구',games:93,roster:24,subs:['북부 지구','남부 지구']},
     AU:{name:'호주 야구리그',short:'호주',style:'4개 구단 겨울리그',games:36,roster:22,winter:true},
