@@ -1028,11 +1028,12 @@ function fgTable(ps,X,showTeam){return `<table class="stvt nosort"><thead><tr><t
 function renderFgnMock(ut){const st=SL.fgnStatus(ut);const f=ui.fgF=ui.fgF||{kind:'P'};f.v=f.v||'rec';const X=SL.scState();const sl=SL.scSlots();const LG=SL.BAL.LEAGUES;
   let h=stvHead('해외 선수 찾기',`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney();
   const watchN=new Set((S.pins||[]).filter(id=>S.players[id]&&SL.scRegOf(S.players[id])).concat((X.rep||[]).map(r=>r.pid))).size;
-  h+=`<div class="stvsort fgv">${[['rec','추천'],['club','리그·구단'],['list',`관찰 명단${watchN?' '+watchN:''}`],['sc',`스카우트 ${X.list.length}/${sl}`]].map(x=>`<button class="${f.v===x[0]?'on':''}" onclick="UI.fgV('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
+  h+=`<div class="stvsort fgv">${[['rec','추천'],['lv','리그별'],['club','구단별'],['list',`관찰${watchN?' '+watchN:''}`],['sc',`스카우트 ${X.list.length}/${sl}`]].map(x=>`<button class="${f.v===x[0]?'on':''}" onclick="UI.fgV('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
   const side=p=>f.kind==='P'?SL.isPitcher(p):!SL.isPitcher(p);
   if(f.v==='rec'){let pool=SL.overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&p.nat!=='KR'&&!SL.osWill(p,S.teams[p.teamId]).no&&side(p));
     const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
     h+=stvTabs(f.kind,"UI.fgSide")+fgTable(pool,X,true)+`<button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;}
+  else if(f.v==='lv')h+=lvView(f,X,side);
   else if(f.v==='club'){const lg=FG_LG.includes(f.lg)?f.lg:'JP';
     h+=`<div class="fglg">${FG_LG.map(k=>`<button class="${k===lg?'on':''}" onclick="UI.fgLg('${k}')">${lgBadge(k,20)}<span>${esc(LG[k].short)}</span></button>`).join('')}</div>`;
     const T=f.tid!=null&&S.teams[f.tid]&&S.teams[f.tid].league===lg?S.teams[f.tid]:null;
@@ -1406,4 +1407,30 @@ Object.assign(A,{
   setDlg(k,v){SL.setDlg(k,v);autosave();toast(v?'코치에게 맡겼습니다.':'직접 하기로 했습니다.');render();},
   renameGo(pid){const el=$('#rn_n');const e=SL.renamePlayer(pid,el?el.value:'');if(e){toast(e);return;}autosave();toast('이름을 바꿨습니다.');render();},
   teamSheet(tid){const T=SL.teamSheet(tid);if(!T)return;modal(teamSheetHtml(T));}
+});
+
+// ===================== v97 (R081): 해외 선수 찾기 「리그별」 — OOTP처럼 리그(1군·2군·3군)를 눌러 바꾸고, 그 리그 선수 전체를 능력·지난 시즌 성적·나이·비용으로 정렬 =====================
+function lvKeys(){const out=[];for(const lg of FG_LG){const L=SL.BAL.LEAGUES[lg];if(!L)continue;const F=SL.BAL.FARM[lg]||[];out.push({k:lg+'1',lg,t:1,ko:F.length?SL.farmKo(lg,1):L.short});for(const x of F)out.push({k:lg+x.t,lg,t:x.t,ko:x.ko});}return out;}
+// 지난 시즌 기록: 그 리그·단계에서 뛴 정규 시즌(겨울리그 제외) 가장 최근 것 — 선수 기록 화면의 시즌별 기록과 같은 값
+// 단계가 시즌 사이에 바뀐 선수(3군 → 2군 승격 등)는 그 리그에서 뛴 가장 최근 정규 시즌 기록을 보여 주고 어느 단계 기록인지 밝힌다
+function lvLast(p,K){const re=new RegExp('^'+K.lg+'[23]?$');const H=(p.hist||[]).slice().reverse().find(h=>re.test(h.lg||'')&&!h.w&&h.st);if(!H)return null;const ht=+((H.lg||'').slice(K.lg.length))||1;return ht!==K.t?Object.assign({},H,{other:SL.farmKo(K.lg,ht)}):H;}
+function lvStat(p,H){if(!H)return null;const st=H.st;if(SL.isPitcher(p)){if(!st.pOuts)return null;return {s:H.s,q:st.pOuts>=90,v:st.pER*27/st.pOuts,txt:`${(st.pER*27/st.pOuts).toFixed(2)} · ${Math.floor(st.pOuts/3)}이닝`,sub:`${st.pW}승 ${st.pL}패${st.pSV?' '+st.pSV+'세이브':''}${H.other?' · '+H.other+' 기록':''}`};}
+  if(!st.ab)return null;const obp=(st.h+st.bb)/Math.max(1,st.ab+st.bb),slg=(st.h+st.d2+2*st.d3+3*st.hr)/st.ab;return {s:H.s,q:st.pa>=150,v:obp+slg,txt:`${(st.h/st.ab).toFixed(3).replace(/^0/,'')} · ${st.hr}홈런`,sub:`OPS ${(obp+slg).toFixed(3).replace(/^0/,'')} · ${st.pa}타석${H.other?' · '+H.other+' 기록':''}`};}
+function lvView(f,X,side){const KS=lvKeys();const K=KS.find(x=>x.k===f.lv)||KS[0];const so=f.so||'ab';const n=ui.fgN||30;
+  let pool=SL.overseasTeams().filter(t=>t.league===K.lg&&!t.isUser&&!t.farm).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&(p.tier||1)===K.t&&side(p));
+  const tot=pool.length;const blocked=pool.filter(p=>SL.osWill(p,S.teams[p.teamId]).no).length;if(!f.all)pool=pool.filter(p=>!SL.osWill(p,S.teams[p.teamId]).no);
+  const R=pool.map(p=>({p,st:lvStat(p,lvLast(p,K)),ab:SL.ovrRange(p).mid,c:SL.fgnCost(p).first}));const isP=f.kind==='P';const hasSt=R.some(x=>x.st);
+  const cmp={ab:(a,b)=>b.ab-a.ab,st:(a,b)=>(b.st&&b.st.q?1:0)-(a.st&&a.st.q?1:0)||(a.st&&b.st?(isP?a.st.v-b.st.v:b.st.v-a.st.v):(b.st?1:0)-(a.st?1:0))||b.ab-a.ab,age:(a,b)=>a.p.age-b.p.age||b.ab-a.ab,cost:(a,b)=>a.c-b.c||b.ab-a.ab}[so]||((a,b)=>b.ab-a.ab);R.sort(cmp);
+  const ss=hasSt?Math.max(...R.filter(x=>x.st).map(x=>x.st.s)):null;
+  let h=`<div class="lvrow">${KS.map(x=>`<button class="${x.k===K.k?'on':''}" onclick="UI.fgLv('${x.k}')">${x.t===1?lgBadge(x.lg,18):''}<span>${esc(x.ko)}</span></button>`).join('')}</div>`;
+  h+=stvTabs(f.kind,"UI.fgSide")+`<div class="lvbar"><div class="seg sm">${[['ab','능력'],['st','성적'],['age','나이'],['cost','비용']].map(x=>`<button class="${so===x[0]?'on':''}" onclick="UI.fgSort('${x[0]}')">${x[1]}</button>`).join('')}</div><label class="small dim" for="lvall"><input id="lvall" type="checkbox" class="chk" ${f.all?'checked':''} onchange="UI.fgAll(this.checked)"> 이적 불가도 보기</label></div>`;
+  h+=`<div class="stvsub small">${esc(K.ko)} ${isP?'투수':'타자'} ${tot}명${blocked&&!f.all?` · 이적 불가 ${blocked}명 숨김`:''} · 성적은 ${hasSt?`<b>${ss}시즌</b> 정규 시즌 기록 (해외 리그 성적은 시즌이 끝날 때 정해짐 · 단계가 바뀐 선수는 지난 단계 기록)`:'아직 이 리그에서 치른 시즌이 없어 능력순'}${so==='st'?` · 성적순은 ${isP?'90아웃(30이닝)':'150타석'} 이상 먼저`:''}</div>`;
+  h+=`<table class="stvt nosort lvt"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>능력</th><th class="tn">${hasSt?ss+'시즌':'지난 시즌'}</th><th class="tr">첫해 비용</th></tr></thead><tbody>${R.slice(0,n).map((x,i)=>{const p=x.p;const no=SL.osWill(p,S.teams[p.teamId]).no;const foc=X.list.some(s=>s.focus===p.id);const tw=X.list.some(s=>s.team===p.teamId);const neg=(S.market.negs||[]).some(y=>y.pid===p.id);const pin=(S.pins||[]).includes(p.id);
+    return `<tr class="${neg?'mine':''} ${no?'dim':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${pin?' <span class="o">★</span>':''}${foc?'<small class="tg">관찰 중</small>':tw?'<small class="tg">구단 관찰</small>':''}${no?'<small class="tg r">이적 불가</small>':''}<small class="kn">${esc(S.teams[p.teamId].name)} · ${p.age}세 · 지식 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tn lvst">${x.st?`${esc(x.st.txt)}<small class="kn">${esc(x.st.sub)}${x.st.q?'':' · 기록 적음'}</small>`:'<span class="dim">-</span>'}</td><td class="tr">${no?'-':Ms(x.c)}</td></tr>`;}).join('')||'<tr><td colspan="6" class="muted">없음</td></tr>'}</tbody></table>${R.length>n?`<button class="stvmore" onclick="UI.set('fgN',${n+30})">▼ 더 보기 (${R.length-n}명 더)</button>`:''}`;
+  return h;}
+Object.assign(A,{
+  fgLv(k){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.lv=k;ui.fgN=30;render();},
+  fgSort(k){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.so=k;ui.fgN=30;render();},
+  fgAll(v){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.all=!!v;render();},
+  lvOpen(lg){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.v='lv';ui.fgF.lv=lg+'1';ui.fgN=30;A.go('market','fgn');}
 });

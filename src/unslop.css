@@ -125,3 +125,15 @@ body:not(.ingame) table.tsht tr{cursor:pointer}
 body:not(.ingame) .lnbtns{display:flex;gap:8px;flex-wrap:wrap}
 body:not(.ingame) .lnbtns button{flex:1 1 140px}
 body:not(.ingame) .prow .rk{width:18px;text-align:center;font-variant-numeric:tabular-nums}
+
+/* v97 (R081): 해외 선수 찾기 「리그별」 — 리그 단계 고르는 줄 · 정렬 */
+.stv .lvrow{display:flex;gap:4px;overflow-x:auto;margin:6px 0;padding-bottom:2px;scrollbar-width:none}
+.stv .lvrow::-webkit-scrollbar{display:none}
+.stv .lvrow button{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:600;white-space:nowrap;min-height:34px}
+.stv .lvrow button.on{background:var(--sel,#eceef2);color:var(--sel-ink,#15171c);border-color:var(--sel,#eceef2)}
+:root.ea[data-theme="light"] .stv .lvrow button.on{background:#1e2027;color:#fff;border-color:#1e2027}
+.stv .lvbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0;flex-wrap:wrap}
+.stv .lvbar .seg{margin:0;width:auto}
+.stv .lvbar .seg button{padding:5px 12px;min-height:0}
+.stv .lvbar label{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.stv table.lvt td.lvst{font-size:12px;white-space:nowrap}
