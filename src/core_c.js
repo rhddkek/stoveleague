@@ -563,7 +563,7 @@ function tableOffer0(pid,offer){
     if(fee>=neg.ask*0.8&&neg.rounds<3){neg.log.push(...tableLines(p,neg,'club_counter',{ask:neg.ask}));return {ok:true,neg};}
     neg.log.push(...tableLines(p,neg,'club_reject',{}));end();S.market.attempts[pid+':'+S.season]=2;return {ok:true,ended:true,neg,msg:`${josa(from.name,'이','가')} 협상을 끝냈습니다. 이번 시즌엔 이 선수 이적 협상에 다시 응하지 않습니다.`};}
   // 선수 단계
-  if(neg.fgn1){if(years!==1)return {ok:false,msg:'새로 오는 외국인 선수는 1년 계약만 할 수 있습니다 (KBO 규정).',neg};if(salary+bonus>BAL.FGN.genMax)return {ok:false,msg:`신규 외국인 선수 계약 상한 ${money(BAL.FGN.genMax)} (연봉+계약금)을 넘습니다.`,neg};if(neg.asiaQ&&salary>BAL.FGN.asiaCap)return {ok:false,msg:`아시아쿼터 자리는 연봉 ${money(BAL.FGN.asiaCap)} 이하만 됩니다.`,neg};}
+  if(neg.fgn1){if(years!==1)return {ok:false,msg:'새로 오는 외국인 선수는 1년 계약만 할 수 있습니다 (리그 규정).',neg};if(salary+bonus>BAL.FGN.genMax)return {ok:false,msg:`신규 외국인 선수 계약 상한 ${money(BAL.FGN.genMax)} (연봉+계약금)을 넘습니다.`,neg};if(neg.asiaQ&&salary>BAL.FGN.asiaCap)return {ok:false,msg:`아시아쿼터 자리는 연봉 ${money(BAL.FGN.asiaCap)} 이하만 됩니다.`,neg};}
   if(neg.major&&S.phase==='offseason'&&faM(pid)){const F=faM(pid);const mine={team:ut.id,sal:salary,yrs:years,bonus,promise};const tot=faOfferTot(mine);
     {const e=budgetCheck(p,salary,bonus);if(e)return {ok:false,msg:e,neg};}if(ut.cash<bonus)return {ok:false,msg:`현금이 부족합니다 (계약금 ${money(bonus)}).`,neg};
     neg.rounds++;neg.log.push({who:'me',text:`${years}년 총액 ${money(tot)} — 연봉 ${money(salary)}${bonus?` + 계약금 ${money(bonus)}`:''}${promise?' + 주전 약속':''}`});
@@ -2060,6 +2060,7 @@ function migrate(){const from=S.version;for(const id in S.players)carFromHist(S.
     for(const m of (S.mgr&&S.mgr.seasons)||[])if(m.legacy&&!m.sales){const tr=[];for(const id in S.players)for(const t of S.players[id].transfers||[])if(t.s===m.s&&t.from===nm&&t.fee>0)tr.push(t);if(tr.length){m.sales=tr.length;m.salesFee=tr.reduce((a,t)=>a+t.fee,0);}}}
   if(!S.osv){for(const t of overseasTeams())if(!t.isUser&&osFarmFill(t))autoLineup(t);S.osv=1;}if(!S.budget)makeBudget();if(S.phase==='offseason'&&!S.faM)faMarketOpen();if(S.phase==='offseason'&&!S.wplan)try{winterPlanStart(S.season);}catch(e){}
   moneyMigrate();if(S.mgr&&!S.mgr.titles)titleCheck();
+  for(const n of S.news||[])if(n&&typeof n.text==='string'&&/KBO/.test(n.text))n.text=n.text.replace('금액이 실제 KBO 규모로 바뀌었습니다','금액 단위가 바뀌었습니다').replace(/KBO/g,'리그');   // v106: 우리 게임 소식에 실제 리그 이름 안 씀(예전 저장의 소식도)
   for(const t of Object.values(S.teams))if(t.arch)delete t.arch;   // v103 (R085): 구단 유형 삭제 (예전 저장의 유형 목표·이야기도 사라짐)
   if(from!==VERSION){S.version=VERSION;if(added.length)news(`해외 리그가 실제 규모로 개편되었습니다: ${added.join(', ')} 추가`,'sys');if(renamed.length)news(`해외 구단 명칭 변경: ${renamed.join(', ')}`,'sys');}}
 // v32: 다른 게임의 가상 구단명과 겹치던 국내 구단 2곳 개명 — v29~v31 저장의 이름·이적 기록·소식까지 함께 바꾼다
@@ -2526,12 +2527,12 @@ function scoutNotes(p){const k=knOf(p);const out=[];const t=p.teamId!=null?S.tea
   if(k>=45){const dg=diagnose(p);out.push({k:'강점',t:`${dg.arch} · ${dg.bestTxt}`});if(dg.weak)out.push({k:'약점',t:ATTR_KO[dg.weak]});}
   if(k>=50){const ih=p.injHist||[];out.push({k:'부상',t:ih.length?`이력 ${ih.length}회 (최근 ${ih[ih.length-1].type})${ih.length>=3?' — 위험':''}`:'큰 부상 이력 없음'});
     const risk=[];if(p.age>=32)risk.push(`${p.age}세 — 첫해부터 성적을 내야 함`);if(p.traits.includes('유리멘탈'))risk.push('압박에 약함');if(ASIA_NAT.includes(p.nat))risk.push('아시아 야구 경험 — 적응 쉬움');else if(!(p.hist||[]).some(h=>{const T=S.teams[h.team];return T&&T.league!==(t&&t.league)&&T.league!=='CB';}))risk.push('첫 해외 생활 — 적응 변수');if(p.traits.includes('강심장'))risk.push('큰 경기에 강함');out.push({k:'적응',t:risk.join(' · ')||'특이 사항 없음'});}
-  if(k>=60){const r=ovrRange(p);out.push({k:'KBO 예상',t:`종합 ${r.lo}~${r.hi} — ${scRec(p).t}`});}
+  if(k>=60){const r=ovrRange(p);out.push({k:'우리 리그 예상',t:`종합 ${r.lo}~${r.hi} — ${scRec(p).t}`});}
   if(k<30)out.push({k:'정보',t:'아직 관찰 기록이 거의 없습니다. 스카우트를 보내면 능력과 위험 요소가 드러납니다.'});return out;}
 // 해외 구단과의 이적 합의금: 하부 선수는 방출 합의금 수준, 1군 주전급은 비쌈
 function osAsk(p,t){const v=calcValue(p);const tr=p.tier||1;const m=t.league==='US'?(tr>1?0.12:0.6):t.league==='JP'?(tr>1?0.15:0.5):t.league==='TW'||t.league==='MX'?0.22:0.12;return Math.max(500,Math.round(v*m/100)*100);}
 function osWill(p,t){const o=calcOvr(p);const tr=p.tier||1;if(t.league==='US'&&tr===1&&(o>=BAL.LEVEL_OVR.US-1||p.age<=26))return {no:true,why:'메이저리그 주전·유망주 — 한국행 관심 없음'};if(t.league==='JP'&&tr===1&&o>=BAL.LEVEL_OVR.JP)return {no:true,why:'일본 1군 주전 — 이적 관심 없음'};
-  const r=[];if(tr>1)r.push('하부 리그 연봉보다 KBO 조건이 좋음');if(p.age>=29)r.push('출장 기회 우선');return {no:false,why:r.join(' · ')||'조건 중시'};}
+  const r=[];if(tr>1)r.push('하부 리그 연봉보다 우리 리그 조건이 좋음');if(p.age>=29)r.push('출장 기회 우선');return {no:false,why:r.join(' · ')||'조건 중시'};}
 // AI 국내 구단의 외국인 영입 (예전 「외국인 지명」 대신): 빈자리가 있으면 해외에서 데려온다 — 우리가 노리던 선수를 먼저 데려갈 수도
 function osAIWeek(force){if(S.phase!=='offseason'&&!force)return;const lvl=BAL.LEVEL_OVR.KR1;const all=overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_)).filter(p=>p&&!p.retired&&p.nat!=='KR'&&p.age<=33&&!p.loan);
   for(const t of shuffle(krTeams().filter(x=>!x.isUser))){let g=0;while(fdNeeds(t)&&g++<3){const short=S.week>=4&&fgnList(t).length<2;/* v100: 겨울 4주차부터 외국인이 2명 미만인 AI 구단은 미루지 않음 (실제 구단은 개막 전 3명을 다 채움) */if(!force&&!short&&rnd()>0.42)break;const st=fgnStatus(t);const asiaOnly=!st.genFree&&st.quotaFree;
@@ -2741,7 +2742,7 @@ function moneyMigrate(){if(S.moneyV>=2)return;let n=0,a=0;for(const id in S.play
     if(p.contract.salary<=1500){const v=salaryFor(p);if(v<p.contract.salary){p.contract.salary=v;n++;}}
   }
   for(const t of krTeams()){const L=fgnList(t);if(L.some(q=>asiaOk(q)))continue;const q=L.filter(x=>ASIA_NAT.includes(x.nat)&&x.contract&&x.contract.salary<=28000).sort((x,y)=>x.contract.salary-y.contract.salary)[0];if(q){q.contract.salary=BAL.FGN.asiaCap;a++;}}
-  S.moneyV=2;news(`[구단 운영] 금액이 실제 KBO 규모로 바뀌었습니다 — 모든 금액 ×5 (평균 연봉 약 2.8억, 최고 약 30억). 최저 연봉 3,000만에 맞춰 ${n}명${a?` · 아시아쿼터 상한(20만 달러 ≈ 2.8억)에 맞춰 ${a}명`:''} 연봉 조정 · 샐러리캡(경쟁균형세) 시작`,'sys');}
+  S.moneyV=2;news(`[구단 운영] 금액 단위가 바뀌었습니다 — 모든 금액 ×5 (평균 연봉 약 2.8억, 최고 약 30억). 최저 연봉 3,000만에 맞춰 ${n}명${a?` · 아시아쿼터 상한(20만 달러 ≈ 2.8억)에 맞춰 ${a}명`:''} 연봉 조정 · 샐러리캡(경쟁균형세) 시작`,'sys');}
 
 return {DSTAR_KO,draftStars,draftLvl,lvLive,buyoutWeek,SCEN,scenMidStep,scenMidFinish,scenInfo,OREQ_KO,oreqInfo,clauseVal,wantPost,wantInfo,wantClear,wantBuild,ddlLeft,TITLES,titleList,titleSet,titleNow,titleCheck,capInfo,capAfter,capLimit,capFloor,capUse,capSettle,minSal,effAttr,perOf,PER_KO,lockerOf,setCaptain,captainCands,setMentor,delMentor,mentorCands,teamTalk,pressAnswer,setPrep,PREP_KO,PREP_FX,lastUG,keyDays,preMatch,squadPlan,teamAgg,unreadN,markRead,keyMoment,tradeMarket,DLG_KO,dlgOn,setDlg,renamePlayer,risers,teamSheet,AIM_KO,addStars,EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,

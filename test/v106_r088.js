@@ -24,6 +24,12 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     g&&rd&&q(g)&&g.ovr>=g.L&&(rd.pa+rd.ip>0)?ok(`첫 시즌: 괴물 신인 ${g.pos} 종합 ${g.ovr}(리그 ${g.L}) ${g.P?g.ip+'이닝':g.pa+'타석'} · 즉시 전력감 ${rd.pos} 종합 ${rd.ovr} ${rd.P?rd.ip+'이닝':rd.pa+'타석'} (${rd.team})`):bad('첫 시즌 '+JSON.stringify(r));}
   // 4. 예전 저장(v29 샘플): 불러와도 오류 없음 · 이미 있는 후보는 그대로(대어는 새로 뽑는 후보부터)
   {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);const S=SL.state();return {n:Object.values(S.players).filter(q=>q.dstar).length,ver:SL.GAME_VER};},j);
-    r.n===0&&r.ver==='v106'?ok('예전 저장: 기존 선수에 대어 표시 없음 (새 드래프트부터)'):bad('예전 저장 '+JSON.stringify(r));}
+    r.n===0&&/^v10[6-9]/.test(r.ver)?ok('예전 저장: 기존 선수에 대어 표시 없음 (새 드래프트부터)'):bad('예전 저장 '+JSON.stringify(r));}
+  // 5. 우리 게임만의 리그: 화면·소식·용어집 어디에도 실제 리그 이름(KBO 등) 없음 — 시즌 중·겨울 모든 메뉴 화면 + 예전 저장의 옛 소식
+  {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{const RX=/KBO|NPB|CPBL|KBL/;const hit=[];const scan=n=>{const t=document.body.innerText;const m=t.match(new RegExp('.{0,20}('+RX.source+').{0,20}'));if(m)hit.push(n+' 「'+m[0]+'」');};
+      const all=()=>{for(const tb of ['home','roster','dev','market','league','club']){UI.setTab(tb);const tops=[...document.querySelectorAll('.htabs button')].map(x=>x.textContent.trim());for(const top of (tops.length?tops:[null])){if(top)[...document.querySelectorAll('.htabs button')].find(x=>x.textContent.trim()===top).click();const s2=[...document.querySelectorAll('.htabs2 button')].map(x=>x.textContent.trim());for(const s of (s2.length?s2:[null])){if(s)[...document.querySelectorAll('.htabs2 button')].find(x=>x.textContent.trim()===s).click();scan(tb+'/'+top+'/'+s);}}}};
+      SL.newGame(4096,3,{arch:true,games:36,league:'KR'});SL.state().tutorialDone=true;UI.setTab('home');UI.closeModal();UI.autoDays(5);UI.closeModal();all();SL.testCmd('endSeason');UI.closeModal();all();
+      SL.load(s);const S=SL.state();const nw=S.news.filter(n=>RX.test(n.text||'')).map(n=>n.text.slice(0,40));const unit=S.news.some(n=>/금액 단위가 바뀌었습니다/.test(n.text||''));return {hit:hit.slice(0,5),nw,unit};},j);
+    !r.hit.length&&!r.nw.length&&r.unit?ok('화면·소식에 실제 리그 이름 없음 (시즌 중·겨울 모든 메뉴 · 예전 저장 소식은 「금액 단위가 바뀌었습니다」)'):bad('실제 리그 이름 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v106 검사 실패 ${fails}건`:'v106 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

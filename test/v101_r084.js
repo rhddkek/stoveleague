@@ -27,7 +27,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     r.s>=2&&r.low===0&&r.min===660?ok(`${r.s}시즌: 최저 연봉 ${r.min*5}만 — 밑도는 계약 0명`):bad('최저 연봉 '+JSON.stringify(r));}
   // 5. 예전 저장(v29 샘플): 불러오면 금액이 같은 비율(×5)로 보이고, 최저 연봉 아래 선수만 조정 · 안내 소식 · 저장 형식 그대로
   {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const o=JSON.parse(j);const ut0=o.teams[o.userTeamId];
-    const r=await p.evaluate(s=>{SL.load(s);const S=SL.state();const ut=SL.userTeam();const nw=S.news.some(n=>/실제 KBO 규모/.test(n.text||n.t||''));const W=SL.BAL.WON;
+    const r=await p.evaluate(s=>{SL.load(s);const S=SL.state();const ut=SL.userTeam();const nw=S.news.some(n=>/금액 단위가 바뀌었습니다/.test(n.text||n.t||''));const W=SL.BAL.WON;
       const krP=SL.krTeams().flatMap(t=>t.roster.map(id=>S.players[id]));return {moneyV:S.moneyV,nw,cash:ut.cash,shown:SL.money(ut.cash),below:krP.filter(q=>q.contract&&q.contract.salary<600).length,ver:S.version};},j);
     const exp=(()=>{let m=Math.abs(Math.round(r.cash*5));if(m>=10000){const e=m/10000;return (e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}return m.toLocaleString()+'만원';})();
     r.moneyV===2&&r.nw&&r.cash===ut0.cash&&r.shown===(r.cash<0?'-':'')+exp&&r.below===0?ok(`v29 저장: 구단 자금 내부 ${ut0.cash} 그대로 → 화면 ${r.shown} (×5) · 최저 연봉 밑 0명 · 안내 소식 · 저장 형식 ${r.ver}`):bad('예전 저장 '+JSON.stringify(r));}
