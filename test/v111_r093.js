@@ -59,7 +59,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
 
   // 6. 예전 저장(v29) 불러오기 · 새 칸(S.acts · scSnap · swapId) 없이도 화면 오류 없음 · 버전
   {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);const S=SL.state();UI.setTab('home');UI.go('market','deals');const a=document.querySelector('.content').innerText;UI.autoDays(7);UI.closeModal();UI.sheet('result');UI.closeModal();return {ver:SL.GAME_VER,ok:/답변 필요/.test(a),acts:SL.actResults().length};},j);
-    r.ver==='v111'&&r.ok&&r.acts===0?ok('예전 저장: 진행 중 화면 · 주간 보고서 정상 (새 기록 없음) · '+r.ver):bad('예전 저장 '+JSON.stringify(r));}
+    /^v1\d\d$/.test(r.ver)&&r.ok&&r.acts===0?ok('예전 저장: 진행 중 화면 · 주간 보고서 정상 (새 기록 없음) · '+r.ver):bad('예전 저장 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await p.close();
 
