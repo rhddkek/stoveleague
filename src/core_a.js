@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v104';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v105';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -26,7 +26,7 @@ const BAL={
   LEAGUE_VALUE:{1:1.15,JP:1.6,US:2.4,TW:1.1,MX:1.1,AU:0.85,CB:0.95},
   // 해외 무대: 리그 구조·팀 수는 실제 리그를 따르고, 구단명은 실제 연고 도시 + 가상 애칭 (실존 구단명·로고 미사용)
   // v95 (R079): 리그 환경 — 실제 최근 시즌 수준에 맞춘 타격 환경 (홈 구장 리그 기준). hit=안타 확률 배수, hr=홈런 확률 배수, zone=스트라이크 존 비율 더하기(−면 볼넷↑), con=배트에 맞힐 확률 더하기(−면 삼진↑), hx=파워 85 넘는 거포의 홈런 가산(1점당, v96 — 리그 홈런왕 수준)
-  ENV:{KR:{hit:0.89,hr:1.05,zone:-0.03,con:0,hx:0.04},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025,hx:0.05},TW:{hit:1.0,hr:1.2,zone:-0.03,con:0},US:{hit:0.79,hr:1.15,zone:-0.02,con:-0.025}},
+  ENV:{KR:{hit:0.905,hr:1.12,zone:-0.03,con:0,hx:0.04},JP:{hit:0.85,hr:0.55,zone:0.01,con:-0.025,hx:0.05},TW:{hit:1.0,hr:1.2,zone:-0.03,con:0},US:{hit:0.79,hr:1.15,zone:-0.02,con:-0.025}},
   LEAGUES:{JP:{name:'일본 프로야구',short:'일본',style:'12개 구단 · 양대 리그',games:143,roster:26,subs:['센트럴리그','퍼시픽리그']},
     US:{name:'메이저리그',short:'미국',style:'30개 구단 · 동서 양대 리그 6개 지구',games:162,roster:26,subs:['EL 동부','EL 중부','EL 남부','WL 중부','WL 남부','WL 서부'],conf:['이스턴리그','웨스턴리그']},
     TW:{name:'대만 프로야구',short:'대만',style:'6개 구단 단일 리그',games:120,roster:24},
@@ -63,7 +63,7 @@ const BAL={
   ARCH_OF:['popular','vet','vet','popular','vet','vet','youth','popular','youth','poor'],
   // 국내 10개 구단 = 실제 연고 도시 + 가상 애칭 + 기본 위상만. 실제 구단의 역사(우승 횟수·순위)·구장·색은 쓰지 않는다
   // 시작 전력은 기본 위상에서만 나온다: 위상 15점 = 주전 평균 약 0.9 → 144경기 모의 10회: 위상 90 구단 승률 .58, 위상 30 구단 .40
-  KR_STR_K:0.06,
+  KR_STR_K:0.06, KR_LVL_UP:0.8,   // v105: 한국 1군 주전 평균 = LEVEL_OVR.KR1 + 0.8 (다른 리그와 같은 기준)
   // 구단 위상(명문도): 순위·가을야구·한국시리즈 우승으로 천천히 쌓이고 천천히 식는다. TEAM_NAMES.KR 순서대로 시작 값
   // 스폰서·광고 (유저 구단만 선택, AI는 기존 자동 수입 = 기준값). 회사명은 모두 가상
   SPON:{
@@ -245,11 +245,13 @@ function calcValue(p){
   const yrs=p.contract?p.contract.years:1;v*=yrs<=1?0.85:yrs===2?1:1.08;
   if(['C','SS','CF','SP'].includes(p.pos))v*=1.1;
   v*=perfFactor(p);v*=awardPrem(p);
-  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;
+  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;v*=krAdj(p);
   return Math.max(500,Math.round(v/10)*10);
 }
 function minSal(s){s=s||(S?(S.phase==='offseason'?S.season+1:S.season):1);return s>=2?Math.round(BAL.SALARY_MIN*1.1):BAL.SALARY_MIN;}   // v101: KBO 최저 연봉 2026년 3,000만 → 2027년 3,300만
-function salaryFor(p){const v=baseVal(calcOvr(p))*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1);return Math.max(minSal(),Math.round(v/10)*10);}
+// v105: 새 게임에서 국내 선수 능력을 리그 수준에 맞춰 내린 만큼(S.krShift) 국내 연봉·몸값 곡선을 올려 금액은 그대로 (예전 저장은 krAdj 없음 = 1)
+function krAdj(p){if(!S||!S.krAdj)return 1;const t=p.teamId!=null?S.teams[p.teamId]:null;return (t?t.league==='KR':(p.nat||'KR')==='KR')?S.krAdj:1;}
+function salaryFor(p){const v=baseVal(calcOvr(p))*krAdj(p)*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1);return Math.max(minSal(),Math.round(v/10)*10);}
 function money(m){m=(m||0)*BAL.WON;const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}else s=m?m.toLocaleString()+'만원':'0원';return (neg?'-':'')+s;}
 
 // ---------- 구단 ----------

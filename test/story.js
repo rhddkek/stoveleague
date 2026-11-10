@@ -331,8 +331,8 @@ console.log('[21] v35 숨은 상한 · 성장 원장 · 생일 · 단기 목표 
  const pend=S.pendingFA.slice();if(pend.length){const exp=pend.map(id=>SL.renewDemandOf(S.players[id]));const r=SL.renewAll();!S.pendingFA.filter(id=>!S.players[id].grudge).length&&pend.every((id,i)=>S.players[id].grudge||S.players[id].contract.salary===exp[i])?ok(`일괄 재계약 ${r.length}명 (요구액 그대로)`):bad('일괄 재계약');}else ok('(계약 만료 선수 없음)');}
 console.log('[22] v36 23세 이후 잠재력 감소: 2군 주전·집중은 제외');
 {SL.newGame(3737,9,{games:36});S=SL.state();const u=SL.userTeam();const res=SL.reserveIds(u).map(id=>S.players[id]).filter(p=>!SL.isPitcher(p)&&u.roster.includes(p.id));
- for(const p of res){p.age=24;p.peakAge=29;p.pot=Math.max(p.pot,SL.calcOvr(p)+12);}const pot0={};for(const p of res)pot0[p.id]=p.pot;for(let i=0;i<14;i++)SL.playDayAuto();
- const st=res.filter(p=>p.resRole==='start'||p.resRole==='focus'),bn=res.filter(p=>p.resRole==='bench');
+ for(const p of res){p.age=24;p.peakAge=29;p.pot=Math.max(p.pot,SL.calcOvr(p)+12);}const pot0={};for(const p of res)pot0[p.id]=p.pot;const allSt={};for(const p of res)allSt[p.id]=true;for(let i=0;i<14;i++){SL.playDayAuto();for(const p of res)if(!(p.resWeek&&(p.resRole==='start'||p.resRole==='focus')))allSt[p.id]=false;}
+ const st=res.filter(p=>allSt[p.id]),bn=res.filter(p=>p.resRole==='bench');
  st.length&&st.every(p=>p.pot===pot0[p.id])?ok(`2군 주전 ${st.length}명: 23세 이상이어도 잠재력 유지`):bad('2군 주전 감소 '+st.map(p=>pot0[p.id]-p.pot));
  bn.length?(bn.every(p=>p.pot<pot0[p.id]&&p.log[0].f.some(f=>/잠재력 조금 감소/.test(f)))?ok(`2군 벤치 ${bn.length}명: 감소 + 성장 요인에 표시`):bad('벤치 감소 안 됨')):ok('(이번 시드는 2군 벤치 야수 없음)');}
 console.log('[23] v37 해외 하부 리그 (미국 2군·3군, 일본 2군)');
