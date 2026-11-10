@@ -35,7 +35,7 @@ const {chromium}=require('playwright');const path=require('path');
   // 6. PC 폭: 앞으로 2주 띠가 타일로 접히지 않고 그대로
   {const q=await b.newPage({viewport:{width:1280,height:800}});await q.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await q.waitForTimeout(300);
     const r=await q.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:144,league:'KR'});SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(10);UI.closeModal();UI.setTab('home');const vis=[...document.querySelectorAll('.dstrip .dcell')].filter(e=>e.offsetParent).length;if(vis)return {vis};
-      const t=[...document.querySelectorAll('.tile2')].find(x=>/앞으로 2주/.test(x.textContent));if(!t)return {vis:0,tile:false};const pv=t.innerText;t.click();const n=document.querySelectorAll('#modal .dstrip .dcell').length;UI.closeModal();return {vis:0,tile:true,pv,n};});await q.close();
+      const t=[...document.querySelectorAll('.tile2')].find(x=>/2주 일정/.test(x.textContent));if(!t)return {vis:0,tile:false};const pv=t.innerText;t.click();const n=document.querySelectorAll('#modal .dstrip .dcell').length;UI.closeModal();return {vis:0,tile:true,pv,n};});await q.close();
     r.vis===14||(r.tile&&r.n===14&&/다음 /.test(r.pv))?ok(r.vis?'PC: 감독실 앞으로 2주 띠 14칸':`PC: 감독실이 한 화면을 넘어 「앞으로 2주」가 타일로 접힘(미리보기 「${r.pv.replace(/\s+/g,' ').slice(0,40)}」) → 누르면 14칸`):bad('PC 띠 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v99 검사 실패 ${fails}건`:'v99 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

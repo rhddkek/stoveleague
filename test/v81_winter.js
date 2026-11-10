@@ -10,7 +10,7 @@ const {chromium}=require('playwright');const path=require('path');
     /겨울 \d주차/.test(r.wk)&&r.todo&&r.go&&!r.old&&!r.steps?ok(`겨울 감독실: 「${r.wk.replace(/\s+/g,' ')}」 · 처리할 일 하나 · 하단 진행 · 예전 목록(이번 주 결정·진행 중 영입·할 일 보드) 없음`):bad('겨울 감독실 구성 '+JSON.stringify(r));}
   // 2. 숨은 마감 없음: 코치 계약 만료 · 겨울리그 파견 요청 · 스폰서가 처리할 일에 (접힌 칸이 아니라)
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();if(ut.staff&&ut.staff[0])ut.staff[0].years=0;UI.setTab('home');const ex=(ut.staff||[]).filter(c=>c.years<=0).length;const disp=S.dispatch&&S.dispatch.phase==='open'?S.dispatch.reqs.length:0;const t=[...document.querySelectorAll('.mkcard.todo .mail.td')].map(e=>e.innerText).join('\n');return {ex,disp,t,spon:!!(ut.spon&&!ut.spon.main&&ut.spon.offers.length)};});
-    const okC=!r.ex||/코치 계약 만료/.test(r.t),okD=!r.disp||/파견/.test(r.t),okS=!r.spon||/개막 전까지|스폰서/.test(r.t);okC&&okD&&okS?ok(`마감 있는 일은 처리할 일에: 코치 만료 ${r.ex} · 파견 요청 ${r.disp} · 스폰서 ${r.spon?'있음':'없음'}`):bad('숨은 마감 '+JSON.stringify(r));}
+    const okC=!r.ex||/코치 재계약/.test(r.t),okD=!r.disp||/파견/.test(r.t),okS=!r.spon||/개막 전까지|스폰서/.test(r.t);okC&&okD&&okS?ok(`마감 있는 일은 처리할 일에: 코치 만료 ${r.ex} · 파견 요청 ${r.disp} · 스폰서 ${r.spon?'있음':'없음'}`):bad('숨은 마감 '+JSON.stringify(r));}
   // 3. 계약 → 배치 정하기 → (제안과 다른 자리라도) 정하면 감독실·영입 현황·결정할 일 모두에서 사라짐. 지난 시즌 계약은 남지 않음
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const lin=ut.lineup.map(id=>S.players[id]);
       const cand=SL.krTeams().filter(t=>!t.isUser).flatMap(t=>t.lineup.map(id=>S.players[id])).filter(x=>x&&!SL.isPitcher(x)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));let pick=null;
@@ -26,7 +26,7 @@ const {chromium}=require('playwright');const path=require('path');
     if(r.skip)ok('배치 시험: 이 시드엔 배치 제안이 생기는 선수가 없음');
     else{const a=r.t1.some(t=>t.includes(r.name+' 배치')),b2=!r.t2.some(t=>t.includes(r.name)),c=!r.old||!r.t1.some(t=>t.includes(r.old));a&&b2&&!r.inProg&&r.inDone&&c?ok(`계약 직후 「${r.name} 배치 정하기」 → 다른 자리(벤치)로 정해도 감독실·영입 현황 진행 중에서 사라지고 「완료」 접힘으로 · 지난 시즌 계약(${r.old})은 안 뜸`):bad('배치 완료 동기화 '+JSON.stringify(r));}}
   // 4. 바로가기: 보강 목표 「후보 찾기」 → FA 목록(빈 영입 현황이 아님) · 「대기 N」은 대기 창
-  {const r=await p.evaluate(()=>{UI.setTab('home');const g=[...document.querySelectorAll('.wgoal .goal2')].find(b=>/후보 찾기/.test(b.innerText));if(!g)return {none:true};g.click();const sub=UI&&document.querySelector('.stv')?document.body.innerText:'';const at=(window.__ui_sub||'');UI.setTab('home');return {on:g.getAttribute('onclick'),ok:/market','fa'/.test(g.getAttribute('onclick'))};});
+  {const r=await p.evaluate(()=>{UI.setTab('home');const g=[...document.querySelectorAll('.wgoal .goal2')].find(b=>/보강 ›/.test(b.innerText));if(!g)return {none:true};g.click();const sub=UI&&document.querySelector('.stv')?document.body.innerText:'';const at=(window.__ui_sub||'');UI.setTab('home');return {on:g.getAttribute('onclick'),ok:/market','fa'/.test(g.getAttribute('onclick'))};});
     r.none||r.ok?ok(`보강 목표 바로가기: ${r.none?'(진행 중·완료라 후보 찾기 없음)':r.on}`):bad('보강 목표 바로가기 '+JSON.stringify(r));}
   // 5. 개인 광고 제안: 처리할 일에서 바로 수락·거절 창
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const pid=ut.lineup[0];S.endorseOffers=(S.endorseOffers||[]).concat([{id:98765,pid,co:'시험식품',fee:20000000,years:2,exp:S.clock+3}]);UI.setTab('home');const row=[...document.querySelectorAll('.mkcard.todo .mail.td')].find(e=>/개인 광고|시험식품/.test(e.innerText));if(!row)return {row:false};
