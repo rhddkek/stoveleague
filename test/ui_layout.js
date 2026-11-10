@@ -12,7 +12,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   for(const [lg,ks] of [['JP',['센트럴','퍼시픽','/12']],['US',['EL 동부','/30']],['TW',['예상 전력','에이스']]]){await p.evaluate(l=>UI.pickLg(l),lg);await p.waitForTimeout(80);for(const k of ks)await has(k);await over('시작 화면 '+lg);const o=await p.evaluate(()=>document.scrollingElement.scrollHeight-innerHeight);o<=4?ok(`시작 화면 ${lg}: ${ks.join(' · ')} · 한 화면`):bad(`시작 화면 ${lg} 세로 스크롤 ${o}px`);}
   await p.evaluate(()=>UI.pickLg('KR'));await p.waitForTimeout(80);
   await p.evaluate(()=>{UI.pickTeam(9);UI.newGame();SL.state().tutorialDone=true;UI.setTab('home');});await p.waitForTimeout(150);
-  (await p.evaluate(()=>SL.userTeam().arch))==='poor'?ok('재정난 구단으로 시작 (유형 반영)'):bad('구단 유형 미반영');
+  (await p.evaluate(()=>!SL.userTeam().arch))?ok('구단 유형 없이 시작 (v103)'):bad('구단 시작 '+await p.evaluate(()=>SL.userTeam().name+'/'+SL.userTeam().arch));
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
   await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
   /첫 시즌 할 일/.test(tt)&&/자동 진행/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내 한 장 → 「첫 시즌 할 일」로 이어짐'):bad('튜토리얼 문구');
@@ -58,7 +58,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   // 테스터용 주소: ?test=1&new=1&team=9&seed=1234 → 바로 새 게임, 테스트 도구·버전 표시
   await p.goto(FILE+'?test=1&new=1&team=9&seed=1234');await p.waitForTimeout(400);
   const tb=await p.evaluate(()=>({arch:SL.userTeam().arch,seed:SL.state().seed,ver:SL.GAME_VER}));
-  tb.arch==='poor'&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed}, 재정난)`):bad('테스트 주소 시작 '+JSON.stringify(tb));
+  !tb.arch&&tb.seed===1234?ok(`테스트 주소로 바로 시작 (${tb.ver}, 시드 ${tb.seed})`):bad('테스트 주소 시작 '+JSON.stringify(tb));
   await p.evaluate(()=>UI.go('club','data'));await has('테스트 도구');await p.evaluate(()=>{const t=[...document.querySelectorAll('.tile2,.pgtabs button')].find(x=>x.textContent.includes('테스트 도구'));if(t)t.click();});await has('요청서용 정보 복사');await p.evaluate(()=>UI.closeModal());await has(tb.ver);
   await p.evaluate(()=>UI.test('nextSeason'));(await p.evaluate(()=>SL.state().season))===2?ok('테스트 도구: 다음 시즌 개막까지'):bad('다음 시즌 이동 실패');
   // R004: 직전 타석 결과 유지 · 판매 작별 카드 · 출신 코치 복귀 카드

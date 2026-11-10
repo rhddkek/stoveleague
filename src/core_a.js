@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v102';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v103';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -248,9 +248,9 @@ function calcValue(p){
   const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;
   return Math.max(500,Math.round(v/10)*10);
 }
-function minSal(s){s=s||(S&&S.season)||1;return s>=2?Math.round(BAL.SALARY_MIN*1.1):BAL.SALARY_MIN;}   // v101: KBO 최저 연봉 2026년 3,000만 → 2027년 3,300만
+function minSal(s){s=s||(S?(S.phase==='offseason'?S.season+1:S.season):1);return s>=2?Math.round(BAL.SALARY_MIN*1.1):BAL.SALARY_MIN;}   // v101: KBO 최저 연봉 2026년 3,000만 → 2027년 3,300만
 function salaryFor(p){const v=baseVal(calcOvr(p))*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1);return Math.max(minSal(),Math.round(v/10)*10);}
-function money(m){m=(m||0)*BAL.WON;const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}else s=m.toLocaleString()+'만원';return (neg?'-':'')+s;}
+function money(m){m=(m||0)*BAL.WON;const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}else s=m?m.toLocaleString()+'만원':'0원';return (neg?'-':'')+s;}
 
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){

@@ -212,3 +212,20 @@ body:not(.ingame) .dcell.sel{background:var(--sunk);border-color:var(--sel,#ecee
 /* v100 (R083): 선수단에 한마디 · 기자 질문 */
 body:not(.ingame) .talk,#modal .talk{margin:8px 0 4px;padding-top:8px;border-top:1px solid var(--line)}
 body:not(.ingame) .talk .chiprow,#modal .talk .chiprow{margin:6px 0 0}
+/* v103 (R085): 등급 글자색 — S·A·B·C·D가 모두 다른 색 (어디서든 같은 등급은 같은 색) */
+body{--gS:#b98900;--gA:#d9541a;--gB:#1f8a55;--gC:#2f6fb5;--gD:#8b909b}
+[data-theme="dark"] body{--gS:#f2c14e;--gA:#ff7a45;--gB:#3fbf7f;--gC:#6f9cf2;--gD:#8a909c}
+.grade.S,.gl.S{background:var(--gS)!important;color:#15171c!important}.grade.A,.gl.A{background:var(--gA)!important;color:#fff!important}
+.grade.B,.gl.B{background:var(--gB)!important;color:#fff!important}.grade.C,.gl.C{background:var(--gC)!important;color:#fff!important}.grade.D,.gl.D,.grade.E,.gl.E{background:var(--gD)!important;color:#fff!important}
+.gnum.S b,.gbadge2.S b,.gbadge.S b,.gl2.S{color:var(--gS)!important}.gnum.A b,.gbadge2.A b,.gbadge.A b,.gl2.A{color:var(--gA)!important}
+.gnum.B b,.gbadge2.B b,.gbadge.B b,.gl2.B{color:var(--gB)!important}.gnum.C b,.gbadge2.C b,.gbadge.C b,.gl2.C{color:var(--gC)!important}
+.gnum.D b,.gnum.E b,.gbadge2.D b,.gbadge.D b,.gl2.D,.gl2.E{color:var(--gD)!important}
+.farmg.gS{color:var(--gS)}.farmg.gA{color:var(--gA)}.farmg.gB{color:var(--gB)}.farmg.gC{color:var(--gC)}.farmg.gD,.farmg.gE{color:var(--gD)}
+/* v103 (R085): 아래에서 올라오는 창 — 「닫기」가 내용 옆에 떠서 카드·단추를 찌그러뜨리던 것 → 맨 위 한 줄(스크롤해도 보임) */
+.modal>.close{float:none!important;display:block;margin:0 0 8px auto;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.sheetc .row>button.grow{min-width:0;flex:1 1 0}.sheetc .row>button{white-space:nowrap}
+/* v103: 단추 하나뿐인 아래 실행 줄은 꽉 차게 (예산관리 「전환」) */
+body:not(.ingame) .stvact:has(>button:only-child){display:block;background:none;border:0;padding:0}
+body:not(.ingame) .stvact>button:only-child{width:100%}
+/* v103: 폰에서 로테이션·2군 표가 옆으로 몇 px 넘던 것 — 칸 여백만 줄임 */
+@media (max-width:480px){body:not(.ingame) table.mkt.rot th,body:not(.ingame) table.mkt.rot td,body:not(.ingame) table.mkt.sq th,body:not(.ingame) table.mkt.sq td{padding-left:4px;padding-right:4px}body:not(.ingame) table.mkt.rot .drag{display:none}}

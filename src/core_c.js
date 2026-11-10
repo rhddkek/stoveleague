@@ -34,7 +34,7 @@ function newGame(seed,userIdx,opt){opt=opt||{};const kg=BAL.SEASON_OPTIONS.inclu
   for(const t of overseasTeams()){tsd(t.name+'/f');if(!t.isUser&&osFarmFill(t))autoLineup(t);}S.osv=1;
   tsd('stars');addStars();
   if(opt.arch){if(fixR&&opt.arch===true)krTeams().forEach((t,i)=>{tsd(t.name+'/a');applyArch(t,BAL.ARCH_OF[i],'roster');});   // 고정 선수단: 구단 유형(유망주·베테랑…)도 그 구단의 선수 구성 → 누가 맡든 같음
-    if(ulg==='KR'){tsd(ut.name+'/a');applyArch(ut,opt.arch===true?BAL.ARCH_OF[ui]:opt.arch,fixR&&opt.arch===true?'fin':undefined);}}
+    else if(ulg==='KR'){tsd(ut.name+'/a');applyArch(ut,opt.arch===true?BAL.ARCH_OF[ui]:opt.arch,'roster');}}   // v103 (R085): 구단 유형(이름·목표·돈 효과)은 없앰 — 선수 구성만 구단마다 다르게 남김
   if(fixR)S.rng=seed|0;   // 여기부터(FA·일정·시즌 운)는 시드대로
   if(ulg!=='KR'){ut.fin=Object.assign(newFin(),ut.fin||{});ut.dev=ut.dev||[];ut.loan=0;ut.cash=Math.round(BAL.START_CASH[1]*(LG_ECON[ulg]||1));if(!(ut.rep>0))ut.rep=60;S.mgr.career=[{team:ut.id,name:ut.name,comp:compOf(ut),from:1,to:null}];}
   setGames(calDays());S.games=BAL.SEASON_GAMES;   // 유형은 선수 구성을 바꾸고, 전력 수준은 아래에서 실제 순위에 맞춘다
@@ -428,7 +428,7 @@ function aimAskMul(t,p,starter){const a=aimOf(t);if(!a)return 1;if(a==='contend'
 function aiAsk(t,p){const v=calcValue(p);let m=1.15;const sorted=t.roster.map(P_).sort((a,b)=>calcOvr(b)-calcOvr(a));const rank=sorted.findIndex(x=>x.id===p.id);
   if(rank<5)m+=0.3;if(t.cash<0)m-=0.25;if(countPos(t,p.pos)>(NEED_TEMPLATE[p.pos]||1))m-=0.1;m*=aimAskMul(t,p,rank<9);return Math.round(v*clamp(m,0.8,2)/100)*100;}
 function playerDemand(p,t){let base=Math.max(salaryFor(p),p.contract?p.contract.salary*1.1:0);const from=p.teamId!=null?S.teams[p.teamId]:null;
-  if(p.homecoming===t.id)base*=0.7;else if(t.league==='KR'&&presOf(t)>=80)base*=0.93;if(p.endorse)base*=BAL.SPON.endorse.demand;return Math.round(base/10)*10;}
+  if(p.homecoming===t.id)base*=0.7;else if(t.league==='KR'&&presOf(t)>=80)base*=0.93;if(p.endorse)base*=BAL.SPON.endorse.demand;if(t.league==='KR')base=Math.max(base,minSal());return Math.round(base/10)*10;}
 function willingInfo(p,t){const from=p.teamId!=null?S.teams[p.teamId]:null;let pw=0.75;const r=[];
   if(from&&from.league==='KR'&&t.league==='KR'){pw=0.7;r.push('국내 구단 간 이적에 소극적');}
   else if(from){const lf=levelOf(from),lt=levelOf(t);if(lt>=lf+3){pw=0.85;r.push('더 높은 무대 진출 희망');}else if(lt<=lf-3){pw=p.age>=31?0.55:0.3;r.push(p.age>=31?'수준은 낮지만 출장 기회를 원하는 베테랑':'수준 낮은 무대로의 이동 기피');}else{pw=0.55;r.push('비슷한 수준 무대 — 조건 중시');}
@@ -2044,6 +2044,7 @@ function migrate(){const from=S.version;for(const id in S.players)carFromHist(S.
     for(const m of (S.mgr&&S.mgr.seasons)||[])if(m.legacy&&!m.sales){const tr=[];for(const id in S.players)for(const t of S.players[id].transfers||[])if(t.s===m.s&&t.from===nm&&t.fee>0)tr.push(t);if(tr.length){m.sales=tr.length;m.salesFee=tr.reduce((a,t)=>a+t.fee,0);}}}
   if(!S.osv){for(const t of overseasTeams())if(!t.isUser&&osFarmFill(t))autoLineup(t);S.osv=1;}if(!S.budget)makeBudget();if(S.phase==='offseason'&&!S.faM)faMarketOpen();if(S.phase==='offseason'&&!S.wplan)try{winterPlanStart(S.season);}catch(e){}
   moneyMigrate();if(S.mgr&&!S.mgr.titles)titleCheck();
+  for(const t of Object.values(S.teams))if(t.arch)delete t.arch;   // v103 (R085): 구단 유형 삭제 (예전 저장의 유형 목표·이야기도 사라짐)
   if(from!==VERSION){S.version=VERSION;if(added.length)news(`해외 리그가 실제 규모로 개편되었습니다: ${added.join(', ')} 추가`,'sys');if(renamed.length)news(`해외 구단 명칭 변경: ${renamed.join(', ')}`,'sys');}}
 // v32: 다른 게임의 가상 구단명과 겹치던 국내 구단 2곳 개명 — v29~v31 저장의 이름·이적 기록·소식까지 함께 바꾼다
 const KR_RENAME=[['서울 팰컨스','서울 머스탱스'],['팰컨스 야구장','머스탱스 야구장'],['부산 시걸스','부산 돌핀스']];
