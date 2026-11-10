@@ -429,7 +429,7 @@ function pageize(root,scope){if(isWide()||!PAGE_SCOPES.includes(scope))return;co
   // 작은 칸(제목 줄·필터·조작 줄)은 아래 묶음과 함께 — 제목은 위 칸 것을 씀
   for(let i=0;i<blocks.length-1;i++){const b0=blocks[i];if(b0.h<170){const b1=blocks[i+1];b1.els=b0.els.concat(b1.els);b1.h+=b0.h;b1.t=b0.t||b1.t;blocks.splice(i,1);i--;}}
   const pages=[];let cur=null;for(const bk of blocks){if(!cur||(cur.h+bk.h>avail&&cur.els.length)){cur={els:[],t:'',h:0};pages.push(cur);}cur.els.push(...bk.els);cur.h+=bk.h;if(!cur.t)cur.t=bk.t;}
-  if(pages.length<2)return;{const on=root.querySelector('.htabs2 .on')||root.querySelector('.htabs .on');pages.forEach((pg,i)=>{if(!pg.t)pg.t=i===0&&on?on.textContent.replace(/\d+\/\d+/,'').trim():`${i+1}쪽`;});}
+  if(pages.length<2)return;{const on=root.querySelector('.htabs2 .on')||root.querySelector('.htabs .on');pages.forEach((pg,i)=>{if(!pg.t)pg.t=i===0?'현황':`${i+1}쪽`;});   /* v98: 첫 쪽 제목이 없으면 「현황」 — 예전엔 아래 줄 탭 이름을 그대로 써서 같은 이름이 두 줄에 나옴 */}
   ui.pg=ui.pg||{};let k=ui.pg[scope]||0;if(k>=pages.length)k=0;
   pages.forEach((pg,i)=>pg.els.forEach(e=>e.classList.toggle('pghide',i!==k)));
   const bar=document.createElement('div');bar.className='pgtabs';bar.innerHTML=pages.map((pg,i)=>`<button class="${i===k?'on':''}" onclick="UI.pgGo('${scope}',${i})"><small>${i+1}</small>${esc(pg.t)}</button>`).join('');kids[0].before(bar);}
