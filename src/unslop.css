@@ -229,3 +229,20 @@ body:not(.ingame) .stvact:has(>button:only-child){display:block;background:none;
 body:not(.ingame) .stvact>button:only-child{width:100%}
 /* v103: 폰에서 로테이션·2군 표가 옆으로 몇 px 넘던 것 — 칸 여백만 줄임 */
 @media (max-width:480px){body:not(.ingame) table.mkt.rot th,body:not(.ingame) table.mkt.rot td,body:not(.ingame) table.mkt.sq th,body:not(.ingame) table.mkt.sq td{padding-left:4px;padding-right:4px}body:not(.ingame) table.mkt.rot .drag{display:none}}
+/* v104 (R086): 금액 칸은 숫자 입력 대신 「36.7억」처럼 읽히는 값 + −/＋ (만원 단위 긴 숫자를 직접 치지 않게) */
+body:not(.ingame) .stepper .stpv{flex:1;text-align:center;font-size:20px;font-weight:800;align-self:center;font-variant-numeric:tabular-nums}
+/* 해외 리그 고르기 칸: 폰에서 옆으로 밀리던 6칸 → 3칸씩 두 줄 */
+body:not(.ingame) .seg.ovseg{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible}
+body:not(.ingame) .seg.ovseg button{white-space:nowrap}
+/* 새 게임 고급 설정 「도전」 네 칸: 글자가 두 줄로 꺾이지 않게 */
+.dfsel.scsel button{white-space:nowrap;padding-left:4px;padding-right:4px;font-size:13px}
+/* 선수 표 마지막 「지난 시즌」 칸이 길면 줄임표 (폰 폭을 넘지 않게) */
+@media (max-width:480px){body:not(.ingame) table.mkt.sq td:last-child{max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+/* 신인 계약 훈련 방향: 고른 칸이 어두운 테마에서 바탕과 같은 색이라 안 보이던 것 */
+body .dsf button.on{background:var(--sel,#15171c)!important;color:var(--sel-ink,#fff)!important;border-color:var(--sel,#15171c)!important}
+/* 선수 얼굴 옆 등번호: 어두운 테마에서 바탕과 같은 색이던 것 */
+body:not(.ingame) .phd .no{background:var(--sel,#15171c);color:var(--sel-ink,#fff)}
+/* 밝은 테마에서 노란·연두 글자가 밝은 바탕에 묻히던 곳 (예산관리 전환 횟수·잔액, 코치 등급) — 등급은 선수 등급과 같은 색 */
+body .g.S{color:var(--gS)}body .g.A{color:var(--gA)}body .g.B{color:var(--gB)}body .g.C{color:var(--gC)}body .g.D{color:var(--gD)}
+:root[data-theme="light"] body:not(.ingame) :is(.stv,.stvmenu) :is(.eqcost b,.bstep b){color:#a8520c}
+:root[data-theme="light"] body:not(.ingame) :is(.stv,.stvmenu) .eqcost{background:rgba(0,0,0,.05)}
