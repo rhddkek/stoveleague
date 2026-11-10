@@ -24,7 +24,16 @@ const html=`<!doctype html>
 ${r('style.css')}
 ${r('unslop_gen.css')}
 ${r('unslop.css')}
-</style></head><body><div id="app"></div>
+</style></head><body><script id="mview">
+/* v111 (R093): PC에서도 휴대폰 화면으로 — 설정(sl_view=m)이면 같은 파일을 폭 430px 틀 안에 띄우고, 바깥 쪽 게임은 시작하지 않음 */
+(function(){var w=null;try{w=localStorage.getItem('sl_view');}catch(e){}var child=/[?&]mframe=1/.test(location.search);window.__SL_CHILD=child;
+ if(w!=='m'||child||window.innerWidth<700)return;window.__SL_FRAMED=true;
+ var st=document.createElement('style');st.textContent='html.mframe,html.mframe body{height:100%;margin:0;overflow:hidden}.mfwrap{display:flex;flex-direction:column;align-items:center;height:100vh;background:#07090d}.mfr{width:430px;max-width:100%;flex:1;border:0;border-left:1px solid #2a2f3a;border-right:1px solid #2a2f3a;background:#0b0d12}.mfbar{padding:6px 0 8px}#mfpc{font:600 13px/1 system-ui,sans-serif;color:#e6e8ee;background:#161a22;border:1px solid #3a4150;border-radius:8px;padding:9px 16px;cursor:pointer}#mfpc:hover{background:#202634}';document.head.appendChild(st);document.documentElement.classList.add('mframe');
+ document.addEventListener('DOMContentLoaded',function(){var u=location.href.replace(/#.*$/,'');u+=(u.indexOf('?')<0?'?':'&')+'mframe=1';var d=document.createElement('div');d.className='mfwrap';
+  d.innerHTML='<iframe class="mfr" title="스토브리그 (휴대폰 화면)" src="'+u+'"></iframe><div class="mfbar"><button id="mfpc">PC 화면으로</button></div>';document.body.innerHTML='';document.body.appendChild(d);
+  document.getElementById('mfpc').onclick=function(){try{d.querySelector('iframe').contentWindow.postMessage('sl-topc','*');}catch(e){}setTimeout(function(){try{localStorage.setItem('sl_view','pc');localStorage.setItem('sl_resume',String(Date.now()));}catch(e){}location.reload();},2500);};
+  var ok=false;window.addEventListener('message',function(e){if(e.data==='sl-ready')ok=true;if(e.data==='sl-pc'){try{localStorage.setItem('sl_view','pc');}catch(x){}var fr=d.querySelector('iframe');if(fr)fr.remove();setTimeout(function(){location.reload();},150);}});setTimeout(function(){if(!ok){try{localStorage.setItem('sl_view','pc');}catch(e){}location.reload();}},12000);});})();
+</script><div id="app"></div>
 <script id="assets">
 ${assetsJs}
 </script>

@@ -19,7 +19,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 3. 아래 창: 「닫기」는 맨 위 한 줄(내용 옆에 뜨지 않음) · 결정할 일이 없을 때 두 단추가 반반 · 단추 글자가 세로로 꺾이지 않음
   {const r=await p.evaluate(()=>{UI.setTab('home');UI.sheet('dec');const m=document.querySelector('#modal .modal');const cl=m.querySelector(':scope>.close');const cs=getComputedStyle(cl);const fl=cs.cssFloat;const card=m.querySelector('.card');
       const bs=[...m.querySelectorAll('.card button')].map(x=>{const r=x.getBoundingClientRect();return {w:Math.round(r.width),h:Math.round(r.height),t:x.textContent.trim()};});
-      const cr=card.getBoundingClientRect(),mr=m.getBoundingClientRect();UI.closeModal();UI.sheet('story');const st=document.querySelector('#modal .sheetc');const sw=st?st.getBoundingClientRect().width:0;UI.closeModal();
+      const cr=card.getBoundingClientRect(),mr=m.getBoundingClientRect();UI.closeModal();UI.sheet(SL.weeklyStory().kind==='quiet'?'race':'story');const st=document.querySelector('#modal .sheetc');const sw=st?st.getBoundingClientRect().width:0;UI.closeModal();
       return {float:fl,below:cl.getBoundingClientRect().bottom<=cr.top+1,full:cr.width>=mr.width-40,bs,sw:Math.round(sw),mw:Math.round(mr.width)};});
     r.float==='none'&&r.below&&r.full&&r.bs.length>=1&&r.bs.every(x=>x.w>=40&&x.h<70)&&r.sw>=r.mw-40?ok(`아래 창: 닫기 맨 위 · 카드 폭 ${r.sw}/${r.mw} · 결정할 일 단추 ${r.bs.map(x=>x.t+' '+x.w+'×'+x.h).join(', ')} (세로로 꺾인 단추 없음)`):bad('아래 창 '+JSON.stringify(r));}
   // 4. 콜업 후보: 이름·등급·한 줄 비교·단추만 (코치 말·능력치 줄·설명 문단 없음)

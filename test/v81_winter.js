@@ -20,7 +20,7 @@ const {chromium}=require('playwright');const path=require('path');
       const old=cand.find(x=>x.teamId!==ut.id);let oldId=null;if(old){const from=S.teams[old.teamId];from.roster=from.roster.filter(i=>i!==old.id);from.lineup=from.lineup.filter(i=>i!==old.id);old.teamId=ut.id;ut.roster.push(old.id);S.signQ.push({pid:old.id,c:S.clock-60});oldId=old.id;}
       UI.setTab('home');const t1=[...document.querySelectorAll('.mkcard.todo .mail.td .t')].map(e=>e.textContent);const d1=decCount();
       UI.placeRole(pick.id,'bench');UI.setTab('home');const t2=[...document.querySelectorAll('.mkcard.todo .mail.td .t')].map(e=>e.textContent);
-      UI.go('market','deals');const prog=[...document.querySelectorAll('.mkcard')].find(c=>/진행 중/.test(c.innerText));const inProg=prog&&[...prog.querySelectorAll(':scope>.deal')].some(d=>d.innerText.includes(pick.name));const inDone=!!prog&&[...prog.querySelectorAll('details.tdone .deal')].some(d=>d.textContent.includes(pick.name));
+      UI.go('market','deals');const prog=[...document.querySelectorAll('.mkcard')].filter(c=>/답변 필요|기다리는 중/.test(c.innerText));const inProg=prog.some(c=>[...c.querySelectorAll(':scope>.deal')].some(d=>d.innerText.includes(pick.name)));const inDone=[...document.querySelectorAll('details.tdone .deal')].some(d=>d.textContent.includes(pick.name));
       UI.setTab('home');return {name:pick.name,old:oldId?S.players[oldId].name:null,t1,t2,inProg,inDone};
       function decCount(){return 0;}});
     if(r.skip)ok('배치 시험: 이 시드엔 배치 제안이 생기는 선수가 없음');

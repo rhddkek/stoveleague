@@ -19,7 +19,7 @@ const {chromium}=require('playwright');const path=require('path');
   // 3. 아래 탭: 지금 탭을 다시 누르면 맨 위로 → (맨 위에서) 그 탭 첫 화면
   {await p.evaluate(()=>UI.go('market','buy'));await p.evaluate(()=>window.scrollTo(0,700));await p.evaluate(()=>[...document.querySelectorAll('.nav .in button')].find(b=>/이적/.test(b.textContent)).click());await p.waitForTimeout(700);const y=await p.evaluate(()=>Math.round(scrollY));
     await p.evaluate(()=>[...document.querySelectorAll('.nav .in button')].find(b=>/이적/.test(b.textContent)).click());await p.waitForTimeout(100);const s=await st();
-    y===0&&s.sub==='진행 중'?ok('같은 아래 탭 다시 누름: 맨 위로 → 한 번 더 누르면 이적 첫 화면(영입 현황)'):bad('다시 누름 '+y+' '+JSON.stringify(s));}
+    y===0&&s.sub==='전체'&&s.tab==='이적'?ok('같은 아래 탭 다시 누름: 맨 위로 → 한 번 더 누르면 이적 첫 화면(진행 중 · 전체)'):bad('다시 누름 '+y+' '+JSON.stringify(s));}
   // 4. 좌우로 밀기: 옆 화면 / 나눈 화면이면 옆 쪽 / 표 위에서 민 건 무시
   {const swipe=async(sel,dx)=>{await p.evaluate(([sel,dx])=>{const el=document.querySelector(sel);const r=el.getBoundingClientRect();const x=r.left+r.width/2,y=r.top+Math.min(r.height/2,40);const T=(cx)=>new Touch({identifier:1,target:el,clientX:cx,clientY:y});el.dispatchEvent(new TouchEvent('touchstart',{touches:[T(x)],changedTouches:[T(x)],bubbles:true}));el.dispatchEvent(new TouchEvent('touchend',{touches:[],changedTouches:[T(x+dx)],bubbles:true}));},[sel,dx]);await p.waitForTimeout(80);};
     await p.evaluate(()=>UI.go('roster','list'));await swipe('.content .mkcard, .content .card',-140);const a=await st();await swipe('.content .mksec, .content .mkh, .content .card',140);const b2=await st();
