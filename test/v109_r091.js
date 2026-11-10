@@ -23,8 +23,8 @@ const {chromium}=require('playwright');const path=require('path');
     r&&!r.open&&/5위까지 가을야구/.test(r.sum)?ok(`순위표 아래 「${r.sum}」 접힘`):bad('가을야구 규칙 '+JSON.stringify(r));}
   // 4. 겨울 감독실: 할 일 · 협상 중 · 완료 한 카드 · 행동 단추 이름(지명 · 파견 검토 · 재계약 · 목록) · 줄인 말(우리 지명 · 코치 재계약 · 선택 업무 · 시즌 결산 · 우편함 · 개막까지 ▶▶)
   {const r=await p.evaluate(()=>{SL.testCmd('endSeason');UI.closeModal();UI.setTab('home');UI.closeModal();const t=document.querySelector('.content').innerText;const bs=[...document.querySelectorAll('.mkcard.todo button')].map(x=>x.textContent.trim());
-      return {t:t.slice(0,600),bs,old:/급하지 않은 일|우리 지명 차례입니다|코치 계약 만료|지난 시즌 결과 · 구단 우편함|건너뛰기|대기 중/.test(t),wait:/협상 중 \d/.test(t),dec:/처리할 일 \d/.test(t),sum:/시즌 결산 · 우편함/.test(t),skip:/개막까지 ▶▶/.test(t),generic:bs.filter(x=>x==='보기'||x==='결정').length};});
-    !r.old&&r.wait&&r.dec&&r.sum&&r.skip&&r.generic===0&&r.bs.some(x=>/지명|파견 검토|재계약|목록|명단 정리/.test(x))?ok(`겨울 감독실 단추 「${r.bs.join(' · ')}」 · 처리할 일 · 협상 중 · 시즌 결산 · 우편함 · 개막까지 ▶▶ (예전 긴 말·「보기」「결정」 단추 없음)`):bad('겨울 감독실 '+JSON.stringify(r));}
+      return {t:t.slice(0,600),bs,old:/급하지 않은 일|우리 지명 차례입니다|코치 계약 만료|지난 시즌 결과 · 구단 우편함|건너뛰기|대기 중|처리할 일|선택 업무/.test(t),wait:/답변 대기 \d/.test(t),dec:/할 일 \d/.test(t),sum:/시즌 결산 · 우편함/.test(t),skip:/개막까지 ▶▶/.test(t),generic:bs.filter(x=>x==='보기'||x==='결정').length};});
+    !r.old&&r.wait&&r.dec&&r.sum&&r.skip&&r.generic===0&&r.bs.some(x=>/지명|파견 검토|재계약|목록|명단 정리/.test(x))?ok(`겨울 감독실 단추 「${r.bs.join(' · ')}」 · 할 일 · 답변 대기 · 시즌 결산 · 우편함 · 개막까지 ▶▶ (예전 긴 말·「보기」「결정」 단추 없음)`):bad('겨울 감독실 '+JSON.stringify(r));}
   // 5. 지명 → 한 창에서 계약 확정 · 훈련 고르기(창 그대로) · 「다음 지명」 누르면 지명판 (선수 화면으로 넘어가지 않음)
   {const r=await p.evaluate(()=>{const S=SL.state();let k=0;while(!SL.draftTurn()&&S.draft&&!S.draft.done&&k++<8){SL.advanceWeek();}if(!SL.draftTurn())return {skip:true};UI.go('dev','draft');const av=SL.draftAvail();const pid=av[0].id;UI.draftPick(pid,'dev');
       const b1=[...document.querySelectorAll('#modal button')].map(x=>x.textContent.trim());const c=[...document.querySelectorAll('#modal button')].find(x=>/계약 확정/.test(x.textContent));if(!c)return {b1};c.click();const t2=document.querySelector('#modal').innerText;
@@ -39,7 +39,7 @@ const {chromium}=require('playwright');const path=require('path');
       const me=(document.querySelector('.dec3 .me b')||{}).textContent;return {rowT,bl,me,want:SL.money(off.salary).replace('원',''),pre:off.pre.replace(/\s+/g,' '),lbl:off.lbl,head:off.head};});
     r.none||(/제안 .+억 · \d+\/\d+위 · \d주차 마감/.test(r.rowT)&&r.bl==='수정'&&r.me===r.want&&r.lbl.join()==='선수 요구,내 제안,경쟁 최고'&&!/거절|수락/.test(r.pre)&&/주전|선발|마무리|불펜/.test(r.head))?ok(r.none?'(결정 대기 FA 없음)':`협상 중 「${r.rowT.slice(-40)}」 [${r.bl}] → 다시 열면 내 제안 ${r.me}(마지막 제안) · 숫자 「${r.lbl.join(' · ')}」 · 보내기 전 결과 없음 · 「${r.head}」`):bad('FA 재제안 '+JSON.stringify(r));}
   // 7. PC 폭 겨울 감독실: 「협상 중」·「보강 포지션」이 한 화면에 한 번씩만 (오른쪽과 가운데 중복 없음)
-  {await p.setViewportSize({width:1280,height:860});const r=await p.evaluate(()=>{UI.setTab('home');UI.closeModal();const t=document.body.innerText;return {w:(t.match(/협상 중 \d/g)||[]).length,g:(t.match(/보강 포지션/g)||[]).length};});await p.setViewportSize({width:390,height:844});
-    r.w===1&&r.g<=1?ok(`PC 겨울 감독실: 협상 중 ${r.w}번 · 보강 포지션 ${r.g}번`):bad('PC 중복 '+JSON.stringify(r));}
+  {await p.setViewportSize({width:1280,height:860});const r=await p.evaluate(()=>{UI.setTab('home');UI.closeModal();const t=document.body.innerText;return {w:(t.match(/답변 대기 \d/g)||[]).length,g:(t.match(/보강 포지션/g)||[]).length};});await p.setViewportSize({width:390,height:844});
+    r.w===1&&r.g<=1?ok(`PC 겨울 감독실: 답변 대기 ${r.w}번 · 보강 포지션 ${r.g}번`):bad('PC 중복 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v109 검사 실패 ${fails}건`:'v109 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

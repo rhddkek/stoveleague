@@ -23,7 +23,7 @@ const {chromium}=require('playwright');const path=require('path');
     await p.close();}
   // 구단 → 시설: 전환 상자 없이 시설·개선·커리어가 한 화면
   {const p=await b.newPage({viewport:{width:1280,height:900}});await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
-    const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});SL.state().tutorialDone=true;UI.closeModal();UI.go('club','fac');const t=document.querySelector('.content').innerText;return {half:!!document.querySelector('.mktabs2.half'),fac:t.includes('구단 시설 현황'),up:t.includes('시설 개선'),car:t.includes('구단 커리어')};});
-    !r.half&&r.fac&&r.up&&r.car?ok('구단 → 시설: 「구단 시설 | 구단 커리어」 전환 없이 시설 현황 · 시설 개선 · 구단 커리어 한 화면'):bad('시설 '+JSON.stringify(r));await p.close();}
+    const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});SL.state().tutorialDone=true;UI.closeModal();UI.go('club','fac');const t=document.querySelector('.content').innerText;return {half:!!document.querySelector('.mktabs2.half'),fac:t.includes('구단 시설'),up:/Lv\.\d → \d/.test(t)&&/증설/.test(t),car:!t.includes('구단 커리어')};});
+    !r.half&&r.fac&&r.up&&r.car?ok('구단 → 시설: 전환 상자 없이 시설 · 「훈련장 Lv.1 → 2」 전후 비교 · 증설 단추 (커리어는 감독실 띠로, v110)'):bad('시설 '+JSON.stringify(r));await p.close();}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v98 검사 실패 ${fails}건`:'v98 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

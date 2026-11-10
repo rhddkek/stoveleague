@@ -28,7 +28,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   {const r=await p.evaluate(()=>{UI.autoDays(6);UI.closeModal();UI.setTab('league');const f=document.querySelector('.form2');const nx=f&&f.querySelector('.fnx b');const box=nx?nx.getBoundingClientRect():null;return {cells:f?f.querySelectorAll('.f5b>div').length:0,one:box?box.height<30:false,badge:!!document.querySelector('.content h3 .lgb, .content .hd .lgb'),ow:document.documentElement.scrollWidth-innerWidth};});
     r.cells===5&&r.one&&r.badge&&r.ow<=0?ok('리그 탭: 최근 5경기 다섯 칸 · 다음 경기 구단 이름 한 줄 · 「한국 프로야구」 리그 마크'):bad('리그 탭 '+JSON.stringify(r));}
   // 6. 구직·구인: 감독실 타일 → 감독 구하는 국내·해외 구단 목록 (평판 기준), 시즌 중엔 구경만
-  {const r=await p.evaluate(()=>{UI.setTab('home');const tile=[...document.querySelectorAll('.tile')].find(t=>/구직·구인/.test(t.innerText));const B=SL.jobBoard();if(tile)tile.click();const m=document.querySelector('#modal');const t=m?m.innerText:'';UI.closeModal();
+  {const r=await p.evaluate(()=>{UI.setTab('home');const tile=[...document.querySelectorAll('.tile')].find(t=>/감독 채용/.test(t.innerText));const B=SL.jobBoard();if(tile)tile.click();const m=document.querySelector('#modal');const t=m?m.innerText:'';UI.closeModal();
       const lgs=[...new Set(B.list.map(x=>x.t.league))];return {tile:!!tile,n:B.list.length,lgs,shown:B.list.slice(0,3).every(x=>t.includes(x.t.name)),noApply:!/\n지원\n/.test(t),rule:B.list.every(x=>x.ok===(B.rep>=x.need))};});
     r.tile&&r.n&&r.shown&&r.rule?ok(`구직·구인: 감독실 타일 → ${r.n}곳 (${r.lgs.join('·')}) · 자격 = 평판 ≥ 요구 평판 · 시즌 중엔 지원 버튼 없음`):bad('구직·구인 '+JSON.stringify(r));}
   // 7. 리그 마크 7개 (픽셀 배지)

@@ -10,7 +10,7 @@ const {chromium}=require('playwright');const path=require('path');
     /겨울 \d주차/.test(r.wk)&&r.todo&&r.go&&!r.old&&!r.steps?ok(`겨울 감독실: 「${r.wk.replace(/\s+/g,' ')}」 · 처리할 일 하나 · 하단 진행 · 예전 목록(이번 주 결정·진행 중 영입·할 일 보드) 없음`):bad('겨울 감독실 구성 '+JSON.stringify(r));}
   // 2. 숨은 마감 없음: 코치 계약 만료 · 겨울리그 파견 요청 · 스폰서가 처리할 일에 (접힌 칸이 아니라)
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();if(ut.staff&&ut.staff[0])ut.staff[0].years=0;UI.setTab('home');const ex=(ut.staff||[]).filter(c=>c.years<=0).length;const disp=S.dispatch&&S.dispatch.phase==='open'?S.dispatch.reqs.length:0;const t=[...document.querySelectorAll('.mkcard.todo .mail.td')].map(e=>e.innerText).join('\n');return {ex,disp,t,spon:!!(ut.spon&&!ut.spon.main&&ut.spon.offers.length)};});
-    const okC=!r.ex||/코치 재계약/.test(r.t),okD=!r.disp||/파견/.test(r.t),okS=!r.spon||/개막 전까지|스폰서/.test(r.t);okC&&okD&&okS?ok(`마감 있는 일은 처리할 일에: 코치 만료 ${r.ex} · 파견 요청 ${r.disp} · 스폰서 ${r.spon?'있음':'없음'}`):bad('숨은 마감 '+JSON.stringify(r));}
+    const okC=!r.ex||/재계약 코치/.test(r.t),okD=!r.disp||/파견/.test(r.t),okS=!r.spon||/개막 전까지|스폰서/.test(r.t);okC&&okD&&okS?ok(`마감 있는 일은 처리할 일에: 코치 만료 ${r.ex} · 파견 요청 ${r.disp} · 스폰서 ${r.spon?'있음':'없음'}`):bad('숨은 마감 '+JSON.stringify(r));}
   // 3. 계약 → 배치 정하기 → (제안과 다른 자리라도) 정하면 감독실·영입 현황·결정할 일 모두에서 사라짐. 지난 시즌 계약은 남지 않음
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const lin=ut.lineup.map(id=>S.players[id]);
       const cand=SL.krTeams().filter(t=>!t.isUser).flatMap(t=>t.lineup.map(id=>S.players[id])).filter(x=>x&&!SL.isPitcher(x)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));let pick=null;

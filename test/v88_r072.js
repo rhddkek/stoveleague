@@ -9,7 +9,7 @@ const {chromium}=require('playwright');const path=require('path');
   {await p.evaluate(()=>UI.setTab('roster'));await p.evaluate(()=>UI.go('market','fa'));await p.evaluate(()=>UI.go('market','buy'));await p.evaluate(()=>window.scrollTo(0,500));await p.evaluate(()=>UI.openPlayer(SL.userTeam().roster[0]));
     const s0=await st();await p.goBack();await p.waitForTimeout(120);const s1=await st();await p.goBack();await p.waitForTimeout(120);const s2=await st();await p.goBack();await p.waitForTimeout(120);const s3=await st();await p.goBack();await p.waitForTimeout(120);const s4=await st();
     await p.goBack();await p.waitForTimeout(150);const s5=await st();const tt=await p.evaluate(()=>(document.querySelector('#toast')||{}).textContent||'');
-    s0.view&&!s1.view&&s1.sub==='국내 구단'&&s1.y===500&&s2.sub==='FA'&&/선수단/.test(s3.tab)&&/감독실/.test(s4.tab)&&/감독실/.test(s5.tab)&&/한 번 더/.test(tt)&&s5.url===s0.url
+    s0.view&&!s1.view&&s1.sub==='국내 선수'&&s1.y===500&&s2.sub==='FA'&&/선수단/.test(s3.tab)&&/감독실/.test(s4.tab)&&/감독실/.test(s5.tab)&&/한 번 더/.test(tt)&&s5.url===s0.url
       ?ok(`뒤로 가기: 선수 상세 → 선수 찾기(보던 자리 ${s1.y}px 그대로) → FA → 선수단 → 감독실 → 「${tt.slice(0,22)}…」 (게임 밖으로 안 나감)`):bad('뒤로 '+JSON.stringify([s0,s1,s2,s3,s4,s5,tt]));}
   // 2. 창(시트)이 열려 있으면 뒤로 가기 = 창 닫기 · 경기 중엔 뒤로 가기로 경기를 벗어나지 않음
   {await p.evaluate(()=>{UI.go('club','fin');UI.menu();});const a=await st();await p.goBack();await p.waitForTimeout(120);const c=await st();
@@ -25,7 +25,7 @@ const {chromium}=require('playwright');const path=require('path');
     await p.evaluate(()=>UI.go('roster','list'));await swipe('.content .mkcard, .content .card',-140);const a=await st();await swipe('.content .mksec, .content .mkh, .content .card',140);const b2=await st();
     await p.evaluate(()=>UI.go('club','fin'));await swipe('.content .stv,.content .card',-140);const pg=await p.evaluate(()=>(document.querySelector('.pgtabs .on')||{}).textContent||'');
     await p.evaluate(()=>UI.go('market','buy'));await swipe('.content table',-140);const c=await st();
-    a.sub==='타순·수비'&&b2.sub==='선수'&&/^2/.test(pg)&&c.sub==='국내 구단'?ok(`좌우로 밀기: 선수 ← → 타순·수비 · 재정은 다음 쪽(${pg}) · 표 위에서 민 건 그대로`):bad('밀기 '+JSON.stringify({a,b2,pg,c}));}
+    a.sub==='타순·수비'&&b2.sub==='선수'&&/^2/.test(pg)&&c.sub==='국내 선수'?ok(`좌우로 밀기: 선수 ← → 타순·수비 · 재정은 다음 쪽(${pg}) · 표 위에서 민 건 그대로`):bad('밀기 '+JSON.stringify({a,b2,pg,c}));}
   // 5. 맨 위로 단추: 600px 넘게 내리면 보임 · 누르면 맨 위
   {await p.evaluate(()=>{UI.go('market','buy');window.scrollTo(0,900);});await p.waitForTimeout(100);const on=await p.evaluate(()=>document.querySelector('#totop').classList.contains('on'));await p.evaluate(()=>document.querySelector('#totop').click());await p.waitForTimeout(700);const y=await p.evaluate(()=>Math.round(scrollY));const off=await p.evaluate(()=>!document.querySelector('#totop').classList.contains('on'));
     on&&y===0&&off?ok('「↑ 맨 위」: 길게 내리면 오른쪽 아래에 나타남 → 누르면 맨 위, 단추 사라짐'):bad('맨 위 '+JSON.stringify({on,y,off}));}
