@@ -62,7 +62,7 @@ let maxKB=0;for(let s=0;s<15;s++){while(S.phase==='season')SL.playDayAuto();cons
   const j=SL.serialize();maxKB=Math.max(maxKB,j.length/1024);SL.load(j);S=SL.state();integrity('장기'+s);}
 const lg=Object.values(S.players).filter(p=>p.userLink);const careers=lg.filter(p=>p.transfers.length>=1).length;
 console.log('  최대 저장 크기',maxKB.toFixed(0),'KB | 선수',Object.keys(S.players).length,'| 유저 연계',lg.length,'(이적 이력 보유',careers,') | 은퇴 보존',lg.filter(p=>p.retired).length);
-maxKB<3500?ok('저장 크기 3.5MB 미만 유지'):bad('저장 크기 과다 '+maxKB.toFixed(0));
+maxKB<4000?ok('저장 크기 4MB 미만 유지 ('+maxKB.toFixed(0)+'KB)'):bad('저장 크기 과다 '+maxKB.toFixed(0));   // v118: 선수가 리그에 오래 남게 돼 15시즌 3.4MB → 3.8MB (개막 때 정리 포함). 브라우저 기본 저장 한도 5MB 안
 console.log('  감독 실적 최근:',JSON.stringify(S.mgr.seasons.slice(-2)));
 const abroad=Object.values(S.players).filter(p=>p.exUser&&p.teamId!=null&&S.teams[p.teamId].league!=='KR');console.log('  해외 진출 출신:',abroad.map(p=>p.name+'@'+S.teams[p.teamId].league).slice(0,8).join(', '));
 const leagues={};for(const t of Object.values(S.teams))if(t.league!=='KR'){const kr=t.roster.filter(id=>S.players[id].nat==='KR').length;leagues[t.league]=(leagues[t.league]||0)+kr;}console.log('  해외 리그 한국 국적 선수 수',JSON.stringify(leagues));

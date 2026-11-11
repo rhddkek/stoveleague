@@ -110,6 +110,8 @@ function advRunners(lg,hitType,B,bb,def){
   lg.bases=nb;return runs;
 }
 function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
+  // v118 (R100): 기록 현실화 — 능력 82를 넘는 부분은 절반만 반영 (타율 .45 · 홈런 60개대 · 평균자책 1.3 같은 기록이 나오던 것)
+  {const sq=v=>v>82?82+(v-82)*0.5:v;con=con>76?76+(con-76)*0.3:con;pow=sq(pow);stf=sq(stf);mov=sq(mov);}
   bb.ab++;const bs=lg.half,fs=1-bs;const def=teamDef(lg,fs);const before=lg.outs;
   const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;const EV=envOf(lg);hrP*=EV.hr*(1+Math.max(0,pow-85)*(EV.hx||0));
   const ev={type:'',text:'',paEnd:true};

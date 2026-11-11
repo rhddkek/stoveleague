@@ -250,3 +250,17 @@ body .g.S{color:var(--gS)}body .g.A{color:var(--gA)}body .g.B{color:var(--gB)}bo
 /* v117 (R099): 밝은 테마 육성 → 성장 「종합」 숫자가 노란 글자라 안 보임 (그동안 「육성」 탭이 이적으로 열려 검사에서 빠져 있었음) */
 :root.ea[data-theme="light"] body:not(.ingame) .stv .gibh b{color:#1e2027}
 :root.ea[data-theme="light"] body:not(.ingame) .stv .gib em.muted{color:#5d6872}
+/* v118 (R100): 시작 화면 (광우 시안) — 그림 + 최근 플레이 + 이어하기 / 새 커리어 · 불러오기 */
+.title.t3{background:#0e1014;color:#f3f1ea;min-height:100vh;min-height:100dvh}
+.t3hero{width:100%;max-width:560px;margin:0 auto;aspect-ratio:780/768;background:#141a2c center top/cover no-repeat;position:relative;display:flex;align-items:center;justify-content:center}
+.t3hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(180deg,rgba(14,16,20,0),#0e1014)}
+.t3hero h1{font-family:var(--f-display);font-size:56px;color:#fff;margin:0;font-weight:400}.t3hero h1.t3sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.title.t3 .t3b{max-width:560px;margin:-8px auto 0;padding-top:0;padding-bottom:20px;position:relative}
+.t3lab{font-size:15px;font-weight:600;color:#f2c14e;border-left:3px solid #f2c14e;padding-left:10px;line-height:1.1;margin-bottom:12px}
+.t3team{display:flex;align-items:center;gap:18px;padding-bottom:14px;border-bottom:1px solid #2a2e37}.t3team .nm{display:block;font-size:26px;font-weight:700;line-height:1.2}.t3team .sub{color:#a8adb8;font-size:15px;margin-top:2px}
+.t3chip{display:inline-block;margin-top:8px;border:1px solid #3a3f4a;border-radius:6px;padding:3px 10px;font-size:13px;font-weight:600;color:#d8dbe2}.t3chip.gold{border-color:#f2c14e;color:#f2c14e}
+.t3now{display:flex;align-items:center;justify-content:center;gap:18px;padding:13px 4px;border-bottom:1px solid #2a2e37;font-size:16px;font-weight:600;margin-bottom:14px}.t3now i{width:1px;height:20px;background:#3a3f4a}.t3now span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.title.t3 .t3go{width:100%;min-height:60px;border-radius:10px;background:#f2c14e!important;border-color:#f2c14e!important;color:#15171c!important;font-size:24px!important;font-weight:700;display:flex;align-items:center;justify-content:center;gap:14px;position:relative}.t3go span{position:absolute;right:22px;font-size:20px}
+.t3two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.t3two button{min-height:54px;border:1px solid #3a3f4a;border-radius:10px;background:#15181e;color:#f3f1ea;font-size:18px;font-weight:600}
+.t3foot{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px;color:#8b909c;font-size:14px}.t3foot button{background:none;color:#d8dbe2;font-size:15px;min-height:40px;padding:0 6px}.t3foot i{width:1px;height:16px;background:#3a3f4a}
+@media (min-width:960px){.t3hero{max-width:480px}.title.t3 .t3b{max-width:480px}}
