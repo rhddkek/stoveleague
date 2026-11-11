@@ -356,6 +356,7 @@ function finishDay(){
   if(d===dayAt(0.5)){interestCheck();aiAims(false);farmCheck();}
   if(d%7===0&&d<=BAL.SEASON_GAMES){osMoves(7);scoutTick();eqSweep();draftWatchTick();}if(d===dayAt(0.6))draftClassMake();
   if(d===asDay()&&(asLg()!=='KR'||krTeams().length===BAL.KR_TEAMS)&&(!S.allstar||S.allstar.s!==S.season))allStar();
+  if(d<=BAL.SEASON_GAMES)try{lightLgDay(d);}catch(e){}   // v115 (R097): 직접 경기를 돌리지 않는 해외 리그도 순위가 쌓이게
   S.day++;S.clock++;
   if(d<=BAL.SEASON_GAMES){try{ddlTick(d);oreqTick();wantTick();if(d%7===0)buyoutWeek();}catch(e){console.error(e);}}   // v102
   const ut=userTeam();if(ut.cash<0)warn(`현금이 ${money(ut.cash)}입니다. 선수 판매, 긴급 대출(재정 탭) 등 회복 조치가 필요합니다.`);
@@ -648,6 +649,15 @@ function actResults(){const ut=userTeam();const out=[];for(const a of (S.acts||[
       else{const ob=d.ab+d.bb?((d.h+d.bb)/(d.ab+d.bb)).toFixed(3).replace(/^0/,''):'-';line=a.k==='order'?`출루율 ${ob} · ${d.pa}타석 ${d.h}안타`:`${d.ab}타수 ${d.h}안타${d.hr?` ${d.hr}홈런`:''}${d.rbi?` ${d.rbi}타점`:''}`;}}
     out.push({a,p,k:a.k,head,line,g:g||0,dv:a.k==='train'?dv:null});}
   const R={fgn:0,sign:1,callup:2,order:3,train:4};return out.sort((x,y)=>R[x.k]-R[y.k]).slice(0,4);}
+/* v115 (R097): 해외 리그 간이 순위 — 우리가 뛰지 않는 일본·미국·대만 리그는 선수 기록 없이 승패·득실만 쌓음.
+   전력(teamPower, 주마다 다시 잼)으로 승률을 정하고, 게임 본 난수와 따로 굴려 국내 경기 결과에 영향 없음 */
+const LIGHT_LG=['JP','US','TW'];const _lpw=new Map();
+function lgRng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
+function lightPow(t){const k=S.season*100+Math.floor(S.day/7);const c=_lpw.get(t.id);if(c&&c.k===k)return c.v;let v=50;try{v=teamPower(t).power;}catch(e){}_lpw.set(t.id,{k,v});return v;}
+function lightLgDay(d){const pl=playLg();const SG=BAL.SEASON_GAMES;LIGHT_LG.forEach((lg,li)=>{if(lg===pl)return;const G=lgGames(lg);const R=lgRng(S.season*7919+d*131+li*17+Object.keys(S.teams).length);
+  for(const c of leagueComps(lg)){const tgt=Math.min(G,Math.round(G*d/SG));for(let round=0;round<2;round++){const ts=compTeams(c).filter(t=>t.rec.w+t.rec.l<tgt);for(let i=ts.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[ts[i],ts[j]]=[ts[j],ts[i]];}
+    for(let i=0;i+1<ts.length;i+=2){const a=ts[i],b=ts[i+1];const pa=1/(1+Math.exp(-(lightPow(a)-lightPow(b))/5));const aw=R()<pa;const w=aw?a:b,l=aw?b:a;const ws=2+Math.floor(R()*7),ls=Math.floor(R()*ws);
+      w.rec.w++;l.rec.l++;w.rec.rs+=ws;w.rec.ra+=ls;l.rec.rs+=ls;l.rec.ra+=ws;}}}});}
 function swapSev(q){return Math.round((q.contract?q.contract.salary*Math.max(1,q.contract.years)*0.3:0)/10)*10;}
 /* v111 (R093): 외국인 교체 — 협상 중인 선수(pid)와 맞바꿀 우리 외국인. 지금 방출하지 않고, 계약이 성사되는 순간 함께 처리 */
 function fgnSwapCands(pid){const ut=userTeam();const p=P_(pid);if(!p)return [];const neg=S.market.negs.find(n=>n.pid===pid);const c=neg?negCost(pid,{salary:neg.revealed||neg.demand,years:1,bonus:0}):null;const sal=c?c.salary:fgnCost(p).sal;
@@ -1197,6 +1207,7 @@ function startNewSeason(){
   sponAutoPick();osAIWeek(true);S.faM=null;
   S.season++;S.day=1;S.phase='season';S.week=0;S.clock++;osTierInit();if(S.budget)S.budget.s=S.season;
   const pl=playLg();if(pl)for(const t of compTeams(pl)){t.rec={w:0,l:0,rs:0,ra:0};t.rotIdx=0;if(!t.isUser)autoLineup(t);}
+  for(const t of Object.values(S.teams))if(LIGHT_LG.includes(t.league)&&t.league!==pl)t.rec={w:0,l:0,rs:0,ra:0};
   for(const t of liveTeams()){t.rec={w:0,l:0,rs:0,ra:0};t.fin=newFin();t.rotIdx=0;
     if(t.loan>0){t.cash-=t.loan;t.fin.other+=t.loan;news(`대출 ${money(t.loan)} 상환`,'fin');t.loan=0;}
     applySponsor(t);let up=econ(t).overhead;if(t.isUser&&t.staff)up=Math.max(0,up-Math.min(up*0.8,BAL.STAFF_CREDIT[staffTier(t)]));for(const k in t.fac)up+=BAL.FACILITY[k].upkeep*t.fac[k];t.cash-=up;t.fin.facility+=up;
