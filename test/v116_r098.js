@@ -35,7 +35,7 @@ const {chromium}=require('playwright');const path=require('path');
     /요건 미달/.test(r.t)&&/투수 \d+명/.test(r.t)&&r.bs.includes('FA 시장에서 채우기')&&r.bs.includes('최소 인원 자동 보충 후 개막')&&r.ph==='season'?ok(`인원 부족: 「${r.t.split('\n').slice(1,3).join(' · ')}」 → 자동 보충 후 개막 (선수 ${r.n}명)`):bad('인원 부족 '+JSON.stringify(r));}
 
   // 6. 결산 「내년」: 가을야구 실패 → 가을야구 재도전 · 준PO 등 탈락 → 상위권 도전 · 준우승 → 우승 재도전 · 우승 → 2연패 도전
-  {const r=await p.evaluate(()=>{const S=SL.state();let k=0;while(S.phase!=='offseason'&&k++<30)SL.testCmd('endSeason');const L=S.lastSummary;const out={};for(const ps of [null,'semi','ks','champ']){L.ps=ps;UI.seasonRecap();const m=document.querySelector('#modal');const row=[...m.querySelectorAll('tr')].find(x=>/순위/.test(x.textContent));out[ps||'none']=row?row.lastElementChild.textContent.trim():'';UI.closeModal();}return out;});
+  {const r=await p.evaluate(()=>{const S=SL.state();let k=0;while(S.phase!=='offseason'&&k++<30)SL.testCmd('endSeason');const L=S.lastSummary;const out={};UI.set('rcTab','rec');/* v123: 올해/내년 표는 「기록」 칸 */for(const ps of [null,'semi','ks','champ']){L.ps=ps;UI.seasonRecap();const m=document.querySelector('#modal');const row=[...m.querySelectorAll('tr')].find(x=>/순위/.test(x.textContent));out[ps||'none']=row?row.lastElementChild.textContent.trim():'';UI.closeModal();}return out;});
     r.none==='가을야구 재도전'&&r.semi==='상위권 도전'&&r.ks==='우승 재도전'&&r.champ==='2연패 도전'?ok('결산 내년: '+Object.values(r).join(' / ')):bad('결산 내년 '+JSON.stringify(r));}
 
   // 7. 트레이드 시장 「구단별 수요」 표가 폰 폭 안에 들어감 (가로 스크롤 없음)

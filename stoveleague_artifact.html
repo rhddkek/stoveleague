@@ -2490,6 +2490,54 @@ body:not(.ingame) .gobar.lugo.calgo{grid-template-columns:1.9fr 1fr}
 :root.ea[data-theme="light"] .calg button.today b{color:#8a6100}:root.ea[data-theme="light"] .calres b.up{color:#0e7a55}:root.ea[data-theme="light"] .calres b.dn{color:#c0392b}
 .calcard .vs b{max-width:none;white-space:nowrap;font-size:17px}
 
+/* ============ v123 (R105 시안 09): 겨울 감독실 — 감독 그림 머리 · 돈 상자 · 주요 업무 · 접힌 줄 · [전력 진단][다음 주] ============ */
+.whead{display:flex;align-items:flex-end;gap:14px;padding:6px 14px 0 10px;margin:0 0 8px;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;color:var(--text)}.whead>:first-child{flex:none;width:84px!important;height:84px!important;border-radius:0!important;border:0!important;background:none!important;margin-bottom:-3px}
+.whead .x{flex:1;align-self:center;padding-left:14px;border-left:1px solid var(--line)}.whead small{display:block;font-size:17px;color:var(--muted)}.whead b{font-size:32px;font-weight:600;letter-spacing:-1px;line-height:1.15}.whead>:last-child{flex:none;align-self:center}
+.wmoney.box{margin:0 0 8px;padding:10px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}.wmoney.box>div{align-items:baseline;gap:8px}.wmoney.box small{display:inline;font-size:14px}.wmoney.box b{display:inline;font-size:20px}
+.wbox{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px 10px 4px;margin:0 0 8px}.wbt{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:600;color:var(--text);margin:0 4px 8px}
+body:not(.ingame) .mail.td.wrow.w9{min-height:56px;background:var(--bg);padding-left:8px}body:not(.ingame) .mail.td.wrow.w9 .t{flex:1 1 auto;max-width:none;font-size:17px}
+body:not(.ingame) .mail.td.wrow.w9 .s{flex:0 1 auto;border-left:0;padding-left:0;max-width:34%;text-align:right}
+.wrow.w9 .due{flex:none;font-style:normal;background:#b3403c;color:#ffd9d6;border-radius:6px;padding:2px 9px;font-size:13px;font-weight:600;white-space:nowrap}
+body:not(.ingame) .mail.td.wrow.w9>button{min-width:74px;min-height:38px;font-size:16px}
+body:not(.ingame) details.wmore.w9f{border-radius:12px}body:not(.ingame) details.wmore.w9f>summary{display:flex;align-items:center;gap:12px;min-height:46px;font-size:18px;font-weight:600;color:var(--text)}details.wmore.w9f>summary em{font-style:normal;color:#4cd6a4}details.wmore.w9f>summary em.y{color:#f2c14e}body:not(.ingame) details.wmore.w9f>summary::after{margin-left:auto;float:none}
+body:not(.ingame) .gobar.wgo.w9g{display:grid;grid-template-columns:1fr 1.1fr;gap:10px}body:not(.ingame) .gobar.wgo.w9g .wdg{min-height:58px;border:1.500px solid #f2c14e;border-radius:12px;background:var(--bg);color:var(--text);font-size:20px;font-weight:600;margin:0}
+body:not(.ingame) .gobar.wgo.w9g .mkgo{position:relative;min-height:58px;overflow:visible}body:not(.ingame) .gobar.wgo.w9g .mkgo span{font-size:22px}body:not(.ingame) .gobar.wgo.w9g .mkgo small{font-size:12px}
+.w9g .mkgo .bdg{position:absolute;right:-2px;top:-12px;font-style:normal;background:#c8423d;color:#fff;border-radius:10px;padding:2px 10px;font-size:14px;font-weight:600;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+body:not(.ingame) .gobar.wgo.w9g .skipb{grid-column:1/-1;margin:-4px 0 0}
+:root.ea[data-theme="light"] details.wmore.w9f>summary em{color:#0e7a55}:root.ea[data-theme="light"] details.wmore.w9f>summary em.y{color:#8a6100}
+.wmoney.box small{white-space:nowrap;font-size:13px}.wmoney.box b{font-size:18px}.wmoney.box>div{gap:5px}
+body:not(.ingame) .mail.td.wrow.w9 .t{font-size:16px}.wrow.w9 .due{font-size:12px;padding:2px 6px}body:not(.ingame) .mail.td.wrow.w9>button{min-width:64px;padding:0 8px;font-size:15px}body:not(.ingame) .mail.td.wrow.w9{gap:8px}
+body:not(.ingame) .mkcard.wtd.wbox{border:1px solid var(--line)!important;border-radius:12px!important;background:var(--card)!important;padding:10px 10px 4px!important;margin:0 0 8px!important}
+
+/* v123 (R105 08): 시즌 결산 */
+.rc1{display:flex;align-items:center;gap:10px;padding:10px;margin:0 0 8px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text)}.rc1 .n{flex:1;min-width:0;font-size:16px;font-weight:600;line-height:1.2}.rc1>div{padding:0 10px;border-left:1px solid var(--line);text-align:center}.rc1 small{display:block;font-size:13px;color:var(--muted)}.rc1 div b{font-size:24px;font-weight:600}.rc1 b.y{color:#f2c14e}.rc1 b.dn{color:#ff8a7f}.rc1 .wl{padding-left:10px;border-left:1px solid var(--line);font-size:18px;font-weight:600;white-space:nowrap}
+.rc3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:6px;margin:0 0 8px}.rc3>div{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:8px 10px;min-height:76px;color:var(--text);min-width:0}.rc3 small{display:block;font-size:14px;font-weight:600;margin-bottom:6px}.rc3 div>b{font-size:21px;font-weight:600;white-space:nowrap}.rc3 em{font-style:normal}.rc3 .up{color:#4cd6a4}.rc3 .dn{color:#ff8a7f}
+.rc3 span{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}.rc3 span b{font-size:15px;font-weight:600;white-space:nowrap}.rc3 span i{font-style:normal;border-radius:5px;padding:0 6px;font-size:14px;font-weight:600;background:rgba(76,214,164,.2)}.rc3 span i.dn{background:rgba(255,107,94,.2)}
+.rcneed{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:0 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}.rcneed b{flex:1;font-size:15px;font-weight:600;white-space:nowrap}.rcneed button{min-height:32px;padding:0 14px;border:1.500px solid #f2c14e;border-radius:8px;background:none;color:#f2c14e;font-size:14.5px;font-weight:600}
+.rcart{height:72px;border-radius:10px;background:center 55%/cover no-repeat;image-rendering:pixelated;margin:0 0 8px}
+.rcflow{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:8px 10px 10px;margin:0 0 8px;color:var(--text)}.rcflow .t{font-size:16px;font-weight:600;margin-bottom:10px}.rcflow .l{position:relative;display:flex;justify-content:space-between}.rcflow .l::before{content:"";position:absolute;left:8%;right:8%;top:6px;height:2px;background:#f2c14e}
+.rcflow span{position:relative;flex:1;text-align:center;min-width:0}.rcflow u{display:block;width:12px;height:12px;margin:0 auto 6px;border-radius:50%;background:#f2c14e;position:relative}.rcflow span.last u{background:var(--card);box-shadow:inset 0 0 0 2px #f2c14e}.rcflow small{display:block;font-size:12px;color:var(--muted)}.rcflow b{display:block;font-size:12.5px;font-weight:600;line-height:1.25}
+:root.ea[data-theme="light"] :is(.rc1 b.y,.rcneed button){color:#8a6100;border-color:#8a6100}:root.ea[data-theme="light"] .rc3 .up{color:#0e7a55}:root.ea[data-theme="light"] :is(.rc3 .dn,.rc1 b.dn){color:#c0392b}
+.rc1 .n{word-break:keep-all}
+
+/* v123 (R105 06): 포스트시즌 우리 경기 */
+.ps6{text-align:left}.ps6h{display:flex;align-items:center;gap:14px;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:10px}.ps6h i{font-style:normal;background:#f2c14e;color:#15171c;font-size:17px;font-weight:600;padding:3px 22px 3px 14px;clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%)}.ps6h b{font-size:17px;font-weight:600;color:var(--text)}
+.pmvs2.ps6v{padding-bottom:10px;border-bottom:1px solid var(--line)}.pmvs2.ps6v b{font-size:22px}
+.ps6a{display:flex;align-items:center;gap:12px;margin:10px 0}.ps6a i{font-style:normal;background:#f2c14e;color:#15171c;border-radius:4px;padding:4px 12px;font-size:15.5px;font-weight:600}.ps6a span{padding-left:12px;border-left:1px solid var(--line);font-size:15px;color:var(--text)}.ps6a b{font-size:18px;font-weight:600;margin-left:4px}
+.ps6s.cbig{text-align:center;font-size:24px;font-weight:600;padding:10px 6px;margin:0 0 10px;border-top:1px solid #6b5a2a;border-bottom:1px solid #6b5a2a;background:linear-gradient(90deg,transparent,rgba(242,193,78,.14),transparent);color:var(--text)}.ps6s em{font-style:normal;color:#f2c14e}
+.ps6t{display:flex;align-items:center;justify-content:center;padding:10px 6px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}.ps6t span{padding:5px 14px;font-size:15px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:6px;white-space:nowrap}.ps6t span.on{color:#f2c14e;border-color:#f2c14e;background:rgba(242,193,78,.12)}.ps6t u{flex:1;max-width:28px;height:1px;background:var(--muted)}
+.ps6b{border:1px solid var(--line);border-radius:10px;background:var(--card);margin:0 0 8px}.ps6b .r{display:flex;align-items:center;gap:12px;padding:8px 10px;color:var(--text);cursor:pointer}.ps6b .r+.r{border-top:1px solid var(--line)}.ps6b .r>:first-child{flex:none}.ps6b .r div{flex:1;min-width:0;padding-left:12px;border-left:1px solid var(--line)}.ps6b i{font-style:normal;font-size:12.5px;background:var(--sunk);color:var(--muted);border-radius:4px;padding:1px 8px}.ps6b i.w{background:#b3403c;color:#ffd9d6;font-size:13px}.ps6b b{display:block;font-size:19px;font-weight:600}.ps6b small{display:block;font-size:13.5px;color:var(--muted)}.ps6b button{flex:none;min-height:34px;padding:0 10px;border:1.500px solid #f2c14e;border-radius:8px;background:none;color:#f2c14e;font-size:13.5px;font-weight:600}
+body:not(.ingame) .ps6 .gobar.grgo{grid-template-columns:1.25fr 1fr}
+:root.ea[data-theme="light"] :is(.ps6s em,.ps6t span.on,.ps6b button){color:#8a6100;border-color:#8a6100}
+
+/* v123 (R105 05): 정규시즌 종료 요약 */
+.re5h{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;color:var(--text)}.re5h b{display:block;font-size:30px;font-weight:600;letter-spacing:-1px}.re5h span{font-size:24px;font-weight:600}.re5h em{font-style:normal;color:#f2c14e}
+.pinfo.re5n{font-size:17px;color:var(--text);font-weight:600}
+.re5r .r>.tg{flex:none;min-width:58px;text-align:center;font-size:14px;font-weight:600;padding:3px 8px;border-radius:5px;background:#4cd6a4;color:#15171c}.re5r .r>.tg.r{background:#ff6b5e}.re5r .r>.tg.y{background:none;border:1.500px solid #f2c14e;color:#f2c14e}.re5r .r>em{flex:none;font-style:normal;color:var(--muted);font-size:22px}.re5r b u{text-decoration:none;font-size:15px;border:1.500px solid #4cd6a4;color:#4cd6a4;border-radius:6px;padding:0 8px;margin-left:8px}
+.re5k{padding:8px 12px}.re5k .t{font-size:18px;font-weight:600;color:var(--text);padding-bottom:6px}.re5k .t em{font-style:normal;color:#f2c14e}.re5k .k{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14.5px;color:var(--text)}.re5k .k i{flex:none;width:10px;height:10px;border-radius:2px;background:#4cd6a4}.re5k .k i.r{background:#ff6b5e}
+:root.ea[data-theme="light"] :is(.re5h em,.re5k .t em,.re5r .r>.tg.y){color:#8a6100;border-color:#8a6100}
+.rcp .ctitle.rcl{text-align:center;font-size:14.5px;margin:-4px 0 8px;color:var(--text)}.rcp .ctitle.rcl b{font-weight:600}
+
 </style>
 <div id="app"></div>
 <script>
@@ -2500,7 +2548,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v122';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v123';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -6680,7 +6728,7 @@ const TIPS=['23세 이상은 1군이든 2군이든 주전으로 뛰어야 잠재
 const TICK={items:[],i:0,t:null};
 function tickerItems(){const out=[];const seen=new Set();for(const n of (S&&S.news)||[]){if(out.length>=10)break;const t=String(n.text||'').replace(/<[^>]+>/g,'');if(!t||seen.has(t))continue;seen.add(t);out.push((n.d!=null&&!String(n.d).startsWith('OFF')?n.d+'일차 · ':'')+t);}
   return out;}
-function tickerHtml(tOnly){if(!S)return '';if(!tOnly&&ui.tab==='home'&&S.phase!=='season'&&!ui.view&&!isWide()&&!['plan','inbox'].includes(ui.sub.home))return '';   /* v120: 겨울 감독실은 화면 안 「뉴스」 줄이 같은 소식을 보여 줌 */
+function tickerHtml(tOnly){if(!S)return '';   /* v120: 겨울 감독실은 화면 안 「뉴스」 줄이 같은 소식을 보여 줌 */
   TICK.items=tickerItems();if(!TICK.items.length)return '';TICK.i=TICK.i%TICK.items.length;
   if(!TICK.t)TICK.t=setInterval(()=>{const e=document.getElementById('tick');if(!e||!TICK.items.length)return;TICK.i=(TICK.i+1)%TICK.items.length;e.classList.remove('in');void e.offsetWidth;e.textContent=TICK.items[TICK.i];e.classList.add('in');},4500);
   return `<button class="ticker" onclick="UI.sheet('news')" aria-label="소식 모음 열기"><span class="tk-l">소식</span><span id="tick" class="in">${esc(TICK.items[TICK.i])}</span></button>`;}
@@ -6952,8 +7000,9 @@ function growthChart(p){const L=(p.log||[]).slice().reverse();if(L.length<2)retu
 function postModal(){S=SL.state();const ut=SL.userTeam();const L=lpNow();const P=L||S.post;if(!P||P.done)return;const cp=L?SL.compOf(ut):1;const st=SL.standings(cp);const r=st.findIndex(t=>t.id===ut.id)+1;sfx('notify',0.7);
   const D=L?null:SL.BAL.POST[P.stage];const g=SL.userGameToday();const first=L?(L.ri===0&&L.rounds[0].ser.every(c=>!c.games)):(P.stage===0&&S.day===P.day);const inPS=L?lpIn(L,ut.id):P.seeds.includes(ut.id);const stName=L?L.rounds[L.ri].name:D.name;
   let h=`<div class="cere post2"><div class="ctag">${first?`${S.season}시즌 정규 시즌 종료`:`${S.season}시즌 포스트시즌`}</div><div class="ctitle">${first?`${esc(SL.compName(cp))} <b>${r}위</b> · ${ut.rec.w}승 ${ut.rec.l}패`:`<b>${esc(stName)}</b> 시작`}</div>`;
-  if(g&&g.post){const pi=SL.postInfo(g);const opp=S.teams[g.home===ut.id?g.away:g.home];h+=`<div class="pvs"><div>${emblem(ut,64)}<div class="b">${esc(ut.name)}</div></div><div class="vs">VS</div><div>${emblem(opp,64)}<div class="b">${esc(opp.name)}</div></div></div><div class="pstake">${esc(pi.title)}</div><div class="cbig">${esc(pi.stake)}</div><div class="small dim" style="margin:6px 0">${esc(pi.rule||seriesRule(D))} · 상대 정규 ${opp.rec.w}승 ${opp.rec.l}패 · ${esc(SL.parkOf(S.teams[g.home]).name)}</div>
-    <button class="gold big" style="width:100%;margin-top:8px" onclick="UI.closeModal();UI.setTab('home');UI.startGame()">▶ ${esc(pi.title)} 직접 보기</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">준비부터 (라인업·선발 확인)</button>`;}
+  if(g&&g.post){const pi=SL.postInfo(g);const opp=S.teams[g.home===ut.id?g.away:g.home];h=postGameCard(g,pi,opp,D,L,stName);}
+  else if(first)h=regEndHtml(cp,r,inPS);
+  if(g&&g.post){}
   else if(inPS){const my=L?null:SL.BAL.POST.find(d=>d.hiSeed===P.seeds.indexOf(ut.id)+1);const nx=L?SL.lpostNextName(L):null;h+=`<div class="cbig">가을야구 진출!</div><div class="small" style="margin:8px 0">${L?`상위 시드라 ${esc(nx||'다음 시리즈')}에서 상대를 기다립니다.`:`${r}위라 ${esc(my?my.name:'다음 단계')}에서 상대를 기다립니다.`} 그 전 경기는 다른 구단끼리 치릅니다.</div><button class="gold big" style="width:100%" onclick="UI.closeModal();UI.autoDays(40)">우리 경기까지 진행 ▶</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">하루씩 지켜보기</button>`;}
   else h+=`<div class="small" style="margin:10px 0">우리 구단은 가을야구에 나가지 못했습니다. ${L?esc(LG_FMT[L.lg]?LG_FMT[L.lg].split(' · ').slice(-1)[0]:'')+' — 남은 시리즈를 지켜보세요.':'정규 시즌 5위까지 오른 구단들의 포스트시즌을 지켜보세요.'}</div><button class="gold big" style="width:100%" onclick="UI.closeModal();UI.autoDays(60)">포스트시즌 결과까지 ▶</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">하루씩 지켜보기</button>`;
   h+=`<div class="b small" style="margin:12px 0 4px;text-align:left">포스트시즌 대진</div>${L&&L.seedsTxt?`<div class="small dim" style="text-align:left">${esc(L.seedsTxt)}</div>`:''}${L?lbracketHtml(L):bracketHtml(P)}</div>`;modal(h);}
@@ -8882,20 +8931,20 @@ function newsRowW(){TICK.items=tickerItems();if(!TICK.items.length)return '';TIC
 function wTodoRow(x){const ic=x.face?face(x.face,32):x.em?emblem(x.em,32):x.ic?(String(x.ic).startsWith('<')?x.ic:pxIcon(x.ic,30)||`<span class="mic">${x.ic}</span>`):'<span class="mic">•</span>';
   return `<div class="mail td wrow ${x.hot?'hot':''}" onclick="${x.on}">${ic}<b class="t">${esc(x.title)}</b><span class="s">${esc(x.tag)}${x.sub?' · '+esc(x.sub):''}</span><button class="sm primary tgl" onclick="event.stopPropagation();${x.on}">${esc(x.btn)}</button></div>`;}
 function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(false);const W=SL.BAL.OFFSEASON_WEEKS;const it=decisionItems();const wait=waitItems();let h='';
-  /* v120 (R102): 시안 그대로 — 큰 그림 · 돈 세 칸(아이콘) · 오늘 할 일(한 줄 카드) · 전력 보강(그림 카드 두 장) · 이번 주 성장 · 뉴스 · 큰 「다음 주로」. 주차는 위 머리줄 칸에 */
-  {const art=typeof ASSETS!=='undefined'&&ASSETS.officeWinter;const I=ut.league==='KR'?SL.budgetInfo():null;const sv=d=>`<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g fill="none" stroke="#f2c14e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</g></svg>`;
-    const ic={cash:sv('<ellipse cx="9" cy="7" rx="6" ry="2.6"/><path d="M3 7v4c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6V7M3 11v4c0 1.4 2.7 2.6 6 2.6 1 0 2-.1 2.800-.3"/><ellipse cx="16.500" cy="16" rx="4.500" ry="2.200"/><path d="M12 16v2.500c0 1.200 2 2.200 4.500 2.200s4.500-1 4.500-2.200V16"/>'),sign:sv('<path d="M2 9l4-3 5 2 2-1 5 0 4 3M2 9v6l3 1 5 4 2-1M22 10v5l-3 1-4 4-3-2M9 13l3-2 5 4"/>'),wage:sv('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.500h6V4M14.500 10c-.4-.9-1.300-1.400-2.500-1.400-1.500 0-2.500.8-2.500 1.900 0 2.600 5 1.200 5 3.800 0 1.100-1 1.900-2.500 1.900-1.300 0-2.200-.6-2.600-1.500M12 7.300v10.200"/>')};
-    h+=`<div class="whero"${art?` style="background-image:url(${art})"`:''}></div><div class="wmoney"><div onclick="UI.go('club','fin')">${ic.cash}<span><small>현금</small><b>${Ms(ut.cash)}</b></span></div>${I?`<div onclick="UI.go('club','fin')">${ic.sign}<span><small>영입</small><b>${Ms(Math.max(0,I.xferLeft))}</b></span></div><div onclick="UI.go('club','fin')">${ic.wage}<span><small>연봉 여유</small><b class="${I.wageLeft<0?'bad':''}">${Ms(I.wageLeft)}</b></span></div>`:''}</div>`;}
+  /* v123 (R105 시안 09 — 게임을 해 보고 짠 개선 시안): 감독 그림 │ 겨울 · 감독실 │ 엠블럼 · 돈 세 칸 · 주요 업무(줄마다 마감 알약 + 노란 단추) · 답변대기 ⌄ · 완료 ⌄ · [전력 진단][다음 주 · 미처리 n] */
+  const I=ut.league==='KR'?SL.budgetInfo():null;
+  h+=`<div class="whead">${coachFace({id:424242,nat:'KR',age:44},84)}<div class="x"><small>${mkYear()} 겨울</small><b>감독실</b></div>${emblem(ut,72)}</div>`;
+  h+=`<div class="wmoney box"><div onclick="UI.go('club','fin')"><small>현금</small><b>${Ms(ut.cash)}</b></div>${I?`<div onclick="UI.go('club','fin')"><small>영입</small><b>${Ms(Math.max(0,I.xferLeft))}</b></div><div onclick="UI.go('club','fin')"><small>연봉여유</small><b class="${I.wageLeft<0?'bad':''}">${Ms(I.wageLeft)}</b></div>`:''}</div>`;
   if(SL.sackPending())h+=`<div class="card">${sackHtml()}</div>`;
   if(pv.loss.length)h+=`<div class="wwarn" onclick="UI.advanceWeek()">⚠ ${winterDue(pv,it)}</div>`;
   const done=placeDoneList();const rows=todoGroup(it);
-  if(wait.length)rows.push({ic:'⏳',title:'답변 대기',tag:`${wait.length}건`,sub:wait.map(x=>x.p.name).slice(0,2).join(' · '),btn:'보기',on:'UI.waitView()'});
-  h+=`<div class="mkcard todo wtd"><div class="whd"><span>오늘 할 일 <span class="tdcnt">${it.length}</span></span></div>${rows.map(wTodoRow).join('')||'<div class="wrow none">할 일 없음 · 다음 주로</div>'}</div>`;
-  if(!isWide())h+=goalsCard();   // PC는 오른쪽 전력 진단에 같은 보강 포지션이 있음
-  h+=growthRowW()+newsRowW();
-  h+=`<details class="fbox wmore"><summary>지난 시즌 결산${done.length?` · 영입 완료 ${done.length}`:''}</summary>${seasonResultCard()}${done.map(p=>`<div class="small" style="padding:4px 12px">✅ ${esc(p.name)} · ${esc(role(p))} <a class="pname" onclick="UI.openPlayer(${p.id})">보기</a></div>`).join('')}</details>`;
+  const wrow=x=>{const ic=x.face?face(x.face,40):x.em?emblem(x.em,36):x.ic?(String(x.ic).startsWith('<')?x.ic:pxIcon(x.ic,34)||`<span class="mic">${x.ic}</span>`):'<span class="mic">•</span>';const due=/마감|까지|끝/.test(x.tag||'');
+    return `<div class="mail td wrow w9 ${x.hot?'hot':''}" onclick="${x.on}">${ic}<b class="t">${esc(x.title)}</b>${due?`<i class="due">${esc(x.tag)}</i>`:`<span class="s">${esc(x.tag)}${x.sub?' · '+esc(x.sub):''}</span>`}<button class="sm primary tgl" onclick="event.stopPropagation();${x.on}">${esc(x.btn)}</button></div>`;};
+  h+=`<div class="mkcard todo wtd wbox"><div class="wbt"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M6 5h12v16H6zM9 3h6v4H9zM9 12h6M9 16h4"/></svg><span>주요 업무 <span class="tdcnt">${it.length}</span></span></div>${rows.map(wrow).join('')||'<div class="wrow none">할 일 없음 · 다음 주로</div>'}</div>`;
+  h+=`<details class="fbox wmore w9f"><summary><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 6h18v13H3zM3 7l9 7 9-7"/></svg>답변대기 <em class="${wait.length?'y':''}">${wait.length}</em></summary>${wait.map(x=>`<div class="small deal" style="padding:6px 12px;cursor:pointer" onclick="UI.waitView()">⏳ ${esc(x.p.name)} · ${esc(x.p.pos)} — 답을 기다리는 중</div>`).join('')||'<div class="small muted" style="padding:6px 12px 10px">답을 기다리는 협상이 없습니다</div>'}</details>`;
+  h+=`<details class="fbox wmore w9f"><summary><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 4h16v16H4zM8 12l3 3 5-6"/></svg>완료${done.length?` <em>${done.length}</em>`:''}</summary>${seasonResultCard()}${done.map(p=>`<div class="small" style="padding:4px 12px">✅ ${esc(p.name)} · ${esc(role(p))} <a class="pname" onclick="UI.openPlayer(${p.id})">보기</a></div>`).join('')}</details>`;
   const must=pv.loss.reduce((a,x)=>a+x.n,0);
-  h+=`<div class="gobar wgo">${S.week<=W?`<button class="mkgo ${must?'must':''}" onclick="UI.advanceWeek()"><span>${must?'⚠ ':''}다음 주로 ▶</span><small>${must?`확인 ${must}건`:it.length?`미처리 ${it.length}건`:'할 일 없음'} · ${S.week} → ${S.week+1}주차</small></button><button class="skipb" onclick="UI.startSeason()">개막까지 ▶▶</button>`:`<button class="mkgo" onclick="UI.startSeason()"><span>${mkYear()+1}시즌 개막 ▶</span></button>`}</div>`;
+  h+=`<div class="gobar wgo w9g">${S.week<=W?`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button><button class="mkgo ${must?'must':''}" onclick="UI.advanceWeek()"><span>다음 주</span>${it.length?`<i class="bdg">미처리 ${it.length}</i>`:''}<small>${S.week} → ${S.week+1}주차</small></button><button class="skipb" onclick="UI.startSeason()">개막까지 ▶▶</button>`:`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button><button class="mkgo" onclick="UI.startSeason()"><span>${mkYear()+1}시즌 개막 ▶</span></button>`}</div>`;
   return h;}
 // 대기 중인 일(FA 검토·협상·관찰) — 작은 「대기 N」 버튼으로만
 function waitHtml(){const L=waitItems();return `<h3>답변 대기 ${L.length}</h3>${L.map(dealRow).join('')||'<div class="muted small">없음</div>'}<div class="btns" style="margin-top:10px"><button class="ghost" onclick="UI.closeModal();UI.go('market','deals')">이적 진행 중 전체</button><button class="primary" onclick="UI.closeModal()">닫기</button></div>`;}
@@ -10013,6 +10062,44 @@ function calHtml(ut){const all=S.schedule.map((g,gi)=>({g,gi})).filter(x=>SL.isU
 A.calSel=function(gi){ui.calSel=gi;const g=S.schedule[gi];if(g){const d=dayToDate(g.day);ui.calYM=d.getFullYear()*100+d.getMonth()+1;}ui.keepScroll=true;render();};
 A.calYM=function(v){ui.calYM=v;ui.keepScroll=true;render();};
 {const f0=renderLeague;renderLeague=function(){if(ui.sub.league==='sched'&&S.phase==='season'){const ut=SL.userTeam();const r=f0();const tabs=hubTabs('league');const body=r.startsWith(tabs)?r.slice(tabs.length):r;return tabs+calHtml(ut)+`<details class="fbox wmore"><summary>목록으로 보기</summary>${body}</details>`;}return f0();};}
+// v123 (R105 시안 08): 시즌 결산 — 요약│시상│기록 · 구단 │ 정규 n위 │ 가을 결과 │ 승패 · 성장/평판/위상 · 다음 시즌 보강 필요 · 시즌 흐름 · [스토브리그 시작][결산 상세]
+function recapModal(R){if(!R)return;const ut=SL.userTeam();R.seen=true;const L=S.lastSummary&&S.lastSummary.s===R.s?S.lastSummary:null;const C=SL.seasonRecap();const tab=ui.rcTab||'sum';const art=typeof ASSETS!=='undefined'&&ASSETS.stadiumHome;
+  const psT=R.ps==='champ'?'우승':R.ps==='ks'?'준우승':R.ps?'탈락':'실패';const psL=R.ps==='champ'||R.ps==='ks'?'KS':R.ps?({wc:'WC',semi:'준PO',po:'PO'}[R.ps]||'PS'):'가을야구';const aw=S.awards&&S.awards[R.s];
+  let b='';
+  if(tab==='sum'){b+=`<div class="rc1">${emblem(ut,46)}<b class="n">${esc(ut.name)}</b><div><small>정규</small><b class="y">${R.rank}위</b></div><div><small>${psL}</small><b class="${R.ps==='champ'?'y':R.ps==='ks'?'':'dn'}">${psT}</b></div><b class="wl">${R.w}승 ${R.l}패</b></div>`;
+    b+=`<div class="rc3">${C&&C.grow?`<div onclick="UI.closeModal();UI.openPlayer(${C.grow.p.id})"><small>성장</small><span>${face(C.grow.p,44)}<b>${esc(C.grow.p.name)}</b><i class="${C.grow.d>0?'up':'dn'}">${C.grow.d>0?'+':''}${C.grow.d}</i></span></div>`:'<div><small>성장</small><span class="muted">-</span></div>'}<div><small>평판</small><b>${R.repFrom} → <em class="${R.repTo>=R.repFrom?'up':'dn'}">${R.repTo}</em></b></div>${L&&L.pres?`<div><small>위상</small><b>${Math.round(L.pres.from)} → <em class="${L.pres.to>=L.pres.from?'up':'dn'}">${Math.round(L.pres.to)}</em></b></div>`:''}</div>`;
+    if(C&&C.need.length)b+=`<div class="rcneed"><b>다음 시즌 보강 필요</b>${C.need.slice(0,2).map(x=>`<button onclick="UI.closeModal();UI.go('market','fa')">${esc(x.ko)}</button>`).join('')}</div>`;
+    if(art)b+=`<div class="rcart" style="background-image:url(${art})"></div>`;
+    const fl=[['3월','시즌 개막'],['정규 종료',`${R.rank}위 · ${R.w}승 ${R.l}패`]];if(R.comp===1||R.ps)fl.push(['가을야구',R.ps?esc(SL.POST_TEXT[R.ps]||psT):'진출 실패']);if(R.goal)fl.push(['시즌 목표',R.goalMet?'달성':'미달']);
+    b+=`<div class="rcflow"><div class="t">시즌 흐름</div><div class="l">${fl.map((x,i)=>`<span class="${i===fl.length-1?'last':''}"><u></u><small>${x[0]}</small><b>${x[1]}</b></span>`).join('')}</div></div>`;}
+  else if(tab==='awd')b+=aw?`<div class="grkv lines">${(L&&L.awards&&L.awards.length?L.awards.map(a=>`<div class="small rline">🏆 ${esc(typeof a==='string'?a:(a.text||a.t||a.name||''))}</div>`).join(''):'<div class="small muted">우리 선수 수상 없음</div>')}</div><button class="ghost" style="width:100%;margin:0 0 8px" onclick="UI.ceremony(${R.s})">🏆 시상식 보기</button>`:'<div class="pinfo">시상식 기록이 없습니다</div>';
+  else b+=`${recapTable()}<div class="small muted" style="margin:8px 0">감독 평판 ${R.repFrom} → <b class="${R.repTo>=R.repFrom?'up':'dn'}">${R.repTo}</b>${L&&L.pres?` · 구단 위상 ${Math.round(L.pres.from)} → <b class="${L.pres.to>=L.pres.from?'up':'dn'}">${Math.round(L.pres.to)}</b>`:''}${R.goal?` · 목표 ${R.goalMet?'달성':'미달'}`:''}</div>`;
+  modal(`<div class="rcp"><h3 class="pmh">${2025+R.s} 시즌 결산</h3><div class="ctitle rcl"><b class="${R.ps==='champ'?'up':R.ps?'':'dn'}">${esc(recapHeadline(R,ut))}</b></div><div class="seg grtab">${[['sum','요약'],['awd','시상'],['rec','기록']].map(x=>`<button class="${tab===x[0]?'on':''}" onclick="UI.rcTab('${x[0]}')">${x[1]}</button>`).join('')}</div>${b}
+    ${SL.sackPending()?`<div class="must small" style="margin:0 0 8px"><b>해임</b> · ${esc(S.mgr.sacked.why)} — 새 구단을 골라야 합니다</div>`:S.mgr&&S.mgr.warn&&S.mgr.warn.s===R.s?`<div class="warnbox small" style="margin:0 0 8px"><b>구단주 경고</b> · ${esc(S.mgr.warn.text)}</div>`:''}
+    <div class="gobar lugo in grgo"><button class="ghost" onclick="UI.rcTab('rec')">결산 상세</button><button class="primary" onclick="UI.set('rcTab','sum');UI.closeModal()">스토브리그 시작</button></div></div>`);}
+A.rcTab=function(k){ui.rcTab=k;recapModal(SL.state().lastRecap);};
+// v123 (R105 시안 06): 포스트시즌 우리 경기 — 단계 띠 + 대진 · 엠블럼 VS · 규칙 │ 시리즈 전적 · 큰 한 줄(이기면 진출) · WC—준PO—PO—KS · 선발투수 · 부상 · [▶ 경기 시작][▶▶ 자동 진행]
+function postGameCard(g,pi,opp,D,L,stName){const ut=SL.userTeam();const P=S.post;const sh=t=>esc(t.name.split(' ')[0]);let w=[0,0],me=0;if(!L&&P&&D){const i=SL.BAL.POST.indexOf(D);const c=P.ser[i];if(c){me=c.hi===ut.id?0:1;w=c.w;}}
+  const adv=!L&&D&&D.k==='wc'?(me===0?'4위 어드밴티지 +1승':'상대 4위 어드밴티지 +1승'):esc(pi.rule||(D?seriesRule(D):''));const real=!L&&D&&D.k==='wc'?[w[0]-1,w[1]]:w;const track=L?L.rounds.map((r,i)=>[r.name,i===L.ri]):SL.BAL.POST.map(d=>[({wc:'WC',semi:'준PO',po:'PO',ks:'KS'}[d.k]||d.name),d===D]);
+  const sp=S.players[ut.rotation[(ut.rotIdx||0)%Math.max(1,ut.rotation.length)]];const st=sp?SL.statLine(sp,sp.cur):null;const inj=ut.entry.concat(ut.roster).map(id=>S.players[id]).filter((p,i,a)=>p&&p.inj&&a.indexOf(p)===i).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];
+  const stake=String(pi.stake);const m=stake.match(/^(.*?)(진출|우승!?|탈락)(.*)$/);
+  return `<div class="cere post2 ps6"><div class="ps6h"><i>${esc(stName)}</i><b>${sh(ut)} vs ${esc(opp.name)}</b></div>
+    <div class="pmvs2 ps6v">${emblem(ut,64)}<b>${sh(ut)}</b><span class="vs">vs</span><b>${esc(opp.name)}</b>${emblem(opp,64)}</div>
+    <div class="ps6a"><i>${adv}</i><span>${L?'시리즈':'실제 경기'} <b>${Math.max(0,real[me])}승 ${Math.max(0,real[1-me])}패</b></span></div>
+    <div class="ps6s cbig">${m?`${esc(m[1])}<em>${esc(m[2])}</em>${esc(m[3])}`:esc(stake)}</div><div class="pstake" hidden>${esc(pi.title)}</div>
+    <div class="ps6t">${track.map((x,i)=>`${i?'<u></u>':''}<span class="${x[1]?'on':''}">${esc(x[0])}</span>`).join('')}</div>
+    <div class="ps6b">${sp?`<div class="r" onclick="UI.closeModal();UI.openPlayer(${sp.id})">${face(sp,64)}<div><i>선발투수</i><b>${esc(sp.name)}</b><small>${hasSt(sp.cur)?`시즌 ${st.w}승 ${st.l}패 │ 평균자책점 ${st.era}`:'시즌 기록 없음'}</small></div></div>`:''}${inj?`<div class="r inj">${face(inj,56)}<div><b><i class="w">⚠ 부상</i> ${esc(inj.name)}</b><small>부상으로 출전이 어렵습니다 (${inj.inj.left}일)</small></div><button onclick="UI.closeModal();UI.go('roster','list');UI.sqf('kind','I')">대체 선수 확인 ›</button></div>`:''}</div>
+    <div class="small dim" style="margin:0 0 8px">상대 정규 ${opp.rec.w}승 ${opp.rec.l}패 · ${esc(SL.parkOf(S.teams[g.home]).name)} · <a class="pname" onclick="UI.closeModal();UI.go('roster','lineup')">라인업·선발 확인</a></div>
+    <div class="gobar lugo in grgo"><button class="primary" onclick="UI.closeModal();UI.setTab('home');UI.startGame()">▶ 경기 시작</button><button class="ghost" onclick="UI.closeModal();UI.autoDays(1)">▶▶ 자동 진행</button></div>`;}
+// v123 (R105 시안 05): 정규시즌 종료 요약 — 큰 성적 · n경기 · 성장/부상/가을야구 줄 · 핵심 3줄 · 전체 기록 접힘 (아래에 진행 단추)
+function regEndHtml(cp,rank,inPS){const ut=SL.userTeam();const n=(ut.rec.w||0)+(ut.rec.l||0)+(ut.rec.t||0);const g=SL.growthReport(1)[0];const gd=g?Math.round(SL.calcOvr(g.p))-Math.round(g.r.from):0;const inj=ut.roster.map(id=>S.players[id]).filter(p=>p&&p.inj).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];
+  const key=[];if(g&&gd>0)key.push(['g',`${g.p.name}, 시즌 동안 종합 +${gd} 성장`]);if(inj)key.push(['r',`${inj.name}, 부상 중 (복귀까지 ${inj.inj.left}일)`]);key.push([inPS?'g':'r',inPS?`정규시즌 ${rank}위로 가을야구 진출 확정`:`정규시즌 ${rank}위 — 가을야구 진출 실패`]);
+  const st=SL.standings(cp);
+  return `<div class="cere post2 ps6 re5"><div class="re5h"><div><b>정규시즌 종료</b><span>${ut.rec.w}승 ${ut.rec.l}패 / <em>${rank}위</em></span></div>${emblem(ut,72)}</div>
+    <div class="pinfo re5n">${n}경기 진행 · ${ut.rec.w}승 ${ut.rec.l}패${ut.rec.t?` ${ut.rec.t}무`:''} · ${esc(SL.compName(cp))}</div>
+    <div class="ps6b re5r">${g&&gd>0?`<div class="r" onclick="UI.closeModal();UI.openPlayer(${g.p.id})"><i class="tg g">성장</i>${face(g.p,44)}<div><b>${esc(g.p.name)} <u>▲ +${gd}</u></b></div><em>›</em></div>`:''}${inj?`<div class="r" onclick="UI.closeModal();UI.openPlayer(${inj.id})"><i class="tg r">부상</i>${face(inj,44)}<div><b>${esc(inj.name)}</b></div><em>›</em></div>`:''}<div class="r" onclick="UI.closeModal();UI.go('league','table')"><i class="tg y">가을야구</i><div style="border:0;padding-left:0"><b>${inPS?'가을야구 진출':'가을야구 실패'}</b></div><em>›</em></div></div>
+    <div class="ps6b re5k"><div class="t">이번 시즌 <em>핵심 ${key.length}</em></div>${key.map(k=>`<div class="k"><i class="${k[0]}"></i>${esc(k[1])}</div>`).join('')}</div>
+    <details class="fbox wmore"><summary>전체 기록</summary><div class="small" style="padding:0 12px 10px">${st.slice(0,10).map((t,i)=>`<div class="${t.id===ut.id?'b':''}">${i+1}위 ${esc(t.name)} ${t.rec.w}승 ${t.rec.l}패</div>`).join('')}</div></details>`;}
 
 return A;
 })();

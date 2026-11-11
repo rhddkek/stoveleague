@@ -35,7 +35,7 @@ const {chromium}=require('playwright');const path=require('path');
       return {n:rows.length,seg,calc:/현 연봉\+5%|시세 · |능력 [+−±]/.test(t),bs,why:/요구액 근거/.test(why),w:/추천 파견지/.test(w)&&/비용 /.test(w)&&!/최선 파견지|파견지 고르기|결정 기간/.test(w),wb:wb.includes('파견')&&wb.includes('다른 구단'),on,opts,lv:!/리그 수준 미달/.test(document.body.innerText)};});
     r.n>=1&&r.seg.join()==='수락,협상,결별'&&!r.calc&&r.bs.join()==='추천 선택,전원 수락,선택 적용'&&r.why&&r.w&&r.wb&&(r.on==null||r.on===1)&&(!r.opts||r.opts.every(g=>/국내보다 유리|국내와 비슷|국내보다 불리/.test(g)))&&r.lv?ok(`재계약 ${r.n}명 줄마다 [수락][협상][결별] · 계산식 없음 · 금액 → 요구액 근거 · 「${r.bs.join(' · ')}」 / 겨울리그 추천 파견지 [파견][다른 구단] · 겨울 계획 한 칸만 켜짐 · 성장 「${[...new Set(r.opts||[])].join('·')}」`):bad('겨울 '+JSON.stringify(r));}
   // 8. 감독실 이름 (마지막 표 우선): 할 일 · 답변 대기 · 선택 업무(R095) · 지명 차례 · 재계약 코치 · 미계약 → FA
-  {const r=await p.evaluate(()=>{UI.setTab('home');UI.closeModal();const t=document.querySelector('.content').innerText;return {t:t.slice(0,500),dec:/할 일 \d/.test(t),wait:true,old:/처리할 일|협상 중 \d|우리 지명\b|코치 재계약|미계약 시/.test(t)};});
+  {const r=await p.evaluate(()=>{UI.setTab('home');UI.closeModal();const t=document.querySelector('.content').innerText;return {t:t.slice(0,500),dec:/(할 일|주요 업무) \d/.test(t),wait:true,old:/처리할 일|협상 중 \d|우리 지명\b|코치 재계약|미계약 시/.test(t)};});
     r.dec&&r.wait&&!r.old?ok('겨울 감독실: 「할 일」「답변 대기」 · 예전 이름(처리할 일·협상 중·우리 지명·코치 재계약) 없음'):bad('감독실 이름 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v110 검사 실패 ${fails}건`:'v110 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

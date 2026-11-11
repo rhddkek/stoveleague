@@ -578,7 +578,7 @@ const TIPS=['23세 이상은 1군이든 2군이든 주전으로 뛰어야 잠재
 const TICK={items:[],i:0,t:null};
 function tickerItems(){const out=[];const seen=new Set();for(const n of (S&&S.news)||[]){if(out.length>=10)break;const t=String(n.text||'').replace(/<[^>]+>/g,'');if(!t||seen.has(t))continue;seen.add(t);out.push((n.d!=null&&!String(n.d).startsWith('OFF')?n.d+'일차 · ':'')+t);}
   return out;}
-function tickerHtml(tOnly){if(!S)return '';if(!tOnly&&ui.tab==='home'&&S.phase!=='season'&&!ui.view&&!isWide()&&!['plan','inbox'].includes(ui.sub.home))return '';   /* v120: 겨울 감독실은 화면 안 「뉴스」 줄이 같은 소식을 보여 줌 */
+function tickerHtml(tOnly){if(!S)return '';   /* v120: 겨울 감독실은 화면 안 「뉴스」 줄이 같은 소식을 보여 줌 */
   TICK.items=tickerItems();if(!TICK.items.length)return '';TICK.i=TICK.i%TICK.items.length;
   if(!TICK.t)TICK.t=setInterval(()=>{const e=document.getElementById('tick');if(!e||!TICK.items.length)return;TICK.i=(TICK.i+1)%TICK.items.length;e.classList.remove('in');void e.offsetWidth;e.textContent=TICK.items[TICK.i];e.classList.add('in');},4500);
   return `<button class="ticker" onclick="UI.sheet('news')" aria-label="소식 모음 열기"><span class="tk-l">소식</span><span id="tick" class="in">${esc(TICK.items[TICK.i])}</span></button>`;}
@@ -850,8 +850,9 @@ function growthChart(p){const L=(p.log||[]).slice().reverse();if(L.length<2)retu
 function postModal(){S=SL.state();const ut=SL.userTeam();const L=lpNow();const P=L||S.post;if(!P||P.done)return;const cp=L?SL.compOf(ut):1;const st=SL.standings(cp);const r=st.findIndex(t=>t.id===ut.id)+1;sfx('notify',0.7);
   const D=L?null:SL.BAL.POST[P.stage];const g=SL.userGameToday();const first=L?(L.ri===0&&L.rounds[0].ser.every(c=>!c.games)):(P.stage===0&&S.day===P.day);const inPS=L?lpIn(L,ut.id):P.seeds.includes(ut.id);const stName=L?L.rounds[L.ri].name:D.name;
   let h=`<div class="cere post2"><div class="ctag">${first?`${S.season}시즌 정규 시즌 종료`:`${S.season}시즌 포스트시즌`}</div><div class="ctitle">${first?`${esc(SL.compName(cp))} <b>${r}위</b> · ${ut.rec.w}승 ${ut.rec.l}패`:`<b>${esc(stName)}</b> 시작`}</div>`;
-  if(g&&g.post){const pi=SL.postInfo(g);const opp=S.teams[g.home===ut.id?g.away:g.home];h+=`<div class="pvs"><div>${emblem(ut,64)}<div class="b">${esc(ut.name)}</div></div><div class="vs">VS</div><div>${emblem(opp,64)}<div class="b">${esc(opp.name)}</div></div></div><div class="pstake">${esc(pi.title)}</div><div class="cbig">${esc(pi.stake)}</div><div class="small dim" style="margin:6px 0">${esc(pi.rule||seriesRule(D))} · 상대 정규 ${opp.rec.w}승 ${opp.rec.l}패 · ${esc(SL.parkOf(S.teams[g.home]).name)}</div>
-    <button class="gold big" style="width:100%;margin-top:8px" onclick="UI.closeModal();UI.setTab('home');UI.startGame()">▶ ${esc(pi.title)} 직접 보기</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">준비부터 (라인업·선발 확인)</button>`;}
+  if(g&&g.post){const pi=SL.postInfo(g);const opp=S.teams[g.home===ut.id?g.away:g.home];h=postGameCard(g,pi,opp,D,L,stName);}
+  else if(first)h=regEndHtml(cp,r,inPS);
+  if(g&&g.post){}
   else if(inPS){const my=L?null:SL.BAL.POST.find(d=>d.hiSeed===P.seeds.indexOf(ut.id)+1);const nx=L?SL.lpostNextName(L):null;h+=`<div class="cbig">가을야구 진출!</div><div class="small" style="margin:8px 0">${L?`상위 시드라 ${esc(nx||'다음 시리즈')}에서 상대를 기다립니다.`:`${r}위라 ${esc(my?my.name:'다음 단계')}에서 상대를 기다립니다.`} 그 전 경기는 다른 구단끼리 치릅니다.</div><button class="gold big" style="width:100%" onclick="UI.closeModal();UI.autoDays(40)">우리 경기까지 진행 ▶</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">하루씩 지켜보기</button>`;}
   else h+=`<div class="small" style="margin:10px 0">우리 구단은 가을야구에 나가지 못했습니다. ${L?esc(LG_FMT[L.lg]?LG_FMT[L.lg].split(' · ').slice(-1)[0]:'')+' — 남은 시리즈를 지켜보세요.':'정규 시즌 5위까지 오른 구단들의 포스트시즌을 지켜보세요.'}</div><button class="gold big" style="width:100%" onclick="UI.closeModal();UI.autoDays(60)">포스트시즌 결과까지 ▶</button><button class="ghost" style="width:100%;margin-top:6px" onclick="UI.closeModal()">하루씩 지켜보기</button>`;
   h+=`<div class="b small" style="margin:12px 0 4px;text-align:left">포스트시즌 대진</div>${L&&L.seedsTxt?`<div class="small dim" style="text-align:left">${esc(L.seedsTxt)}</div>`:''}${L?lbracketHtml(L):bracketHtml(P)}</div>`;modal(h);}
