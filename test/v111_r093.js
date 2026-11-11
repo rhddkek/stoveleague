@@ -11,10 +11,10 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   {const r=await p.evaluate(()=>{const S=NEW();const q=S.players[2705];UI.scoutReport(2705);const c=document.querySelector('.content');const t0=c.innerText;const head=c.querySelector('.row div[style*="font-size:24px"]').innerHTML;
       const kv=[...c.querySelectorAll('.kvt td:first-child')].map(x=>x.innerText.trim());const btn=[...c.querySelectorAll('.mkbtn3 button')].map(x=>x.innerText);const fc=SL.scFocusTo(q);
       UI.scFocus(2705);for(let i=0;i<3;i++){UI.autoDays(7);UI.closeModal();}UI.scoutReport(2705);const t1=document.querySelector('.content').innerText;const rng=[...document.querySelectorAll('.rngrow b.o')].map(x=>x.textContent);
-      return {jersey:/<small/.test(head),noRec:!/기록 없음|\(없음\)/.test(t0),init:/강점 · 초기 추정/.test(t0),kv,btn:btn.join('|'),fc,kn:SL.knOf(q),chg:/관찰 전과 달라진 점/.test(t1),cost:(t1.match(/비용 상승 · [^\n]+/)||[''])[0],promo:(t1.match(/미국 2군 → 미국 1군 승격[^\n]+/)||[''])[0],eval:(t1.match(/평가 조정[^\n]+/)||[''])[0],conf:/강점 · 관찰 확인/.test(t1),rng};});
-    const three=r.kv[0]==='연봉 · 이적료'&&r.kv[1]==='첫해 합계'&&/추정 금액 ⓘ/.test(r.kv[2]);const okb=new RegExp(`지식 12% → ${r.fc}% 이상`).test(r.btn)&&r.kn>=r.fc;
-    !r.jersey&&r.noRec&&r.init&&three&&okb&&r.chg&&/34\.8억 → 118억/.test(r.cost)&&/이적료 20\.8억 → 104억 \(1군 선수는 이적료 기준이 높음\)/.test(r.promo)&&/1선발 후보 → 2선발 후보 · 지식 12% → 100%/.test(r.eval)&&r.conf&&r.rng.every(x=>!/–/.test(x))
-      ?ok(`보고서: 등번호·빈 기록 없음 · 비용 세 줄 · 버튼 「지식 12% → ${r.fc}% 이상」 → 실제 ${r.kn}% · 「${r.cost}」 · 「${r.promo.slice(0,40)}…」 · 「${r.eval}」 · 확정 능력 ${r.rng.join('/')} (한 숫자)`):bad('보고서 '+JSON.stringify(r));}
+      return {jersey:/<small/.test(head),noRec:!/기록 없음|\(없음\)/.test(t0),init:/초기 평가/.test(t0),kv,btn:btn.join('|'),fc,kn:SL.knOf(q),chg:/관찰 전과 달라진 점/.test(t1),cost:(t1.match(/비용 상승 · [^\n]+/)||[''])[0],promo:(t1.match(/미국 2군 → 미국 1군 승격[^\n]+/)||[''])[0],eval:(t1.match(/평가 조정[^\n]+/)||[''])[0],conf:/관찰 평가/.test(t1),rng};});
+    const three=r.kv[0]==='연봉 · 이적료'&&r.kv[1]==='첫해 합계'&&/추정 금액 ⓘ/.test(r.kv[2]);const okb=new RegExp(`관찰도 12% → ${r.fc}% 이상`).test(r.btn)&&r.kn>=r.fc;
+    !r.jersey&&r.noRec&&r.init&&three&&okb&&r.chg&&/34\.8억 → 118억/.test(r.cost)&&/이적료 20\.8억 → 104억 \(1군 선수는 이적료 기준이 높음\)/.test(r.promo)&&/1선발 후보 → 2선발 후보 · 관찰도 12% → 100%/.test(r.eval)&&r.conf&&r.rng.every(x=>!/–/.test(x))
+      ?ok(`보고서: 등번호·빈 기록 없음 · 비용 세 줄 · 버튼 「관찰도 12% → ${r.fc}% 이상」 → 실제 ${r.kn}% · 「${r.cost}」 · 「${r.promo.slice(0,40)}…」 · 「${r.eval}」 · 확정 능력 ${r.rng.join('/')} (한 숫자)`):bad('보고서 '+JSON.stringify(r));}
 
   // 2. 외국인 정원이 차도 협상부터 — 확정 때 교체 선수 선택(방출 단추 없음) → 최종 확인(위약금) → 계약 성사 때만 방출 · 거절되면 아무도 안 나감
   {const r=await p.evaluate(()=>{const S=NEW();const ut=SL.userTeam();try{const B=SL.budget();B.wage=(B.wage||0)+50000;}catch(e){}const out={};out.block=!!SL.fgnCost(S.players[2705]).block;

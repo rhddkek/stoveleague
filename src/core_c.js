@@ -2057,7 +2057,7 @@ function staffSummary(t){const fx=staffFx(t);const pct=m=>{const v=Math.round((m
   for(const d in BAL.STAFF){const n=deptCount(t,d);let eff;
     if(d==='bat')eff=`컨택·파워·선구안 성장 ${pct(fx.bat)}`;else if(d==='pit')eff=`투수 성장 ${pct(fx.pit)}`;else if(d==='def')eff=`주력·수비·송구 성장 ${pct(fx.def)}`;
     else if(d==='dev')eff=`23세 이하·육성군 성장 ${pct(fx.dev)}${fx.devCapUp?' · 육성군 정원 +1':''}`;
-    else if(d==='scout')eff=`판별 정확도 ${fx.conf>=0?'+':''}${Math.round(fx.conf*100)}%p · 매주 ${fx.watch}명 정밀 관찰${fx.scoutN?` · 탐색 후보 +${fx.scoutN}`:''}`;
+    else if(d==='scout')eff=`정확도 ${fx.conf>=0?'+':''}${Math.round(fx.conf*100)}%p · 관찰 ${fx.watch}명/주${fx.scoutN?` · 탐색 후보 +${fx.scoutN}`:''}`;
     else eff=`피로 회복 ${fx.rec>=0?'+':''}${fx.rec}/일 · 노화 속도 ${pct(fx.aging)}`;
     const sc=d==='scout'?fx.conf*100+fx.watch:d==='med'?fx.rec+(1-fx.aging)*20:(fx[d]-1)*100;const tone=sc>0.5?'up':sc<-0.5?'dn':'';
     out[d]={name:BAL.STAFF[d].name,n,exp:(t.staff||[]).filter(c=>c.dept===d&&c.years<=0).length,tone,max:BAL.STAFF[d].max,P:r1(fx.P[d]),ref:BAL.STAFF_REF[d],eff,what:BAL.STAFF[d].what,pay:(t.staff||[]).filter(c=>c.dept===d&&c.years>0).reduce((s,c)=>s+c.salary,0)};}
