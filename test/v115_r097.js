@@ -11,8 +11,8 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     r.rows===1&&r.chips==='전체,타자,투수,부상'&&r.sel===0&&r.th==='선수,포지션,종합,상태'&&!r.hint&&!r.arrow?ok(`명단: 칩 한 줄 「${r.chips}」 · 표 「${r.th}」 · 고르는 상자 없음`):bad('필터 '+JSON.stringify(r));}
 
   // 2. 목록만 스크롤: 타자 14명 → 목록 칸에 최대 높이 · 머리줄 고정 · 페이지는 거의 안 움직임 · 목록을 끝까지 내려도 위 탭·필터와 아래 단추 그대로
-  {const r=await p.evaluate(()=>{UI.sqf('kind','B');const f=document.querySelector('.fitl');const th=f.querySelector('thead th');const tabs=document.querySelector('.htabs').getBoundingClientRect().top;const bar=document.querySelector('.selcard').getBoundingClientRect().top;
-      f.scrollTop=9999;const fr=f.getBoundingClientRect();const at=document.elementFromPoint(fr.left+60,fr.top+6);const th2=at&&at.closest('th')?0:99;return {fitx:f.classList.contains('fitx'),scrolled:f.scrollTop>0,thTop:Math.round(th2),page:document.scrollingElement.scrollHeight-innerHeight,tabs2:document.querySelector('.htabs').getBoundingClientRect().top===tabs,bar2:document.querySelector('.selcard').getBoundingClientRect().top===bar,pos:getComputedStyle(th).position};});
+  {const r=await p.evaluate(()=>{UI.sqf('kind','B');const f=document.querySelector('.fitl');const th=f.querySelector('thead th');const tabs=document.querySelector('.htabs').getBoundingClientRect().top;const bar=document.querySelector('.selmg').getBoundingClientRect().top;
+      f.scrollTop=9999;const fr=f.getBoundingClientRect();const at=document.elementFromPoint(fr.left+60,fr.top+6);const th2=at&&at.closest('th')?0:99;return {fitx:f.classList.contains('fitx'),scrolled:f.scrollTop>0,thTop:Math.round(th2),page:document.scrollingElement.scrollHeight-innerHeight,tabs2:document.querySelector('.htabs').getBoundingClientRect().top===tabs,bar2:document.querySelector('.selmg').getBoundingClientRect().top===bar,pos:getComputedStyle(th).position};});
     r.fitx&&r.scrolled&&Math.abs(r.thTop)<=1&&r.pos==='sticky'&&r.page<=40&&r.tabs2&&r.bar2?ok(`목록만 스크롤 (머리줄 고정 · 페이지 여유 ${r.page}px · 탭·단추 그대로)`):bad('목록 스크롤 '+JSON.stringify(r));}
 
   // 3. 순위표: 「한국 프로야구 ▾」를 누르면 한국·일본·미국·대만 → 일본을 고르면 일본 리그 순위(경기가 쌓여 있음) → 한국으로 돌아옴 · 국내 결과는 그대로

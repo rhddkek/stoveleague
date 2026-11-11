@@ -296,28 +296,169 @@ body:not(.ingame) table.rosterq2 tr.sel td:first-child{box-shadow:inset 3px 0 0 
 .selcard .grow{min-width:0}.selcard .t{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.selcard .s{font-size:13px;color:var(--muted)}
 .selcard button{min-height:44px;padding:0 14px;border-radius:10px;font-size:15px;font-weight:600;white-space:nowrap}
 .selcard.empty{justify-content:center;color:var(--muted);font-size:14px;min-height:56px}
-/* v119 (R101): 겨울 감독실 (시안) — 한 화면 안(390×844 · 360×740) */
-.whero{height:60px;border-radius:10px 10px 0 0;background:#141a2c center 40%/cover no-repeat}
-.wmoney{display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 8px;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--card)}.wmoney>div{padding:5px 4px;text-align:center;cursor:pointer;min-width:0}.wmoney>div+div{border-left:1px solid var(--line)}.wmoney small{display:block;color:var(--muted);font-size:12px}.wmoney b{font-size:18px;font-weight:600;white-space:nowrap}
 .tdcnt{display:inline-block;min-width:22px;padding:0 6px;border-radius:6px;background:#f2c14e;color:#15171c;font-size:14px;text-align:center;margin-left:4px}
-body:not(.ingame) .whero~.todo .mail.td>button{background:#f2c14e!important;color:#15171c!important;border-color:#f2c14e!important;min-width:60px;font-weight:600}
-body:not(.ingame) .goal2 .gbtn{display:inline-block;font-style:normal;background:#f2c14e;color:#15171c;border-radius:8px;padding:3px 12px;font-weight:600;font-size:13.5px}
-body:not(.ingame) .gobar.wgo .mkgo{font-size:20px;font-weight:600}body:not(.ingame) .gobar.wgo .mkgo small{display:block;font-size:13px;font-weight:600;opacity:.85}
-.whero{height:44px}
-body:not(.ingame) .whero~.wkbar{padding:4px 2px;margin:0 0 4px;background:none;border:0;min-height:0;font-size:13px}
-body:not(.ingame) .goal2 .gbtn{padding:1px 10px;font-size:13px}
-@media (max-height:780px){.whero,.wmoney{display:none}}
 :root.ea[data-theme="dark"] body:not(.ingame) .stv em.muted{color:#9aa0ad}
 html.dense body:not(.ingame) table.rosterq2 td{padding:3px 6px}
 body:not(.ingame) button.on .muted{color:inherit!important;opacity:.8}
 html.dense body:not(.ingame) table.rosterq2 td{padding-top:2px!important;padding-bottom:2px!important}
 html.dense body:not(.ingame) table.rosterq2 .tfn>:first-child{width:28px!important;height:28px!important;flex:0 0 28px}
 html.dense .cbar .cl{font-size:11px}html.dense .cbar .cr i{height:5px}
-body:not(.ingame) .gobar.wgo .mkgo{min-width:0;font-size:18px}body:not(.ingame) .gobar.wgo .mkgo small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body:not(.ingame) .whero~.wkbar,body:not(.ingame) .whero~.wkbar *{color:var(--text)!important}
 body:not(.ingame) table.rosterq2 th.on,body:not(.ingame) table.rosterq2 th.on i{color:var(--text)!important}
 :root.ea[data-theme="light"] body:not(.ingame) table.rosterq2 td.ov small{color:#0e7a55}
 :root.ea[data-theme="light"] .cbar.good .cl{color:#0e7a55}:root.ea[data-theme="light"] .cbar.tired .cl{color:#8a6100}:root.ea[data-theme="light"] .cbar.hurt .cl{color:#c0392b}
-.whero{height:36px}
-body:not(.ingame) .goal2 .gbtn{padding:0 10px;font-size:12.5px;line-height:19px;border-radius:6px}
-body:not(.ingame) .wmoney>div{padding:3px 4px}
+
+/* ============ v120 (R102): 시안 그대로 — 선수단 명단(육성군 칸 · 선택 n명 │ 선수 관리) · 겨울 감독실(큰 그림 · 한 줄 카드 · 그림 카드 · 성장 · 뉴스) ============ */
+.pgh{display:flex;align-items:center;justify-content:space-between;margin:2px 0 10px}.pgh b{font-size:26px;font-weight:600;letter-spacing:-.5px;color:var(--text)}
+.pgh button{width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);padding:0}
+body:not(.ingame) .grptab.g3{display:flex}body:not(.ingame) .grptab.g3 button{flex:1 1 0;min-width:0}
+body:not(.ingame) table.rosterq2 td.rpos{font-size:15px;color:var(--text);text-align:left;white-space:nowrap}
+body:not(.ingame) table.rosterq2 td.rst{position:relative;padding-left:12px}body:not(.ingame) table.rosterq2 td.rst::before{content:"";position:absolute;left:2px;top:22%;bottom:22%;width:1px;background:var(--line)}
+.selwrap{position:sticky;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:5;margin:10px -16px 0;padding:8px 16px 6px;background:var(--bg);box-shadow:0 -8px 18px rgba(0,0,0,.35)}
+@media (min-width:700px){.selwrap{margin:10px 0 0;padding:8px 0 6px;bottom:0}}
+.selwrap .selcard{position:static;margin:0 0 8px;box-shadow:none;padding:8px 12px}
+.selwrap .selcard .t{font-size:17px}.selwrap .selcard .s{font-size:14px}
+.selmg{display:flex;align-items:center;gap:14px}.selmg .sn{flex:none;font-size:17px;font-weight:600;padding-right:14px;border-right:1px solid var(--line);line-height:30px;color:var(--text)}.selmg .sn b{color:#f2c14e;font-weight:600}
+.selmg button{flex:1;min-height:48px;border-radius:10px;font-size:18px;font-weight:600}
+.selmg button[disabled]{background:var(--sunk)!important;color:var(--muted)!important;border-color:var(--line)!important}
+:root.ea[data-theme="light"] .selmg .sn b{color:#8a6100}
+/* 겨울 감독실 */
+.wkpill{flex:none;border:1px solid #f2c14e;border-radius:8px;padding:4px 10px;color:#f2c14e;font-size:14px;line-height:1.3;white-space:nowrap}.wkpill b{font-weight:600;color:inherit!important}
+:root.ea[data-theme="light"] .wkpill{border-color:#8a6100;color:#8a6100}
+.whero{height:92px;margin:0 -16px;background:#141a2c center 42%/cover no-repeat;image-rendering:pixelated}
+.wmoney{display:grid;grid-template-columns:repeat(3,1fr);margin:0 -16px 4px;padding:8px 0;border-bottom:1px solid var(--line)}
+.wmoney>div{display:flex;align-items:flex-start;justify-content:center;gap:6px;cursor:pointer;min-width:0;padding:0 2px}.wmoney>div+div{border-left:1px solid var(--line)}
+.wmoney svg{flex:none;margin-top:1px}.wmoney span{display:block;min-width:0;text-align:left}.wmoney small{display:block;color:var(--muted);font-size:13px;line-height:1.2}.wmoney b{display:block;font-size:21px;font-weight:600;white-space:nowrap;line-height:1.25;color:var(--text)}
+@media (min-width:700px){.whero,.wmoney{margin-left:0;margin-right:0}.whero{border-radius:10px 10px 0 0;height:120px}}
+.whd{display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px;font-size:19px;font-weight:600;color:var(--text)}.whd>span:first-child::before{content:"";display:inline-block;width:4px;height:19px;border-radius:2px;background:#f2c14e;margin-right:10px;vertical-align:-3px}
+.whd .lnk{font-size:13px}
+body:not(.ingame) .mkcard.wtd,body:not(.ingame) .mkcard.wg2{margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important}
+body:not(.ingame) .mail.td.wrow{display:flex;align-items:center;gap:10px;min-height:46px;padding:4px 6px 4px 10px;margin:0 0 6px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+body:not(.ingame) .mail.td.wrow>:first-child{flex:none}
+body:not(.ingame) .mail.td.wrow .t{flex:0 1 auto;max-width:52%;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+body:not(.ingame) .mail.td.wrow .s{flex:1 1 0;min-width:0;padding-left:10px;border-left:1px solid var(--line);font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body:not(.ingame) .mail.td.wrow>button{flex:none;min-width:62px;min-height:36px;padding:0 10px;border-radius:8px;font-size:15px;font-weight:600;background:#f2c14e!important;color:#15171c!important;border-color:#f2c14e!important}
+.wrow.none{padding:12px;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:14px;text-align:center;margin-bottom:6px}
+.wwarn{margin:8px 0 0;padding:8px 10px;border:1px solid #ff6b5e;border-radius:10px;font-size:13.5px;color:var(--text);cursor:pointer}
+body:not(.ingame) .wg2 .g2w{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+body:not(.ingame) .wg2 .g2w .goal2{position:relative;display:block;height:98px;width:100%;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;text-align:left;color:var(--text)}
+body:not(.ingame) .wg2 .g2w .goal2:only-child{grid-column:1/-1}
+.wg2 .goal2 .gf{position:absolute;left:2px;bottom:-6px;width:84px;height:84px;display:block}.wg2 .goal2 .gf>*{width:84px!important;height:84px!important;border-radius:0!important;background:none!important;border:0!important}
+.wg2 .goal2 .gt{position:absolute;left:50%;right:8px;top:10px;bottom:8px;display:block}.wg2 .goal2 .gt b{display:block;font-size:18px;font-weight:600;line-height:1.2;white-space:nowrap}.wg2 .goal2 .gt small{display:block;font-size:14px;color:var(--muted);line-height:1.3}.wg2 .goal2 .gt small .rk{color:inherit}
+.wg2 .goal2 .gbtn,.wg2 .goal2 .gdone{position:absolute;right:0;bottom:0;font-style:normal;white-space:nowrap}
+.wg2 .goal2 .gbtn{background:#f2c14e;color:#15171c;border-radius:8px;padding:0 12px;line-height:32px;font-size:15px;font-weight:600}
+.wg2 .goal2 .gdone{left:-40px;font-size:12.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;text-align:right}
+.wrowb{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;margin:8px 0 0;padding:4px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:inherit;text-align:left;overflow:hidden}
+.wrowb .wl{flex:none;font-size:15px;font-weight:600;color:var(--text)}.wrowb .wn{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.wrowb .wn.muted{font-weight:400;font-size:14px;flex:1}
+.wrowb .wv{margin-left:auto;font-size:16px;font-weight:600;white-space:nowrap}.wrowb .wv em{font-style:normal;color:#4cd6a4}.wrowb .wd{flex:none;border:1px solid #4cd6a4;color:#4cd6a4;border-radius:6px;padding:0 8px;font-size:15px;font-weight:600;line-height:24px}
+.wrowb .chev{flex:none;color:var(--muted);font-size:18px;line-height:1;margin-left:4px}.wrowb.wgrow>:nth-child(2):not(.wn){flex:none}
+.wrowb.wnews svg{flex:none;color:var(--muted)}.wrowb.wnews .wl{color:var(--muted);padding-right:10px;border-right:1px solid var(--line)}.wrowb.wnews .wt{flex:1;min-width:0;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root.ea[data-theme="light"] .wrowb .wv em,:root.ea[data-theme="light"] .wrowb .wd{color:#0e7a55;border-color:#0e7a55}
+body:not(.ingame) details.wmore{margin:8px 0 0;border:1px solid var(--line);border-radius:10px;background:var(--card)}body:not(.ingame) details.wmore>summary{min-height:38px;padding:8px 12px;font-size:14px;color:var(--muted);list-style:none;cursor:pointer}body:not(.ingame) details.wmore>summary::-webkit-details-marker{display:none}body:not(.ingame) details.wmore>summary::after{content:"⌄";float:right;font-size:18px;line-height:1}
+body:not(.ingame) .gobar.wgo{display:block;padding:10px 0 4px;margin-top:6px}
+body:not(.ingame) .gobar.wgo .mkgo{display:block;width:100%;min-height:64px;margin:0;padding:6px 8px;border-radius:12px;background:#f2c14e;color:#15171c;border:1px solid #f2c14e;text-align:center}
+body:not(.ingame) .gobar.wgo .mkgo span{display:block;font-size:26px;font-weight:600;line-height:1.2;color:inherit}body:not(.ingame) .gobar.wgo .mkgo small{display:block;font-size:14px;font-weight:600;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:inherit}
+body:not(.ingame) .gobar.wgo .skipb{display:block;width:100%;margin:4px 0 0;padding:4px;min-height:28px;border:0;background:none;color:var(--muted);font-size:13px;text-align:center}
+.selwrap{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+.selwrap .selcard{padding:8px 10px;gap:8px}.selwrap .selcard>:first-child{width:52px!important;height:52px!important;flex:0 0 52px}
+.selwrap .selcard button{padding:0 11px;min-width:0;font-size:15px}.selwrap .selcard .t{font-size:16px}.selwrap .selcard .s{font-size:13.5px;white-space:nowrap}
+body:not(.ingame) .whd .lnk{border:0!important;background:none!important;color:var(--muted)!important;padding:4px 0!important;min-height:0!important;font-size:13px}
+body:not(.ingame) .wg2 .goal2 .gt b{color:var(--text)!important}
+/* v120 (R102): 타순·수비 (시안) — 왼쪽 타순 | 오른쪽 수비 그림 */
+.pgh .pghx{width:auto;height:auto;border:0;background:none;color:#f2c14e;font-size:17px;font-weight:600;padding:6px 2px}
+:root.ea[data-theme="light"] .pgh .pghx{color:#8a6100}
+body:not(.ingame) .seg.lumode{margin:0 0 8px}
+.lustrat{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:6px 14px;margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}.lustrat b{font-size:17px;font-weight:600;color:var(--text)}.lustrat span{font-size:13.5px;color:var(--muted);white-space:nowrap}.lustrat em{font-style:normal}
+.lu2{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:8px;align-items:stretch;margin:0 0 10px}
+.lu2 .lul{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+body:not(.ingame) .lu2 .lul table{width:100%;border-collapse:collapse;table-layout:fixed}
+body:not(.ingame) .lu2 .lul td{padding:0 2px;height:37px;border-bottom:1px solid var(--line);vertical-align:middle;background:none}
+body:not(.ingame) .lu2 .lul tr:last-child td{border-bottom:0}
+body:not(.ingame) .lu2 .lul td:first-child{width:46px;white-space:nowrap;text-align:left;padding-left:2px}body:not(.ingame) .lu2 .lul td:first-child b{font-size:17px;font-weight:600;color:var(--text)}
+body:not(.ingame) .lu2 .lul td:last-child{width:38px;padding-right:5px}
+body:not(.ingame) .lu2 .lul .luh{width:24px;min-width:0;height:34px;min-height:0;padding:0;border:0;background:none;color:var(--muted);font-size:14px;touch-action:none}
+body:not(.ingame) .lu2 .lul .tfn{gap:5px;min-width:0}body:not(.ingame) .lu2 .lul .tfn b{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+body:not(.ingame) .lu2 .lul .ptg{display:inline-block;min-width:32px;padding:3px 0;border-radius:6px;background:var(--sunk);color:var(--muted);font-size:13px;font-weight:600;text-align:center;border:0}
+body:not(.ingame) .lu2 .lul .ptg.off{color:#ff9d57}
+body:not(.ingame) .lu2 .lul tr.sel td{background:rgba(242,193,78,.16)}body:not(.ingame) .lu2 .lul tr.sel td:first-child{box-shadow:inset 3px 0 0 #f2c14e}body:not(.ingame) .lu2 .lul tr.sel .ptg{background:#f2c14e;color:#15171c}
+body:not(.ingame) .card.dia.luf{margin:0;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+body:not(.ingame) .card.dia.luf .dfield{height:100%;min-height:333px;max-height:none;aspect-ratio:auto;border-radius:0}
+body:not(.ingame) .luf .dslot{width:38px;padding:0;border:0;background:none;box-shadow:none;gap:0;border-radius:6px}
+.luf .dslot .jn{display:block;width:34px;height:30px;line-height:31px;text-align:center;font-size:14px;font-weight:600;color:#15171c;background:#f4f1ea;clip-path:polygon(0 18%,26% 0,38% 12%,62% 12%,74% 0,100% 18%,88% 40%,80% 34%,80% 100%,20% 100%,20% 34%,12% 40%)}
+.luf .dslot small{display:block;margin-top:-2px;min-width:30px;padding:1px 4px;border-radius:5px;background:rgba(18,20,26,.86);color:#fff;font-size:12px;font-weight:600;line-height:1.35;text-align:center}
+.luf .dslot.off small{color:#ffb070}.luf .dslot.inj .jn{background:#ffb3ab}.luf .dslot.empty .jn{background:rgba(255,255,255,.35)}
+.luf .dslot.cur{outline:2px solid #f2c14e;outline-offset:1px}.luf .dslot.cur small{background:#f2c14e;color:#15171c}
+.lucand{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:8px 10px 10px;margin:0 0 8px}.lucand .lct{font-size:16px;font-weight:600;color:var(--text);margin:0 0 8px}.lucand .lct small{font-size:12.5px;font-weight:400;color:var(--muted);margin-left:6px}
+.lucand .lcg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.lucand .lcg button{display:flex;align-items:center;gap:6px;min-width:0;min-height:56px;padding:4px 6px 4px 4px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);text-align:left;font:inherit;overflow:hidden}
+.lucand .lcg button>:first-child{flex:none;width:40px!important;height:40px!important}.lucand .lcg button span{min-width:0}.lucand .lcg b{display:block;font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lucand .lcg small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap}.lucand .lcg em{font-style:normal;font-size:15px;font-weight:600;color:#4cd6a4}
+.lucand .lcg button.on{border-color:#f2c14e;box-shadow:inset 0 0 0 1px #f2c14e}
+.lucmp{display:flex;align-items:center;gap:8px;min-height:46px;padding:6px 12px;margin:0 0 4px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:16px;color:var(--text);overflow:hidden}
+.lucmp span{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}.lucmp b{font-weight:600}.lucmp i{font-style:normal;color:#f2c14e;flex:none}.lucmp em{font-style:normal;font-weight:600}.lucmp em.up,.lucmp .df.up{color:#4cd6a4}.lucmp em.dn,.lucmp .df.dn{color:#ff6b5e}.lucmp em.gd{color:#f2c14e}
+.lucmp .df{margin-left:auto;flex:none;padding-left:12px;border-left:1px solid var(--line);font-size:19px;font-weight:600}
+.lucmp .warn{margin-left:auto;flex:none;border:1px solid #d9822b;color:#ffb070;border-radius:6px;padding:3px 8px;font-size:13px;font-weight:600}
+.lucmp>:is(img,svg,canvas,div):not(.df){flex:none}
+body:not(.ingame) .gobar.lugo{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0 6px;bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+body:not(.ingame) .gobar.lugo button{min-height:50px;border-radius:10px;font-size:18px;font-weight:600;margin:0}
+@media (min-width:700px){body:not(.ingame) .gobar.lugo{bottom:0}}
+:root.ea[data-theme="light"] .lucand .lcg em,:root.ea[data-theme="light"] .lucmp em.up,:root.ea[data-theme="light"] .lucmp .df.up{color:#0e7a55}:root.ea[data-theme="light"] .lucmp em.gd,:root.ea[data-theme="light"] .lucmp i{color:#8a6100}:root.ea[data-theme="light"] .lucmp .warn{color:#9a4d00}:root.ea[data-theme="light"] .lucmp em.dn,:root.ea[data-theme="light"] .lucmp .df.dn{color:#c0392b}
+/* v120 (R102): 투수진 (시안) */
+.pgh.pit{min-height:64px;margin:0 -16px 0;padding:0 16px;background:var(--bg) right center/auto 100% no-repeat}
+@media (min-width:700px){.pgh.pit{margin:0}}
+body:not(.ingame) .mktabs4.pit2{max-width:230px;margin:0 0 8px}
+.pinfo{padding:7px 12px;margin:0 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:14px;color:var(--muted)}.pinfo b{color:var(--text);font-weight:600}.pinfo.bad{color:#ff8a7f}.pinfo.sub{border:0;background:none;padding:0 2px}
+.prow2{display:flex;align-items:center;gap:8px;min-height:50px;padding:3px 8px 3px 10px;margin:0 0 6px;border:1px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;color:var(--text)}
+.prow2>:is(img,svg,canvas){flex:none}.prow2 .sl{flex:none;width:42px;font-size:14.5px;font-weight:600;white-space:nowrap}.prow2 .nm{flex:1 1 0;min-width:0;font-size:16.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow2 .ov{flex:none;text-align:center;line-height:1.1}.prow2 small{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}.prow2 .ov b{font-size:19px;font-weight:600;color:#f2c14e}
+.prow2 .st{flex:none;width:88px;padding-left:8px;border-left:1px solid var(--line)}.pbar{display:flex;align-items:center;gap:5px}.pbar i{flex:1;height:7px;border-radius:2px;background:var(--line);overflow:hidden;display:block}.pbar u{display:block;height:100%;background:#4cd6a4}.pbar em{font-style:normal;font-size:12.5px;min-width:32px;text-align:right;color:var(--text)}
+.prow2 .rs{flex:none;width:66px;padding-left:8px;border-left:1px solid var(--line);font-size:13px;text-align:center;white-space:nowrap;line-height:1.3}.prow2 .rs .nxt{display:block;font-style:normal;background:#f2c14e;color:#15171c;border-radius:4px;font-size:11.5px;font-weight:600;padding:0 4px;margin-bottom:1px}
+.prow2.next{border-color:#f2c14e;box-shadow:inset 0 0 0 1px #f2c14e}.prow2.next .sl{color:#f2c14e}.prow2.sel{background:rgba(242,193,78,.12)}
+.prow2.pen .rsel2{flex:none;width:74px;min-height:34px;font-size:13px;padding:0 4px}.prow2.pen .rs{width:auto;max-width:92px;font-size:11.5px;white-space:normal}.prow2.pen .st{width:76px}
+.pord{display:flex;align-items:flex-start;justify-content:space-around;gap:2px;padding:8px 6px;margin:2px 0 4px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.pord span{display:flex;flex-direction:column;align-items:center;min-width:0}.pord span>:first-child{width:44px!important;height:44px!important;border-radius:50%!important;border:2px solid #4cd6a4;overflow:hidden}.pord span.next>:first-child{border-color:#f2c14e}
+.pord b{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}.pord span.next b{color:#f2c14e}.pord small{font-size:11.5px;color:var(--muted)}.pord i{font-style:normal;color:var(--muted);align-self:center;margin-top:-22px}
+.pcand{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden;margin:0 0 8px}
+.pcand .hd,.pcand .r{display:grid;grid-template-columns:minmax(0,1.3fr) 56px minmax(0,1.2fr);align-items:center;gap:6px;padding:0 10px}.pcand .hd{min-height:30px;background:var(--sunk);font-size:13px;color:var(--muted);text-align:center}
+.pcand .r{grid-template-columns:32px minmax(0,1.3fr) 56px minmax(0,1.3fr);min-height:42px;border-top:1px solid var(--line);cursor:pointer;color:var(--text)}.pcand .hd{grid-template-columns:minmax(0,1.3fr) 56px minmax(0,1.3fr);padding-left:48px}
+.pcand .r b{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pcand .r b small{font-size:11.5px;color:var(--muted);font-weight:400}.pcand .r .ov{font-size:18px;font-weight:600;color:#f2c14e;text-align:center}.pcand .r.on{background:rgba(242,193,78,.12);box-shadow:inset 3px 0 0 #f2c14e}.pcand .r.muted{display:block;padding:12px;font-size:14px}
+:root.ea[data-theme="light"] :is(.prow2 .ov b,.pcand .r .ov,.prow2.next .sl,.pord span.next b){color:#8a6100}
+.prow2{gap:6px;padding-left:8px}.prow2>:nth-child(2):is(img,svg,canvas,div,span):not(.sl){width:36px!important;height:36px!important}
+.prow2 .sl{width:38px;font-size:14px}.prow2 .st{width:76px;padding-left:6px}.prow2 .rs{width:58px;padding-left:6px;font-size:12.5px}.prow2 .nm{font-size:16px}
+.prow2 .nmb b{display:block;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow2 .nmb small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.luwarn{margin:-4px 0 10px;padding:6px 12px;border:1px solid #d9822b;border-radius:10px;font-size:13px;color:#ffb070;line-height:1.4}:root.ea[data-theme="light"] .luwarn{color:#9a4d00}
+/* ============ v121 (R103): 시안 3차 — 감독 내 실적 · 감독 채용 · 장비 상점 ============ */
+.mgtop,.mgneed,.mglist,.mggoal,.mgbox,.jbdet{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:0 0 8px;color:var(--text)}
+.mgtop{display:flex;align-items:center;gap:18px;padding:8px 16px 0 30px;overflow:hidden}.mgtop>:first-child{flex:none;width:92px!important;height:92px!important;border-radius:0!important;background:none!important;border:0!important;margin-bottom:-4px}
+.mgtop .mgr1{flex:1;min-width:0;padding:6px 0 10px 18px;border-left:1px solid var(--line)}.mgtop .rp{display:flex;align-items:baseline;gap:10px}.mgtop .rp span{font-size:20px;font-weight:600}.mgtop .rp b{font-size:38px;font-weight:600;color:#4cd6a4;line-height:1.1}.mgtop small{display:block;font-size:15px;color:var(--muted)}
+.mgneed{padding:8px 14px 10px}.mgneed .t,.mgbox .t{font-size:15.5px;font-weight:600;display:flex;align-items:center;gap:8px}.mgneed .t button{width:22px;height:22px;min-height:0;padding:0;border-radius:50%;border:1.500px solid #f2c14e;background:none;color:#f2c14e;font-size:13px;font-weight:600;line-height:1}
+.mgneed .g{display:grid;grid-template-columns:repeat(3,1fr);margin-top:6px}.mgneed .g span{text-align:center;font-size:15px}.mgneed .g span+span{border-left:1px solid var(--line)}.mgneed .g b{font-size:24px;font-weight:600;color:#4cd6a4;margin-left:8px;vertical-align:-2px}
+.mglist{overflow:hidden}.mglist button{display:flex;align-items:center;gap:14px;width:100%;min-height:42px;padding:0 14px;border:0;border-top:1px solid var(--line);border-radius:0;background:none;color:var(--text);font:inherit;text-align:left}.mglist button:first-child{border-top:0}
+.mglist svg{flex:none}.mglist .n{flex:1;font-size:17px;font-weight:600}.mglist .n i{display:inline-block;width:17px;height:17px;border:1.500px solid var(--muted);border-radius:50%;font-style:normal;font-size:11px;line-height:15px;text-align:center;color:var(--muted);vertical-align:2px;margin-left:4px;font-weight:600}
+.mglist b{font-size:21px;font-weight:600;min-width:40px;text-align:right}.mglist b.up{color:#4cd6a4}.mglist b.dn{color:#ff6b5e}.mglist em{font-style:normal;color:var(--muted);font-size:22px;margin-left:10px}
+.mggoal{display:flex;align-items:center;gap:14px;padding:10px 12px}.mggoal .im{flex:none;width:104px;height:62px;border-radius:8px;background:center/cover no-repeat;image-rendering:pixelated}.mggoal .x{flex:1;min-width:0;padding-left:14px;border-left:1px solid var(--line)}.mggoal small{display:block;font-size:13px;color:var(--muted)}.mggoal .x>b{display:block;font-size:22px;font-weight:600;color:#f2c14e;line-height:1.25}
+.mggoal .s{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:3px;font-size:13.5px}.mggoal .tg{border:1px solid var(--line);border-radius:6px;padding:1px 8px;font-size:12.5px;color:var(--muted);background:var(--sunk)}.mggoal .tg.ok{color:#4cd6a4}.mggoal .tg.due{color:#ffb070}.mggoal .e i{font-style:normal;color:#4cd6a4;font-weight:600}
+.mgbox{padding:8px 12px 10px}.mgbox .r{display:flex;align-items:center;gap:10px;min-height:40px;margin-top:6px;padding:4px 10px;border:1px solid var(--line);border-radius:8px}.mgbox .r b{font-size:16px;font-weight:600;white-space:nowrap}.mgbox .r span{margin-left:auto;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mgbox .r .ob{flex:none;min-height:32px;padding:0 12px;border:1px solid #f2c14e;border-radius:8px;background:none;color:var(--text);font-size:14.5px;font-weight:600}.mgbox .card.ttlc{margin:8px 0 0;border:0;padding:0;background:none}
+body:not(.ingame) .gobar.mggo,body:not(.ingame) .gobar.eqgo{padding:8px 0 6px;bottom:calc(88px + env(safe-area-inset-bottom,0px))}body:not(.ingame) .gobar.mggo button,body:not(.ingame) .gobar.eqgo button{width:100%;min-height:54px;border-radius:12px;font-size:21px;font-weight:600;margin:0}
+@media (min-width:700px){body:not(.ingame) .gobar.mggo,body:not(.ingame) .gobar.eqgo{bottom:0}}
+:root.ea[data-theme="light"] :is(.mgtop .rp b,.mgneed .g b,.mglist b.up,.mggoal .e i,.mggoal .tg.ok){color:#0e7a55}:root.ea[data-theme="light"] .mggoal .x>b{color:#8a6100}:root.ea[data-theme="light"] .mgneed .t button{color:#8a6100;border-color:#8a6100}:root.ea[data-theme="light"] .mglist b.dn{color:#c0392b}:root.ea[data-theme="light"] .mggoal .tg.due{color:#9a4d00}
+/* 감독 채용 */
+.jbpill{display:flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:100%;margin:2px auto 10px;padding:6px 16px;border:1px solid #6b5a2a;border-radius:999px;background:rgba(242,193,78,.1);font-size:14.5px;color:var(--text)}.jbpill svg{color:#f2c14e;flex:none}
+.jbrow{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;margin:0 0 6px;padding:4px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:inherit;text-align:left}
+.jbrow>:first-child{flex:none}.jbrow .n{flex:1 1 0;min-width:0;padding-left:10px;border-left:1px solid var(--line)}.jbrow .n b{display:block;font-size:16.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jbrow small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.jbrow .q{flex:none;padding-left:10px;border-left:1px solid var(--line);max-width:42%}.jbrow .q small{overflow:hidden;text-overflow:ellipsis}.jbrow .q i{font-style:normal;color:var(--text);font-weight:600;margin-left:6px}.jbrow .q b{font-size:16px;font-weight:600;margin-left:4px}.jbrow b.ok,.jbdet b.ok{color:#4cd6a4}.jbrow b.no,.jbdet b.no{color:#ff6b5e}.jbrow em{font-style:normal;color:var(--muted);font-size:22px;flex:none}
+.jbrow.on{border-color:#f2c14e;box-shadow:inset 0 0 0 1px #f2c14e;background:rgba(242,193,78,.1)}
+.jbdet{padding:12px 14px;margin-top:10px}.jbdet .hd{display:flex;align-items:center;gap:14px;padding-bottom:10px}.jbdet .hd>div{padding-left:14px;border-left:1px solid var(--line)}.jbdet .hd b{display:block;font-size:22px;font-weight:600}.jbdet .hd small{font-size:14px;color:var(--muted)}
+.jbdet .r{display:flex;align-items:center;gap:10px;min-height:42px;border-top:1px solid var(--line);font-size:16px}.jbdet .r span{flex:1;color:var(--text)}.jbdet .r b{font-weight:600;font-size:17px}.jbdet .r b.sep{padding-left:10px;border-left:1px solid var(--line)}
+.jbdet .bt{display:grid;grid-template-columns:1fr 1.2fr;gap:10px;padding-top:10px;border-top:1px solid var(--line)}.jbdet .bt button{min-height:48px;border-radius:10px;font-size:17px;font-weight:600;margin:0}.jbdet .bt button[disabled]{background:var(--sunk)!important;color:var(--muted)!important;border:1px solid var(--line)!important}
+:root.ea[data-theme="light"] :is(.jbrow b.ok,.jbdet b.ok){color:#0e7a55}:root.ea[data-theme="light"] :is(.jbrow b.no,.jbdet b.no){color:#c0392b}:root.ea[data-theme="light"] .jbpill svg{color:#8a6100}
+/* 장비 상점 */
+.eqtab{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin:0 0 10px}.eqtab button{min-height:46px;border:0;border-radius:0;background:none;color:var(--muted);font-size:19px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}.eqtab button.on{color:#f2c14e;border-bottom-color:#f2c14e}
+:root.ea[data-theme="light"] .eqtab button.on{color:#8a6100;border-bottom-color:#8a6100}
+body:not(.ingame) .stv .eqsel.eqbig{display:flex;align-items:center;gap:6px;min-height:150px;padding:10px 12px;margin:8px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+body:not(.ingame) .stv .eqsel.eqbig>button{flex:none;width:38px;height:38px;min-height:0;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--text);font-size:24px;line-height:1}
+body:not(.ingame) .stv .eqsel.eqbig>div{flex:1;min-width:0;text-align:center}.eqbig .big{display:block;font-size:68px;line-height:1.1;height:78px}.eqbig .big>*{width:72px!important;height:72px!important}
+body:not(.ingame) .stv .eqsel.eqbig b{display:block;font-size:20px;font-weight:600;color:var(--text);margin:2px 0 6px}.eqbig .fxs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.eqbig .fxs i{font-style:normal;min-width:104px;padding:3px 12px;border-radius:8px;font-size:16px;font-weight:600;border:1.500px solid #4cd6a4;color:#4cd6a4;background:rgba(76,214,164,.08)}.eqbig .fxs i.dn{border-color:#ff6b5e;color:#ff6b5e;background:rgba(255,107,94,.08)}
+.eqtbl{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:0 14px;margin:0 0 8px}.eqtbl>div{display:flex;justify-content:space-between;align-items:center;min-height:38px;font-size:16px;color:var(--text)}.eqtbl>div+div{border-top:1px solid var(--line)}.eqtbl b{font-size:18px;font-weight:600}.eqtbl b.ok{color:#4cd6a4}.eqtbl b.no{color:#ff6b5e}
+.eqrule{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}.eqrule i{font-style:normal;flex:1 1 auto;text-align:center;white-space:nowrap;padding:5px 8px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--text);background:var(--card)}.eqrule i.r{color:#ff6b5e;border-color:#ff6b5e}
+body:not(.ingame) details.eqhelp{border:1px solid var(--line);border-radius:10px;background:var(--card);margin:0 0 8px}body:not(.ingame) details.eqhelp>summary{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 12px;list-style:none;cursor:pointer;color:var(--text)}details.eqhelp>summary::-webkit-details-marker{display:none}details.eqhelp>summary b{font-size:15.5px;font-weight:600;padding-right:10px;border-right:1px solid var(--line)}details.eqhelp>summary span{flex:1;font-size:13px;color:var(--muted)}details.eqhelp>summary::after{content:"⌄";font-size:18px;color:var(--muted)}details.eqhelp>div{padding:0 12px 10px}
+:root.ea[data-theme="light"] .eqbig .fxs i{color:#0e7a55;border-color:#0e7a55}:root.ea[data-theme="light"] :is(.eqbig .fxs i.dn,.eqrule i.r,.eqtbl b.no){color:#c0392b;border-color:#c0392b}:root.ea[data-theme="light"] .eqtbl b.ok{color:#0e7a55}

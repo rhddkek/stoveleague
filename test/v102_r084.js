@@ -48,7 +48,7 @@ const {chromium}=require('playwright');const path=require('path');
       const nw=[7,3].every(n=>S.news.some(x=>(x.text||x.t||'').includes('트레이드 마감 D-'+n)));return {left,band:band.slice(0,40),n0:e0.needPct,n1:e1.needPct,hint:(e1.hint||[]).some(h=>/마감/.test(h)),nw};});
     r.left===3&&/D-3/.test(r.band)&&r.n0-r.n1===5&&r.hint&&r.nw?ok(`트레이드 마감 D-3: 시장 띠 「${r.band}」 · 정리하려는 구단 기준 ${r.n0}% → ${r.n1}% · 거절 이유에 마감 안내 · D-7·D-3 소식`):bad('마감 '+JSON.stringify(r));}
   // 7. 감독 칭호: 14가지 · 새내기는 처음부터 · 못 얻은 칭호는 못 검 · 대표 칭호가 감독 평판 옆에
-  {const r=await p.evaluate(()=>{const L=SL.titleList();const e=SL.titleSet('dyn');const e2=SL.titleSet('rookie');UI.go('club','mgr');const head=document.body.innerText.includes('「새내기 감독」');const chips=document.querySelectorAll('.ttlc .chiprow button').length;
+  {const r=await p.evaluate(()=>{const L=SL.titleList();const e=SL.titleSet('dyn');const e2=SL.titleSet('rookie');UI.go('club','mgr');/* v120 (R103): 시안 — 평판 옆 「새내기 감독 · 무명」, 칭호는 [칭호 보기]를 눌러 펼침 */const head=/새내기 감독 · /.test((document.querySelector('.mgtop')||{}).innerText||'');const tb=document.querySelector('.mgbox .ob');if(tb&&!document.querySelector('.ttlc'))tb.click();const chips=document.querySelectorAll('.ttlc .chiprow button').length;
       return {n:L.length,rk:L.find(x=>x.k==='rookie').got,e,e2,head,chips,w:document.documentElement.scrollWidth<=innerWidth+1};});
     r.n===14&&r.rk&&r.e&&!r.e2&&r.head&&r.chips>=1&&r.w?ok(`감독 칭호 ${r.n}가지: 새내기 감독 처음부터 · 못 얻은 「왕조 설계자」는 못 검 · 감독 평판 옆 「새내기 감독」`):bad('칭호 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');

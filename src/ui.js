@@ -578,7 +578,8 @@ const TIPS=['23세 이상은 1군이든 2군이든 주전으로 뛰어야 잠재
 const TICK={items:[],i:0,t:null};
 function tickerItems(){const out=[];const seen=new Set();for(const n of (S&&S.news)||[]){if(out.length>=10)break;const t=String(n.text||'').replace(/<[^>]+>/g,'');if(!t||seen.has(t))continue;seen.add(t);out.push((n.d!=null&&!String(n.d).startsWith('OFF')?n.d+'일차 · ':'')+t);}
   return out;}
-function tickerHtml(){if(!S)return '';TICK.items=tickerItems();if(!TICK.items.length)return '';TICK.i=TICK.i%TICK.items.length;
+function tickerHtml(tOnly){if(!S)return '';if(!tOnly&&ui.tab==='home'&&S.phase!=='season'&&!ui.view&&!isWide()&&!['plan','inbox'].includes(ui.sub.home))return '';   /* v120: 겨울 감독실은 화면 안 「뉴스」 줄이 같은 소식을 보여 줌 */
+  TICK.items=tickerItems();if(!TICK.items.length)return '';TICK.i=TICK.i%TICK.items.length;
   if(!TICK.t)TICK.t=setInterval(()=>{const e=document.getElementById('tick');if(!e||!TICK.items.length)return;TICK.i=(TICK.i+1)%TICK.items.length;e.classList.remove('in');void e.offsetWidth;e.textContent=TICK.items[TICK.i];e.classList.add('in');},4500);
   return `<button class="ticker" onclick="UI.sheet('news')" aria-label="소식 모음 열기"><span class="tk-l">소식</span><span id="tick" class="in">${esc(TICK.items[TICK.i])}</span></button>`;}
 // ---------- 첫 시즌 할 일 (지인 후기: 「선수단·육성이 어렵다」) — 할 일을 하나씩, 해 보면 저절로 체크 ----------
