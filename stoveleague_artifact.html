@@ -2538,6 +2538,26 @@ body:not(.ingame) .ps6 .gobar.grgo{grid-template-columns:1.25fr 1fr}
 :root.ea[data-theme="light"] :is(.re5h em,.re5k .t em,.re5r .r>.tg.y){color:#8a6100;border-color:#8a6100}
 .rcp .ctitle.rcl{text-align:center;font-size:14.5px;margin:-4px 0 8px;color:var(--text)}.rcp .ctitle.rcl b{font-weight:600}
 
+/* ============ v124 (R105): 경기 중계 신버전 (시험 중 — 기존 버전 │ 신버전) ============ */
+.seg.cmver{display:flex;margin:6px 16px 4px;padding:3px;border-radius:10px;background:#1b1e26;border:1px solid #2c313c}.seg.cmver button{flex:1;min-height:30px;border:0;border-radius:8px;background:none;color:#a9afbb;font-size:13.5px;font-weight:600}.seg.cmver button.on{background:#f2c14e;color:#15171c}
+.cm2{color:#eef0f4;padding-bottom:10px}.cm2 .gut{padding-left:14px;padding-right:14px}
+.c2ttl{display:flex;align-items:baseline;justify-content:space-between;margin:4px 0 8px}.c2ttl b{font-size:22px;font-weight:600}.c2ttl b::before{content:"";display:inline-block;width:4px;height:20px;border-radius:2px;background:#f2c14e;margin-right:10px;vertical-align:-3px}.c2ttl span{font-size:12.5px;color:#a9afbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-left:10px}
+.c2sc,.c2ls,.c2bso,.c2two>div,.c2vs .pc,.c2tac{border:1px solid #2c313c;border-radius:12px;background:#171a21}
+.c2sc{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:0 0 8px}.c2sc .tn{flex:1;min-width:0}.c2sc .tn.r{text-align:right}.c2sc .tn b{display:block;font-size:22px;font-weight:600;line-height:1.15}.c2sc .tn small{font-size:12px;color:#a9afbb;white-space:nowrap}.c2sc .sc{text-align:center;flex:none}.c2sc .sc b{display:block;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:1px}.c2sc .sc em{font-style:normal;font-size:14.5px;font-weight:600;color:#f2c14e;white-space:nowrap}
+.c2ls{margin:0 0 8px;padding:2px 6px;overflow-x:auto}
+.c2mid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px;margin:0 0 8px}.c2mid .c2f{border-radius:12px;overflow:hidden;border:1px solid #2c313c;min-height:150px;padding:0;margin:0}
+.c2bso{padding:10px 12px}.c2bso .r{display:flex;align-items:center;gap:8px;min-height:30px}.c2bso .r b{width:22px;font-size:20px;font-weight:600}.c2bso .r i{display:inline-block;width:16px;height:16px;border-radius:50%;background:#4a4f5b}.c2bso .r i.g{background:#4cd6a4}.c2bso .r i.y{background:#f2c14e}.c2bso .r i.r{background:#ff6b5e}
+.c2bso .b{display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #2c313c}.c2bso .b svg{flex:none;width:60px;height:60px}.c2bso .b span{font-size:17px;font-weight:600;line-height:1.3;padding-left:8px;border-left:1px solid #2c313c}
+.c2two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 8px}.c2two>div{padding:8px 10px;min-width:0}.c2two .prev{border-color:#4cd6a4}.c2two .next{border-color:#f2c14e;cursor:pointer}.c2two i{font-style:normal;display:inline-block;font-size:12.5px;font-weight:600;border-radius:5px;padding:1px 8px;background:#4cd6a4;color:#15171c}.c2two .next i{background:#f2c14e}.c2two b{display:block;margin-top:4px;font-size:16.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c2two b small{font-size:13px;color:#a9afbb}
+.c2vs{display:flex;align-items:center;gap:4px;margin:0 0 8px}.c2vs>em{font-style:normal;flex:none;font-size:13px;font-weight:600;color:#8b909c}.c2vs .pc{flex:1;min-width:0;display:flex;align-items:center;gap:6px;padding:6px 6px 6px 4px;cursor:pointer}.c2vs .pc>:first-child{flex:none;width:44px!important;height:44px!important}.c2vs .pc>div{flex:1;min-width:0}
+.c2vs i{font-style:normal;font-size:11px;border:1px solid #5a606c;border-radius:4px;padding:0 5px;color:#c9cdd6}.c2vs b{display:block;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.c2vs b small{font-size:11.5px;background:#2c313c;border-radius:4px;padding:0 4px;color:#c9cdd6}
+.c2vs .st{display:grid;grid-template-columns:repeat(3,1fr);margin-top:3px;padding-top:3px;border-top:1px solid #2c313c}.c2vs .st span{font-size:13.5px;font-weight:600;text-align:center}.c2vs .st span+span{border-left:1px solid #2c313c}.c2vs .st small{display:block;font-size:10.5px;font-weight:400;color:#a9afbb}.c2vs .td{display:block;font-size:11.5px;color:#a9afbb;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c2tac{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:0 0 8px}.c2tac i{flex:none;font-style:normal;font-size:13px;font-weight:600;border:1.500px solid #4cd6a4;color:#4cd6a4;border-radius:6px;padding:1px 9px}.c2tac.on i{border-color:#f2c14e;color:#f2c14e}.c2tac span{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.c2go{display:flex;gap:8px;margin:0 0 8px}.c2go .gold{flex:1;min-height:58px;border-radius:12px;font-size:24px;font-weight:600;background:#f2c14e;color:#15171c;border:0}.c2go .cmmd{flex:none;width:72px;min-height:58px;border-radius:12px;border:1px solid #3a404c;background:#171a21;color:#eef0f4;font-size:14px;font-weight:600}.c2go .cmmd small{display:block;font-size:11px;color:#a9afbb;font-weight:400}
+.c2bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.c2bar button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:1px solid #3a404c;border-radius:10px;background:#171a21;color:#eef0f4;font-size:17px;font-weight:600}.c2bar button[disabled]{opacity:.4}
+.c2f .cmres,.c2f .fzone,.c2f .fbt{display:none!important}.c2f .cmf{margin:0;border:0;border-radius:0;height:100%}
+.c2sc .tn small{display:block;overflow:hidden;text-overflow:ellipsis}.c2sc .sc b{font-size:34px}.c2bso .r{min-height:26px}.c2go .gold{min-height:52px;font-size:22px}.c2go .cmmd{min-height:52px}.c2bar button{min-height:42px}.c2ttl{margin:2px 0 6px}.c2vs .st small{white-space:nowrap}
+
 </style>
 <div id="app"></div>
 <script>
@@ -2548,7 +2568,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v123';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v124';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -9136,6 +9156,11 @@ function renderGame(){if(['pitch','pa','hl'].includes(ui.stepMode))ui.dmode=ui.s
   if(lg.done)return h+cmDone(lg,my)+`</div>`;
   if(chgNow)return h+cmInter(lg,my)+`</div>`;
   const B=SL.curBatter(lg),P=SL.curPitcher(lg);
+  /* v124 (R105 경기 중계 시안): 시험 중 — 위에서 기존 버전 │ 신버전 고르기 (PREF.gnew, 기본 신버전) */
+  const gnew=PREF.gnew!=null?PREF.gnew:!ui.testMode;   // 기본은 신버전 (자동 검사 주소 ?test=1 에서는 고르기 전까지 기존 버전 — 옛 검사가 기존 화면을 봄)
+  const tgl=`<div class="seg cmver gut"><button class="${gnew?'':'on'}" onclick="UI.gnew(false)">기존 버전</button><button class="${gnew?'on':''}" onclick="UI.gnew(true)">신버전</button></div>`;
+  if(gnew)return `<div class="cmv cm2">${tgl}${cm2Html(lg,my,B,P,A,H,pi)}</div>`;
+  h=h.replace('<div class="cmtop gut">',tgl+'<div class="cmtop gut">');
   h+=`<div class="gut cmlsw">${lineScore(lg,true)}</div><div class="cmfield gut">${cmField(lg,my,B,P)}</div>`;
   h+=`<div class="cmtoday gut">${cmToday(lg,0,B,P)}${cmToday(lg,1,B,P)}</div>`;
   h+=cmControls(lg,my,B,P);
@@ -10100,6 +10125,25 @@ function regEndHtml(cp,rank,inPS){const ut=SL.userTeam();const n=(ut.rec.w||0)+(
     <div class="ps6b re5r">${g&&gd>0?`<div class="r" onclick="UI.closeModal();UI.openPlayer(${g.p.id})"><i class="tg g">성장</i>${face(g.p,44)}<div><b>${esc(g.p.name)} <u>▲ +${gd}</u></b></div><em>›</em></div>`:''}${inj?`<div class="r" onclick="UI.closeModal();UI.openPlayer(${inj.id})"><i class="tg r">부상</i>${face(inj,44)}<div><b>${esc(inj.name)}</b></div><em>›</em></div>`:''}<div class="r" onclick="UI.closeModal();UI.go('league','table')"><i class="tg y">가을야구</i><div style="border:0;padding-left:0"><b>${inPS?'가을야구 진출':'가을야구 실패'}</b></div><em>›</em></div></div>
     <div class="ps6b re5k"><div class="t">이번 시즌 <em>핵심 ${key.length}</em></div>${key.map(k=>`<div class="k"><i class="${k[0]}"></i>${esc(k[1])}</div>`).join('')}</div>
     <details class="fbox wmore"><summary>전체 기록</summary><div class="small" style="padding:0 12px 10px">${st.slice(0,10).map((t,i)=>`<div class="${t.id===ut.id?'b':''}">${i+1}위 ${esc(t.name)} ${t.rec.w}승 ${t.rec.l}패</div>`).join('')}</div></details>`;}
+// v124 (R105): 경기 중계 신버전 — 점수 카드 · 이닝 표 · 구장 │ B·S·O + 주자 · 이전 결과 │ NEXT 타자 · 타자 vs 투수 · 작전 결과 · [▶ 다음 장면] · [작전][교체][기록]
+function cm2Html(lg,my,B,P,A,H,pi){const sh=t=>esc(t.name.split(' ')[0]),nk=t=>esc(t.name.split(' ').slice(1).join(' '));const md=ui.stepMode||'hl';const toI=ui.toInn||7;const M=CM_MODES.find(x=>x[0]===md)||CM_MODES[2];const off=lg.half===my;
+  const bs=lg.bases.map(x=>x!=null);const bt=bs.some(Boolean)?[bs[0]?'1':'',bs[1]?'2':'',bs[2]?'3':''].filter(Boolean).join('·')+'루':'주자 없음';const sit=`${lg.outs?lg.outs+'사':'무사'} ${bt}`;
+  const last=lg.log.slice().reverse().find(l=>l.pid!=null&&!['sub','info','start','chg'].includes(l.type));const lp=last?S.players[last.pid]:null;const lastT=last?(typeof cmBig==='function'?cmBig(last):'')||String(last.text||'').replace(/<[^>]+>/g,''):'';
+  const side=lg.half;const nxt=S.players[lg.lineup[side][(lg.bat[side]+1)%9]];const bst=SL.statLine(B,B.cur),pst=SL.statLine(P,P.cur);const bb=lg.box[B.id]||{},pb=lg.box[P.id]||{};
+  const cur=SL.tacNow(lg);const T=cur&&SL.TACTICS[cur];const tl=lg.log.slice().reverse().find(l=>l.tac||/작전|번트|도루|히트앤드런|고의/.test(String(l.text||'')));
+  const bench=SL.bench(lg,my).length,bp=SL.availableBullpen(lg,my).length;const g0=`${pi?esc(pi.title):`시즌 ${h2hNo(lg)}차전`}`;
+  const dia=`<svg viewBox="0 0 64 64" width="76" height="76" aria-label="주자 ${bt}"><g transform="rotate(45 32 32)"><rect x="14" y="14" width="16" height="16" fill="${bs[1]?'#f2c14e':'none'}" stroke="#8b909c" stroke-width="2"/><rect x="34" y="14" width="16" height="16" fill="${bs[0]?'#f2c14e':'none'}" stroke="#8b909c" stroke-width="2"/><rect x="14" y="34" width="16" height="16" fill="${bs[2]?'#f2c14e':'none'}" stroke="#8b909c" stroke-width="2"/></g></svg>`;
+  let h=`<div class="gut"><div class="c2ttl"><b>경기 중계</b><span>${g0} · ${esc(SL.parkOf(H).name)}</span></div>
+    <div class="c2sc">${emblem(A,50)}<div class="tn"><b>${sh(A)}</b><small>${nk(A)}${my===0?' · MY':''}</small></div><div class="sc"><b>${lg.score[0]} : ${lg.score[1]}</b><em>${lg.inn}회${lg.half===0?'초':'말'} · ${sit}</em></div><div class="tn r"><b>${sh(H)}</b><small>${nk(H)}${my===1?' · MY':''}</small></div>${emblem(H,50)}</div>
+    <div class="cmlsw c2ls">${lineScore(lg,true)}</div>
+    <div class="c2mid"><div class="cmfield c2f">${cmField(lg,my,B,P)}</div><div class="c2bso"><div class="r"><b>B</b>${dots(lg.balls,3,'g')}</div><div class="r"><b>S</b>${dots(lg.strikes,2,'y')}</div><div class="r"><b>O</b>${dots(lg.outs,2,'r')}</div><div class="b">${dia}<span>${lg.outs?lg.outs+'사':'무사'}<br>${bt}</span></div></div></div>
+    <div class="c2two"><div class="prev"><i>이전 결과</i><b>${lp?`${esc(lp.name)} · ${esc(lastT)}`:'경기 시작'}</b></div><div class="next" onclick="UI.sheet2('detail')"><i>NEXT 타자</i><b>${nxt?`${esc(nxt.name)} <small>${esc((lg.pos[side]||{})[nxt.id]||nxt.pos)}</small>`:'-'}</b></div></div>
+    <div class="c2vs"><div class="pc" onclick="UI.sheet2('detail')">${face(B,54)}<div><i>타자</i><b>${esc(B.name)} <small>${esc((lg.pos[side]||{})[B.id]||B.pos)}</small></b><div class="st"><span><small>타율</small>${hasSt(B.cur)?bst.avg:'-'}</span><span><small>홈런</small>${B.cur.hr||0}</span><span><small>타점</small>${B.cur.rbi||0}</span></div><small class="td">오늘 ${bb.ab||0}타수 ${bb.h||0}안타</small></div></div><em>VS</em><div class="pc" onclick="UI.sheet2('detail')">${face(P,54)}<div><i>투수</i><b>${esc(P.name)} <small>${P.throws==='L'?'L':'R'}</small></b><div class="st"><span><small>평균자책</small>${hasSt(P.cur)?pst.era:'-'}</span><span><small>이닝</small>${hasSt(P.cur)?pst.ip:'-'}</span><span><small>탈삼진</small>${P.cur.pSO||0}</span></div><small class="td">오늘 ${pb.pPitch!=null?pb.pPitch:(lg.pc&&lg.pc[P.id])||0}구 · ${pb.pSO||0}K</small></div></div></div>
+    <div class="c2tac ${T?'on':''}"><i>${T?'작전 중':'작전 결과'}</i><span>${T?`${esc(T.ko)} — 이번 타석 · +${esc(T.g2||T.gain)} / −${esc(T.c2||T.cost)}`:tl?esc(String(tl.text).replace(/<[^>]+>/g,'')):(off?'작전 없음 — 타자에게 맡김':'수비 작전 없음')}</span></div>
+    <div class="c2go"><button class="gold big" onclick="UI.step('${md}')">▶ ${md==='to'?`${toI}회까지 자동`:esc(M[2])}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식">${esc(M[1])}<small>진행</small></button></div>
+    <div class="c2bar"><button onclick="UI.cmSheet('tac')"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M6 5h12v16H6zM9 3h6v4H9zM9 12h6M9 16h4"/></svg>작전</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 8h14l-3-3M20 16H6l3 3"/></svg>교체</button><button onclick="UI.sheet2('detail')"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" d="M6 20v-8M12 20V5M18 20v-11"/></svg>기록</button></div></div>`;
+  return h;}
+A.gnew=function(v){PREF.gnew=!!v;prefSave();render();};
 
 return A;
 })();

@@ -1,7 +1,7 @@
 const fs=require('fs');const {JSDOM}=require('jsdom');
 const html=fs.readFileSync(__dirname+'/../stoveleague.html','utf8').replace(/<link[^>]+>/g,'');
 const errors=[];
-const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){w.scrollTo=()=>{};w.URL.createObjectURL=()=>'blob:x';w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){};w.Element.prototype.scrollIntoView=function(){};w.localStorage.clear();}});
+const dom=new JSDOM(html,{url:'http://localhost/?test=1',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){w.scrollTo=()=>{};w.URL.createObjectURL=()=>'blob:x';w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){};w.Element.prototype.scrollIntoView=function(){};w.localStorage.clear();}});
 const w=dom.window;w.addEventListener('error',e=>errors.push(e.message));w.console.error=(...a)=>errors.push(a.join(' '));
 const txt=()=>w.document.body.textContent;const has=s=>{if(!txt().includes(s))throw new Error('화면에 없음: '+s);};const toastT=()=>(w.document.querySelector('#toast')||{}).textContent;
 const V=()=>[...w.document.querySelectorAll('#app,#modal,#toast')].map(e=>e.textContent).join(' ');const hv=x=>{if(!V().includes(x))throw new Error('화면에 없음: '+x);};
