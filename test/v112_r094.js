@@ -48,6 +48,6 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
 
   // 6. 예전 저장(v29) · 버전
   {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);UI.setTab('home');UI.autoDays(7);UI.closeModal();UI.sheet('result');UI.closeModal();UI.go('dev','draft');return {ver:SL.GAME_VER,recap:SL.seasonRecap()};},j);
-    r.ver==='v112'&&r.recap===null?ok('예전 저장 시즌 중: 보고서·드래프트 화면 정상 · 결산 없음 · '+r.ver):bad('예전 저장 '+JSON.stringify(r));}
+    /^v1\d\d$/.test(r.ver)&&r.recap===null?ok('예전 저장 시즌 중: 보고서·드래프트 화면 정상 · 결산 없음 · '+r.ver):bad('예전 저장 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v112 검사 실패 ${fails}건`:'v112 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

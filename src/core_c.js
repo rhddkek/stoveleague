@@ -1278,7 +1278,7 @@ function weeklyStory(){const ut=userTeam();const C=[];const F=p=>isPitcher(p)?FO
   if(S.phase==='season'){const M=myPlayers(6).filter(x=>x.up&&!feat.has(x.p.id));for(const x of M){const p=x.p;const first=x.up.first;const F2=isPitcher(p)?FOCUS_PIT:FOCUS_BAT;const fo=p.focus&&p.focus!=='balance'?F2[p.focus]+' 훈련':null;const st=(p.log[0].f||[]).some(s=>/주전|출장|선발/.test(s));
       const onF=x.up.k===p.focus;C.push({score:first?27:16+x.up.d,kind:'mine',pid:p.id,title:`${p.name}, ${onF?(first?'첫 훈련 성과':'훈련 성과'):(first?'첫 성장':'성장')}`,lines:[`${ATTR_KO[x.up.k]} ${x.up.to-x.up.d} → ${x.up.to}`,`이번 주 ${(onF?[st?'출장':null,fo]:[st?'꾸준한 출장':'훈련']).filter(Boolean).join('과 ')||'훈련'}이 성장에 기여했습니다.`,x.ev?`${PLAN_KO[x.ev.k]} ${x.ev.games}경기째 · ${x.ev.line}`:''].filter(Boolean),sub:'',acts:[{label:'선수 보기',open:p.id}]});}}
   if(S.phase==='season')for(const id of ut.roster){const p=P_(id);if(p&&p.deb&&p.deb.s===S.season&&S.day-p.deb.d<=7)C.push({score:19,kind:'growth',pid:p.id,title:`${p.name}, 1군 데뷔전을 치렀습니다`,lines:[`${p.deb.vs}전 · ${p.deb.line}`,`종합 ${Math.round(calcOvr(p))} · ${p.age}세 · ${POS_KO[p.pos]||p.pos}`],sub:'첫 1군 경기는 기록에 남습니다. 계속 기회를 줄지, 2군에서 더 키울지 정할 때입니다.'});}
-  if(S.phase==='season'){const st=teamStreak(ut);if(st.n>=4)C.push({score:6+st.n,kind:'streak',title:`${st.n}${st.win?'연승':'연패'} 중입니다`,lines:[`${compName(compOf(ut))} ${rankOf(ut)}위 · ${ut.rec.w}승 ${ut.rec.l}패`],sub:st.win?'흐름을 탔을 때 주전을 무리시키지 않도록 피로를 확인하세요.':'라인업과 선발 순서를 점검해 볼 때입니다.'});
+  if(S.phase==='season'){const st=teamStreak(ut);if(st.n>=4)C.push({score:6+st.n,kind:'streak',title:`${st.n}${st.win?'연승':'연패'}`,lines:[`${compName(compOf(ut))} ${rankOf(ut)}위 · ${ut.rec.w}승 ${ut.rec.l}패`],sub:st.win?'흐름을 탔을 때 주전을 무리시키지 않도록 피로를 확인하세요.':'라인업과 선발 순서를 점검해 볼 때입니다.'});
     const goal=S.mgr&&S.mgr.cur&&S.mgr.cur.goal;if(goal&&S.day>=dayAt(0.64)){const st2=standings(compOf(ut));const r=rankOf(ut);const tgt=st2[goal.target-1];const gap=tgt?tgt.rec.w-ut.rec.w:0;C.push({score:7,kind:'race',title:r<=goal.target?`목표(${goal.text}) 안에 있습니다`:`목표(${goal.text})까지 ${gap}승 차`,lines:[`현재 ${r}위 · 남은 ${BAL.SEASON_GAMES-S.day+1}경기`],sub:''});}}
   for(const n of S.news.slice(0,12))if(n.kind==='alumni'&&n.s===S.season&&(S.phase!=='season'||n.d==='OFF'||+n.d>=S.day-7)){C.push({score:6.5,kind:'alumni',title:'우리가 키운 선수의 소식',lines:[n.text.replace(/^\[(출신|셀온|친정)\] /,'')],sub:''});break;}
   if(S.phase==='offseason'&&S.lastSummary&&S.week<=2){const L=S.lastSummary;C.push({score:9,kind:'season',title:`${L.s}시즌 ${compName(L.div)} ${L.rank}위${L.champ||(L.ps==='champ'&&userTeam().league==='KR')?' — '+(L.post||'우승!'):L.ps?' — '+(userTeam().league==='KR'?'가을야구 진출':L.post):''}`,lines:[`${L.w}승 ${L.l}패${L.post?' · '+L.post:''}`,`최고 타자 ${L.bestBat}`,`최고 투수 ${L.bestPit}`],sub:'스토브리그: 재계약·드래프트·파견을 결정하세요.'});}
@@ -1287,7 +1287,7 @@ function weeklyStory(){const ut=userTeam();const C=[];const F=p=>isPitcher(p)?FO
   if(S.phase==='offseason'&&S.lastSummary&&S.lastSummary.pres&&S.week<=3){const P=S.lastSummary.pres;if(P.tierFrom!==P.tierTo){const up=P.to>P.from;C.push({score:up?20:12,kind:'pres',title:up?`${ut.name}, 이제 「${P.tierTo}」 구단입니다`:`${ut.name}의 위상이 「${P.tierTo}」로 내려갔습니다`,lines:[`구단 위상 ${Math.round(P.from)} → ${Math.round(P.to)}`,up?(P.tierTo==='명문'?'선수들이 먼저 찾아오고, 연봉·코치 비용이 줄고, 위기에는 모기업이 지원합니다.':'선수 영입 의향과 수입이 좋아집니다.'):'수입과 선수 영입 의향이 조금 줄어듭니다.'],sub:'구단 → 구단 위상에서 자세히 볼 수 있습니다.',acts:[{label:'구단 위상 보기',go:['club','pres']}]});}}
   if(S.season>=2&&S.phase==='season'&&S.day<=7){const W=winterResults();if(W.length){const m=W[0];C.push({score:40,kind:'winter',pid:m.pid,title:m.title,lines:m.lines,sub:W.slice(1,4).map(x=>x.short).join(' · '),since:`${S.season-1}시즌 겨울 결과`,acts:m.acts});}}
   if(S.season===1&&S.phase==='season'&&S.day<=7){const A=ut.arch&&BAL.ARCH[ut.arch];const yp=ut.roster.concat(ut.dev).map(P_).filter(p=>p&&p.age<=23).sort((a,b)=>b.scout.est-a.scout.est)[0];const g=S.mgr&&S.mgr.cur&&S.mgr.cur.goal;
-    C.push({score:30,kind:'start',pid:yp?yp.id:null,title:`${ut.name} 감독 첫 시즌${A?' — '+A.name:''}`,lines:[A?A.pitch:`${compName(compOf(ut))}에서 시작하는 첫 시즌입니다. ${fgnRuleText(ut.league)}.`,yp?`주목할 유망주: ${yp.name} (${POS_KO[yp.pos]||yp.pos}, 예상 잠재 ${gradeOf(yp.scout.lo)}~${gradeOf(yp.scout.hi)})`:''].filter(Boolean),sub:(A?A.tip+' ':'')+(g?`시즌 목표: ${g.text}`:'')});}
+    C.push({score:30,kind:'start',pid:yp?yp.id:null,title:`${ut.name} 감독 첫 시즌${A?' — '+A.name:''}`,lines:[A?A.pitch:`${compName(compOf(ut))}에서 시작하는 첫 시즌입니다. ${fgnRuleText(ut.league)}.`,yp?`주목할 유망주: ${yp.name} (${POS_KO[yp.pos]||yp.pos}, 예상 잠재 ${potText(yp)})`:''].filter(Boolean),sub:(A?A.tip+' ':'')+(g?`시즌 목표: ${g.text}`:'')});}
   C.sort((a,b)=>b.score-a.score);return C[0]||{kind:'quiet',title:S.phase==='season'?'조용한 한 주입니다':'스토브리그가 진행 중입니다',lines:[],sub:S.phase==='season'?`다음 성장 점검까지 ${nextCheck()}경기`:''};}
 function coachNotes(){const ut=userTeam();const out=[];const st=ut.staff||[];const who=d=>{const c=st.filter(x=>x.dept===d&&(x.years>0||x.expiring)).sort((a,b)=>b.rating-a.rating)[0];return c?`${BAL.STAFF[d].name} ${c.name}`:null;};
   const ps=ut.roster.map(P_).filter(Boolean);
@@ -2275,11 +2275,11 @@ function behindAt(lg,side){let mx=0;for(const l of lg.log){if(!l.sc0)continue;co
 const MISSIONS=[
   // tier 0
   {k:'hit8',t:'팀 안타 8개 이상',side:'bat',tier:0,chk:(lg,s)=>sumB(uBox(lg,s),'h')>=8},
-  {k:'bb3',t:'사사구 3개 이상 골라내기',side:'bat',tier:0,chk:(lg,s)=>sumB(uBox(lg,s),'bb')>=3},
+  {k:'bb3',t:'사사구 ≥3',side:'bat',tier:0,chk:(lg,s)=>sumB(uBox(lg,s),'bb')>=3},
   {k:'lead1',t:'선취점 뽑기',side:'bat',tier:0,chk:(lg,s)=>{const f=lg.log.find(l=>l.sc0&&(l.sc1[0]+l.sc1[1]>0));return !!f&&f.sc1[s]>0;}},
   {k:'sp5',t:'선발 5이닝 이상',side:'pit',tier:0,chk:(lg,s)=>{const b=starterOf(lg,s);return !!b&&b.pOuts>=15;}},
   {k:'firstk',t:'선발이 첫 타자를 삼진으로',side:'pit',tier:0,chk:(lg,s)=>{const l=ourHalfLogs(lg,s,false).find(x=>['1b','2b','3b','hr','so','walk','bb','dp','fo','go','hbp','sf','e'].includes(x.type));return !!l&&l.type==='so';}},
-  {k:'nobb3',t:'사사구 3개 이하로 막기',side:'pit',tier:0,chk:(lg,s)=>sumB(uBox(lg,s),'pBB')<=3},
+  {k:'nobb3',t:'사사구 ≤3',side:'pit',tier:0,chk:(lg,s)=>sumB(uBox(lg,s),'pBB')<=3},
   // tier 1
   {k:'hr1',t:'홈런 1개 이상',side:'bat',tier:1,chk:(lg,s)=>sumB(uBox(lg,s),'hr')>=1},
   {k:'sb2',t:'도루 2개 이상',side:'bat',tier:1,chk:(lg,s)=>sumB(uBox(lg,s),'sb')>=2},

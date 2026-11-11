@@ -264,11 +264,11 @@ function autoSteal(lg){if(lg.done||lg.balls||lg.strikes||lg.stl===lg.paCount)ret
   ev.sc0=sc0;ev.on=on0;ev.o0=o0;ev.steal=true;glog(lg,ev.text,ev.type,lg.userGame?{pid:r.pid,pit:lg.pitcher[1-bs],sc0,sc1:lg.score.slice(),on:on0,o0}:null);lg.last=ev;if(lg.outs>=3)endHalf(lg);return ev;}
 function tacOk(lg,side,k){const T=TACTICS[k];if(!T||lg.done)return {ok:false,why:'경기 중이 아닙니다.'};const atBat=lg.half===side;const b=lg.bases;
   if(T.side==='off'&&!atBat)return {ok:false,why:'공격 때만 쓸 수 있습니다.'};if(T.side==='def'&&atBat)return {ok:false,why:'수비 때만 쓸 수 있습니다.'};
-  if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1루나 2루에 주자가 있어야 합니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않습니다.'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험합니다 (파울이면 삼진).'};}
+  if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1·2루 주자 필요'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않습니다.'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험합니다 (파울이면 삼진).'};}
   if(k==='steal'){if(!((b[0]&&!b[1])||(b[1]&&!b[2])))return {ok:false,why:'앞 베이스가 빈 1루·2루 주자가 있어야 합니다.'};}
   if(k==='dsteal'){if(!(b[0]&&b[1]&&!b[2]))return {ok:false,why:'1·2루에 주자가 있고 3루가 비어야 합니다.'};}
   if(k==='hitrun'){if(!b[0]||b[1])return {ok:false,why:'1루에만 주자가 있을 때 씁니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 의미가 적습니다.'};}
-  if(k==='team'){if(!(b[1]||b[2]))return {ok:false,why:'득점권(2·3루)에 주자가 있을 때 씁니다.'};}
+  if(k==='team'){if(!(b[1]||b[2]))return {ok:false,why:'득점권 주자 필요'};}
   if(k==='ibb'){if(lg.balls||lg.strikes)return {ok:false,why:'타석 시작 때만 고의사구를 할 수 있습니다.'};}
   return {ok:true};}
 function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false,msg:c.why};const T=TACTICS[k];

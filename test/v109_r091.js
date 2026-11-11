@@ -23,7 +23,7 @@ const {chromium}=require('playwright');const path=require('path');
     r&&!r.open&&/5위까지 가을야구/.test(r.sum)?ok(`순위표 아래 「${r.sum}」 접힘`):bad('가을야구 규칙 '+JSON.stringify(r));}
   // 4. 겨울 감독실: 할 일 · 협상 중 · 완료 한 카드 · 행동 단추 이름(지명 · 파견 검토 · 재계약 · 목록) · 줄인 말(우리 지명 · 코치 재계약 · 선택 업무 · 시즌 결산 · 우편함 · 개막까지 ▶▶)
   {const r=await p.evaluate(()=>{SL.testCmd('endSeason');UI.closeModal();UI.setTab('home');UI.closeModal();const t=document.querySelector('.content').innerText;const bs=[...document.querySelectorAll('.mkcard.todo button')].map(x=>x.textContent.trim());
-      return {t:t.slice(0,600),bs,old:/급하지 않은 일|우리 지명 차례입니다|코치 계약 만료|지난 시즌 결과 · 구단 우편함|건너뛰기|대기 중|처리할 일|선택 업무/.test(t),wait:/답변 대기 \d/.test(t),dec:/할 일 \d/.test(t),sum:/시즌 결산 · 우편함/.test(t),skip:/개막까지 ▶▶/.test(t),generic:bs.filter(x=>x==='보기'||x==='결정').length};});
+      return {t:t.slice(0,600),bs,old:/급하지 않은 일|우리 지명 차례입니다|코치 계약 만료|지난 시즌 결과 · 구단 우편함|건너뛰기|대기 중|처리할 일/.test(t),wait:/답변 대기 \d/.test(t),dec:/할 일 \d/.test(t),sum:/시즌 결산 · 우편함/.test(t),skip:/개막까지 ▶▶/.test(t),generic:bs.filter(x=>x==='보기'||x==='결정').length};});
     !r.old&&r.wait&&r.dec&&r.sum&&r.skip&&r.generic===0&&r.bs.some(x=>/지명|파견 검토|재계약|목록|명단 정리/.test(x))?ok(`겨울 감독실 단추 「${r.bs.join(' · ')}」 · 할 일 · 답변 대기 · 시즌 결산 · 우편함 · 개막까지 ▶▶ (예전 긴 말·「보기」「결정」 단추 없음)`):bad('겨울 감독실 '+JSON.stringify(r));}
   // 5. 지명 → 한 창에서 계약 확정 · 훈련 고르기(창 그대로) · 「다음 지명」 누르면 지명판 (선수 화면으로 넘어가지 않음)
   {const r=await p.evaluate(()=>{const S=SL.state();let k=0;while(!SL.draftTurn()&&S.draft&&!S.draft.done&&k++<8){SL.advanceWeek();}if(!SL.draftTurn())return {skip:true};UI.go('dev','draft');const av=SL.draftAvail();const pid=av[0].id;UI.draftPick(pid,'dev');
