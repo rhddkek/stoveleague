@@ -1197,7 +1197,8 @@ function autoFillUser(){const ut=userTeam();const added=[];let guard=0;
 function startNewSeason(){
   if(S.phase!=='offseason')return {ok:false,msg:'시즌 진행 중입니다.'};
   if(S.fdraft&&!S.fdraft.done){if(fdTurn())fdAuto();fdStep();if(!S.fdraft.done)fdEnd();}
-  if(S.draft&&!S.draft.done){if(draftTurn())draftAuto();draftStep();}draftCleanup();
+  // v116 (R098): 겨울을 건너뛸 때 자동 지명한 신인은 입단 계약까지 (전에는 지명만 하고 바로 대학 진학 처리 → 아무도 안 들어옴)
+  if(S.draft&&!S.draft.done){const pre=new Set(draftPending().map(p=>p.id));if(draftTurn())draftAuto();draftStep();for(const p of draftPending())if(!pre.has(p.id))draftContract(p.id,true);}draftCleanup();
   const ut=userTeam();
   while(S.week<=BAL.OFFSEASON_WEEKS)advanceWeek();
   const issues=rosterCheck(ut);if(issues.length)return {ok:false,msg:'선수단 요건 미달: '+issues.join(', '),issues};

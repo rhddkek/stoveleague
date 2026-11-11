@@ -18,9 +18,9 @@ const {chromium}=require('playwright');const path=require('path');
       UI.callupView(up.id,dn.id);const t=document.querySelector('.content').innerText;const bs=[...document.querySelectorAll('.content button')].map(x=>x.textContent.trim());const jno=document.querySelectorAll('.content table .jno').length;const pl=SL.callupPlan(up.id,dn.id);
       [...document.querySelectorAll('.content button')].find(x=>x.textContent.trim()==='교체 확정').click();return {card:/교체 확인/.test(t)&&/↑/.test(t)&&/↓/.test(t),old:/자리까지|맞바꾸기/.test(t),n:bs.filter(x=>x==='교체 확정').length,jno,slot:pl.ok&&pl.slot?pl.slot.k:null,inRot:ut.rotation.includes(up.id),inE:SL.inEntry(ut,up.id)};});
     r.card&&!r.old&&r.n===1&&r.jno===0&&r.inE&&(r.slot!=='sp'||r.inRot)?ok(`교체 확인 카드 · 「교체 확정」 단추 1개 · 표에 등번호 없음 · 누르면 1군 등록${r.slot==='sp'?' + 선발 자리까지':''}`):bad('교체 '+JSON.stringify(r));}
-  // 8. 순위표 아래 가을야구 규칙은 접힘(「5위까지 가을야구 · 진출 방식 ⓘ」) — 눌러야 자세히
+  // 8. 순위표 아래 가을야구 규칙은 접힘(「가을야구 진출 방식 ⓘ」, v116) — 눌러야 자세히
   {const r=await p.evaluate(()=>{UI.go('league','table');const d=[...document.querySelectorAll('.content details')].find(x=>/진출 방식/.test(x.querySelector('summary').textContent));return d?{open:d.open,sum:d.querySelector('summary').textContent}:null;});
-    r&&!r.open&&/5위까지 가을야구/.test(r.sum)?ok(`순위표 아래 「${r.sum}」 접힘`):bad('가을야구 규칙 '+JSON.stringify(r));}
+    r&&!r.open&&/가을야구 진출 방식/.test(r.sum)?ok(`순위표 아래 「${r.sum}」 접힘`):bad('가을야구 규칙 '+JSON.stringify(r));}
   // 4. 겨울 감독실: 할 일 · 협상 중 · 완료 한 카드 · 행동 단추 이름(지명 · 파견 검토 · 재계약 · 목록) · 줄인 말(우리 지명 · 코치 재계약 · 선택 업무 · 시즌 결산 · 우편함 · 개막까지 ▶▶)
   {const r=await p.evaluate(()=>{SL.testCmd('endSeason');UI.closeModal();UI.setTab('home');UI.closeModal();const t=document.querySelector('.content').innerText;const bs=[...document.querySelectorAll('.mkcard.todo button')].map(x=>x.textContent.trim());
       return {t:t.slice(0,600),bs,old:/급하지 않은 일|우리 지명 차례입니다|코치 계약 만료|지난 시즌 결과 · 구단 우편함|건너뛰기|대기 중|처리할 일/.test(t),wait:/답변 대기 \d/.test(t),dec:/할 일 \d/.test(t),sum:/시즌 결산 · 우편함/.test(t),skip:/개막까지 ▶▶/.test(t),generic:bs.filter(x=>x==='보기'||x==='결정').length};});

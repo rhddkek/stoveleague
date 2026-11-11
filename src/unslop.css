@@ -120,6 +120,7 @@ body:not(.ingame) .kmom.opp .kmk{color:inherit;opacity:.75}
 body:not(.ingame) .kmom b{display:block;line-height:1.35}
 body:not(.ingame) table.thub td,body:not(.ingame) table.thub th{white-space:nowrap}
 body:not(.ingame) table.thub td.tn{max-width:9.5em;overflow:hidden;text-overflow:ellipsis}
+body:not(.ingame) table.thub td:nth-child(3){white-space:normal;min-width:5em}
 body:not(.ingame) table.tsht{width:100%}
 body:not(.ingame) table.tsht tr{cursor:pointer}
 body:not(.ingame) .lnbtns{display:flex;gap:8px;flex-wrap:wrap}
