@@ -357,7 +357,7 @@ function finishDay(){
   if(d%7===0&&d<=BAL.SEASON_GAMES){osMoves(7);scoutTick();eqSweep();draftWatchTick();}if(d===dayAt(0.6))draftClassMake();
   if(d===asDay()&&(asLg()!=='KR'||krTeams().length===BAL.KR_TEAMS)&&(!S.allstar||S.allstar.s!==S.season))allStar();
   if(d<=BAL.SEASON_GAMES)try{lightLgDay(d);}catch(e){}   // v115 (R097): 직접 경기를 돌리지 않는 해외 리그도 순위가 쌓이게
-  S.day++;S.clock++;
+  S.day++;S.clock++;wkGrowSnap(false);
   if(d<=BAL.SEASON_GAMES){try{ddlTick(d);oreqTick();wantTick();if(d%7===0)buyoutWeek();}catch(e){console.error(e);}}   // v102
   const ut=userTeam();if(ut.cash<0)warn(`현금이 ${money(ut.cash)}입니다. 선수 판매, 긴급 대출(재정 탭) 등 회복 조치가 필요합니다.`);
   const plg=playLg();
@@ -1217,7 +1217,7 @@ function advanceWeek(){
   if(S.week<=4){const cands=ut.roster.map(P_).filter(p=>!S.market.listed.includes(p.id)&&(p.lockUntil||0)<=S.clock).sort((a,b)=>calcValue(b)-calcValue(a)).slice(0,4);
     for(const p of cands){if(p.dispatch)continue;if(rnd()<0.12){const buyers=krTeams().filter(t=>!t.isUser&&t.cash>calcValue(p)*1.5);if(buyers.length)makeAIOffer(pick(buyers),p,true);}}}
   if(S.week===2){interestCheck();endorseOffers();}endorseTick();
-  S.week++;S.clock++;
+  S.week++;S.clock++;wkGrowSnap(true);
   if(ut.cash<0)warn(`현금이 ${money(ut.cash)}입니다. 시즌 시작 전 회복 조치가 필요합니다.`);
   return true;
 }
@@ -1363,6 +1363,10 @@ function reportEnd(r0){const ut=userTeam();if(!r0||r0.s!==S.season)return null;c
   rep.bat=bb;rep.pit=bp;rep.grow.sort((x,y)=>y.d-x.d);rep.chk=weakCheck(r0,rep);return rep;}
 /* v112 (R094): 진 주에 「확인할 곳 하나」 — 실제 기록(이 기간 vs 시즌 전체)으로만 고르고 원인은 단정하지 않음 */
 /* v112 (R094): 시즌 결산 한 장 — 올해(순위 · 영입 성과 · 최대 성장 · 보강 필요)와 내년 할 일. 모두 실제 기록에서 */
+// v126 (R104 주간 성장): 주마다 우리 선수 종합·주요 능력을 떠 둠 (최근 6주만 — 저장 크기 작게). 시즌 중엔 7일마다, 겨울엔 주마다
+function wkGrowSnap(off){try{const ut=userTeam();if(!ut)return;if(!off&&S.day%7!==1)return;const W=S.wkg=S.wkg||[];const m={};for(const id of ut.roster.concat(ut.dev||[])){const p=P_(id);if(!p)continue;const a=p.attrs;m[id]=[Math.round(calcOvr(p)*10)/10].concat((isPitcher(p)?['stuff','control','movement','stamina']:['contact','power','eye','speed','defense']).map(k=>Math.round(a[k]||0)));}
+  W.push({s:S.season,d:off?null:S.day,w:off?S.week:null,m});while(W.length>6)W.shift();}catch(e){}}
+function wkGrow(){return S.wkg||[];}
 function seasonRecap(){const L=S.lastSummary;if(!L||L.s!==S.season)return null;const ut=userTeam();const ids=ut.roster.concat(ut.dev||[]);const ps=ids.map(P_).filter(Boolean);
   const signed=ps.filter(p=>{const t=(p.transfers||[]).filter(x=>x.to===ut.name).slice(-1)[0];if(!t||!/영입/.test(t.kind))return false;return t.s===S.season||(t.s===S.season-1&&!(p.hist||[]).some(h=>h.s===S.season-1&&h.team===ut.id));});   /* 이번 시즌 영입 + 지난겨울 영입 */
   const dl=p=>{const d=seasonDelta(p);return d?Math.round(d.d):null;};
@@ -2856,7 +2860,7 @@ function moneyMigrate(){if(S.moneyV>=2)return;let n=0,a=0;for(const id in S.play
   for(const t of krTeams()){const L=fgnList(t);if(L.some(q=>asiaOk(q)))continue;const q=L.filter(x=>ASIA_NAT.includes(x.nat)&&x.contract&&x.contract.salary<=28000).sort((x,y)=>x.contract.salary-y.contract.salary)[0];if(q){q.contract.salary=BAL.FGN.asiaCap;a++;}}
   S.moneyV=2;news(`[구단 운영] 금액 단위가 바뀌었습니다 — 모든 금액 ×5 (평균 연봉 약 2.8억, 최고 약 30억). 최저 연봉 3,000만에 맞춰 ${n}명${a?` · 아시아쿼터 상한(20만 달러 ≈ 2.8억)에 맞춰 ${a}명`:''} 연봉 조정 · 샐러리캡(경쟁균형세) 시작`,'sys');}
 
-return {bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actResults,actKeep,ACT_KO,swapSev,fgnSwapCands,negSwap,scFocusTo,scChange,traitsShown,facRows,DSTAR_KO,draftStars,draftLvl,lvLive,buyoutWeek,SCEN,scenMidStep,scenMidFinish,scenInfo,OREQ_KO,oreqInfo,clauseVal,wantPost,wantInfo,wantClear,wantBuild,ddlLeft,TITLES,titleList,titleSet,titleNow,titleCheck,capInfo,capAfter,capLimit,capFloor,capUse,capSettle,minSal,effAttr,perOf,PER_KO,lockerOf,setCaptain,captainCands,setMentor,delMentor,mentorCands,teamTalk,pressAnswer,setPrep,PREP_KO,PREP_FX,lastUG,keyDays,preMatch,squadPlan,teamAgg,unreadN,markRead,keyMoment,tradeMarket,DLG_KO,dlgOn,setDlg,renamePlayer,risers,teamSheet,AIM_KO,addStars,EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+return {wkGrow,bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actResults,actKeep,ACT_KO,swapSev,fgnSwapCands,negSwap,scFocusTo,scChange,traitsShown,facRows,DSTAR_KO,draftStars,draftLvl,lvLive,buyoutWeek,SCEN,scenMidStep,scenMidFinish,scenInfo,OREQ_KO,oreqInfo,clauseVal,wantPost,wantInfo,wantClear,wantBuild,ddlLeft,TITLES,titleList,titleSet,titleNow,titleCheck,capInfo,capAfter,capLimit,capFloor,capUse,capSettle,minSal,effAttr,perOf,PER_KO,lockerOf,setCaptain,captainCands,setMentor,delMentor,mentorCands,teamTalk,pressAnswer,setPrep,PREP_KO,PREP_FX,lastUG,keyDays,preMatch,squadPlan,teamAgg,unreadN,markRead,keyMoment,tradeMarket,DLG_KO,dlgOn,setDlg,renamePlayer,risers,teamSheet,AIM_KO,addStars,EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
