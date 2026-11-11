@@ -14,7 +14,7 @@ const {chromium}=require('playwright');const path=require('path');
       const hh=S.schedule.filter(x=>x.res&&!x.post&&((x.home===ut.id&&x.away===opp.id)||(x.home===opp.id&&x.away===ut.id)));
       UI.setTab('home');const btn=[...document.querySelectorAll('.today button')].find(x=>/경기 전 준비/.test(x.textContent));if(btn)btn.click();const shown=(document.querySelector('#modal')||{}).innerText||'';UI.closeModal();
       UI.startGame();const lg=S.liveGame;const oppSide=lg.home===opp.id?1:0;const usedSp=lg.pitcher[oppSide];const usedMy=lg.pitcher[1-oppSide];UI.set('stepMode','game');UI.step('game');UI.endGame();UI.closeModal();
-      return {avgOk,h2h:M.h2h.g===hh.length,sp:M.op.sp&&M.op.sp.sure?M.op.sp.pid===usedSp:'na',mysp:M.me.sp&&M.me.sp.sure?M.me.sp.pid===usedMy:'na',btn:!!btn,shown:/경기 전 준비/.test(shown)&&/상대 경계 타자/.test(shown)};});
+      return {avgOk,h2h:M.h2h.g===hh.length,sp:M.op.sp&&M.op.sp.sure?M.op.sp.pid===usedSp:'na',mysp:M.me.sp&&M.me.sp.sure?M.me.sp.pid===usedMy:'na',btn:!!btn,shown:/경기 준비/.test(shown)&&/팀 전력 비교/.test(shown)/* v122: 시안대로 — 경계 타자·팀 지표는 접힌 줄 */};});
     r.avgOk&&r.h2h&&r.sp===true&&r.mysp===true&&r.btn&&r.shown?ok('경기 전 준비: 팀 타율 = 선수 기록 합 · 맞대결 = 일정 결과 · 오늘 양 팀 선발 = 실제로 나온 선발 · 오늘 경기 카드 단추로 열림'):bad('경기 전 준비 '+JSON.stringify(r));}
   // 3. 스쿼드 플래너: 올해 주전은 그 자리 최고 종합 · 계약 끝나는 해 표시 · 다음 해부터 계약 끝난 선수 빠짐 · 지명타자는 다른 자리 주전과 겹치지 않음
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const P=SL.squadPlan();const ps=ut.roster.concat(ut.dev).map(id=>S.players[id]);let bad=[];
