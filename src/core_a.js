@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v116';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v117';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -381,7 +381,7 @@ function fixLineup(t,o){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function')
   const pits=[...alive].map(id=>S.players[id]).filter(isPitcher);
   for(const p of pits)if(!t.rotation.includes(p.id)&&!t.bullpen.includes(p.id))t.bullpen.push(p.id);
   while(t.rotation.length<5&&t.entry.length<cap){const up=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&!p.inj&&isPitcher(p)&&!alive.has(p.id)).sort((a,b)=>(b.pos==='SP')-(a.pos==='SP')||calcOvr(b)-calcOvr(a))[0];if(!up)break;t.entry.push(up.id);alive.add(up.id);t.bullpen.push(up.id);}
-  while(t.rotation.length<5&&t.bullpen.length){const sp=t.bullpen.find(id=>S.players[id].pos==='SP')||t.bullpen.filter(id=>id!==t.closer&&!S.players[id].rpLock).sort((a,b)=>(S.players[b].attrs.stamina||0)-(S.players[a].attrs.stamina||0))[0]||t.bullpen[0];t.bullpen=t.bullpen.filter(id=>id!==sp);t.rotation.push(sp);}
+  while(t.rotation.length<5&&t.bullpen.length){const sp=t.bullpen.filter(id=>S.players[id].pos==='SP').sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0]||t.bullpen.filter(id=>id!==t.closer&&!S.players[id].rpLock).sort((a,b)=>(S.players[b].attrs.stamina||0)-(S.players[a].attrs.stamina||0))[0]||t.bullpen[0];t.bullpen=t.bullpen.filter(id=>id!==sp);t.rotation.push(sp);}
   if(t.closer==null&&t.bullpen.length)t.closer=[...t.bullpen].sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0];
   if(t.rotIdx>=t.rotation.length)t.rotIdx=0;
   const up=(o&&o.noFill)?[]:fillEntry(t);if(up.length&&t.isUser&&typeof news==='function')news(`1군 엔트리 보충: ${up.join(', ')} (2군에서 등록)`,'contract');

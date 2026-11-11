@@ -247,3 +247,6 @@ body:not(.ingame) .phd .no{background:var(--sel,#15171c);color:var(--sel-ink,#ff
 body .g.S{color:var(--gS)}body .g.A{color:var(--gA)}body .g.B{color:var(--gB)}body .g.C{color:var(--gC)}body .g.D{color:var(--gD)}
 :root[data-theme="light"] body:not(.ingame) :is(.stv,.stvmenu) :is(.eqcost b,.bstep b){color:#a8520c}
 :root[data-theme="light"] body:not(.ingame) :is(.stv,.stvmenu) .eqcost{background:rgba(0,0,0,.05)}
+/* v117 (R099): 밝은 테마 육성 → 성장 「종합」 숫자가 노란 글자라 안 보임 (그동안 「육성」 탭이 이적으로 열려 검사에서 빠져 있었음) */
+:root.ea[data-theme="light"] body:not(.ingame) .stv .gibh b{color:#1e2027}
+:root.ea[data-theme="light"] body:not(.ingame) .stv .gib em.muted{color:#5d6872}
