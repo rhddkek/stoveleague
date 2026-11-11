@@ -384,7 +384,7 @@ function ftabsScroll(){for(const r of document.querySelectorAll('.ftabs')){const
 // v52 허브 탭: 탭마다 자주 쓰는 3칸 + 「더보기」 목록. 한 칸에 둘이 묶이면(예: 타순·수비 / 투수진) 그 칸 안에 작은 전환
 const HUB={
   roster:()=>({core:[['명단',['list']],['타순',['lineup']],['투수진',['pitch']],['코치',['staff']],['팀 운영',['locker','plan'],['라커룸','스쿼드 플래너']]],more:[]}),   // v103 (R085): 코치진은 투수진 옆 · 라커룸·플래너는 한 칸
-  dev:()=>{const ut=SL.userTeam();return {core:[['훈련',['train']],['성장',['grow']],['2군·유망주',['res','dev'],['2군·임대',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
+  dev:()=>{const ut=SL.userTeam();return {core:[['훈련',['train']],['성장',['grow']],['2군·유망주',['res','pros','dev'],['현황','유망주',`육성군 ${ut.dev.length}/${SL.devCap(ut)}`]],['겨울리그',['winter']],['장비',['equip']]],more:[]};},
   // v92 (R076): 예전 「더 있는 메뉴」(역대·명예의 전당 · 협상 테이블·드래프트 · 시설·설정 …)는 위 줄의 큰 탭 하나로 묶음 → 위 줄 최대 5칸, 아래 줄엔 「지금 고른 탭의 세부」만 (순위 화면에 역대·명예의 전당이 같이 붙어 나오던 것 없앰)
   market:()=>{const n=S.market.offers.length;const pf=S.phase==='offseason'?S.pendingFA.length:0;const dl=dealCount();const dt=SL.draftTurn()?1:0;return {core:[['진행 중',['deals','offers','neg'],['전체',`받은 제안${n?' '+n:''}`,'협상'],dl||0],['선수 찾기',['buy','fa','fgn','want'],['국내 선수','FA','해외 선수','영입 요청']],['트레이드',['thub','trade'],['트레이드 시장','트레이드 제안']],['내 계약',['renew','list'],[`재계약${pf?' '+pf:''}`,'매물 등록'],pf],['신인',['draft','scout','youth'],[`드래프트${dt?' ●':''}`,'국내 스카우트','유소년'],dt]],more:[]};},   // v111 (R093): 찾기와 처리하기를 나눔 — 진행 중(답변 필요 먼저, 이적 첫 화면) · 선수 찾기 · 트레이드 · 내 계약 · 신인
   league:()=>{const an=SL.achList?SL.achList().filter(x=>x.got).length:0;return {core:[['순위',['table','team'],['순위표','우리 팀 지표']],['일정',['sched','scores'],['우리 구단','리그 결과']],['기록',['rec','hist','hof'],['기록실','시즌별','명예의 전당']],['도전과제',['ach','achdone'],['남은 과제',`달성 ${an}`]],['다른 리그',['fut','events','overseas','asia'],['2군 리그','올스타전','해외','아시아 챔피언십']]],more:[]};},
@@ -417,7 +417,7 @@ function sideHtml(){return `<nav class="side" aria-label="전체 메뉴">${menuH
 function hubMenu(key){const H=HUB[key]();const c0=ui.sub[key];const T={roster:'선수단',market:'영입',league:'리그',club:'구단'}[key];
   modal(`<h3>${T} 메뉴</h3>${H.core.map(c=>`<div class="hrow ${c[1].includes(c0)?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${c[1][0]}')"><b>${c[0]}</b><span class="dim small">${c[2]?c[2].join(' · '):''}</span></div>`).join('')}
   ${H.more.map(g=>`<div class="hgrp">${esc(g[0])}</div>${g[1].map(x=>`<div class="hrow ${x[0]===c0?'on':''}" onclick="UI.closeModal();UI.setSub('${key}','${x[0]}')"><b>${esc(x[1])}${x[3]?' <i class="hdot"></i>':''}</b><span class="dim small">${esc(x[2])}</span><span class="hgo">›</span></div>`).join('')}`).join('')}`);}
-const DEV_IN_ROSTER=[],DEV_IN_MARKET=['draft','fgn','scout','youth'];const DEV_SUBS=['train','grow','res','dev','winter','equip'];
+const DEV_IN_ROSTER=[],DEV_IN_MARKET=['draft','fgn','scout','youth'];const DEV_SUBS=['train','grow','res','pros','dev','winter','equip'];
 function navOf(t,sub){if(t==='club'&&sub==='staff')return ['roster','staff'];   // v103: 코치진은 선수단으로
   if(t==='dev'){if(DEV_IN_MARKET.includes(sub))return ['market',sub];return ['dev',DEV_SUBS.includes(sub)?sub:'train'];}if(t==='roster'&&DEV_SUBS.includes(sub))return ['dev',sub];return [t,sub];}
 function subtabs(key,items){return `<div class="subtabs">${items.map(i=>`<button class="${ui.sub[key]===i[0]?'on':''}" onclick="UI.setSub('${key}','${i[0]}')">${i[1]}</button>`).join('')}</div>`;}

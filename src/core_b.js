@@ -6,6 +6,9 @@ function pitEff(lg,p){const pc=lg.pc[p.id]||0;const over=Math.max(0,pc-pitchLimi
 function teamSide(lg,side){return S.teams[side===1?lg.home:lg.away];}
 function teamDef(lg,side){let s=0,w=0;const wt={C:1.3,SS:1.4,'2B':1.2,CF:1.3,'3B':1,LF:0.8,RF:0.9,'1B':0.7};for(const pid of lg.lineup[side]){const pos=lg.pos[side][pid];if(!pos||pos==='DH')continue;const p=S.players[pid];const d=clamp(p.attrs.defense-posPenalty(p,pos),10,99);const k=wt[pos]||1;s+=d*k;w+=k;}return w?s/w:50;}
 
+function pltOk(t,x){if(!x||!Array.isArray(x.lineup)||x.lineup.length!==9||!x.pos)return false;const seen=new Set();for(const id of x.lineup){const p=S.players[id];if(!p||p.inj||p.retired||isPitcher(p)||!(t.entry||[]).includes(id))return false;const ps=x.pos[id];if(!ps||seen.has(ps))return false;seen.add(ps);}return true;}
+// 좌·우 상성(v121): 반대 손 투수를 만난 타자는 컨택·파워 +PLT, 같은 손은 −PLT (스위치 타자는 늘 반대 손). 리그 전체로는 반대·같은 손 타석이 거의 반반이라 평균 기록은 그대로
+const PLT_FX={opp:1.2,same:-1.8};   // 타자 구성(우 40·좌 40·양 20)·투수 구성(우 75·좌 25)에서 반대 손 타석이 60% → 0.6×1.2 = 0.4×1.8, 리그 평균은 그대로
 function createGame(homeId,awayId,userGame){
   const H=S.teams[homeId],A=S.teams[awayId];
   const lg={home:homeId,away:awayId,inn:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],score:[0,0],innScores:[[],[]],halfRuns:0,
@@ -15,6 +18,8 @@ function createGame(homeId,awayId,userGame){
     if(sp==null||!S.players[sp]||S.players[sp].inj){sp=(t.rotation.map(id=>S.players[id]).find(p=>p&&!p.inj&&p.id!==sp)||t.roster.map(id=>S.players[id]).filter(p=>p&&isPitcher(p)&&!p.inj)[0]||{}).id;}
     if(t.rotation.length)t.rotIdx=(t.rotIdx+1)%t.rotation.length;
     lg.pitcher[side]=sp;lg.used[side].push(sp);const b=ensureBox(lg,sp);b.pGS=1;b.pG=1;lg.entryLead[sp]=0;}
+  /* v121 (R104): 좌투·우투 상대 타순 — 상대 선발이 던지는 손에 맞춰 따로 짜 둔 타순(t.plt.L / t.plt.R)이 있고 9명이 모두 뛸 수 있으면 그 타순으로 */
+  for(const side of [0,1]){const t=side===1?H:A;if(!t.plt)continue;const op=S.players[lg.pitcher[1-side]];const k=op&&op.throws==='L'?'L':'R';const x=t.plt[k];if(x&&pltOk(t,x)){lg.lineup[side]=[...x.lineup];lg.pos[side]={...x.pos};lg.pltUsed=lg.pltUsed||{};lg.pltUsed[side]=k;}}
   for(const side of [0,1])for(const pid of lg.lineup[side]){const b=ensureBox(lg,pid);b.g=1;}
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
@@ -46,6 +51,7 @@ function doPitch(lg){
   const eff=pitEff(lg,P);
   let ctl=effAttr(P,'control')*eff,stf=effAttr(P,'stuff')*eff,mov=effAttr(P,'movement')*eff;
   let con=effAttr(B,'contact'),pow=effAttr(B,'power'),eye=effAttr(B,'eye'),sp=effAttr(B,'speed');
+  {const d=(B.bats==='S'||B.bats!==P.throws)?PLT_FX.opp:PLT_FX.same;con+=d;pow+=d;}
   {const dB=driveFx(teamSide(lg,bs)),dP=driveFx(teamSide(lg,fs));if(dB){con+=dB.contact||0;pow+=dB.power||0;eye+=dB.eye||0;sp+=dB.speed||0;}if(dP){ctl+=dP.control||0;stf+=dP.stuff||0;}}
   const risp=lg.bases[1]||lg.bases[2];
   if(risp&&B.traits.includes('클러치')){con+=4;pow+=4;}
