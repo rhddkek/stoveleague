@@ -23,8 +23,8 @@ const {chromium}=require('playwright');const path=require('path');
   {const r=await p.evaluate(()=>{UI.go('league','sched');const a=document.querySelectorAll('.content table tr').length-1;const me=!!document.querySelector('.content table tr.me');const btn=[...document.querySelectorAll('.content button')].find(x=>/전체 \d+경기/.test(x.textContent));if(btn)btn.click();const all=document.querySelectorAll('.content table tr').length-1;UI.set('schedAll',false);return {a,me,all,n:SL.state().schedule.filter(g=>SL.isUserGame(g)).length};});
     r.a===15&&r.me&&r.all===r.n?ok(`일정: 처음엔 오늘 앞뒤 ${r.a}경기(오늘 줄 강조) → 「전체」 ${r.all}경기`):bad('일정 '+JSON.stringify(r));}
   // 5. 촘촘히 보기 (기본 켬): 선수 목록 한 줄 34px · 끄면 원래 48px
-  {const r=await p.evaluate(()=>{UI.go('roster','list');const h1=document.querySelector('.rosterq tbody tr').offsetHeight;const d1=document.documentElement.classList.contains('dense');UI.setPref('dense',false);const h0=document.querySelector('.rosterq tbody tr').offsetHeight;UI.setPref('dense',true);return {h1,h0,d1};});
-    r.d1&&r.h1<=36&&r.h0>=46?ok(`촘촘히 보기(기본): 선수 목록 한 줄 ${r.h1}px (끄면 ${r.h0}px) — ☰ 메뉴·PC 왼쪽 아래에서 끄고 켬`):bad('촘촘 '+JSON.stringify(r));}
+  {const r=await p.evaluate(()=>{UI.go('roster','list');const h1=document.querySelector('.rosterq2 tbody tr').offsetHeight;const d1=document.documentElement.classList.contains('dense');UI.setPref('dense',false);const h0=document.querySelector('.rosterq2 tbody tr').offsetHeight;UI.setPref('dense',true);return {h1,h0,d1};});
+    r.d1&&r.h1<=40&&r.h0>=46?ok(`촘촘히 보기(기본): 선수 목록 한 줄 ${r.h1}px (끄면 ${r.h0}px) — ☰ 메뉴·PC 왼쪽 아래에서 끄고 켬`):bad('촘촘 '+JSON.stringify(r));}
   // 6. 도전과제 두 칸 격자
   {const r=await p.evaluate(()=>{UI.go('league','ach');const g=document.querySelector('.achg');if(!g)return null;const a=[...g.children].slice(0,2).map(e=>e.getBoundingClientRect());return {cols:Math.round(a[0].top)===Math.round(a[1].top)&&a[1].left>a[0].left,n:g.children.length};});
     r&&r.cols?ok(`도전과제 ${r.n}개 두 칸 격자 (높이 절반)`):bad('도전과제 '+JSON.stringify(r));}
