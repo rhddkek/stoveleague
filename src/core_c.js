@@ -2495,7 +2495,7 @@ function faComp(p,toT){const F=p.faFrom;const info=faCompOf(p);delete p.faFrom;i
   else news(`[FA 보상] ${p.name}(${info.g}등급) → ${toT.name} — 이번 주 안에 보상(선수 1명 + ${money(info.withP)}, 또는 ${money(info.cashOnly)})을 고르세요.`,'contract');}
 function compProtect(i,ids){const c=compQ()[i];const ut=userTeam();if(!c||c.kind!=='protect'||c.to!==ut.id)return {ok:false,msg:'보호 명단을 낼 FA 보상이 없습니다.'};const n=BAL.FA_COMP[c.g].prot;const ok=new Set(ut.roster.concat(ut.dev||[]).map(P_).filter(q=>compElig(q,c.pid)).map(q=>q.id));const L=[...new Set(ids)].filter(id=>ok.has(id));if(L.length>n)return {ok:false,msg:`보호 선수는 ${n}명까지입니다.`};c.prot=L;const out=compResolve(c,'auto');return {ok:true,out};}
 function compPick(i,pid){const c=compQ()[i];const ut=userTeam();if(!c||c.kind!=='pick'||c.from!==ut.id)return {ok:false,msg:'고를 FA 보상이 없습니다.'};if(pid!=null&&!compPool(c).some(q=>q.id===pid))return {ok:false,msg:'보호 명단 밖 선수만 고를 수 있습니다.'};const out=compResolve(c,pid);return {ok:true,out};}
-function compTick(){for(const c of (S.compQ||[]).filter(c=>!c.done))compResolve(c,'auto');}
+function compTick(){for(const c of (S.compQ||[]).filter(c=>!c.done))compResolve(c,'auto');if(S.auto&&S.auto.rook)for(const q of draftPending()){const k=diagnose(q).rec;const r=draftContract(q.id,true);if(r.ok!==false&&k)q.focus=k;}}   /* v134: 신인 계약 맡기기 — 자동 지명으로 남은 계약도 주가 넘어갈 때 추천 훈련으로 */
 // 2차 드래프트: 짝수 시즌 스토브리그 3주차. 구단마다 35명 보호 → 그 밖의 선수를 성적 역순으로 3라운드 지명. 양도금 4억/3억/2억. 한 구단에서 최대 4명까지.
 function sdFee(r){return Math.round(BAL.SD.fee[Math.min(r,BAL.SD.fee.length-1)]*1e4/BAL.WON);}
 function sdElig(q){return compElig(q,-1)&&q.age>=BAL.SD.minAge&&!S.pendingFA.includes(q.id)&&!q.loan;}

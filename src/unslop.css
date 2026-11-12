@@ -799,3 +799,11 @@ body:not(.ingame) .stv .eqman.gi .gil2 button{display:flex!important;flex-direct
 body:not(.ingame) .stv .eqman.gi .gil2 .a{align-items:flex-start;text-align:left}
 .stv .eqman.gi .gil2 .a small{opacity:1;color:var(--muted)}
 body:not(.ingame) .stv .eqman.gi .gil2 button.on .a small,body:not(.ingame) .stv .eqman.gi .gil2 button.on .v em,body:not(.ingame) .stv .eqman.gi .gil2 button.on .gq,body:not(.ingame) .stv .eqman.gi .gil2 button.on .v b{color:inherit!important;opacity:1}
+
+/* v134: 덜어내기 — 타순 설정 접기 · 명단 찾기 단추 · 신인 계약 맡기기 */
+.lufold{margin:0 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--card)}.lufold>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;list-style:none;cursor:pointer}.lufold>summary::-webkit-details-marker{display:none}.lufold>summary b{font-size:16px;font-weight:600;white-space:nowrap}.lufold>summary span{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lufold>summary em{font-style:normal}.lufold>summary i{flex:none;font-style:normal;font-size:13px;color:#f2c14e}.lufold>summary i:after{content:" ▾"}.lufold[open]>summary i:after{content:" ▴"}.lufold[open]{padding:0 10px 4px}.lufold[open]>summary{padding:0 2px}
+.luhint{margin:0 0 10px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px;color:var(--muted);text-align:center}
+.sqchips .sqfind{margin-left:auto;flex:none;width:40px;min-width:40px;padding:0;display:flex;align-items:center;justify-content:center}
+.rkauto{margin-left:8px;min-height:0;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted);font-size:12px}
+:root.ea[data-theme="light"] .lufold>summary i{color:#8a6100}
+.sqchips .sqfind{height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer}

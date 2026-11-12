@@ -8,7 +8,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:144,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();UI.go('roster','list');
       const f=document.querySelector('.sqchips');const kids=[...f.children].filter(e=>e.offsetHeight);const tb=kids.map(e=>{const r=e.getBoundingClientRect();return r.top+r.height/2;});const t=document.querySelector('.content').innerText;
       return {rows:Math.max(...tb)-Math.min(...tb)<12?1:2,chips:kids.map(e=>e.textContent.replace(/[\s\d]+$/,'')).join(','),sel:document.querySelectorAll('.content select').length,th:[...document.querySelectorAll('.rosterq2 thead th')].map(x=>x.textContent.replace(/[▼▲\s]/g,'')).join(','),hint:/이름을 누르면/.test(t),arrow:/→ \d+%/.test(t)};});
-    r.rows===1&&r.chips==='전체,타자,투수,부상'&&r.sel===0&&r.th==='선수,포지션,종합,상태'&&!r.hint&&!r.arrow?ok(`명단: 칩 한 줄 「${r.chips}」 · 표 「${r.th}」 · 고르는 상자 없음`):bad('필터 '+JSON.stringify(r));}
+    r.rows===1&&r.chips.replace(/,$/,'')==='전체,타자,투수,부상'&&r.sel===0&&r.th==='선수,포지션,종합,상태'&&!r.hint&&!r.arrow?ok(`명단: 칩 한 줄 「${r.chips}」 · 표 「${r.th}」 · 고르는 상자 없음`):bad('필터 '+JSON.stringify(r));}
 
   // 2. 목록만 스크롤: 타자 14명 → 목록 칸에 최대 높이 · 머리줄 고정 · 페이지는 거의 안 움직임 · 목록을 끝까지 내려도 위 탭·필터와 아래 단추 그대로
   {const r=await p.evaluate(()=>{UI.sqf('kind','B');const f=document.querySelector('.fitl');const th=f.querySelector('thead th');const tabs=document.querySelector('.htabs').getBoundingClientRect().top;const bar=document.querySelector('.selmg').getBoundingClientRect().top;

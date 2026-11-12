@@ -1,6 +1,6 @@
 # 상태판
 
-- 현재 버전: **v133** (2026-11-12)
+- 현재 버전: **v134** (2026-11-12)
 - 플레이: https://rhddkek.github.io/stoveleague/ · 테스트 모드 https://rhddkek.github.io/stoveleague/?test=1
 - 다음 요청 번호: **R108**
 

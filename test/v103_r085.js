@@ -28,7 +28,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 5. 코치진은 선수단 위 줄 투수진 옆 · 구단엔 없음 · 예전 길(구단 → 코치진)로 가도 선수단 코치진 · 위 줄 5칸
   {const r=await p.evaluate(()=>{UI.setTab('roster');const rt=[...document.querySelectorAll('.htabs button')].map(x=>x.textContent.trim());UI.setTab('club');const ct=[...document.querySelectorAll('.htabs button')].map(x=>x.textContent.trim());
       UI.go('club','staff');const tab=SL&&document.querySelector('.htabs button.on');const staff=/코치관리|타격코치/.test(document.querySelector('.content').innerText);return {rt,ct,on:tab&&tab.textContent.trim(),staff,w:document.documentElement.scrollWidth<=innerWidth+1};});
-    r.rt.join(',')==='명단,타순,투수진,코치,팀 운영'&&!r.ct.includes('코치')&&r.on==='코치'&&r.staff&&r.w?ok(`선수단 위 줄 「${r.rt.join(' · ')}」 · 구단 「${r.ct.join(' · ')}」 · 구단 → 코치진 길도 선수단 코치진으로`):bad('코치진 '+JSON.stringify(r));}
+    r.rt.join(',')==='명단,타순,투수진,운영'&&!r.ct.includes('코치')&&r.on==='운영'&&r.staff&&r.w?ok(`선수단 위 줄 「${r.rt.join(' · ')}」 · 구단 「${r.ct.join(' · ')}」 · 구단 → 코치진 길도 선수단 코치진으로`):bad('코치진 '+JSON.stringify(r));}
   // 6. 화면 점검에서 고친 것: 0원은 「0」 · 투수진 안에 「타자단」 없음 · 시설 화면 「준비 중」 칸·같은 커리어 두 벌 없음 · 첫 시즌 해외 순위표에 「-」만 가득하지 않음 · 시즌 중 재계약·겨울리그 화면이 비어 있지 않음
   {const r=await p.evaluate(()=>{const o={};UI.go('roster','pitch');o.seg=[...document.querySelectorAll('.mktabs4 button')].map(x=>x.textContent.trim());
       UI.go('club','fac');const t=document.querySelector('.content').innerText;o.prep=/준비 중/.test(t);o.car=(t.match(/첫 시즌 완주/g)||[]).length;
