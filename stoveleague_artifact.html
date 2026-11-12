@@ -2603,6 +2603,21 @@ body:not(.ingame) table.wkgt td{height:46px;font-size:15px}table.wkgt .up{color:
 .wkgc{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px 10px;margin:10px 0;color:var(--text)}.wkgc .hd{display:flex;align-items:flex-end;gap:12px;padding-bottom:6px;border-bottom:1px solid var(--line);cursor:pointer}.wkgc .hd>:first-child{flex:none}.wkgc .hd div{align-self:center}.wkgc .hd b{display:block;font-size:22px;font-weight:600}.wkgc .hd small{font-size:14px;color:var(--muted)}.wkgc .hd i{font-style:normal;border:1px solid var(--line);border-radius:5px;padding:0 6px;color:var(--text)}
 .wkgc .t{font-size:16px;font-weight:600;margin:8px 0 2px}.wkgc .t small{font-size:12.5px;font-weight:400;color:var(--muted)}.wkgc svg{display:block;color:var(--text)}.wkgc .f{display:flex;align-items:center;gap:10px;margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14.5px}.wkgc .f i{flex:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:block}.wkgc .f u{display:block;height:100%;background:#4cd6a4}.wkgc .f b{font-weight:600}
 :root.ea[data-theme="light"] :is(.wkg2 .u b,table.wkgt .up){color:#0e7a55}:root.ea[data-theme="light"] :is(.wkg2 .d b,table.wkgt .dn){color:#c0392b}
+/* v127 (R105 10): 전력 보강 진단 */
+.dg1{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px 10px 4px;margin:0 0 8px;color:var(--text)}.dg1 .t{display:flex;align-items:center;justify-content:space-between;margin:0 2px 8px}.dg1 .t span{font-size:19px;font-weight:600}.dg1 .t span::before{content:"";display:inline-block;width:4px;height:18px;border-radius:2px;background:#f2c14e;margin-right:10px;vertical-align:-2px}.dg1 .t i{font-style:normal;border:1px solid var(--muted);border-radius:8px;padding:3px 10px;font-size:13.5px}.dg1 .t i b{color:#f2c14e;font-size:17px;margin-left:4px}.dg1 .t small{font-size:12.5px;color:var(--muted)}
+.dg1 .r{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:0 0 6px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.dg1 .r>u{flex:none;width:34px;height:34px;line-height:34px;text-align:center;text-decoration:none;border-radius:6px;background:#f2c14e;color:#15171c;font-size:19px;font-weight:600}.dg1 .r .x{flex:1;min-width:0}.dg1 .r .x b{font-size:20px;font-weight:600;margin-right:6px}.dg1 .r.c .x b{font-size:18px}.dg1 .r .x small{display:block;font-size:13.5px;color:var(--muted)}
+.dg1 i.bad,.dg1 i.ok,.dg1 .x>i{font-style:normal;display:inline-block;border:1.500px solid var(--muted);border-radius:6px;padding:0 7px;font-size:13px;font-weight:600;vertical-align:2px}.dg1 i.bad{border-color:#ff6b5e;color:#ff8a7f}.dg1 i.ok{border-color:#4cd6a4;color:#4cd6a4}.dg1 .fs{display:flex;gap:6px;margin-top:6px}.dg1 .fs>*{border:1px solid var(--line);border-radius:6px;width:38px!important;height:38px!important}
+.dg1 .r>button,.dg1 .r button{flex:none;min-height:36px;padding:0 10px;border:1.500px solid #f2c14e;border-radius:8px;background:none;color:#f2c14e;font-size:14px;font-weight:600;white-space:nowrap}.dg1 .r>:first-child:not(u){flex:none}.dg1 .ev{flex:none;text-align:center;padding:0 8px;border-left:1px solid var(--line)}.dg1 .ev small{display:block;font-size:12px;color:var(--muted)}.dg1 .ev b{font-size:21px;font-weight:600;color:#f2c14e}
+.dg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 8px}.dg2 button{min-height:50px;border:0;border-radius:10px;background:#f2c14e;color:#15171c;font-size:18px;font-weight:600}
+:root.ea[data-theme="light"] :is(.dg1 .t i b,.dg1 .ev b,.dg1 .r button){color:#8a6100;border-color:#8a6100}:root.ea[data-theme="light"] .dg1 i.ok{color:#0e7a55}:root.ea[data-theme="light"] .dg1 i.bad{color:#c0392b}
+
+/* v127 (R104): 리그 기록 — 고른 선수 카드 */
+body:not(.ingame) .prow.recrow.on{box-shadow:inset 0 0 0 1px #f2c14e;border-radius:8px;background:rgba(242,193,78,.1)}
+.reccard{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:end;padding:8px 12px 12px;margin:8px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text)}.reccard>div{min-width:0;padding-left:12px;border-left:1px solid var(--line)}.reccard>div>b{display:block;font-size:23px;font-weight:600}.reccard>div>small{font-size:14px;color:var(--muted)}
+.reccard .k{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.reccard .k span{border:1px solid var(--line);border-radius:8px;text-align:center;padding:4px 0}.reccard .k small{display:block;font-size:12.5px;color:var(--text)}.reccard .k b{font-size:20px;font-weight:600;color:#4cd6a4}.reccard>button{grid-column:1/-1;min-height:44px;border-radius:8px;font-size:17px;font-weight:600;margin:4px 0 0}
+:root.ea[data-theme="light"] .reccard .k b{color:#0e7a55}
+.reccard .k{grid-template-columns:repeat(3,minmax(0,1fr))}.reccard .k small{white-space:nowrap}.dg1 .r.c .x b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.dg1 .r.c .x small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sgdone{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 10px;border:1px solid #2c6b56;border-radius:12px;background:rgba(76,214,164,.1);color:var(--text)}.sgdone i{flex:none;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%;background:#4cd6a4;color:#15171c;font-style:normal;font-size:20px;font-weight:600}.sgdone b{font-size:22px;font-weight:600;color:#4cd6a4}.sgdone span{font-size:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}:root.ea[data-theme="light"] .sgdone b{color:#0e7a55}
 
 </style>
 <div id="app"></div>
@@ -2614,7 +2629,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v126';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v127';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -7973,8 +7988,11 @@ function renderRecords(ut){const KEYS=['KR1',...Object.keys(SL.BAL.LEAGUES)];con
   const rate=['avg','obp','ops','era','whip','fip'].includes(cat);
   const L=!rs?[]:rs.live?SL.leaders(key,cat,10).map(o=>({p:o.p,v:o.v,tn:o.t?o.t.name:'',me:o.t&&o.t.isUser})):SL.leadersPast(key,cat,10,rs.s).map(o=>({p:o.p,v:o.v,tn:o.tn,me:o.tn===ut.name}));
   h+=`<div class="card main">${hd(C[cat],rate?(side==='pit'?'규정 이닝 이상':'규정 타석 이상'):'누적')}<div class="chiprow recchips">${Object.keys(C).map(k=>`<button class="${k===cat?'on':''}" onclick="UI.set('${setter}','${k}')">${C[k]}</button>`).join('')}</div>
-    ${L.map((o,i)=>`<div class="prow" onclick="UI.openPlayer(${o.p.id},'record')"><b style="width:22px">${i+1}</b>${face(o.p,32)}<div class="grow"><div class="nm">${esc(o.p.name)}${o.me?' <span class="chip g">우리</span>':''}</div><div class="sub">${esc(o.tn||'')} · ${o.p.pos}${o.p.retired?' · 은퇴':''}</div></div><b>${fmt(cat,o.v)}</b></div>`).join('')||`<div class="muted small">${rs?'조건에 맞는 기록이 아직 없습니다.':'이 리그는 아직 끝난 시즌이 없습니다.'}</div>`}
-    <div class="muted small" style="margin-top:6px">선수를 누르면 지난 시즌별 기록(소속·나이·종합)과 통산을 볼 수 있습니다.</div></div>`;
+    ${L.map((o,i)=>`<div class="prow recrow ${ui.recSel===o.p.id||(ui.recSel==null&&i===0)?'on':''}" onclick="UI.set('recSel',${o.p.id})"><b style="width:22px">${i+1}</b>${face(o.p,32)}<div class="grow"><div class="nm">${esc(o.p.name)}${o.me?' <span class="chip g">우리</span>':''}</div><div class="sub">${esc(o.tn||'')} · ${o.p.pos}${o.p.retired?' · 은퇴':''}</div></div><b>${fmt(cat,o.v)}</b></div>`).join('')||`<div class="muted small">${rs?'조건에 맞는 기록이 아직 없습니다.':'이 리그는 아직 끝난 시즌이 없습니다.'}</div>`}
+    </div>`;
+  /* v127 (R104 기록 시안): 줄을 누르면 아래 선수 카드(기록 세 칸) + [선수상세 ›] */
+  {const o=L.find(x=>x.p.id===ui.recSel)||L[0];if(o){const p=o.p;const st=rs&&!rs.live?((p.hist||[]).find(x=>x.s===rs.s)||{}).st:p.cur;const ln=st?SL.statLine(p,st):null;const kv=!ln?[]:side==='pit'?[['승-패',`${ln.w}-${ln.l}`],['평균자책',ln.era],['탈삼진',st.pSO||0]]:[['안타',st.h||0],['타율',ln.avg],['OPS',ln.ops]];
+    h+=`<div class="reccard">${face(p,84)}<div><b>${esc(p.name)}</b><small>${esc(o.tn||'')} · ${p.pos}</small><div class="k">${kv.map(x=>`<span><small>${x[0]}</small><b>${x[1]}</b></span>`).join('')}</div></div><button class="primary" onclick="UI.openPlayer(${p.id},'record')">선수상세 ›</button></div>`;}}
   return h;}
 // ----- 홈구장 -----
 function parkSvg(pk){const c=pk.dim;const sc=x=>x*0.62;const L=sc(c.l),C=sc(c.c),R=sc(c.r);const cx=100,cy=92;const pt=(a,d)=>[cx+Math.cos(a)*d,cy-Math.sin(a)*d];const A=Math.PI/4,[lx,ly]=pt(Math.PI-A+0.0,L),[rx,ry]=pt(A,R),[mx,my]=pt(Math.PI/2,C);
@@ -8758,6 +8776,7 @@ function renderTable(v){const p=S.players[v.pid];const ut=SL.userTeam();if(!p)re
   return h+`</div></div>`;}
 function renderPlaceMock(p,v){const ut=SL.userTeam();const isP=SL.isPitcher(p);const pl=SL.placePlan(p.id);const c=p.contract;const role=ui.plRole||'plan';const out=pl&&pl.out!=null?S.players[pl.out]:null;const ovr=Math.round(SL.calcOvr(p));
   let h=`<div class="pv"><div class="pvbar gut"><button aria-label="뒤로" onclick="UI.back()">‹</button><span class="t">영입 완료</span></div><div class="content gut" style="padding-bottom:16px">`;
+  h+=`<div class="sgdone"><i>✓</i><b>영입 완료</b><span>${esc(p.name)} ${p.pos} ${gv(ovr)}</span></div>`;   /* v127 (R105 영입 완료 시안): 초록 띠 */
   h+=`<div class="mkcard"><div class="row" style="gap:12px;align-items:flex-start">${face(p,88)}<div class="grow"><div style="font-size:22px;font-weight:600">${esc(p.name)}</div><div class="small"><span class="ptg">${p.pos}</span> ${gradeTag(p)} <span class="sep">|</span> ${p.age}세 <span class="sep">|</span> ${p.throws==='L'?'좌투':'우투'}${p.bats==='S'?'양타':p.bats==='L'?'좌타':'우타'}</div><div class="small" style="margin-top:6px"><span class="tg">계약</span> <b>${c?`${c.years}년 / 연봉 ${Ms(c.salary)}`:'-'}</b></div></div></div>${signReceipt(p)}</div>`;
   h+=`<div class="mkh"><span class="t">선수 배치</span></div>`;
   // v89: 결정(역할 고르기 → 결과 → 단추)을 먼저, 현재 라인업·로테이션 표는 접어 둠 (휴대폰에서 아홉 줄을 지나 내려가지 않게)
@@ -10269,6 +10288,20 @@ function weekGrowHtml(ut){const W=SL.wkGrow().filter(x=>x.s===S.season);if(W.len
   return h;}
 {const f0=renderGrowInfo;renderGrowInfo=function(ut){const w=weekGrowHtml(ut);if(SL.wkGrow().filter(x=>x.s===S.season).length<2)return w+f0(ut);return w+`<details class="fbox wmore" ${ui.wkOld?'open':''}><summary>성장 기록 · 선수별 능력</summary><div style="padding:0 8px 8px">${f0(ut)}</div></details>`;};}
 
+// v127 (R105 시안 10): 전력 보강 진단 — 보강 우선순위 1·2·3(리그 순위 · 부상 공백) · [FA 찾기][해외 찾기] · 보강 추천 후보(시장에서 그 자리 가장 좋은 선수) · [보강 계획 수정][보강 진행]
+function diagHtml2(){const ut=SL.userTeam();const R=SL.unitRanks()[ut.id];const K=SL.UNIT_KO;const I=ut.league==='KR'?SL.budgetInfo():null;const P=id=>S.players[id];
+  const injU={};for(const id of ut.lineup.concat(ut.rotation)){const p=P(id);if(p&&p.inj&&p.inj.left>=10)injU[SL.unitOf(p)]=p;}for(const id of ut.roster){const p=P(id);if(p&&p.inj&&p.inj.left>=10&&(p.inj.role==='bat'||p.inj.role==='rot'))injU[SL.unitOf(p)]=p;}
+  const ord=Object.keys(K).sort((a,b)=>((injU[b]?20:0)+R[b].rank)-((injU[a]?20:0)+R[a].rank)).slice(0,3);
+  const ofU=k=>(k==='sp'?ut.rotation:k==='rp'?ut.bullpen.concat(ut.closer!=null?[ut.closer]:[]):ut.lineup).map(P).filter(p=>p&&SL.unitOf(p)===k).slice(0,5);
+  const fa=(S.fa||[]).map(P).filter(Boolean);const pick=k=>fa.filter(p=>SL.unitOf(p)===k).sort((a,b)=>SL.ovrRange(b).mid-SL.ovrRange(a).mid)[0];const goFa=k=>`UI.closeModal();UI.go('market','fa');UI.faF('pos','${k==='sp'||k==='rp'?'P':'all'}')`;
+  let h=`<h3 class="pmh" style="text-align:left">전력 진단</h3><div class="dg1"><div class="t"><span>보강 우선순위</span>${I?`<i>연봉여유 <b>${Ms(I.wageLeft)}</b></i>`:''}</div>${ord.map((k,i)=>`<div class="r"><u>${i+1}</u><div class="x"><b>${esc(K[k])}</b>${injU[k]?'<i class="bad">부상 공백</i>':`<i class="${R[k].rank>=7?'bad':R[k].rank<=3?'ok':''}">리그${R[k].rank}위</i>`}${i===0?`<div class="fs">${ofU(k).map(p=>face(p,40)).join('')}</div>`:''}</div><button onclick="${goFa(k)}">후보 보기 ›</button></div>`).join('')}</div>`;
+  h+=`<div class="dg2"><button onclick="UI.closeModal();UI.go('market','fa')">FA 찾기 ›</button><button onclick="UI.closeModal();UI.go('market','fgn')">해외 찾기 ›</button></div>`;
+  const recs=ord.map(k=>[k,pick(k)]).filter(x=>x[1]);
+  h+=`<div class="dg1"><div class="t"><span>보강 추천 후보</span><small>필요 포지션 기준 추천</small></div>${recs.map(([k,p])=>{const F=SL.faM?SL.faM(p.id):null;return `<div class="r c">${face(p,52)}<div class="x"><i class="ok">${esc(K[k])}</i> <b>${esc(p.name)}</b><small>${F?`예상연봉 ${Ms(F.ask.sal)}`:`요구 ${Ms(SL.playerDemand(p,ut))}`} · ${p.age}세</small></div><div class="ev"><small>평점</small><b>${ovrT(p)}</b></div><button onclick="UI.closeModal();UI.openPlayer(${p.id})">후보 보기 ›</button></div>`;}).join('')||'<div class="pinfo" style="margin:0 0 8px">시장에 그 자리 선수가 없습니다</div>'}</div>`;
+  h+=`<details class="fbox wmore"><summary>전력 자세히 (부문별 순위 · 팀 지표)</summary>${strengthCard()}${teamKpiCard()}</details>`;
+  h+=`<div class="gobar lugo in grgo"><button class="ghost" onclick="UI.closeModal();UI.go('home','plan')">보강 계획 수정</button><button class="primary" onclick="UI.closeModal();UI.go('market','fa')">보강 진행</button></div>`;
+  return h;}
+A.diagView=function(){modal(diagHtml2());};
 
 return A;
 })();

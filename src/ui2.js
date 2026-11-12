@@ -462,6 +462,7 @@ function renderTable(v){const p=S.players[v.pid];const ut=SL.userTeam();if(!p)re
   return h+`</div></div>`;}
 function renderPlaceMock(p,v){const ut=SL.userTeam();const isP=SL.isPitcher(p);const pl=SL.placePlan(p.id);const c=p.contract;const role=ui.plRole||'plan';const out=pl&&pl.out!=null?S.players[pl.out]:null;const ovr=Math.round(SL.calcOvr(p));
   let h=`<div class="pv"><div class="pvbar gut"><button aria-label="뒤로" onclick="UI.back()">‹</button><span class="t">영입 완료</span></div><div class="content gut" style="padding-bottom:16px">`;
+  h+=`<div class="sgdone"><i>✓</i><b>영입 완료</b><span>${esc(p.name)} ${p.pos} ${gv(ovr)}</span></div>`;   /* v127 (R105 영입 완료 시안): 초록 띠 */
   h+=`<div class="mkcard"><div class="row" style="gap:12px;align-items:flex-start">${face(p,88)}<div class="grow"><div style="font-size:22px;font-weight:600">${esc(p.name)}</div><div class="small"><span class="ptg">${p.pos}</span> ${gradeTag(p)} <span class="sep">|</span> ${p.age}세 <span class="sep">|</span> ${p.throws==='L'?'좌투':'우투'}${p.bats==='S'?'양타':p.bats==='L'?'좌타':'우타'}</div><div class="small" style="margin-top:6px"><span class="tg">계약</span> <b>${c?`${c.years}년 / 연봉 ${Ms(c.salary)}`:'-'}</b></div></div></div>${signReceipt(p)}</div>`;
   h+=`<div class="mkh"><span class="t">선수 배치</span></div>`;
   // v89: 결정(역할 고르기 → 결과 → 단추)을 먼저, 현재 라인업·로테이션 표는 접어 둠 (휴대폰에서 아홉 줄을 지나 내려가지 않게)
@@ -1973,3 +1974,17 @@ function weekGrowHtml(ut){const W=SL.wkGrow().filter(x=>x.s===S.season);if(W.len
   return h;}
 {const f0=renderGrowInfo;renderGrowInfo=function(ut){const w=weekGrowHtml(ut);if(SL.wkGrow().filter(x=>x.s===S.season).length<2)return w+f0(ut);return w+`<details class="fbox wmore" ${ui.wkOld?'open':''}><summary>성장 기록 · 선수별 능력</summary><div style="padding:0 8px 8px">${f0(ut)}</div></details>`;};}
 
+// v127 (R105 시안 10): 전력 보강 진단 — 보강 우선순위 1·2·3(리그 순위 · 부상 공백) · [FA 찾기][해외 찾기] · 보강 추천 후보(시장에서 그 자리 가장 좋은 선수) · [보강 계획 수정][보강 진행]
+function diagHtml2(){const ut=SL.userTeam();const R=SL.unitRanks()[ut.id];const K=SL.UNIT_KO;const I=ut.league==='KR'?SL.budgetInfo():null;const P=id=>S.players[id];
+  const injU={};for(const id of ut.lineup.concat(ut.rotation)){const p=P(id);if(p&&p.inj&&p.inj.left>=10)injU[SL.unitOf(p)]=p;}for(const id of ut.roster){const p=P(id);if(p&&p.inj&&p.inj.left>=10&&(p.inj.role==='bat'||p.inj.role==='rot'))injU[SL.unitOf(p)]=p;}
+  const ord=Object.keys(K).sort((a,b)=>((injU[b]?20:0)+R[b].rank)-((injU[a]?20:0)+R[a].rank)).slice(0,3);
+  const ofU=k=>(k==='sp'?ut.rotation:k==='rp'?ut.bullpen.concat(ut.closer!=null?[ut.closer]:[]):ut.lineup).map(P).filter(p=>p&&SL.unitOf(p)===k).slice(0,5);
+  const fa=(S.fa||[]).map(P).filter(Boolean);const pick=k=>fa.filter(p=>SL.unitOf(p)===k).sort((a,b)=>SL.ovrRange(b).mid-SL.ovrRange(a).mid)[0];const goFa=k=>`UI.closeModal();UI.go('market','fa');UI.faF('pos','${k==='sp'||k==='rp'?'P':'all'}')`;
+  let h=`<h3 class="pmh" style="text-align:left">전력 진단</h3><div class="dg1"><div class="t"><span>보강 우선순위</span>${I?`<i>연봉여유 <b>${Ms(I.wageLeft)}</b></i>`:''}</div>${ord.map((k,i)=>`<div class="r"><u>${i+1}</u><div class="x"><b>${esc(K[k])}</b>${injU[k]?'<i class="bad">부상 공백</i>':`<i class="${R[k].rank>=7?'bad':R[k].rank<=3?'ok':''}">리그${R[k].rank}위</i>`}${i===0?`<div class="fs">${ofU(k).map(p=>face(p,40)).join('')}</div>`:''}</div><button onclick="${goFa(k)}">후보 보기 ›</button></div>`).join('')}</div>`;
+  h+=`<div class="dg2"><button onclick="UI.closeModal();UI.go('market','fa')">FA 찾기 ›</button><button onclick="UI.closeModal();UI.go('market','fgn')">해외 찾기 ›</button></div>`;
+  const recs=ord.map(k=>[k,pick(k)]).filter(x=>x[1]);
+  h+=`<div class="dg1"><div class="t"><span>보강 추천 후보</span><small>필요 포지션 기준 추천</small></div>${recs.map(([k,p])=>{const F=SL.faM?SL.faM(p.id):null;return `<div class="r c">${face(p,52)}<div class="x"><i class="ok">${esc(K[k])}</i> <b>${esc(p.name)}</b><small>${F?`예상연봉 ${Ms(F.ask.sal)}`:`요구 ${Ms(SL.playerDemand(p,ut))}`} · ${p.age}세</small></div><div class="ev"><small>평점</small><b>${ovrT(p)}</b></div><button onclick="UI.closeModal();UI.openPlayer(${p.id})">후보 보기 ›</button></div>`;}).join('')||'<div class="pinfo" style="margin:0 0 8px">시장에 그 자리 선수가 없습니다</div>'}</div>`;
+  h+=`<details class="fbox wmore"><summary>전력 자세히 (부문별 순위 · 팀 지표)</summary>${strengthCard()}${teamKpiCard()}</details>`;
+  h+=`<div class="gobar lugo in grgo"><button class="ghost" onclick="UI.closeModal();UI.go('home','plan')">보강 계획 수정</button><button class="primary" onclick="UI.closeModal();UI.go('market','fa')">보강 진행</button></div>`;
+  return h;}
+A.diagView=function(){modal(diagHtml2());};

@@ -1753,8 +1753,11 @@ function renderRecords(ut){const KEYS=['KR1',...Object.keys(SL.BAL.LEAGUES)];con
   const rate=['avg','obp','ops','era','whip','fip'].includes(cat);
   const L=!rs?[]:rs.live?SL.leaders(key,cat,10).map(o=>({p:o.p,v:o.v,tn:o.t?o.t.name:'',me:o.t&&o.t.isUser})):SL.leadersPast(key,cat,10,rs.s).map(o=>({p:o.p,v:o.v,tn:o.tn,me:o.tn===ut.name}));
   h+=`<div class="card main">${hd(C[cat],rate?(side==='pit'?'규정 이닝 이상':'규정 타석 이상'):'누적')}<div class="chiprow recchips">${Object.keys(C).map(k=>`<button class="${k===cat?'on':''}" onclick="UI.set('${setter}','${k}')">${C[k]}</button>`).join('')}</div>
-    ${L.map((o,i)=>`<div class="prow" onclick="UI.openPlayer(${o.p.id},'record')"><b style="width:22px">${i+1}</b>${face(o.p,32)}<div class="grow"><div class="nm">${esc(o.p.name)}${o.me?' <span class="chip g">우리</span>':''}</div><div class="sub">${esc(o.tn||'')} · ${o.p.pos}${o.p.retired?' · 은퇴':''}</div></div><b>${fmt(cat,o.v)}</b></div>`).join('')||`<div class="muted small">${rs?'조건에 맞는 기록이 아직 없습니다.':'이 리그는 아직 끝난 시즌이 없습니다.'}</div>`}
-    <div class="muted small" style="margin-top:6px">선수를 누르면 지난 시즌별 기록(소속·나이·종합)과 통산을 볼 수 있습니다.</div></div>`;
+    ${L.map((o,i)=>`<div class="prow recrow ${ui.recSel===o.p.id||(ui.recSel==null&&i===0)?'on':''}" onclick="UI.set('recSel',${o.p.id})"><b style="width:22px">${i+1}</b>${face(o.p,32)}<div class="grow"><div class="nm">${esc(o.p.name)}${o.me?' <span class="chip g">우리</span>':''}</div><div class="sub">${esc(o.tn||'')} · ${o.p.pos}${o.p.retired?' · 은퇴':''}</div></div><b>${fmt(cat,o.v)}</b></div>`).join('')||`<div class="muted small">${rs?'조건에 맞는 기록이 아직 없습니다.':'이 리그는 아직 끝난 시즌이 없습니다.'}</div>`}
+    </div>`;
+  /* v127 (R104 기록 시안): 줄을 누르면 아래 선수 카드(기록 세 칸) + [선수상세 ›] */
+  {const o=L.find(x=>x.p.id===ui.recSel)||L[0];if(o){const p=o.p;const st=rs&&!rs.live?((p.hist||[]).find(x=>x.s===rs.s)||{}).st:p.cur;const ln=st?SL.statLine(p,st):null;const kv=!ln?[]:side==='pit'?[['승-패',`${ln.w}-${ln.l}`],['평균자책',ln.era],['탈삼진',st.pSO||0]]:[['안타',st.h||0],['타율',ln.avg],['OPS',ln.ops]];
+    h+=`<div class="reccard">${face(p,84)}<div><b>${esc(p.name)}</b><small>${esc(o.tn||'')} · ${p.pos}</small><div class="k">${kv.map(x=>`<span><small>${x[0]}</small><b>${x[1]}</b></span>`).join('')}</div></div><button class="primary" onclick="UI.openPlayer(${p.id},'record')">선수상세 ›</button></div>`;}}
   return h;}
 // ----- 홈구장 -----
 function parkSvg(pk){const c=pk.dim;const sc=x=>x*0.62;const L=sc(c.l),C=sc(c.c),R=sc(c.r);const cx=100,cy=92;const pt=(a,d)=>[cx+Math.cos(a)*d,cy-Math.sin(a)*d];const A=Math.PI/4,[lx,ly]=pt(Math.PI-A+0.0,L),[rx,ry]=pt(A,R),[mx,my]=pt(Math.PI/2,C);
