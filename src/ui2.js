@@ -416,6 +416,7 @@ function stepBar(cur){const st=['조건 제안','회신','계약'];return `<div 
 function offerWhen(o){if(!o)return '-';if(o.ph==='season')return `${mkYear(o.s)}시즌 ${o.d}일차`;return `${mkYear(o.s)}.11 ${o.w}주차`;}
 function renderTable(v){const p=S.players[v.pid];const ut=SL.userTeam();if(!p)return '';const neg=S.market.negs.find(n=>n.pid===v.pid);const done=v.result;const fromT=v.fromTeam!=null?S.teams[v.fromTeam]:null;const stage=neg?neg.stage:'done';
   if(done&&done.done&&p.teamId===ut.id)return renderPlaceMock(p,v);
+  if(neg&&stage==='club'&&!v.result)return clubFeeView(v,p,neg,fromT);   /* v129 (R105 시안 18) */
   if(!neg||stage==='club')return renderTable0(v);
   const f=ui.form;const F=SL.faM(p.id);const isFA=p.teamId==null;const rn=neg.mode==='renew';const I=ut.league==='KR'?SL.budgetInfo():null;const offers=neg.offers||[];const last=offers[offers.length-1];const edit=!last||ui.tblEdit;
   const wantY=F?F.ask.yrs:neg.fgn1?1:(neg.yrsAsk||(p.age>=32?1:2)),wantS=F?F.ask.sal:(neg.revealed||Math.round((neg.hint[0]+neg.hint[1])/2)),wantB=F?F.ask.bonus:(neg.bonusAsk||0);const tot=(f.salary||0)*(f.years||1)+(f.bonus||0);const wantT=wantS*wantY+wantB;
@@ -772,7 +773,12 @@ Object.assign(A,{
     readForm();const L=SL.preCheck(pid,ui.form);if(L.length){modal(preCheckHtml(pid,L));return;}   /* 다른 문제(예산 등)가 남았으면 그것부터 */
     A.swapConfirm(pid);},
   swapConfirm(pid){const p=S.players[pid];const neg=(S.market.negs||[]).find(n=>n.pid===pid);const q=neg&&neg.swapId!=null?S.players[neg.swapId]:null;if(!p||!q)return;readForm();const f=ui.form;const fee=neg.fee||0;const sev=SL.swapSev(q);
-    modal(`<h3>최종 확인</h3><table class="kvt"><tr><td>계약</td><td>${esc(p.name)} · 연봉 ${Ms(f.salary||0)} · ${f.years||1}년${fee?` · 이적료 ${Ms(fee)}`:''}</td></tr><tr><td>교체</td><td>${esc(q.name)} 방출 · 위약금 ${Ms(sev)}</td></tr><tr><td>바로 지출</td><td><b>${Ms(fee+(f.bonus||0)+sev)}</b></td></tr></table><div class="small muted" style="margin:6px 0 10px">선수가 조건을 거절하면 계약도 방출도 없습니다.</div><div class="btns col"><button class="primary" onclick="UI.swapGo(${pid})">최종 확정</button><button class="ghost" onclick="UI.closeModal();UI.render()">돌아가기</button></div>`);},
+    const st=SL.fgnStatus(SL.userTeam());const mx=SL.BAL.FGN.max;const pc=(x,tag,cls)=>`<div class="sw ${cls}"><i>${tag}</i>${face(x,48)}<div><b>${esc(x.name)}</b><u>${x.pos} ${cls==='in'&&hidOf(x)?rgT(SL.ovrRange(x)):Math.round(SL.calcOvr(x))}</u><small>${x.age}세</small></div></div>`;
+    modal(`<div class="sw19"><h3>외국인 교체 최종 확인</h3><div class="swp">${pc(q,'OUT','out')}<span class="ar">→</span>${pc(p,'IN','in')}</div>
+      <div class="swb">${fee?`<div><span>이적료</span><b>${Ms(fee)}</b></div>`:''}${f.bonus?`<div><span>계약금</span><b>${Ms(f.bonus)}</b></div>`:''}<div><span>위약금</span><b>${Ms(sev)}</b></div><div class="tot"><span>즉시지출</span><b>${Ms(fee+(f.bonus||0)+sev)}</b></div></div>
+      <div class="swb one"><div><span>연봉</span><b>${Ms(f.salary||0)} · ${f.years||1}년</b></div></div><div class="swb one"><div><span>정원</span><b>${st.gen.length}/${mx} <em>유지</em></b></div></div>
+      <div class="sww">계약 성사 시 교체. <small>선수가 조건을 거절하면 계약도 방출도 없습니다 — ${esc(q.name)} 방출 · 위약금 ${Ms(sev)}</small></div>
+      <div class="gobar lugo in grgo rk2"><button class="ghost" onclick="UI.closeModal();UI.render()">취소</button><button class="primary" onclick="UI.swapGo(${pid})">영입·교체 확정</button></div></div>`);},
   draftSignAll(){const pd=SL.draftPending();let n=0;const errs=[];for(const p of pd){const r=SL.draftContract(p.id,true);if(r&&r.ok===false)errs.push(r.msg);else n++;}autosave();toast(`${n}명 계약${errs.length?` · ${errs[0]}`:''}`,3500);render();},
 });
 // ---------- 조작 통일: 이름 = 상세 · 줄 = 선택 · PC는 선택하면 오른쪽에 바로 상세 ----------
@@ -1113,13 +1119,13 @@ function fgRow(p,i,X,showTeam){const c=SL.fgnCost(p);const foc=X.list.some(s=>s.
   return `<tr class="${neg?'mine':''} ${no?'dim':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${pin?' <span class="o">★</span>':''}${foc?'<small class="tg">관찰 중</small>':tw?'<small class="tg">구단 관찰</small>':''}${no?'<small class="tg r">이적 불가</small>':''}<small class="kn">${showTeam?esc(S.teams[p.teamId].name)+' · ':''}${p.tier>1?'2군 · ':''}${p.age}세 · 관찰도 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tr">${no?'-':Ms(c.first)}</td></tr>`;}
 function fgTable(ps,X,showTeam){return `<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>종합</th><th class="tr">첫해 비용</th></tr></thead><tbody>${ps.map((p,i)=>fgRow(p,i,X,showTeam)).join('')||'<tr><td colspan="5" class="muted">없음</td></tr>'}</tbody></table>`;}
 function renderFgnMock(ut){const st=SL.fgnStatus(ut);const f=ui.fgF=ui.fgF||{kind:'P'};f.v=f.v||'rec';const X=SL.scState();const sl=SL.scSlots();const LG=SL.BAL.LEAGUES;
-  let h=stvHead('해외 선수 찾기',`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney();
+  let h=stvHead('해외 선수 찾기',st.gen.length>=SL.BAL.FGN.max&&ut.league==='KR'?`<span class="fgfull">! 정원 ${st.gen.length}/${SL.BAL.FGN.max} · 교체 필요</span>`:`<span class="stvc">외국인 <b>${st.gen.length}/${SL.BAL.FGN.max}</b> · 아시아 <b>${st.quota?1:0}/1</b></span>`)+stvMoney();
   const watchN=new Set((S.pins||[]).filter(id=>S.players[id]&&SL.scRegOf(S.players[id])).concat((X.rep||[]).map(r=>r.pid))).size;
   h+=`<div class="stvsort fgv">${[['rec','추천'],['lv','리그별'],['club','구단별'],['list',`관찰${watchN?' '+watchN:''}`],['sc',`스카우트 ${X.list.length}/${sl}`]].map(x=>`<button class="${f.v===x[0]?'on':''}" onclick="UI.fgV('${x[0]}')">${x[1]}</button>`).join('')}</div>`;
   const side=p=>f.kind==='P'?SL.isPitcher(p):!SL.isPitcher(p);
   if(f.v==='rec'){let pool=SL.overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(id=>S.players[id])).filter(p=>p&&!p.retired&&p.nat!=='KR'&&!SL.osWill(p,S.teams[p.teamId]).no&&side(p));
-    const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
-    h+=stvTabs(f.kind,"UI.fgSide")+fgTable(pool,X,true)+`<button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;}
+    if(f.pos)pool=pool.filter(p=>p.pos===f.pos);const tot=pool.length;const n=ui.fgN||20;pool=pool.map(p=>({p,v:SL.ovrRange(p).mid+SL.knOf(p)*0.08})).sort((a,b)=>b.v-a.v).slice(0,n).map(x=>x.p);
+    h+=fgCards(pool,tot,f,X,n);}   /* v129 (R105 해외 선수): 후보 카드 · 고른 카드 · [선수 영입 진행] */
   else if(f.v==='lv')h+=lvView(f,X,side);
   else if(f.v==='club'){const lg=FG_LG.includes(f.lg)?f.lg:'JP';
     h+=`<div class="fglg">${FG_LG.map(k=>`<button class="${k===lg?'on':''}" onclick="UI.fgLg('${k}')">${lgBadge(k,20)}<span>${esc(LG[k].short)}</span></button>`).join('')}</div>`;
@@ -1178,7 +1184,7 @@ function renderTrade(ut){const {T,teams,t,ev}=tradeCtx(ut);const f=ui.trF||'make
   return h;}
 Object.assign(A,{
   faSide(s){ui.faF=ui.faF||{pos:'all',sal:'all',pin:false};ui.faF.side=s;ui.faN=30;render();},
-  fgSide(s){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.kind=s;ui.fgN=20;render();},
+  fgSide(s){ui.fgF=ui.fgF||{kind:'P'};ui.fgF.kind=s;ui.fgF.pos='';ui.fgN=20;render();},
   trSide(s){ui.trSide=s;ui.keepScroll=true;render();},
   tradeReset(){const T=ui.trade||{};ui.trade={tid:T.tid,give:[],get:[],cash:0};render();},
   faMenu(pid){const p=S.players[pid];if(!p)return;const F=SL.faM(pid);const neg=(S.market.negs||[]).some(x=>x.pid===pid);stvMenu(`${esc(p.name)} <small>${p.pos} · ${p.age}세${F?` · 요구 ${F.ask.yrs}년 ${Ms(F.ask.tot)}`:''}</small>`,[['선수 상세',`UI.openPlayer(${pid})`],[neg?'협상':F&&F.mine?'제안 수정':'협상',`UI.openTable(${pid})`,'primary'],[S.pins.includes(pid)?'관심 해제':'★ 관심 선수',`UI.pin(${pid})`]]);},
@@ -2019,3 +2025,28 @@ function dsignHtml(pid){const p=S.players[pid];if(!p||!p.drafted)return '';const
     <div class="gobar lugo in grgo rk3"><button class="primary" onclick="UI.dsGo(${pid},true)">계약·훈련 확정${i<pd.length-1?' → 다음':''}</button><button class="ghost" onclick="UI.closeModal()">나중에</button></div>
     <div class="row" style="gap:6px;margin-top:8px"><button class="sm ghost" style="flex:1" onclick="UI.dsGo(${pid},false)">계약 포기</button>${pd.length>1?`<button class="sm ghost" style="flex:1" onclick="UI.closeModal();UI.draftSignAll()">모두 계약 (${pd.length})</button>`:''}</div>
     <div class="rkst">● 계약 전 · 미입단</div></div>`;}
+
+// ---------- v129 (R105 해외 선수 · 18 구단 이적료 협상 · 19 외국인 교체 확인) ----------
+const FG_POS=[['','P','투수 전체'],['SP','P','선발 SP'],['RP','P','불펜 RP'],['','B','타자 전체'],['C','B','포수 C'],['1B','B','1루 1B'],['2B','B','2루 2B'],['3B','B','3루 3B'],['SS','B','유격 SS'],['LF','B','좌익 LF'],['CF','B','중견 CF'],['RF','B','우익 RF']];
+function fgCards(pool,tot,f,X,n){const sel=pool.find(p=>p.id===ui.fgSel)||pool[0];const cur=(f.pos||'')+'|'+f.kind;
+  let h=`<div class="fgbar"><span>해외 후보 <b>${tot}명</b></span><label>포지션 <select aria-label="포지션" onchange="UI.fgPos(this.value)">${FG_POS.map(x=>`<option value="${x[0]}|${x[1]}" ${cur===x[0]+'|'+x[1]?'selected':''}>${x[2]}</option>`).join('')}</select></label></div>`;
+  h+=pool.map(p=>{const c=SL.fgnCost(p);const neg=(S.market.negs||[]).some(x=>x.pid===p.id);const foc=X.list.some(s=>s.focus===p.id);return `<div class="fgcd ${sel&&sel.id===p.id?'on':''}" data-pid="${p.id}" role="button" tabindex="0" onclick="UI.fgPick(${p.id})">${face(p,44)}<span class="a"><b>${esc(p.name)}${(S.pins||[]).includes(p.id)?' <span class="o">★</span>':''}</b><small>${p.age}세 · ${p.pos}${neg?' · 협상 중':foc?' · 관찰 중':''}</small></span><span class="k"><small>예상 능력</small><b>${rgT(SL.ovrRange(p)).replace('~',' ~ ')}</b></span><span class="k"><small>첫해 비용</small><b>${Ms(c.first)}</b></span><span class="kn"><small>관찰</small><b>${c.kn}%</b></span></div>`;}).join('')||'<div class="mkcard muted small">조건에 맞는 후보가 없습니다.</div>';
+  if(tot>n)h+=`<button class="stvmore" onclick="UI.set('fgN',${n+20})">▼ 더 보기</button>`;
+  if(sel){const c=SL.fgnCost(sel);const foc=X.list.some(s=>s.focus===sel.id);const free=X.list.length<SL.scSlots();const neg=(S.market.negs||[]).some(x=>x.pid===sel.id);const T=S.teams[sel.teamId];
+    h+=`<div class="selwrap"><div class="fgsel"><div class="top">${face(sel,68)}<div class="a" role="button" tabindex="0" onclick="UI.scoutReport(${sel.id})"><b>${esc(sel.name)} ›</b><span>${sel.age}세 │ ${sel.pos}${T?' │ '+esc(T.name):''}</span></div><div class="r"><small>예상 능력</small><b>${rgT(SL.ovrRange(sel)).replace('~',' ~ ')}</b></div></div>
+      <div class="k2"><div>첫해 비용 <b>${Ms(c.first)}</b></div><div>관찰도 <b class="g">${c.kn}%</b></div></div>
+      <div class="bt"><button class="ghost" ${c.full||foc||!free?'disabled':''} onclick="UI.scFocus(${sel.id})">${c.full?'관찰 완료':foc?'관찰 중':`관찰 ${c.focusWeeks}주 · ${Ms(c.focusCost)}`}</button><button class="primary" onclick="UI.openTable(${sel.id})">${neg?'협상 이어가기':'협상'}</button></div></div>${(()=>{const ng=(S.market.negs||[]).filter(x=>x.mode!=='renew'&&S.players[x.pid]&&SL.scRegOf(S.players[x.pid]));return ng.length?`<div class="gobar in fggo"><button class="primary" onclick="UI.openTable(${ng[0].pid})">선수 영입 진행 <small>협상 ${ng.length}건 · ${esc(S.players[ng[0].pid].name)}</small></button></div>`:'';})()}</div>`;}
+  return h;}
+function clubFeeView(v,p,neg,fromT){const ut=SL.userTeam();const f=ui.form;const st=Math.max(100,Math.round(neg.ask*0.05/100)*100);const c=SL.fgnCost(p);const fgn=SL.isFgn(p)&&ut.league==='KR';const swap=fgn&&!!SL.fgnBlock(ut,p,neg.revealed||neg.demand||c.sal);const C=commits(ut,p.id);const log=neg.log||[];
+  let h=`<div class="pv tbl2 cf18"><div class="pvbar gut"><button aria-label="뒤로" onclick="UI.back()">‹</button><span class="t">${esc(p.name)} 영입</span><span class="small" style="margin-left:auto;color:var(--on-navy-dim)">이적료 협상 · 제안 ${neg.maxRounds-neg.rounds}회 남음</span></div><div class="content gut" style="padding-bottom:16px">`;
+  h+=`<div class="cfst"><b class="on">구단합의</b><i>›</i><b>개인계약</b><i>›</i><b>${swap?'교체확정':'영입확정'}</b></div>`;
+  h+=`<div class="cfp">${face(p,76)}<div class="a"><b>${esc(p.name)}</b><span><u>${esc(SL.POS_KO[p.pos]||p.pos)}</u><u>${p.throws==='L'?'좌투':'우투'}${p.bats==='L'?'좌타':p.bats==='S'?'양타':'우타'}</u><u>${p.age}세</u></span></div><div class="e">${emblem(ut,52)}</div></div>`;
+  if(fromT)h+=`<div class="cfc"><span>판매 구단</span>${emblem(fromT,34)}<b>${esc(fromT.name)}</b></div>`;
+  h+=`<div class="cf2"><div><small>${neg.os?'요구 이적료 약':'이적료 · 시장가치'}</small><b>${Ms(neg.os?neg.ask:SL.calcValue(p))}</b></div><div class="my"><small>제안 금액</small><div class="stepper"><button aria-label="감소" onclick="UI.bump('fee',-${st})">−</button><b class="stpv">${Ms(f.fee)}</b><input id="tf_fee" type="number" class="hidein" value="${W(f.fee)}" onchange="UI.setF('fee',UI.uW(this.value))"><button aria-label="증가" onclick="UI.bump('fee',${st})">＋</button></div></div></div>`;
+  h+=`<button class="cfask ${f.fee===neg.ask?'on':''}" onclick="UI.setF('fee',${neg.ask});UI.set('_cf',1)">요구대로</button>`;
+  h+=`<div class="cfpay"><div class="t">계약 시 지급</div><div class="eq"><div><small>이적료</small><b>${Ms(f.fee||0)}</b></div><i>+</i><div><small>예상연봉</small><b>${Ms(c.sal)}</b></div><i>=</i><div class="sum"><small>첫해</small><b>${Ms((f.fee||0)+c.sal)}</b></div></div><div class="n">지급 후 현금 <b>${Ms(ut.cash-(f.fee||0))}</b> · 다음: 개인 협상 · 연봉·계약금 별도${C.parts.length?`<br>아직 남은 지출·일: ${C.parts.join(' · ')}`:''}</div></div>`;
+  h+=negCtx(p,neg,fromT)+swapLine(p,neg);
+  h+=`<details class="fbox cflog" ${log.length>1?'':'open'}><summary>협상 기록 ${log.length}</summary><div class="chat" id="chat">${bubbles(log,{player:p.name,agent:p.name,club:fromT?fromT.name:'구단'})}</div></details>`;
+  h+=`<div class="cfgo"><button class="primary big" onclick="UI.tableSubmit()">이적료 제안</button><button class="ghost big" onclick="UI.leaveTable()">취소 (협상 중단)</button></div></div></div>`;return h;}
+Object.assign(A,{fgPick(pid){if(ui.fgSel===pid){A.scoutReport(pid);return;}ui.fgSel=pid;ui.keepScroll=true;render();},
+  fgPos(v){const x=String(v).split('|');ui.fgF=ui.fgF||{kind:'P'};ui.fgF.pos=x[0]||'';ui.fgF.kind=x[1]||'P';ui.fgN=20;ui.fgSel=null;render();}});
