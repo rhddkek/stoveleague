@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v134';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v135';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -45,6 +45,7 @@ const BAL={
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
   FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
+  AUTO:{coachKeep:60,dispAge:25},   // v135 맡기기: 평가 60 이상 코치만 재계약 · 25세 이하 비주전만 겨울리그 파견
   FA_COMP:{on:true,A:{prot:20,p:2,c:3},B:{prot:25,p:1,c:2},C:{prot:0,p:0,c:1.5}}, SD:{on:true,week:3,prot:25,rounds:3,fee:[4,3,2],maxLost:4,minAge:22},   // v132 (R106): FA 보상(보호 인원 · 선수+연봉 배수 · 돈만 배수) · 2차 드래프트(양도금 억)
   FARM_N:{US:10,JP:6}, FA_MAJOR_N:12,   // 주요 FA(경쟁 입찰) 최대 인원   // v62: 미국·일본 구단 하부 선수층 (메이저·1군과 오가는 선수)   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
   LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준

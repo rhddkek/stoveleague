@@ -2515,6 +2515,31 @@ function sdPick(pid){const D=sd();const ut=userTeam();if(!sdTurn())return {ok:fa
 function sdAuto(){const D=sd();if(!D||D.done)return;if(D.phase==='protect')D.phase='pick';D.auto=true;sdRun();}
 function sdWeek(){if(!BAL.SD.on)return;const D=sd();if(D&&!D.done){sdAuto();return;}if(!D&&S.week+1===BAL.SD.week&&S.season%2===1)sdOpen();   /* 첫 스토브리그(1시즌 뒤)부터 2년에 한 번 */}
 
+// ---------- v135: 맡기기(스태프 위임) · 진행 전 필수 할 일 ----------
+// S.auto[k]가 켜진 일은 코치진이 처리하고 결과만 소식으로 남긴다. 꺼진 일이 「이번 주 마감」이면 다음 주로 넘어가지 않는다(그 화면으로 보냄).
+const AUTO_KEYS={draft:'드래프트 지명',rook:'신인 계약',coach:'코치 재계약',disp:'겨울리그 파견',comp:'FA 보상',sd:'2차 드래프트'};
+function autoOn(k){return !!(S.auto&&S.auto[k]);}
+function expCoaches(){const ut=userTeam();return (ut.staff||[]).filter(c=>c.years<=0&&c.age<67);}
+function autoRun(){const ut=userTeam();const out=[];if(!ut)return out;
+  if(autoOn('draft')&&S.phase==='offseason'){let g=0;while(draftTurn()&&g++<12){const r=draftAutoOne();if(r&&r.pid)out.push(`드래프트 ${P_(r.pid).name} 지명`);else break;}}
+  if(autoOn('rook')){for(const q of draftPending()){const k=diagnose(q).rec;const r=draftContract(q.id,true);if(r.ok!==false){if(k)q.focus=k;out.push(`신인 ${q.name} 계약`);}}}
+  if(autoOn('coach')&&S.phase==='offseason'){for(const c of expCoaches()){if(c.rating>=BAL.AUTO.coachKeep){const e=renewCoach(c.id,2);if(!e)out.push(`${c.name} 코치 재계약`);}else if(!c.letGo){c.letGo=true;news(`${c.name} 코치(평가 ${c.rating})와는 재계약하지 않기로 했습니다 — 3주차에 떠납니다.`,'contract');out.push(`${c.name} 코치 보냄`);}}}
+  if(autoOn('disp')&&S.dispatch&&S.dispatch.phase==='open'){for(const r of S.dispatch.reqs.slice()){const q=P_(r.pid);if(q&&q.age<=BAL.AUTO.dispAge&&!ut.lineup.includes(q.id)&&!ut.rotation.includes(q.id)){const e=dispatchPlayer(r.pid,r.team);if(!e){out.push(`${q.name} 겨울리그 파견`);continue;}}declineDispatch(r.pid);}}
+  if(autoOn('comp')&&(S.compQ||[]).some(c=>!c.done)){const n=(S.compQ||[]).filter(c=>!c.done).length;compTick();out.push(`FA 보상 ${n}건 처리`);}
+  if(autoOn('sd')){const D=sd();if(D&&!D.done){sdAuto();out.push('2차 드래프트 처리');}}
+  return out;}
+// 넘어가면 놓치는 일 — 맡기지 않았고 이번 주가 마감인 것만. ack = 「이번엔 넘기기」를 누른 주
+function mustItems(toSeason){const ut=userTeam();const out=[];if(!ut||S.phase!=='offseason'||!S.auto)return out;   /* S.auto가 없는 게임(검사용 SL.newGame)은 예전처럼 막지 않음 — 화면에서 만든 새 게임·이어 하기는 S.auto가 있음 */const ak=S.season*100+S.week;const ack=k=>S.mustAck&&S.mustAck[k]===ak;
+  if(!autoOn('draft')&&draftTurn()&&!ack('draft'))out.push({k:'draft',t:'드래프트 — 우리 지명 차례',d:'넘기면 코치진이 대신 지명합니다'});
+  if(!autoOn('comp')&&(S.compQ||[]).some(c=>!c.done&&(c.to===ut.id||c.from===ut.id))&&!ack('comp'))out.push({k:'comp',t:'FA 보상 — 이번 주 마감',d:'넘기면 코치진 판단(자동 추천 보호 명단 · 가치 큰 쪽)'});
+  {const D=sd();if(!autoOn('sd')&&D&&!D.done&&(D.phase==='protect'||sdTurn())&&!ack('sd'))out.push({k:'sd',t:`2차 드래프트 — ${D.phase==='protect'?'보호 명단':'우리 지명 차례'}`,d:'넘기면 자동 추천 보호 명단 · 지명 안 함'});}
+  if(!autoOn('coach')&&(toSeason||S.week>=2)&&expCoaches().some(c=>!c.letGo)&&!ack('coach'))out.push({k:'coach',t:`코치 재계약 ${expCoaches().filter(c=>!c.letGo).length}명 — 이번 주 마감`,d:'넘기면 계약이 끝난 코치는 떠납니다'});
+  if(!autoOn('disp')&&S.dispatch&&S.dispatch.phase==='open'&&S.dispatch.reqs.length&&(toSeason||S.week>=2)&&!ack('disp'))out.push({k:'disp',t:`겨울리그 파견 요청 ${S.dispatch.reqs.length}건 — 이번 주 마감`,d:'넘기면 모두 거절합니다'});
+  if(!autoOn('rook')&&toSeason&&draftPending().length&&!ack('rook'))out.push({k:'rook',t:`신인 계약 ${draftPending().length}명 — 개막 전 마감`,d:'넘기면 계약하지 않은 신인은 대학에 갑니다'});
+  return out;}
+function mustAck(k){S.mustAck=S.mustAck||{};S.mustAck[k]=S.season*100+S.week;if(k==='disp'&&S.dispatch)for(const r of S.dispatch.reqs.slice())declineDispatch(r.pid);if(k==='coach')for(const c of expCoaches())c.letGo=true;if(k==='comp')compTick();if(k==='sd')sdAuto();}
+function setAuto(k,on){S.auto=S.auto||{};S.auto[k]=!!on;return autoRun();}
+
 // ---------- v68: 진행 보호 · 결과 설명 · 비용 미리 보기 ----------
 // 우리가 직접 협상한 일의 결과 — 감독실 우편함 맨 위에 고정 (FM: 중요한 회신은 받은편지함 맨 위)
 function myResult(pid,ok,title,detail){S.myRes=(S.myRes||[]).filter(x=>!(x.pid===pid&&x.c===S.clock));S.myRes.unshift({pid,ok:ok==null?null:!!ok,title,detail,c:S.clock,s:S.season,w:S.week,seen:false});if(S.myRes.length>10)S.myRes.length=10;}
@@ -2918,6 +2943,7 @@ return {wkGrow,bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actRe
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
   calcOvr,posOvr,gradeOf,calcValue,salaryFor,money,isPitcher,velocity,statLine,ops_,potText,confText,scoutReport,interestText,needOf,countPos,
   autoLineup,fixLineup,rosterCheck,autoFillUser,
+  AUTO_KEYS,autoOn,autoRun,mustItems,mustAck,setAuto,expCoaches,
   faCompOf,faCompMax,compQ,compLog,compPool,compProtect,compPick,compElig,sd,sdPool,sdTurn,sdFee,sdElig,sdProtectSet,sdPick,sdAuto,sdOpen,faMark,
   listPlayer,unlistPlayer,respondOffer,negotiate,cancelNeg,renewContract,releasePlayer,takeLoan,upgradeFacility,runScout,signScouted,aiAsk,playerDemand,
   endSeason,advanceWeek,startNewSeason,growthTick,interestCheck,

@@ -2738,6 +2738,14 @@ body:not(.ingame) .stv .eqman.gi .gil2 button.on .a small,body:not(.ingame) .stv
 :root.ea[data-theme="light"] .lufold>summary i{color:#8a6100}
 .sqchips .sqfind{height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer}
 
+/* v135: 맡기기 · 코치 추천 · 진행 전 필수 할 일 */
+.autol{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}.autor{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}.autor .a{flex:1;min-width:0}.autor b{display:block;font-size:16px;font-weight:600}.autor small{display:block;margin-top:2px;font-size:12px;color:var(--muted);line-height:1.4}
+.autor input[role=switch]{flex:none;appearance:none;-webkit-appearance:none;width:46px;height:26px;margin:0;border-radius:13px;background:var(--line);position:relative;cursor:pointer;transition:background .15s}.autor input[role=switch]:before{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}.autor input[role=switch]:checked{background:#f2c14e}.autor input[role=switch]:checked:before{left:23px}
+.reccd{padding:10px 12px}.reccd .rch{display:flex;align-items:center;justify-content:space-between;margin:0 0 4px}.reccd .rch b{font-size:17px;font-weight:600}.reccd .rch b:before{content:"";display:inline-block;width:4px;height:16px;margin-right:8px;border-radius:2px;background:#f2c14e;vertical-align:-2px}
+.reccd .rcr{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.reccd .rcr .a{flex:1;min-width:0}.reccd .rcr b{display:block;font-size:15px;font-weight:600;line-height:1.3}.reccd .rcr small{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px;font-size:12px;color:var(--muted)}.reccd .rcr>button{flex:none;white-space:nowrap}
+.mustbar{position:sticky;top:0;z-index:5;margin:0 0 10px;padding:10px 12px;border:1px solid #f2c14e;border-radius:12px;background:var(--card);box-shadow:0 6px 16px rgba(0,0,0,.25)}.mustbar>b{display:block;font-size:15px;font-weight:600;color:#f2c14e}.mustbar>span{display:block;margin:3px 0 8px;font-size:13px;line-height:1.45}.mustbar .bt{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.mustbar .bt button{min-height:38px;padding:0 12px;font-size:14px;white-space:nowrap}
+:root.ea[data-theme="light"] .mustbar>b{color:#8a6100}
+
 </style>
 <div id="app"></div>
 <script>
@@ -2748,7 +2756,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v134';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v135';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -2791,6 +2799,7 @@ const BAL={
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
   FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
+  AUTO:{coachKeep:60,dispAge:25},   // v135 맡기기: 평가 60 이상 코치만 재계약 · 25세 이하 비주전만 겨울리그 파견
   FA_COMP:{on:true,A:{prot:20,p:2,c:3},B:{prot:25,p:1,c:2},C:{prot:0,p:0,c:1.5}}, SD:{on:true,week:3,prot:25,rounds:3,fee:[4,3,2],maxLost:4,minAge:22},   // v132 (R106): FA 보상(보호 인원 · 선수+연봉 배수 · 돈만 배수) · 2차 드래프트(양도금 억)
   FARM_N:{US:10,JP:6}, FA_MAJOR_N:12,   // 주요 FA(경쟁 입찰) 최대 인원   // v62: 미국·일본 구단 하부 선수층 (메이저·1군과 오가는 선수)   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
   LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준
@@ -5986,6 +5995,31 @@ function sdPick(pid){const D=sd();const ut=userTeam();if(!sdTurn())return {ok:fa
 function sdAuto(){const D=sd();if(!D||D.done)return;if(D.phase==='protect')D.phase='pick';D.auto=true;sdRun();}
 function sdWeek(){if(!BAL.SD.on)return;const D=sd();if(D&&!D.done){sdAuto();return;}if(!D&&S.week+1===BAL.SD.week&&S.season%2===1)sdOpen();   /* 첫 스토브리그(1시즌 뒤)부터 2년에 한 번 */}
 
+// ---------- v135: 맡기기(스태프 위임) · 진행 전 필수 할 일 ----------
+// S.auto[k]가 켜진 일은 코치진이 처리하고 결과만 소식으로 남긴다. 꺼진 일이 「이번 주 마감」이면 다음 주로 넘어가지 않는다(그 화면으로 보냄).
+const AUTO_KEYS={draft:'드래프트 지명',rook:'신인 계약',coach:'코치 재계약',disp:'겨울리그 파견',comp:'FA 보상',sd:'2차 드래프트'};
+function autoOn(k){return !!(S.auto&&S.auto[k]);}
+function expCoaches(){const ut=userTeam();return (ut.staff||[]).filter(c=>c.years<=0&&c.age<67);}
+function autoRun(){const ut=userTeam();const out=[];if(!ut)return out;
+  if(autoOn('draft')&&S.phase==='offseason'){let g=0;while(draftTurn()&&g++<12){const r=draftAutoOne();if(r&&r.pid)out.push(`드래프트 ${P_(r.pid).name} 지명`);else break;}}
+  if(autoOn('rook')){for(const q of draftPending()){const k=diagnose(q).rec;const r=draftContract(q.id,true);if(r.ok!==false){if(k)q.focus=k;out.push(`신인 ${q.name} 계약`);}}}
+  if(autoOn('coach')&&S.phase==='offseason'){for(const c of expCoaches()){if(c.rating>=BAL.AUTO.coachKeep){const e=renewCoach(c.id,2);if(!e)out.push(`${c.name} 코치 재계약`);}else if(!c.letGo){c.letGo=true;news(`${c.name} 코치(평가 ${c.rating})와는 재계약하지 않기로 했습니다 — 3주차에 떠납니다.`,'contract');out.push(`${c.name} 코치 보냄`);}}}
+  if(autoOn('disp')&&S.dispatch&&S.dispatch.phase==='open'){for(const r of S.dispatch.reqs.slice()){const q=P_(r.pid);if(q&&q.age<=BAL.AUTO.dispAge&&!ut.lineup.includes(q.id)&&!ut.rotation.includes(q.id)){const e=dispatchPlayer(r.pid,r.team);if(!e){out.push(`${q.name} 겨울리그 파견`);continue;}}declineDispatch(r.pid);}}
+  if(autoOn('comp')&&(S.compQ||[]).some(c=>!c.done)){const n=(S.compQ||[]).filter(c=>!c.done).length;compTick();out.push(`FA 보상 ${n}건 처리`);}
+  if(autoOn('sd')){const D=sd();if(D&&!D.done){sdAuto();out.push('2차 드래프트 처리');}}
+  return out;}
+// 넘어가면 놓치는 일 — 맡기지 않았고 이번 주가 마감인 것만. ack = 「이번엔 넘기기」를 누른 주
+function mustItems(toSeason){const ut=userTeam();const out=[];if(!ut||S.phase!=='offseason'||!S.auto)return out;   /* S.auto가 없는 게임(검사용 SL.newGame)은 예전처럼 막지 않음 — 화면에서 만든 새 게임·이어 하기는 S.auto가 있음 */const ak=S.season*100+S.week;const ack=k=>S.mustAck&&S.mustAck[k]===ak;
+  if(!autoOn('draft')&&draftTurn()&&!ack('draft'))out.push({k:'draft',t:'드래프트 — 우리 지명 차례',d:'넘기면 코치진이 대신 지명합니다'});
+  if(!autoOn('comp')&&(S.compQ||[]).some(c=>!c.done&&(c.to===ut.id||c.from===ut.id))&&!ack('comp'))out.push({k:'comp',t:'FA 보상 — 이번 주 마감',d:'넘기면 코치진 판단(자동 추천 보호 명단 · 가치 큰 쪽)'});
+  {const D=sd();if(!autoOn('sd')&&D&&!D.done&&(D.phase==='protect'||sdTurn())&&!ack('sd'))out.push({k:'sd',t:`2차 드래프트 — ${D.phase==='protect'?'보호 명단':'우리 지명 차례'}`,d:'넘기면 자동 추천 보호 명단 · 지명 안 함'});}
+  if(!autoOn('coach')&&(toSeason||S.week>=2)&&expCoaches().some(c=>!c.letGo)&&!ack('coach'))out.push({k:'coach',t:`코치 재계약 ${expCoaches().filter(c=>!c.letGo).length}명 — 이번 주 마감`,d:'넘기면 계약이 끝난 코치는 떠납니다'});
+  if(!autoOn('disp')&&S.dispatch&&S.dispatch.phase==='open'&&S.dispatch.reqs.length&&(toSeason||S.week>=2)&&!ack('disp'))out.push({k:'disp',t:`겨울리그 파견 요청 ${S.dispatch.reqs.length}건 — 이번 주 마감`,d:'넘기면 모두 거절합니다'});
+  if(!autoOn('rook')&&toSeason&&draftPending().length&&!ack('rook'))out.push({k:'rook',t:`신인 계약 ${draftPending().length}명 — 개막 전 마감`,d:'넘기면 계약하지 않은 신인은 대학에 갑니다'});
+  return out;}
+function mustAck(k){S.mustAck=S.mustAck||{};S.mustAck[k]=S.season*100+S.week;if(k==='disp'&&S.dispatch)for(const r of S.dispatch.reqs.slice())declineDispatch(r.pid);if(k==='coach')for(const c of expCoaches())c.letGo=true;if(k==='comp')compTick();if(k==='sd')sdAuto();}
+function setAuto(k,on){S.auto=S.auto||{};S.auto[k]=!!on;return autoRun();}
+
 // ---------- v68: 진행 보호 · 결과 설명 · 비용 미리 보기 ----------
 // 우리가 직접 협상한 일의 결과 — 감독실 우편함 맨 위에 고정 (FM: 중요한 회신은 받은편지함 맨 위)
 function myResult(pid,ok,title,detail){S.myRes=(S.myRes||[]).filter(x=>!(x.pid===pid&&x.c===S.clock));S.myRes.unshift({pid,ok:ok==null?null:!!ok,title,detail,c:S.clock,s:S.season,w:S.week,seen:false});if(S.myRes.length>10)S.myRes.length=10;}
@@ -6389,6 +6423,7 @@ return {wkGrow,bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actRe
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
   calcOvr,posOvr,gradeOf,calcValue,salaryFor,money,isPitcher,velocity,statLine,ops_,potText,confText,scoutReport,interestText,needOf,countPos,
   autoLineup,fixLineup,rosterCheck,autoFillUser,
+  AUTO_KEYS,autoOn,autoRun,mustItems,mustAck,setAuto,expCoaches,
   faCompOf,faCompMax,compQ,compLog,compPool,compProtect,compPick,compElig,sd,sdPool,sdTurn,sdFee,sdElig,sdProtectSet,sdPick,sdAuto,sdOpen,faMark,
   listPlayer,unlistPlayer,respondOffer,negotiate,cancelNeg,renewContract,releasePlayer,takeLoan,upgradeFacility,runScout,signScouted,aiAsk,playerDemand,
   endSeason,advanceWeek,startNewSeason,growthTick,interestCheck,
@@ -7342,6 +7377,7 @@ function missionLine(){if(S.phase!=='season')return '';const T=SL.missionsToday(
 function renderSeasonHome0(){
   const ut=SL.userTeam();const W=isWide();let h=W?homeHero(ut)+careerBand():homeHero(ut,true);
   for(const w of S.warn)h+=`<div class="badbox">${esc(w)}</div>`;
+  h+=recCard();   /* v135: 코치 추천 */
   if(!(S.phase==='season'&&SL.userGameToday()))h+=decideCard();
   const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;
   let resH='';if(W){if(hasRep)resH=reportCard(ui.weekReport);else if(ui.gameResult)resH=stopBar()+resultCard(ui.gameResult);}   // PC: 결과·주간 보고는 오늘 경기 카드 아래 (경기 버튼이 화면 밖으로 밀리지 않게)
@@ -8242,7 +8278,7 @@ const A={
     ui.titleMode=null;ui.tab='home';ui.view=null;ui.stack=[];ui.tut=0;autosave();render();if(SL.state().scen&&SL.state().scen.pend)scenMidRun();},
   // v111 (R093): PC에서 휴대폰 화면(폭 430 틀)으로 보기 ↔ 다시 PC 화면 — 저장하고 같은 게임을 이어서 띄움
   mview(on){if(SL.state())autosave();try{localStorage.setItem('sl_view',on?'m':'pc');if(SL.state())localStorage.setItem('sl_resume',String(Date.now()));}catch(e){toast('이 브라우저에서는 화면 전환을 저장할 수 없습니다');return;}setTimeout(()=>{if(!on&&window.__SL_CHILD){try{window.parent.postMessage('sl-pc','*');return;}catch(e){}}location.reload();},250);},   /* 틀 안이면 바깥이 틀을 먼저 닫고 새로 읽음 (저장소 연결이 남아 막히지 않게) */
-  continueGame(k){k=k||lastSlot()||curSlot();readSave(k).then(j=>{try{if(!j)throw new Error('저장 데이터가 없습니다');SL.load(j);setSlot(k);autosave();ui.tab='home';ui.view=null;ui.stack=[];render();}catch(e){toast('저장 데이터를 불러올 수 없습니다: '+e.message,4000);}});},
+  continueGame(k){k=k||lastSlot()||curSlot();readSave(k).then(j=>{try{if(!j)throw new Error('저장 데이터가 없습니다');SL.load(j);if(!SL.state().auto)SL.state().auto={};   /* v135: 이어 하기 저장에도 「마감 일은 처리해야 진행」 적용 */setSlot(k);autosave();ui.tab='home';ui.view=null;ui.stack=[];render();}catch(e){toast('저장 데이터를 불러올 수 없습니다: '+e.message,4000);}});},
   importFile(n){const inp=$(n===2?'#impfile2':'#impfile');const f=inp&&inp.files&&inp.files[0];if(!f){toast('파일을 선택하세요.');return;}const rd=new FileReader();rd.onload=()=>{try{SL.load(rd.result);if(ui.titleMode==='load')setSlot(newSlotSel());autosave();ui.tab='home';ui.view=null;toast('불러오기 완료');render();}catch(e){toast('불러오기 실패 (현재 진행 유지): '+e.message,5000);}};rd.onerror=()=>toast('파일을 읽을 수 없습니다.');rd.readAsText(f);},
   importText(id){const t=($('#'+id)||{}).value;if(!t||!t.trim()){toast('JSON 내용을 붙여넣으세요.');return;}try{SL.load(t.trim());if(ui.titleMode==='load')setSlot(newSlotSel());autosave();ui.tab='home';ui.view=null;toast('불러오기 완료');render();}catch(e){toast('불러오기 실패 (현재 진행 유지): '+e.message,5000);}},
   exportSave(){const json=SL.serialize();try{const blob=new Blob([json],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`stoveleague_s${S.season}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}catch(e){}
@@ -9204,6 +9240,7 @@ function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(fa
   const done=placeDoneList();const rows=todoGroup(it);
   const wrow=x=>{const ic=x.face?face(x.face,40):x.em?emblem(x.em,36):x.ic?(String(x.ic).startsWith('<')?x.ic:pxIcon(x.ic,34)||`<span class="mic">${x.ic}</span>`):'<span class="mic">•</span>';const due=/마감|까지|끝/.test(x.tag||'');
     return `<div class="mail td wrow w9 ${x.hot?'hot':''}" onclick="${x.on}">${ic}<b class="t">${esc(x.title)}</b>${due?`<i class="due">${esc(x.tag)}</i>`:`<span class="s">${esc(x.tag)}${x.sub?' · '+esc(x.sub):''}</span>`}<button class="sm primary tgl" onclick="event.stopPropagation();${x.on}">${esc(x.btn)}</button></div>`;};
+  h+=recCard();   /* v135: 코치 추천 */
   h+=`<div class="mkcard todo wtd wbox"><div class="wbt"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M6 5h12v16H6zM9 3h6v4H9zM9 12h6M9 16h4"/></svg><span>주요 업무 <span class="tdcnt">${it.length}</span></span></div>${rows.map(wrow).join('')||'<div class="wrow none">할 일 없음 · 다음 주로</div>'}</div>`;
   h+=`<details class="fbox wmore w9f"><summary><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 6h18v13H3zM3 7l9 7 9-7"/></svg>답변대기 <em class="${wait.length?'y':''}">${wait.length}</em></summary>${wait.map(x=>`<div class="small deal" style="padding:6px 12px;cursor:pointer" onclick="UI.waitView()">⏳ ${esc(x.p.name)} · ${esc(x.p.pos)} — 답을 기다리는 중</div>`).join('')||'<div class="small muted" style="padding:6px 12px 10px">답을 기다리는 협상이 없습니다</div>'}</details>`;
   h+=`<details class="fbox wmore w9f"><summary><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 4h16v16H4zM8 12l3 3 5-6"/></svg>완료${done.length?` <em>${done.length}</em>`:''}</summary>${seasonResultCard()}${done.map(p=>`<div class="small" style="padding:4px 12px">✅ ${esc(p.name)} · ${esc(role(p))} <a class="pname" onclick="UI.openPlayer(${p.id})">보기</a></div>`).join('')}</details>`;
@@ -10628,6 +10665,41 @@ function leftTxt(n,u){return n<=0?(u==='주'?'이번 주 마감':'오늘 마감'
 // v134: 덜어내기 — 타순 설정 접기 · 신인 계약 맡기기
 Object.assign(A,{luFold(o){ui.luOpen=!!o;},autoRook(){S.auto=S.auto||{};S.auto.rook=!S.auto.rook;autosave();toast(S.auto.rook?'신인 계약을 맡깁니다 — 지명하면 추천 훈련으로 바로 계약':'신인 계약을 직접 합니다',2600);if(document.querySelector('#modal'))closeModal();render();}});
 {const f0=draftCeremony;draftCeremony=function(r){const p=S.players[r.pid];if(p&&p.drafted&&S.auto&&S.auto.rook){const ask=p.drafted.ask;const k=SL.diagnose(p).rec;const x=SL.draftContract(p.id,true);if(x.ok!==false){if(k)p.focus=k;r=Object.assign({},r,{paid:ask});autosave();}}return f0(r);};}
+
+// ===================== v135: 맡기기 · 코치 추천 · 진행 전 필수 할 일 =====================
+const AUTO_DESC={draft:'우리 차례가 오면 관심 명단 · 부족 포지션 · 잠재 순으로 지명',rook:'지명하면 추천 훈련으로 바로 계약',coach:`계약이 끝난 코치 — 평가 ${SL.BAL.AUTO.coachKeep} 이상은 2년 재계약, 그 아래는 보냄`,disp:`겨울리그 요청 — ${SL.BAL.AUTO.dispAge}세 이하 비주전만 보내고 나머지는 거절`,comp:'FA 보상 — 자동 추천 보호 명단 · 받을 때는 가치 큰 쪽',sd:'2차 드래프트 — 자동 추천 보호 명단 · 지명은 안 함'};
+function mustGo(k){const ut=SL.userTeam();if(k==='draft')return "UI.go('dev','draft')";if(k==='comp'){const i=SL.compQ().findIndex(c=>c.to===ut.id||c.from===ut.id);return `UI.compOpen(${Math.max(0,i)})`;}if(k==='sd')return 'UI.sdOpen()';if(k==='coach')return "UI.set('staffExp',1);UI.go('roster','staff')";if(k==='disp')return "UI.todoGrp('disp')";if(k==='rook'){const q=SL.draftPending()[0];return q?`UI.dsignView(${q.id})`:"UI.go('dev','draft')";}return "UI.setTab('home')";}
+function autoCount(){return Object.keys(SL.AUTO_KEYS).filter(k=>SL.autoOn(k)).length;}
+function autoViewHtml(){const K=SL.AUTO_KEYS;return `<h3>코치진에게 맡기기</h3><div class="small muted" style="margin:-4px 0 10px">켠 일은 코치진이 처리하고 소식으로만 알립니다. 끈 일은 마감 주에 처리하기 전까지 다음 주로 넘어가지 않습니다.</div>
+  <div class="autol">${Object.keys(K).map(k=>`<label class="autor"><span class="a"><b>${K[k]}</b><small>${esc(AUTO_DESC[k])}</small></span><input type="checkbox" role="switch" ${SL.autoOn(k)?'checked':''} onchange="UI.autoSet('${k}',this.checked)"></label>`).join('')}</div>
+  <div class="gobar lugo in grgo rk2"><button class="ghost" onclick="UI.autoAll(0)">모두 직접</button><button class="primary" onclick="UI.autoAll(1)">모두 맡기기</button></div><button class="ghost" style="width:100%;margin-top:8px" onclick="UI.closeModal()">닫기</button>`;}
+// 코치 추천 — 지금 바로 할 만한 일 3개까지, 누르면 그 자리에서 처리
+function coachRecs(){const ut=SL.userTeam();const R=[];if(!ut)return R;const P=id=>S.players[id];
+  {const inj=ut.lineup.filter(id=>P(id)&&P(id).inj).length+ut.rotation.filter(id=>P(id)&&P(id).inj).length;const off=t=>t.lineup.filter(id=>t.pos[id]!=='DH'&&SL.posPenalty(P(id),t.pos[id])>0).length;const o0=off(ut);
+    if(inj||o0){const keys=['lineup','pos','bullpen','closer','entry','rotation','rotIdx','rpRole'];const snap=JSON.stringify(keys.map(k=>ut[k]));let o1=o0,i1=inj;try{SL.autoLineup(ut);o1=off(ut);i1=ut.lineup.filter(id=>P(id)&&P(id).inj).length+ut.rotation.filter(id=>P(id)&&P(id).inj).length;}finally{const v=JSON.parse(snap);keys.forEach((k,i)=>ut[k]=v[i]);}
+      if(i1<inj||o1<o0)R.push({t:`타순 정리 — ${inj?`부상 ${inj}명`:''}${inj&&o0?' · ':''}${o0?`적성 밖 ${o0}명`:''}`,s:`자동 편성하면 ${inj?`부상 ${inj}→${i1}`:''}${inj&&o0?' · ':''}${o0?`적성 밖 ${o0}→${o1}`:''}`,b:'자동 편성',f:()=>A.autoLineup()});}}
+  if(S.phase==='season'){const ent=new Set(ut.entry);const two=ut.roster.filter(id=>!ent.has(id)).map(P).filter(p=>p&&!p.inj&&!p.dispatch);for(const pit of [false,true]){const up=two.filter(p=>SL.isPitcher(p)===pit).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];const dn=ut.entry.map(P).filter(p=>p&&SL.isPitcher(p)===pit&&!ut.lineup.includes(p.id)&&!ut.rotation.includes(p.id)&&p.id!==ut.closer).sort((a,b)=>SL.calcOvr(a)-SL.calcOvr(b))[0];
+      if(up&&dn&&SL.calcOvr(up)>=SL.calcOvr(dn)+4){R.push({t:`2군 ${up.name}${SL.josa(up.name,'이','가').slice(up.name.length)} 1군 ${dn.name}보다 낫습니다`,s:`${up.pos} ${gv(SL.calcOvr(up))} ↔ ${dn.pos} ${gv(SL.calcOvr(dn))}`,b:'교체',f:()=>{const e=SL.callupSwap(up.id,dn.id);if(e){toast(e,3000);return;}autosave();toast(`${up.name} ↑ 1군 · ${dn.name} ↓ 2군`);render();}});break;}}}
+  if(ut.league==='KR'){const RK=SL.unitRanks()[ut.id];const n=SL.krTeams().length;const w=Object.keys(SL.UNIT_KO).map(k=>({k,r:RK[k].rank})).sort((a,b)=>b.r-a.r)[0];if(w&&w.r>=n-1)R.push({t:`${SL.UNIT_KO[w.k]} 리그 ${w.r}위 — 약점`,s:'보강 우선순위와 FA 후보를 봅니다',b:'전력 진단',f:()=>A.diagView()});}
+  if(S.phase==='offseason'){const left=Object.keys(SL.AUTO_KEYS).filter(k=>!SL.autoOn(k)).length;if(left&&R.length<3)R.push({t:`직접 하는 일 ${left}가지`,s:'드래프트 지명 · 계약 끝난 코치 · 파견 요청 같은 잡무를 코치진에게 맡길 수 있습니다',b:'맡기기',f:()=>A.autoView()});}
+  return R.slice(0,3);}
+function recCard(){const R=coachRecs();ui.recs=R;const n=autoCount();if(!R.length)return '';return `<div class="mkcard reccd"><div class="rch"><b>코치 추천</b><button class="sm ghost" onclick="UI.autoView()">맡기기 ${n}/${Object.keys(SL.AUTO_KEYS).length} ›</button></div>${R.map((r,i)=>`<div class="rcr"><span class="a"><b>${esc(r.t)}</b><small>${r.s}</small></span><button class="sm" onclick="UI.recDo(${i})">${esc(r.b)}</button></div>`).join('')}</div>`;}
+function mustStrip(){if(!ui.mustOn||!S||S.liveGame)return;const L=SL.mustItems(!!ui.mustSeason);const c=document.querySelector('#app .content');if(!c)return;const old=c.querySelector('.mustbar');if(old)old.remove();
+  const el=document.createElement('div');el.className='mustbar';
+  if(!L.length){el.innerHTML=`<b>✓ 처리 끝</b><span>이제 ${ui.mustSeason?'개막할':'다음 주로 넘어갈'} 수 있습니다</span><div class="bt"><button class="primary" onclick="UI.mustDone()">${ui.mustSeason?'개막':'다음 주'} ▶</button></div>`;}
+  else{const m=L[0];el.innerHTML=`<b>진행 전에 할 일${L.length>1?` ${L.length}건`:''}</b><span>${esc(m.t)} — ${esc(m.d)}</span><div class="bt">${L.length>1?`<button class="ghost" onclick="${mustGo(L[1].k)}">다음 일</button>`:''}<button class="ghost" onclick="UI.mustSkip('${m.k}')">이번엔 넘기기</button><button class="primary" onclick="UI.autoSet('${m.k}',true)">코치진에 맡기기</button></div>`;}
+  c.insertBefore(el,c.firstChild);}
+{const r0=render;render=function(){r0.apply(this,arguments);try{mustStrip();}catch(e){if(typeof console!=='undefined')console.error(e);}};}
+{const aw=A.advanceWeek,as=A.startSeason;
+  const gate=(toSeason,go)=>{if(S.phase!=='offseason')return go();const done=SL.autoRun();if(done.length){autosave();toast(`코치진 처리: ${done.slice(0,4).join(' · ')}${done.length>4?` 외 ${done.length-4}건`:''}`,3200);}
+    const L=SL.mustItems(toSeason);if(L.length){ui.mustOn=true;ui.mustSeason=toSeason;closeModal();new Function(mustGo(L[0].k))();toast(`먼저 처리하세요: ${L[0].t}`,2600);return;}ui.mustOn=false;return go();};
+  A.advanceWeek=function(){return gate(false,()=>aw.apply(A,arguments));};A.startSeason=function(){return gate(true,()=>as.apply(A,arguments));};}
+Object.assign(A,{autoView(){modal(autoViewHtml());},
+  autoSet(k,on){const done=SL.setAuto(k,on);autosave();if(on)toast(`${SL.AUTO_KEYS[k]} — 코치진에게 맡겼습니다${done.length?` · ${done.slice(0,3).join(' · ')}`:''}`,2600);if(document.querySelector('#modal .autol'))modal(autoViewHtml());render();},
+  autoAll(on){S.auto=S.auto||{};for(const k of Object.keys(SL.AUTO_KEYS))S.auto[k]=!!on;const done=on?SL.autoRun():[];autosave();toast(on?`모두 맡겼습니다${done.length?` · ${done.length}건 처리`:''}`:'모두 직접 합니다',2400);modal(autoViewHtml());render();},
+  mustSkip(k){SL.mustAck(k);autosave();render();},
+  mustDone(){const t=ui.mustSeason;ui.mustOn=false;A.setTab('home');t?A.startSeason():A.advanceWeek();},
+  recDo(i){const r=(ui.recs||[])[i];if(r&&r.f)r.f();}});
 
 return A;
 })();

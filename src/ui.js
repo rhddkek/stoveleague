@@ -934,6 +934,7 @@ function missionLine(){if(S.phase!=='season')return '';const T=SL.missionsToday(
 function renderHome(){
   const ut=SL.userTeam();const W=isWide();let h=W?homeHero(ut)+careerBand():homeHero(ut,true);
   for(const w of S.warn)h+=`<div class="badbox">${esc(w)}</div>`;
+  h+=recCard();   /* v135: 코치 추천 */
   if(!(S.phase==='season'&&SL.userGameToday()))h+=decideCard();
   const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;
   let resH='';if(W){if(hasRep)resH=reportCard(ui.weekReport);else if(ui.gameResult)resH=stopBar()+resultCard(ui.gameResult);}   // PC: 결과·주간 보고는 오늘 경기 카드 아래 (경기 버튼이 화면 밖으로 밀리지 않게)
@@ -1834,7 +1835,7 @@ const A={
     ui.titleMode=null;ui.tab='home';ui.view=null;ui.stack=[];ui.tut=0;autosave();render();if(SL.state().scen&&SL.state().scen.pend)scenMidRun();},
   // v111 (R093): PC에서 휴대폰 화면(폭 430 틀)으로 보기 ↔ 다시 PC 화면 — 저장하고 같은 게임을 이어서 띄움
   mview(on){if(SL.state())autosave();try{localStorage.setItem('sl_view',on?'m':'pc');if(SL.state())localStorage.setItem('sl_resume',String(Date.now()));}catch(e){toast('이 브라우저에서는 화면 전환을 저장할 수 없습니다');return;}setTimeout(()=>{if(!on&&window.__SL_CHILD){try{window.parent.postMessage('sl-pc','*');return;}catch(e){}}location.reload();},250);},   /* 틀 안이면 바깥이 틀을 먼저 닫고 새로 읽음 (저장소 연결이 남아 막히지 않게) */
-  continueGame(k){k=k||lastSlot()||curSlot();readSave(k).then(j=>{try{if(!j)throw new Error('저장 데이터가 없습니다');SL.load(j);setSlot(k);autosave();ui.tab='home';ui.view=null;ui.stack=[];render();}catch(e){toast('저장 데이터를 불러올 수 없습니다: '+e.message,4000);}});},
+  continueGame(k){k=k||lastSlot()||curSlot();readSave(k).then(j=>{try{if(!j)throw new Error('저장 데이터가 없습니다');SL.load(j);if(!SL.state().auto)SL.state().auto={};   /* v135: 이어 하기 저장에도 「마감 일은 처리해야 진행」 적용 */setSlot(k);autosave();ui.tab='home';ui.view=null;ui.stack=[];render();}catch(e){toast('저장 데이터를 불러올 수 없습니다: '+e.message,4000);}});},
   importFile(n){const inp=$(n===2?'#impfile2':'#impfile');const f=inp&&inp.files&&inp.files[0];if(!f){toast('파일을 선택하세요.');return;}const rd=new FileReader();rd.onload=()=>{try{SL.load(rd.result);if(ui.titleMode==='load')setSlot(newSlotSel());autosave();ui.tab='home';ui.view=null;toast('불러오기 완료');render();}catch(e){toast('불러오기 실패 (현재 진행 유지): '+e.message,5000);}};rd.onerror=()=>toast('파일을 읽을 수 없습니다.');rd.readAsText(f);},
   importText(id){const t=($('#'+id)||{}).value;if(!t||!t.trim()){toast('JSON 내용을 붙여넣으세요.');return;}try{SL.load(t.trim());if(ui.titleMode==='load')setSlot(newSlotSel());autosave();ui.tab='home';ui.view=null;toast('불러오기 완료');render();}catch(e){toast('불러오기 실패 (현재 진행 유지): '+e.message,5000);}},
   exportSave(){const json=SL.serialize();try{const blob=new Blob([json],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`stoveleague_s${S.season}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);}catch(e){}
