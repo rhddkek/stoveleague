@@ -30,7 +30,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     !over.length&&!mixed.length&&!r.dup.length&&!cut.length&&ex.chips.join(',')==='순위표,우리 팀 지표'&&ex2.chips.join(',')==='기록실,시즌별,명예의 전당'?ok(`위 줄 ${Object.entries(r.top).map(([t,n])=>t+' '+n).join(' · ')}칸 (글자 안 잘림) · 순위 → 아래 줄 「${ex.chips.join('·')}」만, 기록 → 「${ex2.chips.join('·')}」 — 다른 탭 칩이 섞이거나 반복되지 않음`):bad('탭 '+JSON.stringify({over,mixed:mixed.map(x=>x.k),dup:r.dup,cut:cut.map(x=>x.k)}));}
   // ③ ☰ 메뉴·PC 왼쪽 메뉴도 같은 묶음 (모든 화면 그대로 갈 수 있음)
   {const r=await p.evaluate(()=>{UI.menu();const n=document.querySelectorAll('#modal .msec .mi button').length;const labels=[...document.querySelectorAll('#modal .msec .ml')].map(x=>x.textContent);UI.closeModal();return {n,labels};});
-    r.n>=38&&r.labels.includes('기록')&&r.labels.includes('신인')&&r.labels.includes('설정')?ok(`☰ 메뉴: 화면 ${r.n}개 그대로 · 묶음 이름 ${r.labels.join('·')}`):bad('메뉴 '+JSON.stringify(r));}
+    r.n>=38&&r.labels.includes('기록')&&r.labels.includes('영입')&&r.labels.includes('내 선수')&&r.labels.includes('설정')?ok(`☰ 메뉴: 화면 ${r.n}개 그대로 · 묶음 이름 ${r.labels.join('·')}`):bad('메뉴 '+JSON.stringify(r));}
   // 드래프트: 공개 전에도 할 일이 보임
   {const r=await p.evaluate(()=>{UI.go('market','draft');const g=[...document.querySelectorAll('.dfgrid>div')].map(x=>x.innerText.replace(/\s+/g,' '));const go=[...document.querySelectorAll('.content button')].some(x=>/국내 스카우트로/.test(x.textContent));const ut=SL.userTeam();const rk=SL.rankOf(ut);return {g,go,rk};});
     r.g.length===3&&/일 뒤|곧/.test(r.g[0])&&new RegExp(`${r.rk}위`).test(r.g[1])&&r.go?ok(`드래프트(공개 전): ${r.g.join(' | ')} · 「국내 스카우트로 유망주 미리 보기」`):bad('드래프트 '+JSON.stringify(r));}

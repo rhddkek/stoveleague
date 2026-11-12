@@ -35,7 +35,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       SL.scoutFocus(2705);const ut=SL.userTeam();const mine=S.players[ut.lineup[0]];S.market.offers.push({id:99901,pid:mine.id,team:SL.krTeams().find(t=>!t.isUser).id,fee:30000,expires:S.clock+3});
       UI.go('market','deals');const cards=[...document.querySelectorAll('.mkcard')].map(c=>c.querySelector('.mksec')?c.querySelector('.mksec').innerText.split('\n')[0]:'');const act=[...document.querySelectorAll('.mkcard')].find(c=>/답변 필요/.test(c.innerText));const wait=[...document.querySelectorAll('.mkcard')].find(c=>/기다리는 중/.test(c.innerText));
       const res={top,sub,cards,a:act?act.innerText:'',w:wait?wait.innerText:''};S.market.offers=S.market.offers.filter(o=>o.id!==99901);return res;});
-    r.top.join(',')==='진행 중,선수 찾기,트레이드,내 계약,신인'&&r.sub.join(',')==='전체,받은 제안,협상'&&/받은 제안/.test(r.a)&&/제안 검토/.test(r.a)&&/집중 관찰/.test(r.w)&&r.cards.indexOf('답변 필요')<r.cards.indexOf('기다리는 중')
+    r.top.join(',')==='영입,내 선수,협상,결과'&&r.sub.join(',')==='전체,받은 제안,협상'&&/받은 제안/.test(r.a)&&/제안 검토/.test(r.a)&&/집중 관찰/.test(r.w)&&r.cards.indexOf('답변 필요')<r.cards.indexOf('기다리는 중')
       ?ok(`이적 위 줄 ${r.top.join('·')} · 진행 중 아래 줄 ${r.sub.join('·')} · 「답변 필요」(받은 제안 [제안 검토]) 위 · 「기다리는 중」(집중 관찰) 아래`):bad('이적 탭 '+JSON.stringify(r).slice(0,700));}
 
   // 4. 내가 건드린 선수: 타순 · 콜업 · 훈련 변경 → 일주일 뒤 주간 보고서 「내가 맡긴 선수」(그 뒤 기록만 · 「덕분에」 없음) + [유지][조정] · 휴대폰 결과 띠 첫 줄 · [유지]면 빠짐

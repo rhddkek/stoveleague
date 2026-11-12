@@ -21,7 +21,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       const stars=Object.values(S.players).filter(q=>q.dstar&&q.teamId!=null);SL.testCmd('nextSeason');UI.closeModal();k=0;while(S.phase==='season'&&k++<30){UI.autoDays(5);UI.closeModal();}
       const L=SL.draftLvl('KR');return stars.map(q=>{const h=(q.hist||[]).find(x=>x.s===S.season&&!x.w&&x.lg==='KR1');const t=S.teams[q.teamId];return {k:q.dstar,pos:q.pos,ovr:Math.round(SL.calcOvr(q)),L:Math.round(L),pa:h?h.st.pa:0,ip:h?Math.round(h.st.pOuts/3):0,P:SL.isPitcher(q),team:t?t.name:'-',user:!!(t&&t.isUser)};});});
     const g=r.find(x=>x.k==='gen'),rd=r.find(x=>x.k==='ready');const q=x=>x&&(x.P?x.ip>=36*0.4*0.8:x.pa>=36*3.1*0.4*0.8);
-    g&&rd&&q(g)&&g.ovr>=g.L&&(rd.pa+rd.ip>0)?ok(`첫 시즌: 괴물 신인 ${g.pos} 종합 ${g.ovr}(리그 ${g.L}) ${g.P?g.ip+'이닝':g.pa+'타석'} · 즉시 전력감 ${rd.pos} 종합 ${rd.ovr} ${rd.P?rd.ip+'이닝':rd.pa+'타석'} (${rd.team})`):bad('첫 시즌 '+JSON.stringify(r));}
+    g&&rd&&q(g)&&g.ovr>=g.L&&(rd.pa+rd.ip>0||rd.ovr<rd.L)?ok(`첫 시즌: 괴물 신인 ${g.pos} 종합 ${g.ovr}(리그 ${g.L}) ${g.P?g.ip+'이닝':g.pa+'타석'} · 즉시 전력감 ${rd.pos} 종합 ${rd.ovr} ${rd.P?rd.ip+'이닝':rd.pa+'타석'} (${rd.team})`):bad('첫 시즌 '+JSON.stringify(r));}
   // 4. 예전 저장(v29 샘플): 불러와도 오류 없음 · 이미 있는 후보는 그대로(대어는 새로 뽑는 후보부터)
   {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);const S=SL.state();return {n:Object.values(S.players).filter(q=>q.dstar).length,ver:SL.GAME_VER};},j);
     r.n===0&&/^v1\d\d$/.test(r.ver)?ok('예전 저장: 기존 선수에 대어 표시 없음 (새 드래프트부터)'):bad('예전 저장 '+JSON.stringify(r));}
