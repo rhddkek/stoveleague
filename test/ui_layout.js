@@ -38,7 +38,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   await p.evaluate(()=>UI.setPref('gview','classic'));   // v74: 아래 검사는 이전 「중계 화면」 기준 (설정에서 고를 수 있음). 감독모드는 맨 끝에서 따로 검사
   await p.evaluate(()=>{UI.clearResult();UI.startGame();});await has('하이라이트까지');await p.evaluate(()=>UI.step('pa'));await over('경기 화면');
   await p.evaluate(()=>UI.step('game'));await p.evaluate(()=>UI.endGame());await has('순위');ok('경기 후 결과 카드: 기록·순위·다음 판단');
-  await p.evaluate(()=>{UI.go('market','buy');});await has('예산 안');if(!(await p.evaluate(()=>!!document.querySelector('input[placeholder="이름 검색"]'))))bad('이름 검색 입력 없음');const nm=await p.evaluate(()=>{UI.setBuyF('afford',false);const t=SL.krTeams().find(x=>!x.isUser);const q=SL.state().players[t.roster[0]].name;UI.setBuyF('q',q);return q;});await has(nm);ok('이적시장: 이름 검색·예산·의향·부족 포지션 필터');
+  await p.evaluate(()=>{UI.go('market','buy');});await has('한도 안');if(!(await p.evaluate(()=>!!document.querySelector('input[placeholder="이름 검색"]'))))bad('이름 검색 입력 없음');const nm=await p.evaluate(()=>{UI.setBuyF('afford',false);const t=SL.krTeams().find(x=>!x.isUser);const q=SL.state().players[t.roster[0]].name;UI.setBuyF('q',q);return q;});await has(nm);ok('이적시장: 이름 검색·예산·의향·부족 포지션 필터');
   await p.evaluate(()=>{let g=0;while(SL.state().phase==='season'&&g++<40){UI.autoDays(99);for(const o of [...SL.state().market.offers])SL.respondOffer(o.id,'reject');}});await p.waitForTimeout(200);
   await has('시즌 결산');await has('평판');await over('시즌 결산');ok('시즌 종료 → 결산 화면');
   await p.evaluate(()=>UI.closeModal());await sweep('스토브리그');ok('스토브리그 18개 화면 검사');
