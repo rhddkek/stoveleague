@@ -35,11 +35,11 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     r.sf>0&&/FA 영입 비용 [^/]+ 포함/.test(r.sum)&&/FA 영입 비용/.test(r.msg)&&!/계약금/.test(r.msg)&&r.q.bonus===0&&r.q.sf===r.sf?ok(`계약금 0 · FA 영입 비용 따로: 협상 「${r.sum.split(' / ').slice(-1)[0].slice(0,60)}…」 · 계약 「${r.msg.slice(r.msg.indexOf('('))}」`):bad('FA 영입 비용 '+JSON.stringify(r));}
 
   // 4. 드래프트: 후보 목록에 현재 능력 · 잠재(같은 등급이면 한 글자) · 상세 첫 줄 「SP · 현재 46 · 잠재 S · 계약금」 · 신뢰도는 잠재 추정에 붙음
-  {const r=await p.evaluate(()=>{SL.newGame(4096,9,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();SL.testCmd('endSeason');UI.closeModal();let k=0;while(!S.draft&&k++<6)SL.advanceWeek();UI.closeModal();UI.go('dev','draft');
+  {const r=await p.evaluate(()=>{SL.newGame(4096,9,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();SL.testCmd('endSeason');UI.closeModal();let k=0;while(!S.draft&&k++<6)SL.advanceWeek();UI.closeModal();UI.go('dev','draft');UI.set('drList',1);
       const th=[...document.querySelectorAll('.mkt.sq thead th')].map(x=>x.textContent.replace(/[⇅▴▾\s]/g,''));const rows=[...document.querySelectorAll('.mkt.sq tbody tr')].slice(0,5).map(tr=>{const td=[...tr.querySelectorAll('td')];const id=+(tr.getAttribute('onclick')||'').match(/\d+/)[0];const q=S.players[id];return {cur:td[3].textContent.trim(),exp:String(Math.round(SL.calcOvr(q))),pot:td[4].textContent.trim(),lo:SL.gradeOf(q.scout.lo),hi:SL.gradeOf(q.scout.hi)};});
-      const det=(document.body.innerText.match(/[A-Z0-9]+ · 현재 \d+ · 잠재 [A-DS~]+ · 계약금 [^\n]+/)||[''])[0];const conf=/추정·신뢰 (낮음|보통|높음)/.test(document.body.innerText);return {th,rows,det,conf};});
+      const det=((document.querySelector('.drsel')||{}).innerText||'').replace(/\s+/g,' ').match(/예상 계약금 [0-9.억만천,]+/)||[''];UI.rkOpen(SL.draftAvail()[0].id);const conf=/평가신뢰\s*(낮음|보통|높음)/.test(document.body.innerText)&&/잠재력/.test(document.body.innerText);UI.back();UI.set('drList',0);return {th,rows,det:det[0],conf};});
     const okR=r.rows.every(x=>x.cur===x.exp&&(x.lo===x.hi?x.pot===x.lo:x.pot===x.lo+'~'+x.hi));
-    r.th.join(',')==='순위,이름,포지션,현재,잠재'&&okR&&r.det&&r.conf?ok(`후보 목록 ${r.th.join('·')} (현재 = 실제 종합, 예: ${r.rows[0].cur} · ${r.rows[0].pot}) · 상세 「${r.det}」 · 「잠재 … 추정·신뢰」`):bad('드래프트 '+JSON.stringify(r));}
+    r.th.join(',')==='순위,이름,포지션,현재,잠재'&&okR&&r.det&&r.conf?ok(`후보 목록 ${r.th.join('·')} (현재 = 실제 종합, 예: ${r.rows[0].cur} · ${r.rows[0].pot}) · 고른 후보 「${r.det}」 · 신인 평가 「잠재력 · 평가신뢰」`):bad('드래프트 '+JSON.stringify(r));}
 
   // 5. 「시즌 성장」 이름 · 긴 자동 진행 단추는 누르자마자 「진행 중…」(두 번 눌러도 한 번) → 진행
   {const src=fs.readFileSync(file,'utf8');const r=await p.evaluate(async()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;S.settings.stopOnOffer=false;UI.setTab('home');UI.closeModal();const d0=S.day;
