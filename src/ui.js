@@ -333,6 +333,7 @@ function pmenu(pid){S=SL.state();const p=S.players[pid];const ut=SL.userTeam();i
     if(p.age<=SL.BAL.LOAN.maxAge&&!inL&&!ut.rotation.includes(pid)){const o=SL.loanOptions(pid)[0];add('✈','임대 보내기',o?`예: ${esc(o.team.name)} · 예상 ${esc(o.role)}`:'받을 구단 없음',`UI.closeModal();UI.loanView(${pid})`);}
     add(listed?'🏷':'💰',listed?'매물 해제':'매물 등록',listed?'':`시장가치 ${Ms(SL.calcValue(p))} · 관심 구단이 제안합니다`,`UI.closeModal();UI.${listed?'unlist':'list'}(${pid})`);
     add('✍','재계약 협상',p.contract?`지금 ${Ms(p.contract.salary)} · ${p.contract.years}년 남음`:'',`UI.closeModal();UI.openTable(${pid})`);
+    if(!p.dispatch)add('❌','방출',`위약금 ${Ms(SL.swapSev(p))} · 연봉 ${Ms(p.contract?p.contract.salary:0)} 절감 · FA로 풀림`,`UI.closeModal();UI.confirmRelease(${pid})`,'bad');   /* v133: 방출을 선수 관리 메뉴에 */
     add('🏋','훈련 방향',(()=>{const F=isP?SL.FOCUS_PIT:SL.FOCUS_BAT;return F[p.focus||'balance']||'균형';})(),`UI.closeModal();UI.openPlayer(${pid});`);}
   add(pin?'☆':'★',pin?'관심 해제':'관심 선수',pin?'':'경기·소식에서 따로 챙겨 봅니다',`UI.closeModal();UI.pin(${pid})`);
   modal(`<div class="row" style="gap:10px;margin-bottom:8px">${face(p,44)}<div><h3 style="margin:0">${esc(p.name)}</h3><div class="small muted">${p.pos} · ${p.age}세 · ${role(p)||(inDev?'육성군':'')}${p.contract?` · ${Ms(p.contract.salary)}/${p.contract.years}년`:''}</div></div></div>${A.join('')}`);}
@@ -605,7 +606,7 @@ function renderTab(){guideSeen(ui.tab+'/'+(ui.sub[ui.tab]||''));switch(ui.tab){c
 // ---------- 홈 ----------
 function offerCard(o){const p=S.players[o.pid],t=S.teams[o.team];if(!p||!t)return '';const os=o.type==='overseas';const left=o.expires-S.clock;
   const will=os?`선수 의향 ${o.pw>=0.65?'<b class="ok">긍정적</b>':o.pw>=0.4?'<b>보통</b>':'<b class="bad">부정적</b>'}`:o.willing?'<b class="ok">선수 이적 의향 있음</b>':'<b class="bad">선수가 이적 거부</b>';
-  return `<div class="decide"><span class="tagline">결정 필요${left<=1?' · 내일 만료':''}</span><div class="grid"><div class="row" style="gap:10px;align-items:flex-start">${face(p,46)}<div class="grow"><div class="ttl">${esc(p.name)} ${os?'해외 ':''}영입 제안</div><div class="muted">${esc(t.name)} · 응답 ${left}일 남음</div></div></div>
+  return `<div class="decide"><span class="tagline">결정 필요${left<=1?' · 내일 만료':''}</span><div class="grid"><div class="row" style="gap:10px;align-items:flex-start">${face(p,46)}<div class="grow"><div class="ttl">${esc(p.name)} ${os?'해외 ':''}영입 제안</div><div class="muted">${esc(t.name)} · 응답 ${leftTxt(left,S.phase==='offseason'?'주':'일')}</div></div></div>
   <div style="text-align:right"><div class="amt">${M(o.fee)}</div><div class="small">${will}</div></div></div>${offerImpactLine(o)}<div style="height:10px"></div><button class="primary big" onclick="UI.openOffer(${o.id})">제안 검토</button></div>`;}
 // ----- 성장 배지 (PixelLab 그림 + 실제 글자) -----
 const MS_LABEL={deb:'1군 데뷔',gs1:'첫 선발',w1:'첫 승',sv1:'첫 세이브',hr1:'첫 홈런',st:'주전 정착',as:'올스타',ab:'해외 진출'};const MS_IMG={deb:'debut',hr1:'hr1',st:'starter',as:'allstar',ab:'abroad'};
@@ -1534,7 +1535,7 @@ function renderOffer(v){
       ${os?`<div><span>보장 조건</span><b>연봉 ${Ms(o.salary)} · ${o.years}년</b></div>`:''}
       <div><span>이적 후 예상 역할</span><b>${esc(role||'-')}</b></div>
       <div><span>선수 의향</span><b class="${will==='긍정적'?'ok':will==='보통'?'':'bad'}">${will}</b></div>
-      <div><span>제안 기한</span><b class="due">${left}일 남음</b></div>
+      <div><span>제안 기한</span><b class="due">${leftTxt(left,S.phase==='offseason'?'주':'일')}</b></div>
       ${im?`<div><span>우리 팀 영향</span><b class="${im.delta<=-1?'bad':im.delta<0?'due':'ok'}">${esc(im.role)} · 전력 ${im.delta>0?'+':''}${im.delta}${im.gap?' · 자리 공백':''}</b></div><div><span>돈</span><b>보유 현금 ${Ms(S.teams[S.userTeamId].cash)} → ${Ms(S.teams[S.userTeamId].cash+o.fee)}${p.contract?` · 연봉 −${Ms(p.contract.salary)}`:''}</b></div><div><span>대체 후보</span><b>${rep2?`${esc(rep2.p.name)} (${esc(rep2.pos)}, 종합 ${Math.round(SL.calcOvr(rep2.p))})`:im.gap?'<span class="bad">없음 — 판매 전 대체 선수 필요</span>':'편성 변화 없음'}</b></div>`:''}</div>
     <button class="sm ghost" style="margin-top:8px" onclick="document.getElementById('chat')&&document.getElementById('chat').scrollIntoView({behavior:'smooth'})">선수 의견 확인 ↓</button></div>`;})()}
   <div class="content gut" style="padding-bottom:12px">
@@ -2022,7 +2023,11 @@ const A={
   setPitchRole(pid,v){const ut=SL.userTeam();if(v==='none'){UI.entryDown(pid);return;}if(!SL.inEntry(ut,pid)){const e=SL.entryUp(pid);if(e){toast(e+' — 선수단 → ⋯ → 1군 등록에서 교체');render();return;}}if(v.startsWith('sp')){UI.setRot(+v.slice(2),pid);return;}const ri=ut.rotation.indexOf(pid);if(ri>=0){ut.rotation.splice(ri,1);if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);if(ut.rotIdx>=ut.rotation.length)ut.rotIdx=0;}if(!ut.bullpen.includes(pid))ut.bullpen.push(pid);SL.setRpRole(ut,pid,v);autosave();render();},
   list(pid){const e=SL.listPlayer(pid);toast(e||'판매 등록했습니다. 관심 구단의 제안을 기다리세요.');autosave();render();},
   unlist(pid){SL.unlistPlayer(pid);toast('등록 해제');autosave();render();},
-  confirmRelease(pid){const p=SL.P(pid);modal(`<h3>${esc(p.name)} 방출</h3><div>잔여 계약의 30%(${M(Math.round((p.contract?p.contract.salary*Math.max(1,p.contract.years)*0.3:0)/10)*10)})를 위약금으로 지급합니다. 되돌릴 수 없습니다.</div><div style="height:12px"></div><div class="btns"><button class="danger" onclick="UI.release(${pid})">방출 확정</button><button onclick="UI.closeModal()">취소</button></div>`);},
+  confirmRelease(pid){const p=SL.P(pid);const ut=SL.userTeam();const sev=SL.swapSev(p);const sal=p.contract?p.contract.salary:0;const yrs=p.contract?p.contract.years:0;const n=ut.roster.length;const min=SL.BAL.MIN_ROSTER;const blk=p.dispatch?'파견 중인 선수는 방출할 수 없습니다.':n<=min&&!ut.dev.includes(pid)?`선수단 최소 인원(${min}명)이라 방출할 수 없습니다.`:'';
+    modal(`<div class="row" style="gap:10px;margin-bottom:10px">${face(p,48)}<div><h3 style="margin:0">${esc(p.name)} 방출</h3><div class="small muted">${p.pos} · ${p.age}세 · 종합 ${Math.round(SL.calcOvr(p))} · 연봉 ${Ms(sal)} · ${yrs}년 남음</div></div></div>
+      <div class="swb"><div><span>위약금 (지금 지급)</span><b>${Ms(sev)}</b></div><div><span>남은 연봉 (안 냄)</span><b>${Ms(sal*Math.max(1,yrs))}</b></div><div><span>현금</span><b>${Ms(ut.cash)} → ${Ms(ut.cash-sev)}</b></div><div><span>선수단</span><b>${n}명 → ${ut.dev.includes(pid)?n:n-1}명</b></div></div>
+      <div class="sww">되돌릴 수 없습니다.<small>방출한 선수는 FA가 되어 다른 구단이 데려갈 수 있습니다.</small></div>${blk?`<div class="small bad" style="margin:0 0 8px">${blk}</div>`:''}
+      <div class="gobar lugo in grgo rk3"><button class="primary" ${blk?'disabled':''} onclick="UI.release(${pid})">방출 확정</button><button class="ghost" onclick="UI.closeModal()">취소</button></div>`);},
   release(pid){const e=SL.releasePlayer(pid);toast(e||'방출했습니다.');autosave();closeModal();if(!e)ui.view=ui.stack.pop()||null;render();},
   resFocus(pid,on){const e=SL.setResFocus(pid,on);toast(e||(on?'2군 집중 육성으로 지정했습니다 (다음 2군 주간부터).':'2군 집중 육성을 해제했습니다.'));autosave();render();},
   promote(pid){const e=SL.promoteDev(pid);toast(e||'선수단(2군)에 넣었습니다. 1군 등록은 ⋯에서.');autosave();render();},

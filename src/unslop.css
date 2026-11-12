@@ -766,3 +766,36 @@ body:not(.ingame) .prow.recrow.on{box-shadow:inset 0 0 0 1px #f2c14e;border-radi
 :root.ea[data-theme="light"] .facomp .d b,:root.ea[data-theme="light"] .cpi b,:root.ea[data-theme="light"] .drprev .r.me b{color:#8a6100}:root.ea[data-theme="light"] .cpi b.bad{color:#b3261e}
 .resrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}.resrow:last-child{border-bottom:0}.resrow>:first-child{flex:none}.resrow .a{flex:1;min-width:0}.resrow .a b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resrow .a small{display:block;font-size:12px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.resrow i{flex:none;font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
 .reshd{margin:4px 2px 10px;font-size:15px;color:var(--muted)}.reshd b{font-weight:600}
+
+/* v133: 타순 줄 — 이름 조금 작게 · 아래 줄에 자리 능력 · 타격 · 수비 */
+.lu2{grid-template-columns:minmax(0,1.32fr) minmax(0,1fr)}
+body:not(.ingame) .lu2 .lul td{height:46px}
+body:not(.ingame) .lu2 .lul td:first-child{width:40px}
+body:not(.ingame) .lu2 .lul td:first-child b{font-size:16px}
+body:not(.ingame) .lu2 .lul .luh{width:20px}
+body:not(.ingame) .lu2 .lul td:last-child{width:42px;padding-right:4px;text-overflow:clip}
+body:not(.ingame) .lu2 .lul .tfn{gap:4px}
+.lu2 .lul .lun{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+body:not(.ingame) .lu2 .lul .lun b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.lu2 .lul .lun small{display:flex;align-items:center;gap:4px;margin-top:2px;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;color:var(--text)}
+.lu2 .lul .lun small .gq{font-size:10.5px}
+.lu2 .lul .lun small em{font-style:normal;font-weight:400;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.lu2 .lul .lun small u{text-decoration:none}.lu2 .lul .lun small u.bad{color:#ff9d57}
+:root.ea[data-theme="light"] .lu2 .lul .lun small u.bad{color:#b4530a}
+body:not(.ingame) .lu2 .lul .tfn{display:flex;max-width:100%;overflow:hidden}.lu2 .lul .lun{flex:1 1 auto}.lu2 .lul .lun small em{min-width:0;flex:0 1 auto}
+@media (max-width:380px){.lu2{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:6px}body:not(.ingame) .lu2 .lul td:first-child{width:36px}body:not(.ingame) .lu2 .lul .luh{width:17px}body:not(.ingame) .lu2 .lul td:last-child{width:38px}}
+/* v133: 성장 기록 왼쪽 목록 — 한 줄 카드 */
+.stv .eqman.gi .gil2{display:flex;flex-direction:column;gap:6px}
+.stv .eqman.gi .gil2 button{display:flex;align-items:center;gap:8px;width:100%;min-height:56px;padding:6px 8px;text-align:left}
+.stv .eqman.gi .gil2 button>:first-child{flex:none}
+.stv .eqman.gi .gil2 .a{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.stv .eqman.gi .gil2 .a b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stv .eqman.gi .gil2 .a small{font-size:12px;opacity:.75;white-space:nowrap}
+.stv .eqman.gi .gil2 .v{flex:none;display:flex;flex-direction:column;align-items:flex-end;line-height:1.2}
+.stv .eqman.gi .gil2 .v b{font-size:17px;font-weight:600;white-space:nowrap}
+.stv .eqman.gi .gil2 .v em{font-style:normal;font-size:12px}
+.stv .eqman.gi .gil2 button.on .a small,.stv .eqman.gi .gil2 button.on .v em{opacity:1;color:#15171c}
+body:not(.ingame) .stv .eqman.gi .gil2 button{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;height:auto!important}
+body:not(.ingame) .stv .eqman.gi .gil2 .a{align-items:flex-start;text-align:left}
+.stv .eqman.gi .gil2 .a small{opacity:1;color:var(--muted)}
+body:not(.ingame) .stv .eqman.gi .gil2 button.on .a small,body:not(.ingame) .stv .eqman.gi .gil2 button.on .v em,body:not(.ingame) .stv .eqman.gi .gil2 button.on .gq,body:not(.ingame) .stv .eqman.gi .gil2 button.on .v b{color:inherit!important;opacity:1}
