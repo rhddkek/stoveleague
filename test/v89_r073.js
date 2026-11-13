@@ -3,7 +3,7 @@ const {chromium}=require('playwright');const path=require('path');
 (async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
   const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
-  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(3);UI.closeModal();});
+  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();UI.set('flow0',1);SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(3);UI.closeModal();});
   // 1. FA 목록 줄을 누르면 중간 창 없이 선수 상세 → 「FA 협상」 단추가 화면 안에 (스크롤 없이)
   {const r=await p.evaluate(()=>{UI.go('market','fa');const trs=[...document.querySelectorAll('.stvt tbody tr')];let tr=trs[0];for(const t of trs){t.click();if([...document.querySelectorAll('.pvact button')].some(x=>/협상/.test(x.textContent))){tr=t;break;}UI.back();UI.go('market','fa');}tr.click();const pv=!!document.querySelector('.pv');const md=!!document.querySelector('#modal');const btn=[...document.querySelectorAll('.pvact button')].find(x=>/협상/.test(x.textContent));const bb=btn&&btn.getBoundingClientRect();const sticky=btn&&getComputedStyle(btn.closest('.pvact')).position==='sticky';return {pv,md,btn:!!btn,vis:bb&&bb.bottom<=innerHeight&&bb.top>=0,sticky,t:btn&&btn.textContent.trim()};});
     r.pv&&!r.md&&r.btn&&r.vis&&r.sticky?ok(`FA 줄 → 선수 상세 바로 (중간 창 없음) · 「${r.t}」 단추가 아래 고정, 스크롤 없이 보임`):bad('FA 줄 '+JSON.stringify(r));}

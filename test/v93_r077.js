@@ -3,7 +3,7 @@ const {chromium}=require('playwright');const path=require('path');
 (async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
   const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
-  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(5);UI.closeModal();});
+  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();UI.set('flow0',1);SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(5);UI.closeModal();});
   const allScreens=()=>p.evaluate(()=>{const keys=[];for(const t of ['home','roster','dev','market','league','club']){keys.push([t,null]);UI.setTab(t);[...document.querySelectorAll('.htabs button,.htabs2 button')].forEach(b=>{const m=(b.getAttribute('onclick')||'').match(/setSub\('(\w+)','(\w+)'\)/);if(m)keys.push([m[1],m[2]]);});}return keys;});
   const keys=await allScreens();
   // 1. 바탕: 밤색(채도 낮음) · 카드도 무채색에 가까움

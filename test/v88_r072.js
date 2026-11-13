@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');const path=require('path');
 (async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
   const url='file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1';
-  const start=async p=>{await p.goto(url);await p.waitForTimeout(300);await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(3);UI.closeModal();});};
+  const start=async p=>{await p.goto(url);await p.waitForTimeout(300);await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();UI.set('flow0',1);SL.state().tutorialDone=true;UI.closeModal();UI.autoDays(3);UI.closeModal();});};
   const p=await b.newPage({viewport:{width:390,height:844},hasTouch:true});p.on('pageerror',e=>errs.push(e.message));await start(p);
   const st=()=>p.evaluate(()=>({tab:(document.querySelector('.nav .on')||{}).textContent||'',sub:((document.querySelector('.htabs2 .on')||document.querySelector('.htabs .on')||{}).textContent||'').trim(),view:!!document.querySelector('.pv'),modal:!!document.querySelector('#modal'),y:Math.round(scrollY),url:location.href}));
   // 1. 뒤로 가기: 선수 상세 → 목록(보던 자리 그대로) → 전 화면 → 전 화면 → 감독실 → 「한 번 더 누르면 나감」

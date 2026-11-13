@@ -3,7 +3,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
 (async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
   const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
-  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();});
+  await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();UI.set('flow0',1);SL.state().tutorialDone=true;UI.closeModal();});
   // 1. 한 타자씩: 공수교대 화면의 「직접 지휘」를 눌러도 한 타자씩 그대로 (예전엔 「장면마다」로 바뀌어 여러 이닝이 넘어감)
   for(const md of ['pa','pitch']){await p.evaluate(()=>{let k=0;while(!SL.state().liveGame&&k++<10){UI.setTab('home');if(SL.userGameToday())UI.startGame();else UI.autoDays(1);}});await p.evaluate(m=>UI.set('stepMode',m),md);
     let n=0,jumps=[],ints=0,lbl='';while(n<700){const r=await p.evaluate(()=>{const lg=SL.state().liveGame;if(!lg||lg.done)return {done:true};if(document.querySelector('.cmint')){const b0=document.querySelectorAll('.cmpick button')[0];const t=b0.innerText.replace(/\s+/g,' ');b0.click();return {int:t};}const pa0=lg.paCount,in0=lg.inn*2+lg.half;document.querySelector('.cmgo .gold').click();return {d:lg.paCount-pa0,di:lg.inn*2+lg.half-in0,inn:lg.inn};});
@@ -17,7 +17,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   {const css=fs.readFileSync(path.resolve(__dirname,'../src/style.css'),'utf8');/body\{padding-top:env\(safe-area-inset-top,0px\)\}/.test(css)?ok('노치 화면: 본문 위 여백 = 상태 표시줄 높이'):bad('노치 여백 없음');
     const html=fs.readFileSync(path.resolve(__dirname,'../stoveleague.html'),'utf8').replace(/env\(safe-area-inset-top,\s*0px\)/g,'47px');const tmp=path.resolve(__dirname,'../.notch_test.html');fs.writeFileSync(tmp,html);
     const q=await b.newPage({viewport:{width:393,height:852}});await q.goto('file://'+tmp+'?test=1');await q.waitForTimeout(250);
-    const r=await q.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();const out={};
+    const r=await q.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();UI.set('flow0',1);SL.state().tutorialDone=true;UI.closeModal();const out={};
       UI.openPlayer(SL.userTeam().lineup[0]);{const bar=document.querySelector('.pvbar').getBoundingClientRect();const nm=document.querySelector('.phd .nm').getBoundingClientRect();out.player=Math.round(nm.top-bar.bottom);}UI.back();
       UI.setTab('league');{const bar=document.querySelector('.club').getBoundingClientRect();const f=document.querySelector('.content').firstElementChild.getBoundingClientRect();out.league=Math.round(f.top-bar.bottom);}return out;});
     await q.close();fs.unlinkSync(tmp);r.player>=0&&r.league>=-1?ok(`노치(47px) 흉내: 선수 상세 이름이 위 막대 아래 ${r.player}px · 리그 탭 첫 칸 ${r.league}px — 가려지지 않음`):bad('노치 가림 '+JSON.stringify(r));}
