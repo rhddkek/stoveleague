@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
   const gold=c=>/242, 193, 78/.test(c||'');
 
   // 1. 스킨: 영역 탭·보기 전환·칩에서 고른 칸은 모두 노란 바탕 + 검은 글자 · 영역 탭은 테두리 있는 한 줄 상자
-  {const r=await p.evaluate(()=>{SL.newGame(4096,1,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();UI.autoDays(4);UI.closeModal();UI.go('roster','list');const cs=s=>{const e=document.querySelector(s);return e?[getComputedStyle(e).backgroundColor,getComputedStyle(e).color]:null;};
+  {const r=await p.evaluate(()=>{SL.newGame(4096,1,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.setTheme('ea');UI.closeModal();UI.autoDays(4);UI.closeModal();UI.go('roster','list');const cs=s=>{const e=document.querySelector(s);return e?[getComputedStyle(e).backgroundColor,getComputedStyle(e).color]:null;};
       const ht=document.querySelector('.htabs');return {tab:cs('.htabs button.on'),seg:cs('.grptab button.on'),chip:cs('.sqchips button.on'),box:getComputedStyle(ht).borderTopWidth,tabs:[...ht.querySelectorAll('button')].map(x=>x.textContent.trim()).join(','),nav:getComputedStyle(document.querySelector('.nav button.on')).color};});
     gold(r.tab&&r.tab[0])&&gold(r.seg&&r.seg[0])&&gold(r.chip&&r.chip[0])&&/21, 23, 28/.test(r.tab[1])&&r.box==='1px'&&r.tabs==='명단,타순,투수진,운영'&&gold(r.nav)?ok(`스킨: 영역 탭 「${r.tabs}」 · 고른 탭·1군/2군·칩 모두 노란 칸 · 아래 메뉴 고른 칸 노란 글자`):bad('스킨 '+JSON.stringify(r));}
 

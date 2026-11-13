@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v140';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v141';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -47,6 +47,7 @@ const BAL={
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
   FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
   HALF:{on:true,rest:20},   // v136 올스타 브레이크: 전반기/후반기 · 모든 구단 피로 −20(하루 회복 14 남짓)
+  SKC:{n:3,learn:{C:1000,B:2000,A:4000,S:8000},up3:2,rem:2000,per:2000,perUp:10,tickUp:0.10,tickNew:0.08,tickRem:0.05},   // v141 스킬 캠프: 겨울마다 3명 · 배우기 등급별 0.5억~4억 · 레벨 2 = 배우기 값, 레벨 3 = 두 배 · 약점 지우기 · 성격 코스 1억
   AUTO:{coachKeep:60,dispAge:25},   // v135 맡기기: 평가 60 이상 코치만 재계약 · 25세 이하 비주전만 겨울리그 파견
   FA_COMP:{on:true,A:{prot:20,p:2,c:3},B:{prot:25,p:1,c:2},C:{prot:0,p:0,c:1.5}}, SD:{on:true,week:3,prot:25,rounds:3,fee:[4,3,2],maxLost:4,minAge:22},   // v132 (R106): FA 보상(보호 인원 · 선수+연봉 배수 · 돈만 배수) · 2차 드래프트(양도금 억)
   FARM_N:{US:10,JP:6}, FA_MAJOR_N:12,   // 주요 FA(경쟁 입찰) 최대 인원   // v62: 미국·일본 구단 하부 선수층 (메이저·1군과 오가는 선수)   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
@@ -102,6 +103,155 @@ const ATTR_KO={contact:'컨택',power:'파워',eye:'선구안',speed:'주력',de
 const FOCUS_BAT={balance:'균형',contact:'컨택',power:'장타',eye:'선구안',speed:'주루',defense:'수비'};
 const FOCUS_PIT={balance:'균형',stuff:'구위',control:'제구',movement:'변화구',stamina:'체력'};
 const TRAITS={'성실':'성장 속도 증가','게으름':'성장 속도 감소','강철체력':'피로 회복 빠름·노화 완만','클러치':'득점권에서 집중력 상승','장타본능':'홈런 확률 증가','빠른발':'진루 판단 우수','강심장':'해외 적응·협상에 유리','유리멘탈':'큰 무대에서 흔들림','리더':'팀 사기 유지'};
+// ======================= v141 (R112): 스킬 — 한 선수 3칸 · 레벨 1~3 · 등급 S·A·B·C(강점) · D(약점) =======================
+// [이름, 등급, 쪽(B 타자 · P 투수 · G 공통), 조건, 효과(레벨 1 기준 — 레벨 2는 ×1.5, 레벨 3은 ×2), 설명]
+// 효과 키: 타자 con 컨택 · pow 파워 · eye 선구 · sp 주력 / 투수 ctl 제구 · stf 구위 · mov 변화구 / hr 홈런 확률(비율). G는 경기 밖(성장 · 회복 · 부상 · 노화 · 사기) — 조건 칸이 종류
+const OLD_TRAITS=['성실','게으름','강철체력','클러치','장타본능','빠른발','강심장','유리멘탈','리더'];
+const SK_LV=[0,1,1.5,2];const SK_GRADE={S:'전설',A:'특급',B:'우수',C:'일반',D:'약점'};const SK_MAX=3;
+const SK_ROWS=[
+ // ── 타자: 찬스
+ ['클러치','B','B','risp',{con:4,pow:4},'득점권에서 컨택 · 파워 상승'],
+ ['만루의 사나이','A','B','loaded',{con:6,pow:6},'만루에서 컨택 · 파워 크게 상승'],
+ ['해결사','S','B','risp2',{con:7,pow:5},'2사 득점권에서 더 강해짐'],
+ ['끝내기 본능','S','B','walkoff',{con:7,pow:7},'9회 이후 동점 · 1점 뒤진 홈 타석에서 폭발'],
+ ['희생플라이 달인','B','B','r3',{con:5},'무사 · 1사 3루 주자를 불러들이는 타격'],
+ ['진루타','C','B','r1',{con:3},'1루 주자가 있을 때 맞히는 타격'],
+ ['타점 머신','A','B','on',{pow:3},'주자가 있으면 장타력 상승'],
+ // ── 타자: 볼카운트
+ ['초구 사냥꾼','B','B','firstP',{con:5,pow:4},'초구를 노려 침'],
+ ['풀카운트 승부사','B','B','full',{con:5,eye:6},'풀카운트에서 집중'],
+ ['커트 신공','B','B','s2',{con:4},'2스트라이크 뒤 끈질기게 맞힘'],
+ ['선구안의 달인','B','B','b2',{eye:5},'볼이 2개 넘으면 유인구에 속지 않음'],
+ ['노림수','B','B','hitCt',{pow:5},'유리한 카운트에서 한 방'],
+ ['끈질긴 승부','C','B','deep',{eye:3,con:2},'공을 많이 볼수록 좋아짐'],
+ // ── 타자: 타순
+ ['리드오프','B','B','slot1',{eye:4,con:3},'1번 타순에서 출루 능력 상승'],
+ ['테이블세터','C','B','slot12e',{con:3,eye:2},'1 · 2번에서 주자 없을 때 출루'],
+ ['클린업 히터','A','B','slot345on',{pow:5,con:2},'3 · 4 · 5번에서 주자가 있으면 장타'],
+ ['4번 타자','B','B','slot4',{pow:4},'4번에 서면 파워 상승'],
+ ['하위타선의 핵','C','B','slot789',{con:3,pow:3},'7 · 8 · 9번에서 한몫'],
+ ['이닝 선두타자','C','B','leadoffInn',{eye:4,con:2},'이닝 첫 타자로 나가면 출루'],
+ // ── 타자: 상대
+ ['좌완 킬러','A','B','pL',{con:5,pow:5},'왼손 투수에게 강함'],
+ ['우완 킬러','B','B','pR',{con:2,pow:2},'오른손 투수에게 강함'],
+ ['잠수함 킬러','B','B','pSub',{con:6,pow:4},'사이드암 · 언더핸드 투수에게 강함'],
+ ['강속구 킬러','B','B','pFast',{con:5,pow:3},'구위 좋은 투수의 빠른 공을 받아침'],
+ ['변화구 공략','B','B','pMov',{con:5},'변화구 좋은 투수에게 강함'],
+ ['에이스 킬러','A','B','pAce',{con:5,pow:4},'상대 에이스급 선발에게 강함'],
+ ['불펜 킬러','B','B','pRel',{con:3,pow:3},'구원 투수에게 강함'],
+ ['반대손 강점','B','B','opp',{con:2,pow:3},'반대 손 투수를 더 잘 침'],
+ ['같은 손도 OK','B','B','same',{con:3,pow:3},'같은 손 투수에게도 밀리지 않음'],
+ // ── 타자: 흐름
+ ['뒷심','B','B','late',{con:3,pow:3},'7회 이후 강해짐'],
+ ['초반 러시','C','B','early',{con:3,pow:2},'1~3회에 강함'],
+ ['추격 본능','B','B','trail',{con:3,pow:3},'지고 있을 때 집중'],
+ ['굳히기','C','B','lead',{con:3},'이기고 있을 때 추가점'],
+ ['접전의 사나이','A','B','clutchLate',{con:6,pow:4},'7회 이후 1점 차 이내 승부에서 강함'],
+ ['연장전의 사나이','B','B','extra',{con:6,pow:6},'연장전에서 강함'],
+ ['몰아치기','B','B','hot',{con:5},'그날 안타를 치면 계속 침'],
+ ['첫 타석 집중','C','B','firstPA',{con:4,eye:3},'경기 첫 타석에 강함'],
+ ['홈 보이','C','B','home',{con:2,pow:2},'홈 경기에서 강함'],
+ ['원정 체질','C','B','away',{con:2,pow:2},'원정 경기에서 강함'],
+ ['가을 사나이','S','B','post',{con:6,pow:6},'가을야구에서 폭발'],
+ ['봄 사나이','C','B','spring',{con:3,pow:2},'시즌 초반(4 · 5월)에 강함'],
+ ['여름 사나이','C','B','summer',{con:3,pow:2},'한여름(7 · 8월)에 강함'],
+ ['순위 싸움 체질','B','B','fall',{con:3,pow:3},'시즌 막판(9월 이후)에 강함'],
+ // ── 타자: 한 방 · 발
+ ['장타본능','B','B','always',{hr:0.25},'홈런 확률 증가'],
+ ['밀어서 넘기기','B','B','s2',{hr:0.2},'2스트라이크에서도 장타'],
+ ['구장 넘기기','B','B','away',{hr:0.15},'원정에서도 담장을 넘김'],
+ ['빠른발','C','B','always',{sp:6},'내야 안타 · 진루 판단 우수'],
+ ['대도','A','B','always',{sp:4},'도루 성공률 상승'],
+ ['번트 장인','C','B','bunt',{},'번트 성공률 상승'],
+ // ── 타자: 약점
+ ['유리멘탈','D','B','risp',{con:-3,eye:-3},'득점권 · 큰 무대에서 흔들림'],
+ ['득점권 울렁증','D','B','risp',{con:-4},'득점권에서 컨택 하락'],
+ ['공갈포','D','B','always',{pow:3,con:-4},'크게 휘두르지만 잘 못 맞힘'],
+ ['좌완 약점','D','B','pL',{con:-5,pow:-3},'왼손 투수에게 약함'],
+ ['병살 제조기','D','B','r1',{con:-4},'1루 주자가 있으면 땅볼'],
+ ['슬로 스타터 (타)','D','B','spring',{con:-4},'시즌 초반에 방망이가 무거움'],
+ ['2스트라이크 약점','D','B','s2',{con:-4},'몰리면 쉽게 물러남'],
+ // ── 투수: 위기
+ ['강심장','B','P','risp',{stf:4,ctl:4},'득점권 위기에서 구위 · 제구 상승 (협상 · 해외 적응에도 유리)'],
+ ['위기관리','A','P','loaded',{ctl:6,stf:6},'만루에서 더 침착해짐'],
+ ['병살 유도','B','P','r1',{mov:5},'1루 주자가 있으면 땅볼 유도'],
+ ['2사 후 집중','B','P','outs2',{stf:3,ctl:3},'2사 뒤 마지막 아웃을 확실히'],
+ ['주자 묶기','C','P','on',{ctl:2,mov:2},'주자가 있어도 흔들리지 않음'],
+ ['빠른 템포','C','P','empty',{ctl:3},'주자 없을 때 공격적으로'],
+ // ── 투수: 볼카운트
+ ['탈삼진 본능','A','P','s2',{stf:5,mov:3},'2스트라이크에서 결정구'],
+ ['초구 스트라이크','B','P','firstP',{ctl:6},'초구를 스트라이크로'],
+ ['풀카운트 배짱','B','P','full',{ctl:6,stf:3},'풀카운트에서도 정면 승부'],
+ ['유인구 마스터','B','P','pitCt',{mov:5},'유리한 카운트에서 유인구'],
+ ['직구 승부','B','P','hitCt',{stf:5},'불리한 카운트에서 힘으로'],
+ ['볼넷 억제','B','P','b2',{ctl:5},'볼이 쌓여도 제구가 잡힘'],
+ // ── 투수: 상대
+ ['좌타 킬러','B','P','bL',{stf:4,mov:3},'왼손 타자에게 강함'],
+ ['우타 킬러','B','P','bR',{stf:3,mov:2},'오른손 타자에게 강함'],
+ ['원포인트','B','P','relSame',{stf:5,mov:5},'구원 등판해 같은 손 타자를 잡음'],
+ ['몸쪽 승부','B','P','same',{stf:3},'같은 손 타자 몸쪽을 찌름'],
+ ['바깥쪽 승부','B','P','opp',{ctl:3},'반대 손 타자 바깥쪽을 공략'],
+ ['강타자 킬러','A','P','bSlug',{stf:5,mov:4},'파워 좋은 타자에게 강함'],
+ ['클린업 봉쇄','B','P','slot345',{stf:3,ctl:3},'3 · 4 · 5번 타자를 상대로 집중'],
+ ['하위타선 정리','C','P','slot789',{ctl:4},'7 · 8 · 9번을 쉽게 처리'],
+ ['교타자 봉쇄','B','P','bCon',{mov:5},'컨택 좋은 타자를 헛스윙으로'],
+ ['발 묶기','C','P','bFast',{ctl:3,mov:2},'빠른 타자의 출루를 막음'],
+ // ── 투수: 보직 · 흐름
+ ['수호신','S','P','save',{stf:7,ctl:6},'9회 이후 3점 이내 리드를 지킴'],
+ ['필승 셋업','A','P','hold',{stf:5,ctl:5},'7 · 8회 3점 이내 리드에서 강함'],
+ ['불펜 에이스','B','P','relClose',{stf:4,ctl:3},'구원 등판한 접전에서 강함'],
+ ['롱맨','C','P','relLong',{stf:3,ctl:3},'구원으로 길게 던져도 버팀'],
+ ['추격조 체질','C','P','relTrail',{stf:3,ctl:3},'지고 있는 경기를 붙잡아 둠'],
+ ['이닝이터','A','P','pc80',{stf:5,ctl:5},'투구 수 80개를 넘겨도 구위 유지'],
+ ['완투형','B','P','pc100',{stf:6,ctl:6},'100구 이후에도 버팀'],
+ ['첫 바퀴 강자','B','P','pc30s',{stf:4},'선발로 타순 한 바퀴는 압도'],
+ ['에이스의 품격','A','P','spLate',{stf:4,ctl:4},'선발로 6회 이후에 더 강해짐'],
+ ['초반 강자','C','P','early',{stf:3,ctl:2},'1~3회에 강함'],
+ ['접전의 승부사','A','P','clutchLate',{stf:5,ctl:5},'7회 이후 1점 차 이내에서 강함'],
+ ['리드 지키기','C','P','lead',{ctl:3},'이기고 있으면 안정'],
+ ['연장 수호','B','P','extra',{stf:6,ctl:5},'연장전에서 강함'],
+ ['홈 강자','C','P','home',{stf:2,ctl:2},'홈 마운드에서 강함'],
+ ['원정 강자','C','P','away',{stf:2,ctl:2},'원정 마운드에서 강함'],
+ ['가을 에이스','S','P','post',{stf:6,ctl:6},'가을야구에서 더 강해짐'],
+ ['여름 철완','C','P','summer',{stf:3,ctl:2},'한여름에도 지치지 않음'],
+ ['피홈런 억제','A','P','always',{hr:-0.15},'홈런을 잘 맞지 않음'],
+ ['낮게 낮게','B','P','on',{hr:-0.18},'주자가 있으면 장타를 피함'],
+ // ── 투수: 약점
+ ['새가슴','D','P','risp',{ctl:-4,stf:-2},'득점권에서 제구가 흔들림'],
+ ['1회 징크스','D','P','inn1',{ctl:-5},'1회에 유독 흔들림'],
+ ['볼넷 남발','D','P','b2',{ctl:-5},'볼이 쌓이면 무너짐'],
+ ['2사 후 방심','D','P','outs2',{ctl:-3,stf:-2},'2사 뒤 집중력이 떨어짐'],
+ ['타순 세 바퀴 약점','D','P','pc75s',{stf:-4},'선발로 투구 수 75개를 넘기면 맞기 시작'],
+ ['장타 허용','D','P','always',{hr:0.15},'실투가 담장을 넘어감'],
+ ['주자 울렁증','D','P','on',{ctl:-3},'주자가 나가면 흔들림'],
+ // ── 공통: 경기 밖
+ ['성실','C','G','grow',{v:0.3},'성장 속도 증가'],
+ ['훈련벌레','A','G','grow',{v:0.2},'훈련 효과가 더 큼'],
+ ['게으름','D','G','grow',{v:-0.3},'성장 속도 감소'],
+ ['강철체력','B','G','body',{v:1},'피로 회복 빠름 · 부상 적음 · 노화 완만'],
+ ['금강불괴','B','G','inj',{v:-0.3},'부상 위험 감소'],
+ ['유리몸','D','G','inj',{v:0.35},'부상 위험 증가'],
+ ['회복력','C','G','rec',{v:3},'피로 회복이 빠름'],
+ ['대기만성','B','G','age',{v:-0.2},'노화가 늦게 옴'],
+ ['조로','D','G','age',{v:0.25},'노화가 일찍 옴'],
+ ['리더','B','G','lead',{v:1},'팀 사기 유지'],
+];
+const SKILLS={};for(const r of SK_ROWS)SKILLS[r[0]]={n:r[0],g:r[1],side:r[2],c:r[3],fx:r[4],d:r[5]};
+// 투구폼(v141): 사이드암 · 언더핸드는 같은 손 타자에게 강하고 반대 손에게 약함. 언더핸드는 장타를 덜 맞음
+const ARMS={O:'오버핸드',T:'쓰리쿼터',S:'사이드암',U:'언더핸드'};const ARM_FX={O:{same:0,opp:0,hr:1},T:{same:0,opp:0,hr:1},S:{same:-2,opp:1.3,hr:1},U:{same:-3,opp:2,hr:0.93}};
+function idRng(seed){let a=(seed*2654435761)>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function armOf(p){if(p.arm)return p.arm;const r=idRng(p.id*31+7)();return r<0.46?'O':r<0.8?'T':r<0.94?'S':'U';}
+// 스킬 채우기 — 선수 번호로 정해지는 난수(게임 난수 흐름을 건드리지 않음). 옛 특성은 그대로 스킬 1레벨로, 능력이 좋을수록 쪽(타자/투수) 스킬이 더 붙음
+function skillInit(p,ovr){if(p.sk)return p.sk;const R=idRng(p.id*97+3);const sk=(p.traits||[]).filter(t=>SKILLS[t]).slice(0,SK_MAX).map(t=>[t,1]);const pit=p.pos==='SP'||p.pos==='RP';
+  const pool=SK_ROWS.filter(r=>r[2]===(pit?'P':'B')||(r[2]==='G'&&!OLD_TRAITS.includes(r[0])));const W={S:ovr>=72?3:0.4,A:ovr>=62?10:3,B:26,C:42,D:14};const tot=pool.reduce((a,r)=>a+W[r[1]],0);
+  const n=ovr>=75?(R()<0.6?2:1):ovr>=65?(R()<0.6?1:0):(R()<0.25?1:0);
+  for(let i=0;i<n&&sk.length<SK_MAX;i++){let x=R()*tot,pk=null;for(const r of pool){x-=W[r[1]];if(x<=0){pk=r;break;}}if(!pk||sk.some(s=>s[0]===pk[0]))continue;if((pk[0]==='유리몸'&&sk.some(s=>s[0]==='금강불괴'||s[0]==='강철체력'))||(pk[0]==='금강불괴'&&sk.some(s=>s[0]==='유리몸'))||(pk[0]==='조로'&&sk.some(s=>s[0]==='대기만성'))||(pk[0]==='대기만성'&&sk.some(s=>s[0]==='조로')))continue;sk.push([pk[0],pk[1]!=='D'&&ovr>=75&&R()<0.25?2:1]);}
+  p.sk=sk;p.traits=sk.map(s=>s[0]);return sk;}
+for(const k in SKILLS)if(!TRAITS[k])TRAITS[k]=SKILLS[k].d;
+function skG(p,c){const sk=p.sk;if(!sk)return 0;let v=0;for(const x of sk){const d=SKILLS[x[0]];if(d&&d.side==='G'&&d.c===c)v+=d.fx.v*(SK_LV[x[1]]||1);}return v;}
+function skOf(p){return p.sk||skillInit(p,calcOvr(p));}
+function skillRows(p){return skOf(p).map(x=>{const d=SKILLS[x[0]]||{n:x[0],g:'C',side:'G',d:TRAITS[x[0]]||''};return {n:x[0],lv:x[1],g:d.g,gk:SK_GRADE[d.g],side:d.side,d:d.d,max:x[1]>=3};});}
+function skLv(p,k){const sk=p.sk;if(!sk)return (p.traits||[]).includes(k)?1:0;for(const s of sk)if(s[0]===k)return s[1];return 0;}
 const ROSTER_TEMPLATE=['SP','SP','SP','SP','SP','RP','RP','RP','RP','RP','RP','RP','C','C','1B','2B','3B','SS','LF','CF','RF','DH','2B','SS','CF','1B'];
 const FARM_TEMPLATE=['SP','SP','RP','RP','C','SS','2B','CF','1B','RF'];
 const NEED_TEMPLATE={SP:5,RP:7,C:2,'1B':2,'2B':2,'3B':1,SS:2,LF:1,CF:2,RF:1,DH:1};
@@ -218,18 +368,20 @@ function genPlayer(o){
   p.pot=r1(clamp(Math.max(pot,calcOvr(p)),30,96));
   p.growthType=pick(['early','normal','normal','late']);
   p.peakAge=p.growthType==='early'?ri(24,26):p.growthType==='normal'?ri(27,29):ri(29,31);
-  const tnames=Object.keys(TRAITS);p.traits=[pick(tnames)];if(rnd()<0.35){const t=pick(tnames);if(!p.traits.includes(t)&&!((t==='성실'&&p.traits[0]==='게으름')||(t==='게으름'&&p.traits[0]==='성실')))p.traits.push(t);}
+  const tnames=OLD_TRAITS;p.traits=[pick(tnames)];if(rnd()<0.35){const t=pick(tnames);if(!p.traits.includes(t)&&!((t==='성실'&&p.traits[0]==='게으름')||(t==='게으름'&&p.traits[0]==='성실')))p.traits.push(t);}
   p.scout=makeScout(p,o.conf!=null?o.conf:0.3);
   p.base=JSON.parse(JSON.stringify(attrs));
   S.players[p.id]=p;
   p.snap={s:S.season||1,ovr:r1(calcOvr(p)),val:0,attrs:JSON.parse(JSON.stringify(attrs))};
+  skillInit(p,calcOvr(p));
   return p;
 }
 // v100 (R083): 성격 능력치 3가지 — 리더십(ld)·성실성(wk)·멘탈(mt). 선수 번호에서 나온 고정 값(난수 흐름을 건드리지 않아 고정 선수단·시즌 결과가 그대로)
 // 특성과 맞춤: 리더 → 리더십↑ · 성실/게으름 → 성실성↑↓ · 클러치·강심장/유리멘탈 → 멘탈↑↓. 예전 저장은 처음 볼 때 같은 식으로 채움
 function perOf(p){if(!p)return {ld:50,wk:55,mt:50};if(p._per)return p._per;   /* 저장 파일에 안 들어감(번호로 다시 계산) — 저장 크기 그대로 */let h=((p.id+7)*2654435761)>>>0;const u=()=>{h^=h<<13;h>>>=0;h^=h>>>17;h^=h<<5;h>>>=0;return (h%100003)/100003;};const n=()=>(u()+u()+u()-1.5)*2;const T=p.traits||[];
   const ld=clamp(Math.round(50+n()*13+(p.age-26)*1.1+(T.includes('리더')?25:0)),15,95),wk=clamp(Math.round(55+n()*13+(T.includes('성실')?22:0)-(T.includes('게으름')?22:0)),15,95),mt=clamp(Math.round(50+n()*13+(T.includes('클러치')?18:0)+(T.includes('강심장')?12:0)-(T.includes('유리멘탈')?20:0)),15,95);
-  const v={ld,wk,mt};Object.defineProperty(p,'_per',{value:v,enumerable:false,writable:true});return v;}
+  const v={ld,wk,mt};if(p.perAdj)for(const k in p.perAdj)v[k]=clamp(v[k]+p.perAdj[k],15,95);   /* v141: 겨울 성격 코스 */
+  Object.defineProperty(p,'_per',{value:v,enumerable:false,writable:true});return v;}
 const PER_KO={ld:'리더십',wk:'성실성',mt:'멘탈'};
 function newStat(){return {g:0,pa:0,ab:0,h:0,d2:0,d3:0,hr:0,bb:0,so:0,r:0,rbi:0,pG:0,pGS:0,pOuts:0,pH:0,pR:0,pER:0,pBB:0,pSO:0,pPit:0,pW:0,pL:0,pSV:0,pHR:0,sb:0,cs:0,pHD:0,pBS:0};}
 

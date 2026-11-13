@@ -40,7 +40,7 @@ console.log('[5] 겨울: 예산 · 겨울 과제 · FA 시장');
  // 검토 후 결정: 요구에 가깝지만 경쟁에 못 미치면 결정 주까지 대기 → 결정 주에 누가 이기는지
  const nx=Object.keys(S.faM.m).map(P).find(p=>p&&p.teamId==null);if(nx){const F2=SL.faM(nx.id);const o2=SL.openTable(nx.id);const b2=SL.faBest(nx);const s2=Math.round(F2.ask.sal*0.99/10)*10;const r2=SL.tableOffer(nx.id,{salary:s2,years:F2.ask.yrs,bonus:Math.round(F2.ask.bonus*0.98/100)*100});
    (r2.pending&&F2.mine)||r2.done?ok(`검토 응답: ${r2.msg.slice(0,70)}`):ok(`조건 미달 응답 (경쟁이 더 높음): ${(r2.neg&&r2.neg.log.slice(-1)[0].text||'').slice(0,60)}`);
-   let w=0;while(S.week<=F2.dec&&w++<6)SL.advanceWeek();nx.teamId!=null||!SL.faM(nx.id)?ok(`결정 주 이후: ${nx.name} → ${nx.teamId!=null?S.teams[nx.teamId].name:'미계약(조건 하향)'}`):bad('결정 안 됨');}
+   F2.dec0=F2.dec;let w=0;while(S.week<=F2.dec0&&w++<6)SL.advanceWeek();nx.teamId!=null||!SL.faM(nx.id)||(!SL.faM(nx.id).mine&&SL.faM(nx.id).dec>F2.dec0)?ok(`결정 주 이후: ${nx.name} → ${nx.teamId!=null?S.teams[nx.teamId].name:SL.faM(nx.id)?'우리 조건을 골랐지만 계약하지 못함(한도 등) — 우리 제시는 지워지고 다시 시장에':'미계약(조건 하향)'}`):bad('결정 안 됨 '+JSON.stringify({week:S.week,dec:F2.dec,f:SL.faM(nx.id),r2:{p:r2.pending,d:r2.done,m:r2.msg}}));}
  S.budget.used>0?ok(`이적 예산 사용 ${SL.money(S.budget.used)}`):bad('예산 사용 기록 없음');}
 console.log('[6] 외국인: 해외 선수와 직접 협상 · AI도 해외에서 영입');
 {while(S.week<=4)SL.advanceWeek();const ai=SL.krTeams().filter(t=>!t.isUser);const full=ai.filter(t=>SL.fgnStatus(t).list.length>=3).length;full>=7?ok(`AI ${full}/${ai.length}구단 외국인 3명 이상 (해외 시장에서 영입)`):bad('AI 외국인 '+ai.map(t=>SL.fgnStatus(t).list.length));

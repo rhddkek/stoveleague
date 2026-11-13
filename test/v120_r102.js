@@ -20,12 +20,12 @@ const {chromium}=require('playwright');const path=require('path');
     r.devRows===r.devN&&r.devN>=1&&r.devHas&&/상세,2군 등록/.test(r.devBtn)&&!r.twoHas&&r.twoRows===Math.max(1,r.twoN)&&r.ow<=0?ok(`육성군 칸: 육성군 ${r.devN}명만 · [${r.devBtn}] · 2군 칸에서는 빠짐`):bad('육성군 '+JSON.stringify(r));}
 
   // 2. 타순·수비: 제목 + 초기화 · 왼쪽 9줄 | 오른쪽 수비 그림(등번호) · 교체 후보 → 비교 줄 → 「라인업 저장」이 그 자리에 넣음 · 초기화가 되돌림
-  {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();UI.go('roster','lineup');const o={ttl:(document.querySelector('.pgh b')||{}).textContent,rows:document.querySelectorAll('.lu2 tr.lurow').length,slots:document.querySelectorAll('.lu2 .dia .dslot').length};
+  {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();UI.set('luView','list');UI.go('roster','lineup');const o={ttl:(document.querySelector('.pgh b')||{}).textContent,rows:document.querySelectorAll('.lu2 tr.lurow').length,slots:document.querySelectorAll('.lu2 .dia .dslot').length};
       const L=document.querySelector('.lu2 .lul').getBoundingClientRect(),F=document.querySelector('.lu2 .luf').getBoundingClientRect();o.side=F.left>=L.right&&Math.abs(F.top-L.top)<4;o.jn=[...document.querySelectorAll('.luf .dslot .jn')].map(x=>x.textContent).filter(x=>/^\d+$/.test(x)).length;
       const l0=ut.lineup.slice();const tgt=l0[6];UI.selRow(tgt);o.selRow=document.querySelector('.lu2 tr.lurow.sel b:last-of-type, .lu2 tr.lurow.sel .tfn b').textContent;const cs=[...document.querySelectorAll('.lucand .lcg button')];o.cands=cs.length;o.cmp0=(document.querySelector('.lucmp')||{}).innerText||'';
       if(cs[0]){cs[0].click();o.on=!!document.querySelector('.lucand .lcg button.on');o.cmp=document.querySelector('.lucmp').innerText.replace(/\s+/g,' ');const nm=document.querySelector('.lucand .lcg button.on b').textContent;const ps=ut.pos[tgt];UI.luSave();o.in=S.players[ut.lineup.find(id=>ut.pos[id]===ps)].name===nm;o.out=!ut.lineup.includes(tgt);
         // 초기화: 저장하면 기준이 새로 잡히므로, 다시 한 명 바꾼 뒤 초기화 → 방금 저장한 타순으로
-        const l1=ut.lineup.slice();UI.go('roster','lineup');UI.luMoveTap(l1[0]);UI.luDrop(3);const moved=ut.lineup.join()!==l1.join();UI.luReset();o.reset=moved&&ut.lineup.join()===l1.join();}
+        const l1=ut.lineup.slice();UI.set('luView','list');UI.go('roster','lineup');UI.luMoveTap(l1[0]);UI.luDrop(3);const moved=ut.lineup.join()!==l1.join();UI.luReset();o.reset=moved&&ut.lineup.join()===l1.join();}
       o.btns=[...document.querySelectorAll('.gobar.lugo button')].map(x=>x.textContent.trim()).join(',');o.ow=document.documentElement.scrollWidth-innerWidth;return o;});
     r.ttl==='타순·수비'&&r.rows===9&&r.slots===9&&r.side&&r.jn===9&&r.cands>=1&&r.on&&/→/.test(r.cmp)&&r.in&&r.out&&r.reset&&r.btns==='자동 편성,라인업 저장'&&r.ow<=0?ok(`타순·수비: 9줄 | 수비 그림 등번호 9 · 후보 ${r.cands}명 → 「${r.cmp}」 → 저장하면 그 자리에 · 초기화로 되돌림 · [${r.btns}]`):bad('타순 '+JSON.stringify(r));}
 

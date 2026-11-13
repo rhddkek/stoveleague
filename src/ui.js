@@ -7,7 +7,7 @@ const $=s=>document.querySelector(s);
 let S=null;
 const M=SL.money;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function Ms(m){m=Math.round((m||0)*SL.BAL.WON);const neg=m<0;m=Math.abs(m);let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10)+'억';}else s=m?m.toLocaleString()+'만':'0';return (neg?'-':'')+s;}
+function Ms(m){m=Math.round((m||0)*SL.BAL.WON);const neg=m<0;m=Math.abs(m);let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e).toLocaleString():Math.round(e*10)/10)+'억';}else s=m?m.toLocaleString()+'만':'0';return (neg?'-':'')+s;}
 function toast(msg,ms){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',ms||2800);}
 // 저장소: IndexedDB 우선(용량 큼), localStorage 보조. 둘 다 실패하면 알림.
 // 저장 칸 3개 — 1번 칸은 예전 저장 키 그대로(이전 버전 저장이 1번 칸으로 이어짐)
@@ -59,7 +59,8 @@ function prefSave(){try{localStorage.setItem('stoveleague_prefs',JSON.stringify(
 function prefApply(){try{const r=document.documentElement;r.classList.toggle('fz-l',PREF.font==='l');r.classList.toggle('fz-xl',PREF.font==='xl');r.classList.toggle('calm',!PREF.motion);r.classList.toggle('dense',!!PREF.dense);}catch(e){}}
 // 화면 색: 기본은 어두운 남색 + 주황 강조(EA 2011 느낌), 설정에서 밝은 색으로
 // v91 (R075): 기본은 어두운 테마 (광우: 밝으니 눈 아픔). 한 번만 어두움으로 맞추고, 그 뒤 설정에서 고른 값은 그대로
-function themeNow(){try{if(!localStorage.getItem('sl_theme_v91')){localStorage.setItem('sl_theme_v91','1');localStorage.setItem('sl_theme','ea');}return localStorage.getItem('sl_theme')||'ea';}catch(e){return 'ea';}}
+function themeNow(){try{if(!localStorage.getItem('sl_theme_v141')){localStorage.setItem('sl_theme_v141','1');localStorage.setItem('sl_theme_v91','1');localStorage.setItem('sl_theme','light');}   /* v141 (R112): 밝은 색이 기본 — 한 번만 바꿔 놓고, 그 뒤 설정에서 고른 색은 그대로 */
+  return localStorage.getItem('sl_theme')||'light';}catch(e){return 'light';}}
 // v63: 기본은 밝은 종이색(GPT 개편안: 크림 바탕 · 짙은 슬레이트 바 · 주황 강조 하나). 「어두운 색」은 예전 EA 2011 느낌
 function applyTheme(){const t=themeNow();const r=document.documentElement;r.classList.add('ea');r.dataset.theme=t==='ea'||t==='dark'?'dark':'light';}
 const LOOK_COLORS=['#c8102e','#e4572e','#f28c28','#f2c14e','#2a9d8f','#1b998b','#2e7d32','#1d3557','#0057b8','#4361ee','#6a4c93','#9b2c6b','#333a48','#7f5539'];
@@ -135,9 +136,9 @@ function diaPick(ps){S=SL.state();const ut=SL.userTeam();const cur=Object.keys(u
   modal(`<h3>${SL.POS_KO[ps]} 자리</h3>${list.map(p=>{const inL=ut.lineup.includes(p.id);const pen=fit(p);const st=p.id==cur?'<span class="chip g">지금</span>':inL?`<span class="chip">${ut.pos[p.id]} 타순 ${ut.lineup.indexOf(p.id)+1}</span>`:SL.inEntry(ut,p.id)?'<span class="chip">벤치</span>':`<span class="chip o">2군${full?' · 엔트리 가득':''}</span>`;
     return `<div class="prow ${p.inj?'dim':''}" onclick="UI.diaSet('${ps}',${p.id})"><span class="posbig">${esc(p.pos)}</span>${face(p,36)}<div class="grow"><div class="nm">${esc(p.name)} ${st}</div><div class="sub">${p.inj?`<span class="chip r">부상 ${p.inj.left}일</span> `:''}${pen?`<span class="chip o">적성 밖 수비 −${pen}</span> `:''}${esc(seasonLine(p))}</div></div><div class="rt">${G(SL.calcOvr(p))}<span class="ovr">${Math.round(SL.calcOvr(p))}</span></div></div>`;}).join('')}${cur?`<div style="height:8px"></div><button class="ghost" style="width:100%" onclick="UI.diaSet('${ps}',-1)">이 자리 비우기 (벤치로)</button>`:''}`);}
 // ----- v55 투수진: 한 목록에 전원 · 보직 탭(전체/선발/롱릴리프/셋업/마무리/중간) · 줄마다 보직 바꾸기 -----
-const RP_ROLES=[['sp','선발'],['long','롱릴리프'],['mid','중간'],['setup','셋업'],['closer','마무리']];
+const RP_ROLES=[['sp','선발'],['long','롱릴리프'],['mid','중간'],['mop','패전조'],['bridge','승리조'],['setup','셋업'],['closer','마무리']];
 function pitchStaff(ut){const pits=ut.roster.map(id=>S.players[id]).filter(SL.isPitcher).filter(p=>!ut.dev.includes(p.id));const roleOf=p=>ut.rotation.includes(p.id)?'sp':ut.bullpen.includes(p.id)?SL.rpRoleOf(ut,p.id):'none';
-  const ORD={sp:0,closer:1,setup:2,long:3,mid:4,none:5};const rows=pits.map(p=>({p,r:roleOf(p)})).sort((a,b)=>ORD[a.r]-ORD[b.r]||(a.r==='sp'?ut.rotation.indexOf(a.p.id)-ut.rotation.indexOf(b.p.id):SL.calcOvr(b.p)-SL.calcOvr(a.p)));
+  const ORD={sp:0,closer:1,setup:2,bridge:2.5,long:3,mid:4,mop:4.5,none:5};const rows=pits.map(p=>({p,r:roleOf(p)})).sort((a,b)=>ORD[a.r]-ORD[b.r]||(a.r==='sp'?ut.rotation.indexOf(a.p.id)-ut.rotation.indexOf(b.p.id):SL.calcOvr(b.p)-SL.calcOvr(a.p)));
   const f=ui.pitchF||'all';const cnt=k=>rows.filter(x=>x.r===k).length;const shown=rows.filter(x=>f==='all'||x.r===f);
   const nx=ut.rotation[ut.rotIdx]?S.players[ut.rotation[ut.rotIdx]]:null;const cl=ut.closer!=null?S.players[ut.closer]:null;
   const tabs=`<div class="seg pf">${[['all','전체'],...RP_ROLES,['none','2군']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="UI.pitchF('${k}')">${l}${k==='all'?'':` <i>${cnt(k)}</i>`}</button>`).join('')}</div>`;

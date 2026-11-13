@@ -8,7 +8,7 @@ function teamDef(lg,side){let s=0,w=0;const wt={C:1.3,SS:1.4,'2B':1.2,CF:1.3,'3B
 
 function pltOk(t,x){if(!x||!Array.isArray(x.lineup)||x.lineup.length!==9||!x.pos)return false;const seen=new Set();for(const id of x.lineup){const p=S.players[id];if(!p||p.inj||p.retired||isPitcher(p)||!(t.entry||[]).includes(id))return false;const ps=x.pos[id];if(!ps||seen.has(ps))return false;seen.add(ps);}return true;}
 // 좌·우 상성(v121): 반대 손 투수를 만난 타자는 컨택·파워 +PLT, 같은 손은 −PLT (스위치 타자는 늘 반대 손). 리그 전체로는 반대·같은 손 타석이 거의 반반이라 평균 기록은 그대로
-const PLT_FX={opp:1.2,same:-1.8};   // 타자 구성(우 40·좌 40·양 20)·투수 구성(우 75·좌 25)에서 반대 손 타석이 60% → 0.6×1.2 = 0.4×1.8, 리그 평균은 그대로
+const PLT_FX={opp:2,same:-3};   /* v141 (R112): 좌우 상성 키움(1.2/−1.8 → 2/−3) — 비율 그대로라 리그 평균은 같음 */   // 타자 구성(우 40·좌 40·양 20)·투수 구성(우 75·좌 25)에서 반대 손 타석이 60% → 0.6×1.2 = 0.4×1.8, 리그 평균은 그대로
 function createGame(homeId,awayId,userGame){
   const H=S.teams[homeId],A=S.teams[awayId];
   const lg={home:homeId,away:awayId,inn:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],score:[0,0],innScores:[[],[]],halfRuns:0,
@@ -39,8 +39,29 @@ function scoreRun(lg,bs,runner,rbi,batterBox){
 }
 function addOut(lg,n){const pb=ensureBox(lg,lg.pitcher[1-lg.half]);lg.outs+=n;pb.pOuts+=n;}
 function spd(pid){return S.players[pid]?effAttr(S.players[pid],'speed'):50;}
-function fast(pid){const p=S.players[pid];return p&&p.traits.includes('빠른발')?8:0;}
+function fast(pid){const p=S.players[pid];if(!p)return 0;return (skLv(p,'빠른발')?8:0)+(skLv(p,'대도')?4+2*skLv(p,'대도'):0);}
 
+// v141 (R112): 스킬 · 투구폼 · 타격 방침 — 공 하나마다 조건을 보고 능력을 더하거나 뺌
+const SK_COND={always:c=>true,risp:c=>c.risp,risp2:c=>c.risp&&c.outs===2,loaded:c=>c.loaded,on:c=>c.on,empty:c=>!c.on,r1:c=>c.r1,r3:c=>c.r3,
+  walkoff:c=>c.inn>=9&&c.batHome&&c.diff<=0&&c.diff>=-1,firstP:c=>c.b===0&&c.s===0,full:c=>c.b===3&&c.s===2,s2:c=>c.s===2,b2:c=>c.b>=2,hitCt:c=>c.b>=2&&c.b>c.s,pitCt:c=>c.s>c.b,deep:c=>c.b+c.s>=4,
+  slot1:c=>c.slot===0,slot12e:c=>c.slot<=1&&!c.on,slot345on:c=>c.slot>=2&&c.slot<=4&&c.on,slot345:c=>c.slot>=2&&c.slot<=4,slot4:c=>c.slot===3,slot789:c=>c.slot>=6,leadoffInn:c=>c.outs===0&&!c.on,
+  pL:c=>c.P.throws==='L',pR:c=>c.P.throws!=='L',pSub:c=>c.arm==='S'||c.arm==='U',pFast:c=>c.P.attrs.stuff>=72,pMov:c=>c.P.attrs.movement>=72,pAce:c=>c.P.pos==='SP'&&c.P.attrs.stuff+c.P.attrs.control>=145,pRel:c=>c.P.pos!=='SP',
+  opp:c=>!c.same,same:c=>c.same,late:c=>c.inn>=7,early:c=>c.inn<=3,inn1:c=>c.inn===1,trail:c=>c.diff<0,lead:c=>c.diff>0,clutchLate:c=>c.inn>=7&&Math.abs(c.diff)<=1,extra:c=>c.inn>=10,
+  hot:c=>c.bh>=1,firstPA:c=>c.bpa===0,home:c=>c.mine===1,away:c=>c.mine===0,post:c=>c.post,spring:c=>c.sea<0.28,summer:c=>c.sea>=0.5&&c.sea<0.78,fall:c=>c.sea>=0.78,bunt:c=>false,
+  outs2:c=>c.outs===2,bL:c=>c.B.bats==='L',bR:c=>c.B.bats==='R',relSame:c=>c.P.pos!=='SP'&&c.same,bSlug:c=>c.B.attrs.power>=72,bCon:c=>c.B.attrs.contact>=72,bFast:c=>c.B.attrs.speed>=72,
+  save:c=>c.inn>=9&&c.diff>0&&c.diff<=3,hold:c=>c.inn>=7&&c.inn<=8&&c.diff>0&&c.diff<=3,relClose:c=>c.P.pos!=='SP'&&Math.abs(c.diff)<=2,relLong:c=>c.P.pos!=='SP'&&c.pc>=20,relTrail:c=>c.P.pos!=='SP'&&c.diff<0,
+  pc80:c=>c.pc>=80,pc100:c=>c.pc>=100,pc30s:c=>c.P.pos==='SP'&&c.pc<=35,pc75s:c=>c.P.pos==='SP'&&c.pc>=75,spLate:c=>c.P.pos==='SP'&&c.inn>=6};
+const SK_GAME=new WeakMap();   // 선수 → 경기 중 쓰는 스킬 묶음(스킬 배열이 바뀌면 다시 만듦)
+function skGame(p){const sk=p.sk;if(!sk||!sk.length)return null;let e=SK_GAME.get(p);if(e&&e.src===sk&&e.n===sk.length&&e.sig===sk.map(x=>x[1]).join(''))return e.L;const L=[];for(const x of sk){const d=SKILLS[x[0]];if(d&&d.side!=='G'&&SK_COND[d.c])L.push({f:SK_COND[d.c],fx:d.fx,m:SK_LV[x[1]]||1,side:d.side});}SK_GAME.set(p,{src:sk,n:sk.length,sig:sk.map(x=>x[1]).join(''),L});return L;}
+// diff는 그 스킬 주인 쪽에서 본 점수 차, mine은 그 주인이 홈(1)인지
+function skApply(lg,B,P,bs,o){const LB=skGame(B),LP=skGame(P);const arm=armOf(P);const same=B.bats!=='S'&&B.bats===P.throws;const af=ARM_FX[arm];if(af.same||af.opp){const d=same?af.same:af.opp;o.con+=d;o.pow+=d;}if(af.hr!==1)o.hr*=af.hr;
+  const pol=B.pol&&B.pol.bat;if(pol==='contact'){o.con+=3;o.pow-=5;o.hr*=0.85;}else if(pol==='power'){o.pow+=4;o.con-=4;o.hr*=1.12;}
+  if(!(LB&&LB.length)&&!(LP&&LP.length))return o;const fs=1-bs;const b=lg.bases;const on=!!(b[0]||b[1]||b[2]);const box=lg.box&&lg.box[B.id];
+  const c={B,P,arm,same,risp:!!(b[1]||b[2]),loaded:!!(b[0]&&b[1]&&b[2]),on,r1:!!b[0]&&lg.outs<2,r3:!!b[2]&&lg.outs<2,inn:lg.inn,outs:lg.outs,b:lg.balls,s:lg.strikes,slot:lg.bat[bs],pc:lg.pc[P.id]||0,bh:box?box.h||0:0,bpa:box?box.pa||0:0,post:!!(lg.post||S.post),sea:lg._sea!=null?lg._sea:(lg._sea=seaPos()),batHome:bs===1,diff:0,mine:0};
+  if(LB){c.diff=lg.score[bs]-lg.score[fs];c.mine=bs;for(const x of LB)if(x.side==='B'&&x.f(c)){const fx=x.fx,m=x.m;if(fx.con)o.con+=fx.con*m;if(fx.pow)o.pow+=fx.pow*m;if(fx.eye)o.eye+=fx.eye*m;if(fx.sp)o.sp+=fx.sp*m;if(fx.hr)o.hr*=1+fx.hr*m;}}
+  if(LP){c.diff=lg.score[fs]-lg.score[bs];c.mine=fs;for(const x of LP)if(x.side==='P'&&x.f(c)){const fx=x.fx,m=x.m;if(fx.ctl)o.ctl+=fx.ctl*m;if(fx.stf)o.stf+=fx.stf*m;if(fx.mov)o.mov+=fx.mov*m;if(fx.hr)o.hr*=1+fx.hr*m;}}
+  return o;}
+function seaPos(){const n=(S.schedule&&S.schedule.length)?S.schedule[S.schedule.length-1].day:144;return clamp((S.day||0)/Math.max(1,n),0,1);}
 function doPitch(lg){
   if(lg.done)return null;
   const r0=lg.userGame?lg.bases.map(x=>x?x.pid:null):null,h0=lg.half,i0=lg.inn;
@@ -54,8 +75,7 @@ function doPitch(lg){
   {const d=(B.bats==='S'||B.bats!==P.throws)?PLT_FX.opp:PLT_FX.same;con+=d;pow+=d;}
   {const dB=driveFx(teamSide(lg,bs)),dP=driveFx(teamSide(lg,fs));if(dB){con+=dB.contact||0;pow+=dB.power||0;eye+=dB.eye||0;sp+=dB.speed||0;}if(dP){ctl+=dP.control||0;stf+=dP.stuff||0;}}
   const risp=lg.bases[1]||lg.bases[2];
-  if(risp&&B.traits.includes('클러치')){con+=4;pow+=4;}
-  if(risp&&B.traits.includes('유리멘탈')){con-=3;eye-=3;}
+  const SKX=skApply(lg,B,P,bs,{con:0,pow:0,eye:0,sp:0,ctl:0,stf:0,mov:0,hr:1});con+=SKX.con;pow+=SKX.pow;eye+=SKX.eye;sp+=SKX.sp;ctl+=SKX.ctl;stf+=SKX.stf;mov+=SKX.mov;lg._hrx=SKX.hr;   /* v141: 스킬(클러치 · 유리멘탈 포함) · 투구폼 · 타격 방침 */
   if(lg.inn>=7&&Math.abs(lg.score[0]-lg.score[1])<=1){const d=(perOf(B).mt-perOf(P).mt)*0.04;con+=d;eye+=d*0.5;ctl-=d*0.5;}   // v100: 7회 이후 1점 차 이내 — 멘탈 차이(최대 ±3)
   const tk=tacNow(lg);if(tk==='hitrun'){con+=3;pow-=5;}else if(tk==='team'){pow-=8;con+=2;}else if(tk==='gb'){/* 아래 resolveInPlay에서 */}
   lg.pc[P.id]=(lg.pc[P.id]||0)+1;pb.pPit++;
@@ -119,7 +139,7 @@ function resolveInPlay(lg,B,P,bb,pb,con,pow,sp,stf,mov){
   // v118 (R100): 기록 현실화 — 능력 82를 넘는 부분은 절반만 반영 (타율 .45 · 홈런 60개대 · 평균자책 1.3 같은 기록이 나오던 것)
   {const sq=v=>v>82?82+(v-82)*0.5:v;con=con>76?76+(con-76)*0.3:con;pow=sq(pow);stf=sq(stf);mov=sq(mov);}
   bb.ab++;const bs=lg.half,fs=1-bs;const def=teamDef(lg,fs);const before=lg.outs;
-  const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(B.traits.includes('장타본능'))hrP*=1.25;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;const EV=envOf(lg);hrP*=EV.hr*(1+Math.max(0,pow-85)*(EV.hx||0));
+  const tk=tacNow(lg);let hrP=clamp(0.015+(pow-50)*0.0015-(stf-50)*0.0005-(mov-50)*0.0003,0.002,0.14);if(tk==='gb')hrP*=1.15;if(lg._hrx!=null)hrP*=lg._hrx;const PK=parkOf(S.teams[lg.home]);hrP*=PK.hr;const EV=envOf(lg);hrP*=EV.hr*(1+Math.max(0,pow-85)*(EV.hx||0));
   const ev={type:'',text:'',paEnd:true};
   const ro=()=>lg.outs>0?` (${lg.outs}아웃)`:'';
   if(rnd()<hrP){bb.h++;bb.hr++;pb.pH++;pb.pHR++;const runs=advRunners(lg,'hr',B,bb,def);lg.hits[bs]++;ev.type='hr';const hd=playDir(lg,B);const fz=PK.dim[hd.side];const dist=Math.round(fz+2+hd.r*16+Math.max(0,pow-50)*0.18);ev.text=`${B.name}, ${cntWord(lg)} ${hd.hr} ${runs===4?'만루':runs>1?runs+'점':'솔로'} 홈런! (비거리 ${dist}m · 펜스 ${fz}m)`;return ev;}
@@ -228,14 +248,14 @@ function pinchHit(lg,side,benchPid){
   const b=ensureBox(lg,benchPid);b.g=1;glog(lg,`${t.name} 대타: ${S.players[old].name} → ${S.players[benchPid].name}`,'sub');return true;
 }
 // v55 불펜 보직: 마무리(closer) · 셋업(7·8회 리드) · 롱릴리프(선발 조기 강판) · 중간(나머지). 지정 안 하면 능력·체력으로 자동
-const RP_ROLE_KO={sp:'선발',closer:'마무리',setup:'셋업',long:'롱릴리프',mid:'중간'};
+const RP_ROLE_KO={sp:'선발',closer:'마무리',setup:'셋업',bridge:'승리조',long:'롱릴리프',mid:'중간',mop:'패전조'};
 function rpRoleOf(t,id){if(t.rotation.includes(id))return 'sp';if(t.closer===id)return 'closer';const r=(t.rpRole||{})[id];if(r&&r!=='closer')return r;const p=S.players[id];if(!p)return 'mid';
   const others=t.bullpen.filter(x=>x!==t.closer&&!(t.rpRole&&t.rpRole[x]));const top=others.slice().sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const setN=Math.max(0,2-Object.values(t.rpRole||{}).filter(x=>x==='setup').length);
   if(top.slice(0,setN).includes(id))return 'setup';if(p.pos==='SP'||p.attrs.stamina>=62)return 'long';return 'mid';}
 function setRpRole(t,id,role){t.rpRole=t.rpRole||{};if(role==='closer'){t.closer=id;delete t.rpRole[id];return;}if(t.closer===id)t.closer=null;if(role==='auto'||!role)delete t.rpRole[id];else t.rpRole[id]=role;}
 function aiPitchCheck(lg,side,halfStart){
   if(lg.done)return;const t=teamSide(lg,side);const P=S.players[lg.pitcher[side]];if(!P)return;
-  const pc=lg.pc[P.id]||0,lim=pitchLimit(P),pb=ensureBox(lg,P.id);
+  const hk=P.pol&&P.pol.hook;const pc=lg.pc[P.id]||0,lim=pitchLimit(P)*(hk==='early'?0.85:hk==='late'?1.12:1),pb=ensureBox(lg,P.id);   /* v141: 강판 시점 방침(빠르게 · 보통 · 늦게) */
   const lead=lg.score[side]-lg.score[1-side];const avail=availableBullpen(lg,side);if(!avail.length)return;
   // 불펜 3연투는 피한다 (어제·그제 연속 등판한 불펜은 마무리라도 쉬게 함)
   const rested=id=>{const a=(S.players[id]&&S.players[id].apD)||[];return !(a.includes(S.day-1)&&a.includes(S.day-2));};
@@ -246,9 +266,10 @@ function aiPitchCheck(lg,side,halfStart){
   else if(P.pos==='SP'&&pb.pR>=6&&lg.inn>=4)need=true;else if(P.pos==='RP'&&pb.pR>=3&&lg.outs<3)need=true;
   if(saveSpot&&(pc>lim*0.75||P.pos==='RP')){changePitcher(lg,side,closer);return;}
   // 7·8회 3점 이내 리드: 필승조(마무리 아닌 가장 좋은 불펜)로 한 이닝씩 끊어 간다 — 홀드 상황
-  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su1=su0.some(rested)?su0.filter(rested):su0;const st=su1.filter(id=>rpRoleOf(t,id)==='setup');const su=(st.length?st:su1).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
+  if(halfStart&&lg.inn>=7&&lg.inn<=8&&lead>0&&lead<=3&&P.id!==closer&&(P.pos==='SP'?pc>lim*0.72:pb.pOuts>=3||pc>lim*0.6)){const su0=avail.filter(id=>id!==t.closer);const su1=su0.some(rested)?su0.filter(rested):su0;const br=lg.inn===7?su1.filter(id=>rpRoleOf(t,id)==='bridge'):[];const st=br.length?br:su1.filter(id=>rpRoleOf(t,id)==='setup');const su=(st.length?st:su1.filter(id=>rpRoleOf(t,id)!=='mop').length?su1.filter(id=>rpRoleOf(t,id)!=='mop'):su1).sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));if(su.length){changePitcher(lg,side,su[0]);return;}}
   if(!need)return;
-  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const lr=pool.filter(id=>rpRoleOf(t,id)==='long'),md=pool.filter(id=>rpRoleOf(t,id)==='mid');pickId=lg.inn>=7?pool[0]:(lg.inn<=5&&P.pos==='SP'&&lr.length)?lr[0]:(md.length?md[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))]);}
+  let pickId;if(lg.inn>=9&&lead>0&&lead<=3&&closer!=null)pickId=closer;else{const nonC=avail.filter(id=>id!==closer);const pool=nonC.length?nonC:avail;pool.sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]));const lr=pool.filter(id=>rpRoleOf(t,id)==='long'),md=pool.filter(id=>rpRoleOf(t,id)==='mid'),mp=pool.filter(id=>rpRoleOf(t,id)==='mop');const live=pool.filter(id=>rpRoleOf(t,id)!=='mop');   /* v141: 패전조는 크게 벌어진 경기(4점 이상 뒤짐 · 6점 이상 앞섬)에 먼저, 접전엔 아껴 둠 */
+    pickId=mp.length&&(lead<=-4||lead>=6)?mp[0]:lg.inn>=7?(live[0]||pool[0]):(lg.inn<=5&&P.pos==='SP'&&lr.length)?lr[0]:(md.length?md[0]:pool[Math.min(pool.length-1,Math.floor(pool.length/2))]);}
   changePitcher(lg,side,pickId);
 }
 // ---- 진행 단위 (모두 동일 엔진) ----
@@ -289,7 +310,7 @@ function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false
     lg.stl=lg.paCount;const lb=ensureBox(lg,lead.pid);if(rnd()<pr){lb.sb++;if(k==='dsteal'){if(b[0])ensureBox(lg,b[0].pid).sb++;b[2]=b[1];b[1]=b[0];b[0]=null;txt=`[작전] 이중 도루 성공 — ${nm(b[2])} 3루, ${nm(b[1])} 2루`;}else{b[from+1]=lead;b[from]=null;txt=`[작전] ${nm(lead)} ${from===0?'2루':'3루'} 도루 성공`;}glog(lg,txt,'tac');}
     else{lb.cs++;addOut(lg,1);if(k==='dsteal'){b[1]=b[0];b[0]=null;b[2]=null;txt=`[작전] 이중 도루 실패 — 앞 주자 ${nm(lead)} 3루에서 아웃 (${lg.outs}아웃)`;}else{b[from]=null;txt=`[작전] ${nm(lead)} 도루 실패 — 아웃 (${lg.outs}아웃)`;}glog(lg,txt,'tac');if(lg.outs>=3)endHalf(lg);}
     return {ok:true,msg:txt.replace('[작전] ','')};}
-  if(k==='bunt'){const pr=clamp(0.68+(effAttr(B,'contact')-50)*0.004+(B.traits.includes('빠른발')?0.03:0),0.45,0.9);let txt;
+  if(k==='bunt'){const pr=clamp(0.68+(effAttr(B,'contact')-50)*0.004+(B.traits.includes('빠른발')?0.03:0)+skLv(B,'번트 장인')*0.05,0.45,0.95);let txt;
     if(rnd()<pr){addOut(lg,1);const nb=[null,b[0]||null,b[1]||null];let sq='';if(b[2]){if(nb[2]){scoreRun(lg,bs,b[2],true,bb);sq=' · 3루 주자 홈인';}else nb[2]=b[2];}lg.bases=nb;txt=`[작전] ${B.name} 보내기 번트 성공 — 주자 진루${sq} (${lg.outs}아웃)`;endPA(lg,{type:'sac',text:txt,paEnd:true});}
     else if(rnd()<0.5){bb.ab++;addOut(lg,1);txt=`[작전] ${B.name} 번트 실패 — 뜬공 아웃 (${lg.outs}아웃)`;endPA(lg,{type:'fo',text:txt,paEnd:true});}
     else{bb.ab++;addOut(lg,1);const bat={pid:B.id,resp:P.id};let nb,where;if(b[0]&&b[1]&&b[2]){nb=[bat,b[0],b[1]];where='홈';}else if(b[0]&&b[1]){nb=[bat,b[0],null];where='3루';}else if(b[0]){nb=[bat,null,b[2]];where='2루';}else{nb=[bat,null,b[2]];where='3루';}txt=`[작전] ${B.name} 번트 — 앞 주자 ${where}에서 아웃, 타자 1루 (${lg.outs}아웃)`;lg.bases=nb;endPA(lg,{type:'go',text:txt,paEnd:true});}
