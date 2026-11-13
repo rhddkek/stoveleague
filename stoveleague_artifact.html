@@ -2816,7 +2816,7 @@ table.trt td.tatt{font-size:14.5px;white-space:nowrap}table.trt td.tatt i{font-s
 .tnow{margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.tng{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tn1{padding:8px 10px;border-radius:10px;background:var(--sunk);min-width:0}.tn1 small{display:block;font-size:12px;color:var(--muted)}.tn1 b{display:block;font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tn1 span{display:block;font-size:13px;color:var(--muted)}.tn1 em{font-style:normal;font-size:12.5px;color:#f2c14e}
 .tnl{margin-top:10px}.tnl .t{font-size:13px;color:var(--muted);margin:0 0 6px}.tnl .g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.tnp{display:flex;align-items:center;gap:8px;min-width:0;min-height:48px;padding:4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);text-align:left;font:inherit}.tnp>:first-child{flex:none}.tnp span{min-width:0}.tnp b{display:block;font-size:14.5px;font-weight:600}.tnp small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tnl .aw{display:flex;flex-wrap:wrap;gap:6px}.tnl .aw .tg{padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:12.5px}.tnl .aw .tg.ok{border-color:#f2c14e;color:#f2c14e}
-@media (max-width:699px){.tng{grid-template-columns:1fr 1fr}.tng .tn1:last-child{grid-column:1/-1}.tnl .g{grid-template-columns:1fr}}
+@media (max-width:699px){.tng{grid-template-columns:1fr 1fr}.tng .tn1:last-child{grid-column:1/-1}.tnp{min-height:42px;padding:3px 6px;gap:6px}.tnp b{font-size:14px}}
 .parkfx{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.parkfx .k{font-size:14px;font-weight:600;margin-bottom:6px}.parkfx .k small{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:6px}.pfb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:6px}.pfb button{min-height:52px;padding:4px 6px;border-radius:10px;font:inherit}.pfb button b{display:block;font-size:13.5px;font-weight:600}.pfb button small{display:block;font-size:11.5px;color:var(--muted)}.pfb button.on{border-color:#f2c14e;background:rgba(242,193,78,.14);opacity:1}
 :root.ea[data-theme="light"] .tn1 em,:root.ea[data-theme="light"] .tnl .aw .tg.ok,:root.ea[data-theme="light"] .prow2 .nmb small em.ord{color:#8a6100}
 .mkcard:has(>table.trt){overflow-x:auto}
@@ -2867,6 +2867,24 @@ body:not(.ingame) table.rosterq2 tr.sel td{background:#fcf1d8}:root.ea[data-them
 .pfsk{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;cursor:pointer}.pfsk .skc{font-size:12.5px;padding:2px 7px 2px 2px}.pfsk .skg{width:19px;height:19px;font-size:11px}
 body:not(.ingame) table.rosterq2.rqs tr.rqst td.tn{background:#fdf7e8}body:not(.ingame) table.rosterq2.rqs tr.sel td.tn{background:#fcf1d8}
 :root.ea[data-theme="dark"] body:not(.ingame) table.rosterq2.rqs tr.rqst td.tn{background:#343025}:root.ea[data-theme="dark"] body:not(.ingame) table.rosterq2.rqs tr.sel td.tn{background:#483f29}
+/* ===== v142 (R113): 스토브리그 일정 띠 · 스프링캠프 · 시범경기 ===== */
+.stvline{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:0 0 4px}.stvline span{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 1px;border-radius:8px;background:var(--sunk);min-width:0}
+.stvline i{font-style:normal;font-size:11px;color:var(--muted)}.stvline b{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;color:var(--muted)}
+.stvline span.dn{opacity:.55}.stvline span.on{background:#f2c14e}.stvline span.on i,.stvline span.on b{color:#15171c}
+.stvnow{font-size:12.5px;color:var(--muted);margin:0 2px 8px}.stvnow b{color:var(--text);font-weight:600;margin-right:4px}
+.campm h3,.exh h3{margin:0 0 4px}.campr{display:grid;grid-template-columns:1fr auto;gap:0 8px;width:100%;text-align:left;padding:9px 11px;margin:0 0 6px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}
+.campr b{font-size:14px;font-weight:600}.campr small{grid-column:1;font-size:12px;color:var(--muted)}.campr em{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;font-size:13px;font-weight:600}.campr.on{border-color:#f2c14e;box-shadow:0 0 0 2px #f2c14e}
+.campsum{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:12px 0;padding:9px 11px;border-radius:10px;background:var(--sunk);font-size:13px}.campsum span{display:flex;justify-content:space-between}.campsum b{font-weight:600}
+.exhh{display:flex;align-items:center;gap:10px;margin:0 0 6px}.exhh small{font-size:12px;color:var(--muted)}.exhh b{font-size:20px;font-weight:600}.exhh span{margin-left:auto;display:flex;gap:3px}
+.exhh i{font-style:normal;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;background:var(--sunk);color:var(--muted)}.exhh i.w{background:#2fa56f;color:#fff}.exhh i.l{background:#d9614f;color:#fff}
+.exc{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:8px 0 0;padding:8px 10px;border-radius:10px;background:var(--sunk);font-size:13px}.exc span,.exc small{font-size:12px;color:var(--muted)}.exc b{font-weight:600}
+.exr{display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.exr b{display:block;font-size:14px;font-weight:600}.exr b em{font-style:normal;font-size:11.5px;font-weight:600;color:#15171c;background:#f2c14e;border-radius:5px;padding:1px 5px;margin-left:4px}.exr small{display:block;font-size:12px;color:var(--muted)}.exr span{font-size:12.5px;white-space:nowrap}
+.skch small{font-weight:400;margin-left:6px}
+html.fz-s body:not(.ingame){zoom:.88}
+.whead>:first-child{width:58px!important;height:58px!important}.whead{padding:4px 12px 0 8px;margin:0 0 6px}.whead small{font-size:13px}.whead b{font-size:24px;letter-spacing:-.5px}.whead>:last-child{width:48px!important;height:48px!important}
+html.fz-s body:not(.ingame) #app,html.fz-s body:not(.ingame) .title,html.fz-s body:not(.ingame) .split{min-height:calc(100vh / .88)}
+html.fz-s body:not(.ingame) .title.t3{min-height:calc(100dvh / .88)}
+@media(min-width:960px){html.fz-s body:not(.ingame) .rp,html.fz-s body:not(.ingame) .side{height:calc(100vh / .88)}}
 
 </style>
 <div id="app"></div>
@@ -2878,7 +2896,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v141';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v142';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -2923,6 +2941,7 @@ const BAL={
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
   FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
   HALF:{on:true,rest:20},   // v136 올스타 브레이크: 전반기/후반기 · 모든 구단 피로 −20(하루 회복 14 남짓)
+  CAMP:{week:5,exN:6,mvp:1.25,loc:{home:{n:'국내 캠프',cost:0,grow:1,cond:0,d:'남해안 · 비용 없음'},oki:{n:'오키나와 캠프',cost:4000,grow:1.04,cond:2,d:'따뜻한 날씨 — 훈련 효과 +4% · 개막 컨디션 +2'},ari:{n:'애리조나 캠프',cost:10000,grow:1.08,cond:1,d:'최신 시설 — 훈련 효과 +8% · 개막 컨디션 +1'}},focus:{bal:{n:'균형',b:1,p:1,cond:0,d:'타자 · 투수 고르게'},bat:{n:'타격 중점',b:1.08,p:0.96,cond:0,d:'타자 성장 +8% · 투수 −4%'},pit:{n:'투수 중점',b:0.96,p:1.08,cond:0,d:'투수 성장 +8% · 타자 −4%'},rest:{n:'체력 관리',b:0.94,p:0.94,cond:3,d:'성장 −6% · 개막 컨디션 +3'}}},   // v142 (R113) 스프링캠프 · 시범경기(6경기, 기록은 따로)
   SKC:{n:3,learn:{C:1000,B:2000,A:4000,S:8000},up3:2,rem:2000,per:2000,perUp:10,tickUp:0.10,tickNew:0.08,tickRem:0.05},   // v141 스킬 캠프: 겨울마다 3명 · 배우기 등급별 0.5억~4억 · 레벨 2 = 배우기 값, 레벨 3 = 두 배 · 약점 지우기 · 성격 코스 1억
   AUTO:{coachKeep:60,dispAge:25},   // v135 맡기기: 평가 60 이상 코치만 재계약 · 25세 이하 비주전만 겨울리그 파견
   FA_COMP:{on:true,A:{prot:20,p:2,c:3},B:{prot:25,p:1,c:2},C:{prot:0,p:0,c:1.5}}, SD:{on:true,week:3,prot:25,rounds:3,fee:[4,3,2],maxLost:4,minAge:22},   // v132 (R106): FA 보상(보호 인원 · 선수+연봉 배수 · 돈만 배수) · 2차 드래프트(양도금 억)
@@ -4181,7 +4200,7 @@ function growthTick(p,ctx){
   {const wk=perOf(p).wk;traitF+=(wk-55)*0.0015;if(wk>=78&&!p.traits.includes('성실'))f.push('성실성 높음');else if(wk<=30&&!p.traits.includes('게으름'))f.push('성실성 낮음');}   // v100: 성실성 ±6%
   {const M=ctx.team&&(ctx.team.mentors||[]).find(x=>x.y===p.id);const mm=M&&P_(M.m);if(mm&&mm.teamId===ctx.team.id){const b=Math.max(0,perOf(mm).ld-50)*0.002;if(b>0){traitF+=b;f.push(`멘토 ${mm.name} (+${Math.round(b*100)}%)`);}}}
   const wint=ctx.kind==='winter'||ctx.kind==='dispatch'||ctx.kind==='rest';
-  let pts=BAL.GROWTH_TICK*(wint?1.8:1/gf())*expF*gapF*ageF*facF*traitF*devM*(0.7+rnd()*0.6);
+  let pts=BAL.GROWTH_TICK*(wint?1.8:1/gf())*expF*gapF*ageF*facF*traitF*devM*(0.7+rnd()*0.6);if(ctx.campF&&ctx.campF!==1){pts*=ctx.campF;if(ctx.campL)f.push(ctx.campL);}
   if(gap<=0.5&&ageF>0)pts=rnd()*0.25/(wint?1:gf());
   const keys=isP?PIT_KEYS:BAT_KEYS;const focus=p.focus||'balance';const ch={};
   const fkey=focus==='balance'?null:focus;
@@ -5030,11 +5049,12 @@ function startNewSeason(){
     if(t.loan>0){t.cash-=t.loan;t.fin.other+=t.loan;news(`대출 ${money(t.loan)} 상환`,'fin');t.loan=0;}
     applySponsor(t);let up=econ(t).overhead;if(t.isUser&&t.staff)up=Math.max(0,up-Math.min(up*0.8,BAL.STAFF_CREDIT[staffTier(t)]));for(const k in t.fac)up+=BAL.FACILITY[k].upkeep*t.fac[k];t.cash-=up;t.fin.facility+=up;
     if(!t.isUser&&t.cash>payroll(t)*2.5){const k=pick(['train','youth','scout']);if(t.fac[k]<5){const c=BAL.FACILITY[k].cost*t.fac[k];t.cash-=c;t.fin.facility+=c;t.fac[k]++;}}
+    campOpen(t);
     if(!t.isUser){skCampAI(t);aiFillRookies(t);autoLineup(t);}
     for(const pid of t.roster.concat(t.dev)){const p=P_(pid);const dd=p.dispatchDone&&p.dispatchDone.s===S.season-1?p.dispatchDone:null;
       if(dd){growthTick(p,{kind:'dispatch',label:`${S.season-1}시즌 겨울리그 파견`,team:t,dd});p.fatigue=Math.round(30+dd.share*35);p.cond=-(2+dd.share*3);}
       else if(p.winterPlan==='rest'){growthTick(p,{kind:'rest',label:`${S.season}시즌 겨울 휴식`,team:t});p.fatigue=0;p.cond=3;p.morale=clamp(p.morale+3,0,100);}
-      else{growthTick(p,{kind:'winter',label:`${S.season}시즌 동계훈련`,team:t});p.fatigue=0;}
+      else{const cf=campFx(t,p);growthTick(p,{kind:'winter',label:`${S.season}시즌 동계훈련`,team:t,campF:cf.f,campL:cf.l});p.fatigue=0;if(cf.cond)p.cond=clamp((p.cond||0)+cf.cond,-5,5);}
       p.winterPlan=null;
       p.xp=0;p.ovrStart=r1(calcOvr(p));}}
   for(const t of overseasTeams()){if(t.isUser)continue;for(const pid of t.roster){const p=P_(pid);if(p)growthTick(p,{kind:'winter',label:`${S.season}시즌 동계훈련`,team:null,os:p.osRole||null,osLg:t.league});}}
@@ -5046,6 +5066,7 @@ function startNewSeason(){
   if(S.nextGames&&BAL.SEASON_OPTIONS.includes(S.nextGames)){S.kg=S.nextGames;S.nextGames=null;}
   setGames(calDays());S.games=BAL.SEASON_GAMES;
   fixLineup(ut);genSchedule();aiAims(true);S.lastSummary=null;savePrune();
+  exhRun();
   news(`${S.season}시즌 개막! ${compName(compOf(ut))} ${userGames(ut)}경기 일정이 확정되었습니다.`,'sys');
   return {ok:true};
 }
@@ -6780,7 +6801,35 @@ function polOf(p,k){return (p.pol&&p.pol[k])||'std';}
 function setPol(pid,k,v){const p=P_(pid);if(!p||p.teamId!==S.userTeamId)return {ok:false,msg:'우리 선수가 아닙니다.'};if(!POL_KO[k]||!POL_KO[k][v])return {ok:false,msg:'없는 방침입니다.'};if(v==='std'){if(p.pol){delete p.pol[k];if(!Object.keys(p.pol).length)delete p.pol;}}else{p.pol=p.pol||{};p.pol[k]=v;}return {ok:true,msg:`${p.name} — ${k==='bat'?'타격':'강판 시점'} 방침: ${POL_KO[k][v]}`};}
 // 상성: 타자가 그 투수를 상대할 때 받는 보정(컨택 · 파워 한 줄 값) — 화면 표시와 경기 계산이 같은 수치
 function pltOf(B,P){if(!B||!P)return 0;const same=B.bats!=='S'&&B.bats===P.throws;const af=ARM_FX[armOf(P)];return (same?PLT_FX.same:PLT_FX.opp)+(same?af.same:af.opp);}
-return {skApply,SKILLS,SK_ROWS,SK_GRADE,SK_MAX,ARMS,ARM_FX,PLT_FX,armOf,skLv,skOf,skG,skillRows,skillInit,skSeasonTick,skCampOpts,skCamp,skCampLeft,skCampAI,POL_KO,polOf,setPol,pltOf,wkGrow,bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actResults,actKeep,ACT_KO,swapSev,fgnSwapCands,negSwap,scFocusTo,scChange,traitsShown,facRows,DSTAR_KO,draftStars,draftLvl,lvLive,buyoutWeek,SCEN,scenMidStep,scenMidFinish,scenInfo,OREQ_KO,oreqInfo,clauseVal,wantPost,wantInfo,wantClear,wantBuild,ddlLeft,TITLES,titleList,titleSet,titleNow,titleCheck,capInfo,capAfter,capLimit,capFloor,capUse,capSettle,minSal,effAttr,perOf,PER_KO,lockerOf,setCaptain,captainCands,setMentor,delMentor,mentorCands,teamTalk,pressAnswer,setPrep,PREP_KO,PREP_FX,lastUG,keyDays,preMatch,squadPlan,teamAgg,unreadN,markRead,keyMoment,tradeMarket,DLG_KO,dlgOn,setDlg,renamePlayer,risers,teamSheet,AIM_KO,addStars,EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
+
+// ======================= v142 (R113): 스토브리그 일정 · 스프링캠프 · 시범경기 =======================
+function stoveSteps(){const odd=S.season%2===1;return [{w:1,t:'FA 개장',d:'재계약 · FA 시장 · 겨울리그 파견 요청'},{w:2,t:'재계약 마감',d:'남은 계약 만료 선수는 FA로 · 파견 결정'},{w:3,t:odd?'2차 드래프트':'코치 계약',d:odd?'보호 명단 밖 선수 지명 · 코치 계약':'코치 계약 · 보강'},{w:4,t:'보강',d:'외국인 · 트레이드 · 남은 FA'},{w:5,t:'스프링캠프',d:'캠프지 · 중점 결정 — 겨울 훈련 효과와 개막 컨디션'},{w:6,t:'시범경기',d:`${BAL.CAMP.exN}경기 — 백업 · 유망주 시험, 그리고 개막`}];}
+function campOf(t){const s=S.phase==='offseason'?S.season+1:S.season;const c=t&&t.camp&&t.camp.s===s?t.camp:null;return {s,loc:c?c.loc:'home',focus:c?c.focus:'bal',set:!!c,mvp:c?c.mvp:null,paid:c?c.paid:0};}
+function campSet(loc,focus){const ut=userTeam();const C=BAL.CAMP;if(S.phase!=='offseason')return {ok:false,msg:'스프링캠프는 겨울(스토브리그)에 정합니다.'};if(!C.loc[loc]||!C.focus[focus])return {ok:false,msg:'없는 캠프입니다.'};if(ut.cash<C.loc[loc].cost)return {ok:false,msg:`현금이 모자랍니다 (필요 ${money(C.loc[loc].cost)}).`};
+  ut.camp={s:S.season+1,loc,focus};return {ok:true,msg:`스프링캠프: ${C.loc[loc].n} · ${C.focus[focus].n}${C.loc[loc].cost?` (출발할 때 ${money(C.loc[loc].cost)})`:''}`};}
+// 캠프 출발(개막 준비 때 구단마다 한 번): 비용 · 캠프 MVP(25세 이하에서 선수 번호 + 시즌으로 정해짐 — 모든 구단 같은 규칙)
+function campOpen(t){const C=BAL.CAMP;let c=t.camp&&t.camp.s===S.season?t.camp:(t.camp={s:S.season,loc:'home',focus:'bal'});let L=C.loc[c.loc]||C.loc.home;if(t.isUser&&L.cost){if(t.cash<L.cost){news(`[스프링캠프] 현금이 모자라 ${L.n} 대신 국내 캠프로 갑니다.`,'fin');c.loc='home';L=C.loc.home;}else{t.cash-=L.cost;t.fin.other=(t.fin.other||0)+L.cost;c.paid=L.cost;}}
+  const ys=t.roster.concat(t.dev||[]).map(P_).filter(p=>p&&p.age<=25&&!p.dispatchDone&&p.winterPlan!=='rest');if(ys.length){let best=null,bv=-1;for(const p of ys){const v=idRng(p.id*29+S.season*71+3)()+perOf(p).wk/200;if(v>bv){bv=v;best=p;}}c.mvp=best.id;}
+  if(t.isUser){const m=c.mvp!=null?P_(c.mvp):null;news(`[스프링캠프] ${L.n} · ${(C.focus[c.focus]||C.focus.bal).n}${c.paid?` (${money(c.paid)})`:''}${m?` — 캠프 MVP ${m.name} (${m.age}세, 겨울 성장 +${Math.round((C.mvp-1)*100)}%)`:''}`,'grow');}}
+function campFx(t,p){const C=BAL.CAMP;const c=t&&t.camp&&t.camp.s===S.season?t.camp:null;if(!c)return {f:1,cond:0};const L=C.loc[c.loc]||C.loc.home,F=C.focus[c.focus]||C.focus.bal;let f=L.grow*(isPitcher(p)?F.p:F.b);const mv=c.mvp===p.id;if(mv)f*=C.mvp;
+  return {f,cond:t.isUser?(L.cond||0)+(F.cond||0):0,l:mv?'캠프 MVP':f>1.001?`${L.n}${F.n!=='균형'?' · '+F.n:''}`:f<0.999?`캠프 ${F.n}`:null};}
+// 시범경기: 개막 직전 우리 팀 6경기. 홀수 경기는 주전, 짝수 경기는 백업 · 2군(시험). 실제 경기 엔진으로 치르되 시즌 기록 · 피로 · 난수 흐름은 그대로 두고 결과만 S.exh에
+function exhRun(){const ut=userTeam();const C=BAL.CAMP;const opps0=liveTeams().filter(t=>t.id!==ut.id&&compOf(t)===compOf(ut));if(!opps0.length||ut.lineup.length<9)return null;
+  const rng0=S.rng;const keep=[];for(const t of [ut].concat(opps0)){keep.push([t,t.rotIdx,t.lineup,t.pos,t.rotation,t.plt]);}const pk=[];for(const t of [ut].concat(opps0))for(const id of t.roster.concat(t.dev||[])){const p=P_(id);if(p)pk.push([p,p.fatigue,p.cond,p.morale,p.inj]);}
+  const reg=new Set(ut.lineup.concat(ut.rotation));if(ut.closer!=null)reg.add(ut.closer);const E={s:S.season,g:[],w:0,l:0,d:0,st:{},stars:[],sup:null,seen:false};
+  try{const opps=shuffle(opps0.slice());const L0=ut.lineup.slice(),P0=Object.assign({},ut.pos),R0=ut.rotation.slice();
+    const alt=()=>{const used=new Set();const lu=[],pos={};const pool=ut.roster.map(P_).filter(p=>p&&!isPitcher(p)&&!p.inj&&!L0.includes(p.id));for(const id of L0){const ps=P0[id];let b=null,bv=-1;for(const q of pool){if(used.has(q.id))continue;const v=ps==='DH'?offVal(q):posOvr(q,ps)-(posPenalty(q,ps)>0?8:0);if(v>bv){bv=v;b=q;}}const st=P_(id);if(b&&(ps==='DH'||posPenalty(b,ps)<=6)){used.add(b.id);lu.push(b.id);pos[b.id]=ps;}else{lu.push(id);pos[id]=ps;}}
+      const sp=ut.roster.map(P_).filter(p=>p&&isPitcher(p)&&!p.inj&&!R0.includes(p.id)&&p.id!==ut.closer).sort((a,b)=>(b.pos==='SP')-(a.pos==='SP')||b.attrs.stamina-a.attrs.stamina).slice(0,3).map(p=>p.id);return {lu,pos,rot:sp.length?sp:R0};};
+    for(let i=0;i<C.exN;i++){const o=opps[i%opps.length];const home=i%2===0;const test=i%2===1;ut.plt=null;if(test){const a=alt();ut.lineup=a.lu;ut.pos=a.pos;ut.rotation=a.rot;ut.rotIdx=Math.floor(i/2)%a.rot.length;}else{ut.lineup=L0.slice();ut.pos=Object.assign({},P0);ut.rotation=R0.slice();ut.rotIdx=Math.floor(i/2)%Math.max(1,R0.length);}
+      const lg=createGame(home?ut.id:o.id,home?o.id:ut.id,false);lg.exh=true;stepGame(lg);const us=lg.score[home?1:0],th=lg.score[home?0:1];E.g.push({o:o.id,h:home?1:0,us,th,t:test?1:0});if(us>th)E.w++;else if(us<th)E.l++;else E.d++;
+      for(const id in lg.box){const p=P_(+id);if(!p||p.teamId!==ut.id)continue;const b=lg.box[id];const x=E.st[id]=E.st[id]||{g:0};x.g++;for(const k of ['pa','ab','h','d2','d3','hr','bb','so','rbi','r','pG','pGS','pOuts','pH','pER','pR','pBB','pSO','pHR'])if(b[k])x[k]=(x[k]||0)+b[k];}}
+    const bs=[],ps=[];for(const id in E.st){const x=E.st[id];const p=P_(+id);if(!isPitcher(p)&&(x.ab||0)>=6){const tb=(x.h||0)+(x.d2||0)+2*(x.d3||0)+3*(x.hr||0);bs.push([+id,((x.h||0)+(x.bb||0))/((x.ab||0)+(x.bb||0))+tb/x.ab]);}if(isPitcher(p)&&(x.pOuts||0)>=9)ps.push([+id,(x.pER||0)*27/x.pOuts-(x.pSO||0)*0.05]);}
+    bs.sort((a,b)=>b[1]-a[1]);ps.sort((a,b)=>a[1]-b[1]);E.stars=bs.slice(0,3).map(x=>x[0]).concat(ps.slice(0,2).map(x=>x[0]));const sb=bs.find(x=>!reg.has(x[0])&&x[1]>=0.75),sp2=ps.find(x=>!reg.has(x[0])&&x[1]<=3.2);E.sup=sb?sb[0]:sp2?sp2[0]:null;
+  }finally{for(const k of keep){const t=k[0];t.rotIdx=k[1];t.lineup=k[2];t.pos=k[3];t.rotation=k[4];t.plt=k[5];}for(const k of pk){const p=k[0];p.fatigue=k[1];p.cond=k[2];p.morale=k[3];p.inj=k[4];}S.rng=rng0;}
+  for(const id of E.stars){const p=P_(id);if(p)p.cond=clamp((p.cond||0)+2,-5,5);}   // 시범경기에서 잘 친 · 잘 던진 선수는 개막 컨디션 +2
+  S.exh=E;const nm=id=>P_(id)?P_(id).name:'';news(`[시범경기] ${E.w}승 ${E.l}패${E.d?` ${E.d}무`:''} — 좋은 감각: ${E.stars.map(nm).join(' · ')}${E.sup!=null?` · 깜짝 활약 ${nm(E.sup)}`:''}`,'sys');return E;}
+function exhSeen(){if(S.exh)S.exh.seen=true;}
+return {stoveSteps,campOf,campSet,exhRun,exhSeen,skApply,SKILLS,SK_ROWS,SK_GRADE,SK_MAX,ARMS,ARM_FX,PLT_FX,armOf,skLv,skOf,skG,skillRows,skillInit,skSeasonTick,skCampOpts,skCamp,skCampLeft,skCampAI,POL_KO,polOf,setPol,pltOf,wkGrow,bossInfo,sackPending,seasonRecap,weakCheck,actSync,actTrack,actResults,actKeep,ACT_KO,swapSev,fgnSwapCands,negSwap,scFocusTo,scChange,traitsShown,facRows,DSTAR_KO,draftStars,draftLvl,lvLive,buyoutWeek,SCEN,scenMidStep,scenMidFinish,scenInfo,OREQ_KO,oreqInfo,clauseVal,wantPost,wantInfo,wantClear,wantBuild,ddlLeft,TITLES,titleList,titleSet,titleNow,titleCheck,capInfo,capAfter,capLimit,capFloor,capUse,capSettle,minSal,effAttr,perOf,PER_KO,lockerOf,setCaptain,captainCands,setMentor,delMentor,mentorCands,teamTalk,pressAnswer,setPrep,PREP_KO,PREP_FX,lastUG,keyDays,preMatch,squadPlan,teamAgg,unreadN,markRead,keyMoment,tradeMarket,DLG_KO,dlgOn,setDlg,renamePlayer,risers,teamSheet,AIM_KO,addStars,EQUIP,eqBonus,eqState,eqBuy,eqOn,eqOff,eqSweep,scoutTeam,scTeamCost,scTeamReg,jobBoard,applyJob,markPlaced,BAL,VERSION,GAME_VER,setTrainInt:(k)=>{userTeam().trainInt=k;return null;},budget,budgetInfo,budgetShift,budgetCheck,makeBudget,payCommitted,faM,faAskOf,faBest,faScore,faOfferTot,faIsMajor,placePlan,placeApply,knOf,ovrRange,attrRange,SC_REG,scRegOf,scState,scSlots,scoutSend,scoutFocus,scoutRecall,scRec,scoutNotes,osAsk,osWill,osFarmFill,draftClassMake,draftWatchToggle,draftMock,draftUserSlots,draftInterest,UNIT_KO,unitRanks,winterPlan,planCands,unitOf,teamUnits,userSigned,draftAutoWhy,entryCap,inEntry,entryUp,entryDown,entryEnsure,autoEntry,fillEntry,ATTR_KO,FOCUS_BAT,FOCUS_PIT,TRAITS,POS_BAT,BAT_KEYS,PIT_KEYS,NEED_TEMPLATE,
   newGame,state,setState,load,serialize,validateSave,
   startDay,endUserGame,finishDay,playDayAuto,stepPitch,stepPA,stepHalf,stepGame,finalizeGame,changePitcher,rpRoleOf,setRpRole,RP_ROLE_KO,pinchHit,availableBullpen,bench,curBatter,curPitcher,
   standings,rankOf,userTeam,userGameToday,payroll,ticketIncome,isUserGame,
@@ -6860,10 +6909,10 @@ function portraitIdx(p){const h=hsh(p.id+3);if(p.pos==='C'&&(h%4===0)&&PX.imgs[C
   if(p.age<=23&&yp.length&&(h%10)<7)cand=yp;else if(p.age>=32&&vp.length&&(h%10)<7)cand=vp;else{const mid=pool.filter(i=>!VET.includes(i));if(p.age<32&&mid.length)cand=mid;}return cand[(h>>>4)%cand.length];}
 const SFX={on:true,a:{},last:{}};
 // 개인 설정: 효과음 크기, 글자 크기, 움직임 줄이기 (기기별, 저장 파일과 별개)
-const PREF={vol:70,font:'m',motion:true,annc:true,ump:true,dense:true};
-function prefLoad(){try{Object.assign(PREF,JSON.parse(localStorage.getItem('stoveleague_prefs')||'{}'));}catch(e){}prefApply();}
+const PREF={vol:70,font:'s',motion:true,annc:true,ump:true,dense:true};   /* v142 (R113): 글자 크기 기본 = 작게(화면 전체 0.88배 — 한 화면에 더 많이) */
+function prefLoad(){try{Object.assign(PREF,JSON.parse(localStorage.getItem('stoveleague_prefs')||'{}'));if(!PREF.fz142){PREF.fz142=1;if(PREF.font==='m')PREF.font='s';}}catch(e){}prefApply();}
 function prefSave(){try{localStorage.setItem('stoveleague_prefs',JSON.stringify(PREF));}catch(e){}prefApply();}
-function prefApply(){try{const r=document.documentElement;r.classList.toggle('fz-l',PREF.font==='l');r.classList.toggle('fz-xl',PREF.font==='xl');r.classList.toggle('calm',!PREF.motion);r.classList.toggle('dense',!!PREF.dense);}catch(e){}}
+function prefApply(){try{const r=document.documentElement;r.classList.toggle('fz-s',PREF.font==='s');r.classList.toggle('fz-l',PREF.font==='l');r.classList.toggle('fz-xl',PREF.font==='xl');r.classList.toggle('calm',!PREF.motion);r.classList.toggle('dense',!!PREF.dense);}catch(e){}}
 // 화면 색: 기본은 어두운 남색 + 주황 강조(EA 2011 느낌), 설정에서 밝은 색으로
 // v91 (R075): 기본은 어두운 테마 (광우: 밝으니 눈 아픔). 한 번만 어두움으로 맞추고, 그 뒤 설정에서 고른 값은 그대로
 function themeNow(){try{if(!localStorage.getItem('sl_theme_v141')){localStorage.setItem('sl_theme_v141','1');localStorage.setItem('sl_theme_v91','1');localStorage.setItem('sl_theme','light');}   /* v141 (R112): 밝은 색이 기본 — 한 번만 바꿔 놓고, 그 뒤 설정에서 고른 색은 그대로 */
@@ -6883,7 +6932,7 @@ function renderLook(ut){const city=ut.name.split(' ')[0];const nick=ut.name.spli
     <div class="muted small" style="margin-top:8px">실존 구단 이름(국내·일본·미국·대만, 옛 구단 포함)은 쓸 수 없습니다. 바꾼 뒤에도 지난 시즌 기록의 구단 이름은 그때 이름 그대로 남고, 구장 크기는 바뀌지 않습니다.</div></div>`+renameCard(ut);}
 function settingsHtml(){return `<div class="row sb setrow"><span>화면 색</span><div class="seg" style="width:auto">${[['light','밝은 색'],['ea','어두운 색']].map(x=>`<button class="${themeNow()===x[0]?'on':''}" style="padding:6px 12px;min-height:0" onclick="UI.setTheme('${x[0]}')">${x[1]}</button>`).join('')}</div></div><label class="row sb setrow" for="sndset"><span>효과음 <span class="muted small">(플레이볼·타격음·미트·함성·알림·계약·승패)</span></span><input id="sndset" type="checkbox" class="chk" ${SFX.on?'checked':''} onchange="UI.setSound(this.checked)"></label>${hasBgm()?`<label class="row sb setrow" for="bgmset"><span>배경 음악 <span class="muted small">(경기 중에는 꺼짐 · 구장 소리만)</span></span><input id="bgmset" type="checkbox" class="chk" ${BGM.on?'checked':''} onchange="UI.setBgm(this.checked)"></label><div class="row sb setrow"><span>배경 음악 크기</span><input type="range" min="0" max="100" step="10" value="${BGM.vol}" aria-label="배경 음악 크기" oninput="UI.setBgmVol(+this.value)" style="width:150px"></div>`:''}<div class="row sb setrow"><span>경기 화면</span><div class="seg" style="width:auto">${[['coach','지휘 화면'],['classic','중계 화면']].map(x=>`<button class="${(PREF.gview||'coach')===x[0]?'on':''}" style="padding:6px 12px;min-height:0" onclick="UI.setPref('gview','${x[0]}')">${x[1]}</button>`).join('')}</div></div><label class="row sb setrow" for="umpset"><span>심판 콜 <span class="muted small">(스트라이크·아웃·세이프 — 「공」 단위로 볼 때 볼·스트라이크마다)</span></span><input id="umpset" type="checkbox" class="chk" ${PREF.ump!==false?'checked':''} onchange="UI.setPref('ump',this.checked)"></label>
   <div class="row sb setrow"><span>효과음 크기</span><input type="range" min="10" max="100" step="10" value="${PREF.vol}" aria-label="효과음 크기" onchange="UI.setPref('vol',+this.value)" style="width:150px"></div>
-  <div class="setrow"><div style="margin-bottom:6px">글자 크기</div><div class="seg" style="margin:0">${[['m','기본'],['l','크게'],['xl','아주 크게']].map(x=>`<button class="${PREF.font===x[0]?'on':''}" onclick="UI.setPref('font','${x[0]}')">${x[1]}</button>`).join('')}</div></div>
+  <div class="setrow"><div style="margin-bottom:6px">글자 크기</div><div class="seg" style="margin:0">${[['s','작게'],['m','보통'],['l','크게'],['xl','아주 크게']].map(x=>`<button class="${PREF.font===x[0]?'on':''}" onclick="UI.setPref('font','${x[0]}')">${x[1]}</button>`).join('')}</div></div>
   ${S&&S.settings?`<div class="small b" style="margin:8px 0 2px">코치에게 맡김 <span class="dim" style="font-weight:400">(켠 일만 코치가 대신 · 결과는 소식에 남음)</span></div>${Object.entries(SL.DLG_KO).map(([k,t])=>`<label class="row sb setrow" for="dl_${k}"><span>${esc(t)}</span><input id="dl_${k}" type="checkbox" class="chk" ${SL.dlgOn(k)?'checked':''} onchange="UI.setDlg('${k}',this.checked)"></label>`).join('')}<label class="row sb setrow" for="stopset"><span>자동 진행 중 제안 도착·만료 직전 멈춤</span><input id="stopset" type="checkbox" class="chk" ${S.settings.stopOnOffer?'checked':''} onchange="UI.setStop(this.checked)"></label><label class="row sb setrow" for="chkset"><span>자동 진행 중 약점 점검에서 멈춤 (7경기마다)</span><input id="chkset" type="checkbox" class="chk" ${S.settings.stopOnCheck?'checked':''} onchange="UI.setChkStop(this.checked)"></label><div class="small b" style="margin:8px 0 2px">자동 진행 중 「볼 만한 경기」 앞에서 멈춤 <span class="dim" style="font-weight:400">(「7경기 자동」 등에서만 · 「시즌 끝까지」는 멈추지 않음)</span></div>${Object.entries(SL.WATCH_KO).map(([k,t])=>`<label class="row sb setrow" for="w_${k}"><span>${esc(t)}</span><input id="w_${k}" type="checkbox" class="chk" ${watchOn(k)?'checked':''} onchange="UI.setWatch('${k}',this.checked)"></label>`).join('')}`:''}
   <label class="row sb setrow" for="motset"><span>화면 효과·움직임 <span class="muted small">(끄면 경기 연출·전환 효과 최소화)</span></span><input id="motset" type="checkbox" class="chk" ${PREF.motion?'checked':''} onchange="UI.setPref('motion',this.checked)"></label>`;}
 function sfxInit(){try{const v=localStorage.getItem('stoveleague_sound');if(v!=null)SFX.on=v==='1';}catch(e){}}
@@ -9599,6 +9648,7 @@ function decisionItems(){const ut=SL.userTeam();const it=[];const keys=new Set()
   if(off&&S.week>=2){const st=SL.fgnStatus(ut);const n=st.genFree+(st.quotaFree?1:0);if(n)add({k:'fgn',ic:'🌏',grp:'later',tag:'외국인 · 개막 전까지',title:`외국인 빈자리 ${n}`,sub:'AI 구단도 같은 선수를 노림',btn:'외국인 관리',on:"UI.fgnOpen()"});}
   if(off&&ut.spon){if(!ut.spon.main&&ut.spon.offers.length)add({k:'spon',ic:'🏷',grp:'later',tag:'메인 스폰서 · 개막 전까지',title:`스폰서 제안 ${ut.spon.offers.length}건`,sub:ut.spon.offers.map(o=>o.co).join(' · '),btn:'제안 검토',on:"UI.sponView('main')"});
     const free=SL.boardSlots(ut)-ut.spon.boards.length;if(free>0&&ut.spon.boardOffers.length)add({k:'board',ic:'🪧',grp:'later',tag:'광고판 · 개막 전까지',title:`광고판 공석 ${free}곳`,sub:'비워 두면 개막 때 기본 단가 80%로 채움',btn:'스폰서',on:"UI.sponView('board')"});}
+  if(off){const c=SL.campOf(ut);const C=SL.BAL.CAMP;add({k:'camp',ic:'🏕',grp:'later',tag:'스프링캠프 · 5주차 출발',title:c.set?`스프링캠프: ${C.loc[c.loc].n} · ${C.focus[c.focus].n}`:'스프링캠프 계획 (지금은 국내 · 균형)',sub:'캠프지 · 중점에 따라 겨울 훈련 효과와 개막 컨디션이 달라짐',btn:c.set?'바꾸기':'정하기',on:"UI.campOpen()"});}
   if(off&&SL.skCampLeft()>0)add({k:'skc',ic:'🎯',grp:'later',tag:'스킬 캠프 · 개막 전까지',title:`스킬 캠프 남은 자리 ${SL.skCampLeft()}`,sub:'새 스킬 · 레벨 올리기 · 약점 지우기 · 성격 코스',btn:'선수 고르기',on:"UI.skCampPick()"});   /* v141 (R112) */
   if(off&&S.week<=2){const b=SL.jobBoard();const m=b.list.filter(x=>x.ok&&!x.applied&&!x.offered).length;if(m)add({k:'jobs',ic:'💼',grp:'later',tag:'구직 · 원하면 2주차까지',title:`감독 구인 ${b.list.length}곳 · 지원 가능 ${m}`,sub:'더 큰 구단으로 옮길 기회',btn:'구인 보기',on:"UI.sheet('jobs')"});}
   for(const o of (S.endorseOffers||[])){const p=S.players[o.pid];if(!p)continue;add({k:'end'+o.id,grp:'end',tag:`개인 광고 · ${Math.max(0,o.exp-S.clock)}${off?'주':'일'} 남음`,title:`${p.name} ← ${o.co} 연 ${Ms(o.fee)}`,sub:`${o.years}년 · 구단 수수료 ${Math.round(SL.BAL.SPON.endorse.comm*100)}% · 수락하면 사기↑ 재계약 요구 +5%`,btn:'제안 검토',on:`UI.endorseView(${o.id})`,face:p});}
@@ -9631,6 +9681,7 @@ function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(fa
   const I=ut.league==='KR'?SL.budgetInfo():null;
   h+=`<div class="whead">${coachFace({id:424242,nat:'KR',age:44},84)}<div class="x"><small>${mkYear()} 겨울</small><b>감독실</b></div>${emblem(ut,72)}</div>`;
   h+=`<div class="wmoney box"><div onclick="UI.go('club','fin')"><small>현금</small><b>${Ms(ut.cash)}</b></div>${I?`<div onclick="UI.go('club','fin')"><small>영입</small><b>${Ms(Math.max(0,I.xferLeft))}</b></div><div onclick="UI.go('club','fin')"><small>연봉여유</small><b class="${I.wageLeft<0?'bad':''}">${Ms(I.wageLeft)}</b></div>`:''}</div>`;
+  h+=stoveLineHtml();   /* v142 (R113): 스토브리그 일정 띠 */
   if(SL.sackPending())h+=`<div class="card">${sackHtml()}</div>`;
   if(pv.loss.length)h+=`<div class="wwarn" onclick="UI.advanceWeek()">⚠ ${winterDue(pv,it)}</div>`;
   const done=placeDoneList();const rows=todoGroup(it);
@@ -10311,14 +10362,14 @@ if(typeof document!=='undefined'&&!window.__slSwipe){window.__slSwipe=1;let x0=n
 // 5) 켜진 칩이 줄 밖이면 보이게 · 긴 화면에서 「↑ 맨 위로」
 function chipScroll(){for(const r of document.querySelectorAll('.htabs2,.pgtabs')){const on=r.querySelector('.on');if(!on)continue;if(on.offsetLeft<r.scrollLeft||on.offsetLeft+on.offsetWidth>r.scrollLeft+r.clientWidth)r.scrollLeft=Math.max(0,on.offsetLeft-(r.clientWidth-on.offsetWidth)/2);}}
 function topBtnSync(){let b=document.getElementById('totop');if(!b){b=document.createElement('button');b.id='totop';b.className='totop';b.setAttribute('aria-label','맨 위로');b.innerHTML='↑<small>맨 위</small>';b.onclick=()=>A.toTop();document.body.appendChild(b);if(!window.__slTop){window.__slTop=1;window.addEventListener('scroll',()=>topBtnSync(),{passive:true});}}
-  const show=!!(S&&!S.liveGame&&!document.querySelector('#modal')&&(window.scrollY||0)>600);b.classList.toggle('on',show);}
+  const show=!!(S&&!S.liveGame&&!document.querySelector('#modal')&&(window.scrollY||0)>600*zf());b.classList.toggle('on',show);}
 // 6) PC: 선수 이름·줄에 마우스를 올리면 작은 선수 카드 (누르지 않고 훑어보기)
 function hoverCardHtml(p){const t=p.teamId!=null?S.teams[p.teamId]:null;const hid=typeof hidOf==='function'&&hidOf(p);const o=Math.round(SL.calcOvr(p));const c=p.contract;
   return `<div class="hvc">${face(p,48)}<div class="hvb"><b>${esc(p.name)}</b> <span class="ptg">${esc(p.pos)}</span><div class="small">${p.age}세${t?' · '+esc(t.name):' · FA'}</div><div class="hvr"><span>종합 <b>${hid?'?':`${SL.gradeOf(o)} ${o}`}</b></span>${c?`<span>연봉 <b>${Ms(c.salary)}</b> · ${c.years}년</span>`:''}</div><div class="small muted">${esc(String(seasonLine(p)||'').replace(/<[^>]+>/g,''))}</div></div></div>`;}
 if(typeof document!=='undefined'&&!window.__slHover){window.__slHover=1;let tm=null,cur=null;const card=()=>{let c=document.getElementById('hovcard');if(!c){c=document.createElement('div');c.id='hovcard';document.body.appendChild(c);}return c;};
   const pidOf=el=>{const a=el.closest('[onclick*="openPlayer("],.pname,tr[onclick*="selRow("]');if(!a||!a.closest('#app'))return null;const src=a.classList.contains('pname')?a.closest('tr'):a;const m=((src&&src.getAttribute('onclick'))||'').match(/(?:openPlayer|selRow)\((\d+)/);return m?{id:+m[1],el:a}:null;};
   document.addEventListener('mouseover',e=>{if(!S||S.liveGame||!isWide()||!(window.matchMedia&&matchMedia('(hover:hover)').matches))return;const r=pidOf(e.target);if(!r){if(cur){clearTimeout(tm);cur=null;card().classList.remove('on');}return;}if(cur&&cur.id===r.id)return;cur=r;clearTimeout(tm);
-    tm=setTimeout(()=>{const p=S.players[r.id];if(!p)return;const c=card();c.innerHTML=hoverCardHtml(p);const b=r.el.getBoundingClientRect();c.classList.add('on');const w=c.offsetWidth,h=c.offsetHeight;let x=b.left,y=b.bottom+6;if(x+w>innerWidth-8)x=innerWidth-8-w;if(y+h>innerHeight-8)y=b.top-6-h;c.style.left=Math.max(8,x)+'px';c.style.top=Math.max(8,y)+'px';},380);});
+    tm=setTimeout(()=>{const p=S.players[r.id];if(!p)return;const c=card();c.innerHTML=hoverCardHtml(p);const b=r.el.getBoundingClientRect();c.classList.add('on');const w=c.offsetWidth,h=c.offsetHeight;let x=b.left,y=b.bottom+6;if(x+w>innerWidth-8)x=innerWidth-8-w;if(y+h>innerHeight-8)y=b.top-6-h;c.style.left=Math.max(8,x)/zf()+'px';c.style.top=Math.max(8,y)/zf()+'px';},380);});
   document.addEventListener('mousedown',()=>{clearTimeout(tm);cur=null;const c=document.getElementById('hovcard');if(c)c.classList.remove('on');});}
 
 // ======================= v91 (R075): 타순·수비 끌어다 놓기 + 눌러서 옮기기 =======================
@@ -10333,7 +10384,7 @@ if(typeof document!=='undefined'&&!window.__slDrag){window.__slDrag=1;let D=null
   const pidOf=el=>{const _v=pltIn(false);try{return pidOf0(el);}finally{pltOut(_v);}};
   const pidOf0=el=>{const r=el.closest('tr.lurow');if(r)return {pid:+r.dataset.pid,i:+r.dataset.i,kind:'row'};const bn=el.closest('.fvb');if(bn)return {pid:+bn.dataset.pid,kind:'bench'};const d=el.closest('.dia .dslot');if(d){const ps=d.dataset.ps?[0,d.dataset.ps]:(d.getAttribute('onclick')||'').match(/diaPick\('(\w+)'\)/);const ut=SL.userTeam();const pid=ps?ut.lineup.find(id=>ut.pos[id]===ps[1]):null;return {pid:pid==null?null:pid,ps:ps?ps[1]:null,kind:'slot'};}return null;};
   const start=(el,x,y)=>{const o=pidOf(el);if(!o||o.pid==null)return;D=o;const p=S.players[o.pid];ghost=document.createElement('div');ghost.className='lughost';ghost.textContent=(p?p.name:'')+(o.kind==='row'?` · ${o.i+1}번`:o.kind==='bench'?' · 교체':` · ${o.ps}`);document.body.appendChild(ghost);move(x,y);document.body.classList.add('ludragging');if(navigator.vibrate)try{navigator.vibrate(10);}catch(e){}};
-  const move=(x,y)=>{if(!ghost)return;ghost.style.left=x+'px';ghost.style.top=y+'px';document.querySelectorAll('.ludrop').forEach(e=>e.classList.remove('ludrop'));ghost.style.display='none';const el=document.elementFromPoint(x,y);ghost.style.display='';const t=el&&(el.closest('tr.lurow')||el.closest('.dia .dslot')||el.closest('.fvb'));if(t)t.classList.add('ludrop');};
+  const move=(x,y)=>{if(!ghost)return;ghost.style.left=x/zf()+'px';ghost.style.top=y/zf()+'px';document.querySelectorAll('.ludrop').forEach(e=>e.classList.remove('ludrop'));ghost.style.display='none';const el=document.elementFromPoint(x,y);ghost.style.display='';const t=el&&(el.closest('tr.lurow')||el.closest('.dia .dslot')||el.closest('.fvb'));if(t)t.classList.add('ludrop');};
   const drop=(x,y)=>{const _v=pltIn(true);try{drop0(x,y);}finally{if(_v){pltOut(_v);autosave();ui.keepScroll=true;render();}}};
   const drop0=(x,y)=>{if(!D)return;ghost.style.display='none';const el=document.elementFromPoint(x,y);const t=el&&pidOf(el);const from=D;clear();if(!t)return;const ut=SL.userTeam();
     if(t.kind==='row'){if(ut.lineup[t.i]===from.pid)return;ui.keepScroll=true;A.setLineup(t.i,from.pid);const p=S.players[from.pid];if(p)toast(`${p.name} → ${t.i+1}번`);return;}
@@ -10634,7 +10685,7 @@ function recapTable(){const R=SL.seasonRecap();if(!R)return '';const ut=SL.userT
 function fitLists(){const L=[...document.querySelectorAll('.content .fitl')];for(const el of L){el.style.maxHeight='';el.classList.remove('fitx');}if(isWide()||!L.length||document.querySelector('#modal'))return;
   const fixedTop=Math.min(innerHeight,...[...document.querySelectorAll('body *')].filter(e=>{const cs=getComputedStyle(e);if(cs.position!=='fixed')return false;const r=e.getBoundingClientRect();return r.height>0&&r.bottom>=innerHeight-2&&r.top>innerHeight/2;}).map(e=>e.getBoundingClientRect().top));
   for(const el of L){const r=el.getBoundingClientRect();let after=0;let n=el.nextElementSibling;while(n){if(n.offsetHeight)after+=n.getBoundingClientRect().height+8;n=n.nextElementSibling;}
-    const avail=Math.floor(fixedTop-r.top-after-8+(document.scrollingElement.scrollTop||0)*0);if(avail>=220&&el.scrollHeight>avail){el.style.maxHeight=avail+'px';el.classList.add('fitx');}}}
+    const avail=Math.floor(fixedTop-r.top-after-8+(document.scrollingElement.scrollTop||0)*0);if(avail>=220&&el.scrollHeight>avail){el.style.maxHeight=Math.floor(avail/zf())+'px';el.classList.add('fitx');}}}
 window.addEventListener('resize',()=>{try{fitLists();}catch(e){}});
 /* v115 (R098 QA): 겨울 선수 목록의 「지난 시즌」 칸 — 짧게 (긴 문장이 화면 밖으로 밀리던 것) */
 // v116 (R098): 겨울 선수 목록 「지난 시즌」 칸 — 한 덩이로 짧게. 1군 기록이 거의 없으면 2군 기록(「2군 .300」)
@@ -11214,7 +11265,8 @@ function taskDoneHtml(){const lat=chainLater();const H=nextHooks();const off=S.p
 function chainPill(){if(!S||S.liveGame)return;const app=document.querySelector('#app');if(!app)return;const old=document.querySelector('.chainpill');if(old)old.remove();
   if(!ui.chain||!mflow()||document.querySelector('#modal')||document.querySelector('.mustbar'))return;
   const n=chainItems().length;const el=document.createElement('button');el.className='chainpill';el.innerHTML=n?`할 일 <b>${n}</b>건 남음 · 다음 ▶`:'✓ 할 일 끝 · 감독실로';el.onclick=()=>A.taskNext(true);document.body.appendChild(el);
-  {let top=innerHeight;for(const b of document.querySelectorAll('#app .gobar,#app .selwrap,#app .mvgo,#app .drsel,#app .lugo,#app .fgbar1,.nav')){const r=b.getBoundingClientRect();if(r.height&&r.top>innerHeight*0.55&&r.top<top)top=r.top;}el.style.bottom=Math.max(12,innerHeight-top+10)+'px';}}   /* v139 (R110): 아래 단추 줄 위에 — 단추를 가리지 않게 */
+  {let top=innerHeight;for(const b of document.querySelectorAll('#app .gobar,#app .selwrap,#app .mvgo,#app .drsel,#app .lugo,#app .fgbar1,.nav')){const r=b.getBoundingClientRect();if(r.height&&r.top>innerHeight*0.55&&r.top<top)top=r.top;}el.style.bottom=Math.max(12,(innerHeight-top+10)/zf())+'px';
+    /* v142: 화면 아래쪽에 보이는 단추와 겹치면 그 위로 한 번 더 올림 */for(let g=0;g<3;g++){const pr=el.getBoundingClientRect();let up=0;for(const b of document.querySelectorAll('#app button')){const q=b.getBoundingClientRect();if(!q.height||q.top<innerHeight*0.5||q.bottom>innerHeight)continue;if(q.left<pr.right&&pr.left<q.right&&q.top<pr.bottom&&pr.top<q.bottom)up=Math.max(up,pr.bottom-q.top+8);}if(!up)break;el.style.bottom=(parseFloat(el.style.bottom)+up/zf())+'px';}}}   /* v139 (R110): 아래 단추 줄 위에 — 단추를 가리지 않게 */
 // 3) 다음 목표 — 결과 창 · 할 일 끝 창에 「한 경기만 더」 이유 (실제 기록에서)
 function nextHooks(){const ut=SL.userTeam();const H=[];if(!ut||S.phase!=='season'||S.post)return H;
   {const c=slumpRec();if(c)H.push({ic:'⚠',t:`${c.n}연패 — ${c.t}`,s:c.s,b:c.b,on:`UI.closeModal();UI.slumpGo('${c.k}')`});else{const st=SL.teamStreak(ut);if(st.win&&st.n>=2)H.push({ic:'🔥',t:`${st.n}연승 중 — ${st.n+1}연승 도전`,s:'다음 경기를 이기면 이어집니다'});}}
@@ -11347,6 +11399,35 @@ Object.assign(A,{
   fvBench(pid){const ut=SL.userTeam();const sv=pltIn(false);let sel=null,ps=null;try{if(ui.selPid!=null&&ut.lineup.includes(ui.selPid)){sel=ui.selPid;ps=ut.pos[sel];}}finally{pltOut(sv);}if(sel==null||!ps){toast('먼저 구장에서 바꿀 자리를 누르세요.');return;}const a=S.players[sel],b=S.players[pid];ui.keepScroll=true;A.diaSet(ps,pid);ui.selPid=pid;toast(`${a.name} → ${b.name} (${SL.POS_KO[ps]||ps})`);ui.keepScroll=true;render();},
   fvOrd(d){const ut=SL.userTeam();const sv=pltIn(false);let i=-1;try{i=ut.lineup.indexOf(ui.selPid);}finally{pltOut(sv);}if(i<0)return;const j=i+d;if(j<0||j>8)return;const pid=ui.selPid;ui.keepScroll=true;A.setLineup(j,pid);ui.selPid=pid;ui.keepScroll=true;render();},
 });
+
+// ===================== v142 (R113): 스토브리그 일정 띠 · 스프링캠프 · 시범경기 결산 =====================
+function stoveLineHtml(){const L=SL.stoveSteps();const w=S.week;const cur=L.find(x=>x.w===w)||L[L.length-1];return `<div class="stvline" role="list" aria-label="스토브리그 일정">${L.map(x=>`<span role="listitem" class="${x.w<w?'dn':x.w===w?'on':''}"><i>${x.w}주</i><b>${x.t}</b></span>`).join('')}</div><div class="stvnow"><b>${cur.w}주차 · ${cur.t}</b> ${cur.d}</div>`;}
+function campHtml(){const ut=SL.userTeam();const C=SL.BAL.CAMP;const c=ui.campSel||(ui.campSel=(o=>({loc:o.loc,focus:o.focus}))(SL.campOf(ut)));const L=C.loc[c.loc],F=C.focus[c.focus];
+  const gb=Math.round((L.grow*F.b-1)*100),gp=Math.round((L.grow*F.p-1)*100);const sg=v=>`${v>=0?'+':''}${v}%`;
+  return `<div class="campm"><h3>스프링캠프</h3><div class="small dim">5주차에 출발 — 겨울 훈련(동계훈련) 효과와 개막 컨디션에 반영됩니다. 다른 구단은 국내 · 균형.</div>
+  <div class="skch">캠프지</div>${Object.keys(C.loc).map(k=>`<button class="campr ${c.loc===k?'on':''}" onclick="UI.campPick('loc','${k}')"><b>${C.loc[k].n}</b><small>${C.loc[k].d}</small><em>${C.loc[k].cost?Ms(C.loc[k].cost):'무료'}</em></button>`).join('')}
+  <div class="skch">중점</div><div class="seg">${Object.keys(C.focus).map(k=>`<button class="${c.focus===k?'on':''}" onclick="UI.campPick('focus','${k}')">${C.focus[k].n}</button>`).join('')}</div><div class="small dim" style="margin-top:6px">${F.d}</div>
+  <div class="campsum"><span>타자 성장 <b class="${gb>0?'ok':gb<0?'bad':''}">${sg(gb)}</b></span><span>투수 성장 <b class="${gp>0?'ok':gp<0?'bad':''}">${sg(gp)}</b></span><span>개막 컨디션 <b>+${(L.cond||0)+(F.cond||0)}</b></span><span>비용 <b>${L.cost?Ms(L.cost):'없음'}</b></span></div>
+  <div class="shbar n1"><button class="primary" onclick="UI.campSave()">이 계획으로</button></div></div>`;}
+function exhHtml(){const E=S.exh;if(!E)return '';const ut=SL.userTeam();const P=id=>S.players[id];const c=ut.camp&&ut.camp.s===E.s?ut.camp:null;const C=SL.BAL.CAMP;const reg=new Set(ut.lineup.concat(ut.rotation));
+  const line=id=>{const p=P(id);const x=E.st[id];if(!p||!x)return '';const s=SL.statLine(p,x);return `<div class="exr" onclick="UI.closeModal();UI.openPlayer(${id})">${face(p,34)}<div class="grow"><b>${esc(p.name)}${E.sup===id?' <em>깜짝 활약</em>':''}</b><small>${p.pos} · ${p.age}세${reg.has(id)?'':' · 백업'}</small></div><span>${SL.isPitcher(p)?`${s.ip}이닝 ${x.pER||0}자책 ${x.pSO||0}K`:`${x.ab||0}타수 ${x.h||0}안타${x.hr?' '+x.hr+'홈런':''} ${s.avg}`}</span></div>`;};
+  const ids=E.stars.slice();if(E.sup!=null&&!ids.includes(E.sup))ids.push(E.sup);const mvp=c&&c.mvp!=null?P(c.mvp):null;
+  let h=`<div class="exh"><div class="exhh"><small>${mkYear(E.s)} 시범경기</small><b>${E.w}승 ${E.l}패${E.d?` ${E.d}무`:''}</b><span>${E.g.map(g=>`<i class="${g.us>g.th?'w':g.us<g.th?'l':'d'}" title="${esc(S.teams[g.o].name)} ${g.us}:${g.th}${g.t?' (백업)':''}">${g.us>g.th?'승':g.us<g.th?'패':'무'}</i>`).join('')}</span></div>`;
+  h+=`<div class="small dim">홀수 경기는 주전, 짝수 경기는 백업 · 2군 선수로 치렀습니다. 기록은 시즌 기록에 들어가지 않습니다.</div>`;
+  if(c)h+=`<div class="exc"><span>스프링캠프</span><b>${C.loc[c.loc].n} · ${C.focus[c.focus].n}</b>${mvp?`<small>캠프 MVP ${esc(mvp.name)} (${mvp.age}세)</small>`:''}</div>`;
+  h+=`<div class="skch">감각이 좋은 선수 <small>개막 컨디션 +2</small></div>${ids.map(line).join('')}`;
+  const sup=E.sup!=null?P(E.sup):null;h+=`<div class="shbar n2"><button class="ghost" onclick="UI.exhClose();UI.go('roster','${sup&&SL.isPitcher(sup)?'pitch':'lineup'}')">${sup?`${esc(sup.name)} 써 보기`:'타순 보기'}</button><button class="primary" onclick="UI.exhClose()">개막 준비 끝</button></div></div>`;return h;}
+Object.assign(A,{
+  campOpen(){ui.campSel=null;modal(campHtml());},
+  campPick(k,v){ui.campSel=ui.campSel||{};ui.campSel[k]=v;modal(campHtml());},
+  campSave(){const c=ui.campSel;const r=SL.campSet(c.loc,c.focus);toast(r.msg);if(r.ok){autosave();closeModal();ui.keepScroll=true;render();}},
+  exhOpen(){if(S.exh)modal(exhHtml());},
+  exhClose(){SL.exhSeen();autosave();closeModal();render();},
+});
+{const f0=A.startSeasonGo;A.startSeasonGo=function(){const s0=SL.state().season;const r=f0.apply(this,arguments);S=SL.state();if(S.phase==='season'&&S.season!==s0&&S.exh&&S.exh.s===S.season&&!S.exh.seen)modal(exhHtml());return r;};}
+
+// v142 (R113): 글자 「작게」는 화면 전체를 줄여 그림 — 화면 좌표(px)로 잰 값을 자리 값으로 쓸 때 나눠 줌
+function zf(){try{return parseFloat(getComputedStyle(document.body).zoom)||1;}catch(e){return 1;}}
 
 return A;
 })();

@@ -696,6 +696,7 @@ function decisionItems(){const ut=SL.userTeam();const it=[];const keys=new Set()
   if(off&&S.week>=2){const st=SL.fgnStatus(ut);const n=st.genFree+(st.quotaFree?1:0);if(n)add({k:'fgn',ic:'🌏',grp:'later',tag:'외국인 · 개막 전까지',title:`외국인 빈자리 ${n}`,sub:'AI 구단도 같은 선수를 노림',btn:'외국인 관리',on:"UI.fgnOpen()"});}
   if(off&&ut.spon){if(!ut.spon.main&&ut.spon.offers.length)add({k:'spon',ic:'🏷',grp:'later',tag:'메인 스폰서 · 개막 전까지',title:`스폰서 제안 ${ut.spon.offers.length}건`,sub:ut.spon.offers.map(o=>o.co).join(' · '),btn:'제안 검토',on:"UI.sponView('main')"});
     const free=SL.boardSlots(ut)-ut.spon.boards.length;if(free>0&&ut.spon.boardOffers.length)add({k:'board',ic:'🪧',grp:'later',tag:'광고판 · 개막 전까지',title:`광고판 공석 ${free}곳`,sub:'비워 두면 개막 때 기본 단가 80%로 채움',btn:'스폰서',on:"UI.sponView('board')"});}
+  if(off){const c=SL.campOf(ut);const C=SL.BAL.CAMP;add({k:'camp',ic:'🏕',grp:'later',tag:'스프링캠프 · 5주차 출발',title:c.set?`스프링캠프: ${C.loc[c.loc].n} · ${C.focus[c.focus].n}`:'스프링캠프 계획 (지금은 국내 · 균형)',sub:'캠프지 · 중점에 따라 겨울 훈련 효과와 개막 컨디션이 달라짐',btn:c.set?'바꾸기':'정하기',on:"UI.campOpen()"});}
   if(off&&SL.skCampLeft()>0)add({k:'skc',ic:'🎯',grp:'later',tag:'스킬 캠프 · 개막 전까지',title:`스킬 캠프 남은 자리 ${SL.skCampLeft()}`,sub:'새 스킬 · 레벨 올리기 · 약점 지우기 · 성격 코스',btn:'선수 고르기',on:"UI.skCampPick()"});   /* v141 (R112) */
   if(off&&S.week<=2){const b=SL.jobBoard();const m=b.list.filter(x=>x.ok&&!x.applied&&!x.offered).length;if(m)add({k:'jobs',ic:'💼',grp:'later',tag:'구직 · 원하면 2주차까지',title:`감독 구인 ${b.list.length}곳 · 지원 가능 ${m}`,sub:'더 큰 구단으로 옮길 기회',btn:'구인 보기',on:"UI.sheet('jobs')"});}
   for(const o of (S.endorseOffers||[])){const p=S.players[o.pid];if(!p)continue;add({k:'end'+o.id,grp:'end',tag:`개인 광고 · ${Math.max(0,o.exp-S.clock)}${off?'주':'일'} 남음`,title:`${p.name} ← ${o.co} 연 ${Ms(o.fee)}`,sub:`${o.years}년 · 구단 수수료 ${Math.round(SL.BAL.SPON.endorse.comm*100)}% · 수락하면 사기↑ 재계약 요구 +5%`,btn:'제안 검토',on:`UI.endorseView(${o.id})`,face:p});}
@@ -728,6 +729,7 @@ function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(fa
   const I=ut.league==='KR'?SL.budgetInfo():null;
   h+=`<div class="whead">${coachFace({id:424242,nat:'KR',age:44},84)}<div class="x"><small>${mkYear()} 겨울</small><b>감독실</b></div>${emblem(ut,72)}</div>`;
   h+=`<div class="wmoney box"><div onclick="UI.go('club','fin')"><small>현금</small><b>${Ms(ut.cash)}</b></div>${I?`<div onclick="UI.go('club','fin')"><small>영입</small><b>${Ms(Math.max(0,I.xferLeft))}</b></div><div onclick="UI.go('club','fin')"><small>연봉여유</small><b class="${I.wageLeft<0?'bad':''}">${Ms(I.wageLeft)}</b></div>`:''}</div>`;
+  h+=stoveLineHtml();   /* v142 (R113): 스토브리그 일정 띠 */
   if(SL.sackPending())h+=`<div class="card">${sackHtml()}</div>`;
   if(pv.loss.length)h+=`<div class="wwarn" onclick="UI.advanceWeek()">⚠ ${winterDue(pv,it)}</div>`;
   const done=placeDoneList();const rows=todoGroup(it);
@@ -1408,14 +1410,14 @@ if(typeof document!=='undefined'&&!window.__slSwipe){window.__slSwipe=1;let x0=n
 // 5) 켜진 칩이 줄 밖이면 보이게 · 긴 화면에서 「↑ 맨 위로」
 function chipScroll(){for(const r of document.querySelectorAll('.htabs2,.pgtabs')){const on=r.querySelector('.on');if(!on)continue;if(on.offsetLeft<r.scrollLeft||on.offsetLeft+on.offsetWidth>r.scrollLeft+r.clientWidth)r.scrollLeft=Math.max(0,on.offsetLeft-(r.clientWidth-on.offsetWidth)/2);}}
 function topBtnSync(){let b=document.getElementById('totop');if(!b){b=document.createElement('button');b.id='totop';b.className='totop';b.setAttribute('aria-label','맨 위로');b.innerHTML='↑<small>맨 위</small>';b.onclick=()=>A.toTop();document.body.appendChild(b);if(!window.__slTop){window.__slTop=1;window.addEventListener('scroll',()=>topBtnSync(),{passive:true});}}
-  const show=!!(S&&!S.liveGame&&!document.querySelector('#modal')&&(window.scrollY||0)>600);b.classList.toggle('on',show);}
+  const show=!!(S&&!S.liveGame&&!document.querySelector('#modal')&&(window.scrollY||0)>600*zf());b.classList.toggle('on',show);}
 // 6) PC: 선수 이름·줄에 마우스를 올리면 작은 선수 카드 (누르지 않고 훑어보기)
 function hoverCardHtml(p){const t=p.teamId!=null?S.teams[p.teamId]:null;const hid=typeof hidOf==='function'&&hidOf(p);const o=Math.round(SL.calcOvr(p));const c=p.contract;
   return `<div class="hvc">${face(p,48)}<div class="hvb"><b>${esc(p.name)}</b> <span class="ptg">${esc(p.pos)}</span><div class="small">${p.age}세${t?' · '+esc(t.name):' · FA'}</div><div class="hvr"><span>종합 <b>${hid?'?':`${SL.gradeOf(o)} ${o}`}</b></span>${c?`<span>연봉 <b>${Ms(c.salary)}</b> · ${c.years}년</span>`:''}</div><div class="small muted">${esc(String(seasonLine(p)||'').replace(/<[^>]+>/g,''))}</div></div></div>`;}
 if(typeof document!=='undefined'&&!window.__slHover){window.__slHover=1;let tm=null,cur=null;const card=()=>{let c=document.getElementById('hovcard');if(!c){c=document.createElement('div');c.id='hovcard';document.body.appendChild(c);}return c;};
   const pidOf=el=>{const a=el.closest('[onclick*="openPlayer("],.pname,tr[onclick*="selRow("]');if(!a||!a.closest('#app'))return null;const src=a.classList.contains('pname')?a.closest('tr'):a;const m=((src&&src.getAttribute('onclick'))||'').match(/(?:openPlayer|selRow)\((\d+)/);return m?{id:+m[1],el:a}:null;};
   document.addEventListener('mouseover',e=>{if(!S||S.liveGame||!isWide()||!(window.matchMedia&&matchMedia('(hover:hover)').matches))return;const r=pidOf(e.target);if(!r){if(cur){clearTimeout(tm);cur=null;card().classList.remove('on');}return;}if(cur&&cur.id===r.id)return;cur=r;clearTimeout(tm);
-    tm=setTimeout(()=>{const p=S.players[r.id];if(!p)return;const c=card();c.innerHTML=hoverCardHtml(p);const b=r.el.getBoundingClientRect();c.classList.add('on');const w=c.offsetWidth,h=c.offsetHeight;let x=b.left,y=b.bottom+6;if(x+w>innerWidth-8)x=innerWidth-8-w;if(y+h>innerHeight-8)y=b.top-6-h;c.style.left=Math.max(8,x)+'px';c.style.top=Math.max(8,y)+'px';},380);});
+    tm=setTimeout(()=>{const p=S.players[r.id];if(!p)return;const c=card();c.innerHTML=hoverCardHtml(p);const b=r.el.getBoundingClientRect();c.classList.add('on');const w=c.offsetWidth,h=c.offsetHeight;let x=b.left,y=b.bottom+6;if(x+w>innerWidth-8)x=innerWidth-8-w;if(y+h>innerHeight-8)y=b.top-6-h;c.style.left=Math.max(8,x)/zf()+'px';c.style.top=Math.max(8,y)/zf()+'px';},380);});
   document.addEventListener('mousedown',()=>{clearTimeout(tm);cur=null;const c=document.getElementById('hovcard');if(c)c.classList.remove('on');});}
 
 // ======================= v91 (R075): 타순·수비 끌어다 놓기 + 눌러서 옮기기 =======================
@@ -1430,7 +1432,7 @@ if(typeof document!=='undefined'&&!window.__slDrag){window.__slDrag=1;let D=null
   const pidOf=el=>{const _v=pltIn(false);try{return pidOf0(el);}finally{pltOut(_v);}};
   const pidOf0=el=>{const r=el.closest('tr.lurow');if(r)return {pid:+r.dataset.pid,i:+r.dataset.i,kind:'row'};const bn=el.closest('.fvb');if(bn)return {pid:+bn.dataset.pid,kind:'bench'};const d=el.closest('.dia .dslot');if(d){const ps=d.dataset.ps?[0,d.dataset.ps]:(d.getAttribute('onclick')||'').match(/diaPick\('(\w+)'\)/);const ut=SL.userTeam();const pid=ps?ut.lineup.find(id=>ut.pos[id]===ps[1]):null;return {pid:pid==null?null:pid,ps:ps?ps[1]:null,kind:'slot'};}return null;};
   const start=(el,x,y)=>{const o=pidOf(el);if(!o||o.pid==null)return;D=o;const p=S.players[o.pid];ghost=document.createElement('div');ghost.className='lughost';ghost.textContent=(p?p.name:'')+(o.kind==='row'?` · ${o.i+1}번`:o.kind==='bench'?' · 교체':` · ${o.ps}`);document.body.appendChild(ghost);move(x,y);document.body.classList.add('ludragging');if(navigator.vibrate)try{navigator.vibrate(10);}catch(e){}};
-  const move=(x,y)=>{if(!ghost)return;ghost.style.left=x+'px';ghost.style.top=y+'px';document.querySelectorAll('.ludrop').forEach(e=>e.classList.remove('ludrop'));ghost.style.display='none';const el=document.elementFromPoint(x,y);ghost.style.display='';const t=el&&(el.closest('tr.lurow')||el.closest('.dia .dslot')||el.closest('.fvb'));if(t)t.classList.add('ludrop');};
+  const move=(x,y)=>{if(!ghost)return;ghost.style.left=x/zf()+'px';ghost.style.top=y/zf()+'px';document.querySelectorAll('.ludrop').forEach(e=>e.classList.remove('ludrop'));ghost.style.display='none';const el=document.elementFromPoint(x,y);ghost.style.display='';const t=el&&(el.closest('tr.lurow')||el.closest('.dia .dslot')||el.closest('.fvb'));if(t)t.classList.add('ludrop');};
   const drop=(x,y)=>{const _v=pltIn(true);try{drop0(x,y);}finally{if(_v){pltOut(_v);autosave();ui.keepScroll=true;render();}}};
   const drop0=(x,y)=>{if(!D)return;ghost.style.display='none';const el=document.elementFromPoint(x,y);const t=el&&pidOf(el);const from=D;clear();if(!t)return;const ut=SL.userTeam();
     if(t.kind==='row'){if(ut.lineup[t.i]===from.pid)return;ui.keepScroll=true;A.setLineup(t.i,from.pid);const p=S.players[from.pid];if(p)toast(`${p.name} → ${t.i+1}번`);return;}
@@ -1731,7 +1733,7 @@ function recapTable(){const R=SL.seasonRecap();if(!R)return '';const ut=SL.userT
 function fitLists(){const L=[...document.querySelectorAll('.content .fitl')];for(const el of L){el.style.maxHeight='';el.classList.remove('fitx');}if(isWide()||!L.length||document.querySelector('#modal'))return;
   const fixedTop=Math.min(innerHeight,...[...document.querySelectorAll('body *')].filter(e=>{const cs=getComputedStyle(e);if(cs.position!=='fixed')return false;const r=e.getBoundingClientRect();return r.height>0&&r.bottom>=innerHeight-2&&r.top>innerHeight/2;}).map(e=>e.getBoundingClientRect().top));
   for(const el of L){const r=el.getBoundingClientRect();let after=0;let n=el.nextElementSibling;while(n){if(n.offsetHeight)after+=n.getBoundingClientRect().height+8;n=n.nextElementSibling;}
-    const avail=Math.floor(fixedTop-r.top-after-8+(document.scrollingElement.scrollTop||0)*0);if(avail>=220&&el.scrollHeight>avail){el.style.maxHeight=avail+'px';el.classList.add('fitx');}}}
+    const avail=Math.floor(fixedTop-r.top-after-8+(document.scrollingElement.scrollTop||0)*0);if(avail>=220&&el.scrollHeight>avail){el.style.maxHeight=Math.floor(avail/zf())+'px';el.classList.add('fitx');}}}
 window.addEventListener('resize',()=>{try{fitLists();}catch(e){}});
 /* v115 (R098 QA): 겨울 선수 목록의 「지난 시즌」 칸 — 짧게 (긴 문장이 화면 밖으로 밀리던 것) */
 // v116 (R098): 겨울 선수 목록 「지난 시즌」 칸 — 한 덩이로 짧게. 1군 기록이 거의 없으면 2군 기록(「2군 .300」)
@@ -2311,7 +2313,8 @@ function taskDoneHtml(){const lat=chainLater();const H=nextHooks();const off=S.p
 function chainPill(){if(!S||S.liveGame)return;const app=document.querySelector('#app');if(!app)return;const old=document.querySelector('.chainpill');if(old)old.remove();
   if(!ui.chain||!mflow()||document.querySelector('#modal')||document.querySelector('.mustbar'))return;
   const n=chainItems().length;const el=document.createElement('button');el.className='chainpill';el.innerHTML=n?`할 일 <b>${n}</b>건 남음 · 다음 ▶`:'✓ 할 일 끝 · 감독실로';el.onclick=()=>A.taskNext(true);document.body.appendChild(el);
-  {let top=innerHeight;for(const b of document.querySelectorAll('#app .gobar,#app .selwrap,#app .mvgo,#app .drsel,#app .lugo,#app .fgbar1,.nav')){const r=b.getBoundingClientRect();if(r.height&&r.top>innerHeight*0.55&&r.top<top)top=r.top;}el.style.bottom=Math.max(12,innerHeight-top+10)+'px';}}   /* v139 (R110): 아래 단추 줄 위에 — 단추를 가리지 않게 */
+  {let top=innerHeight;for(const b of document.querySelectorAll('#app .gobar,#app .selwrap,#app .mvgo,#app .drsel,#app .lugo,#app .fgbar1,.nav')){const r=b.getBoundingClientRect();if(r.height&&r.top>innerHeight*0.55&&r.top<top)top=r.top;}el.style.bottom=Math.max(12,(innerHeight-top+10)/zf())+'px';
+    /* v142: 화면 아래쪽에 보이는 단추와 겹치면 그 위로 한 번 더 올림 */for(let g=0;g<3;g++){const pr=el.getBoundingClientRect();let up=0;for(const b of document.querySelectorAll('#app button')){const q=b.getBoundingClientRect();if(!q.height||q.top<innerHeight*0.5||q.bottom>innerHeight)continue;if(q.left<pr.right&&pr.left<q.right&&q.top<pr.bottom&&pr.top<q.bottom)up=Math.max(up,pr.bottom-q.top+8);}if(!up)break;el.style.bottom=(parseFloat(el.style.bottom)+up/zf())+'px';}}}   /* v139 (R110): 아래 단추 줄 위에 — 단추를 가리지 않게 */
 // 3) 다음 목표 — 결과 창 · 할 일 끝 창에 「한 경기만 더」 이유 (실제 기록에서)
 function nextHooks(){const ut=SL.userTeam();const H=[];if(!ut||S.phase!=='season'||S.post)return H;
   {const c=slumpRec();if(c)H.push({ic:'⚠',t:`${c.n}연패 — ${c.t}`,s:c.s,b:c.b,on:`UI.closeModal();UI.slumpGo('${c.k}')`});else{const st=SL.teamStreak(ut);if(st.win&&st.n>=2)H.push({ic:'🔥',t:`${st.n}연승 중 — ${st.n+1}연승 도전`,s:'다음 경기를 이기면 이어집니다'});}}
@@ -2444,3 +2447,32 @@ Object.assign(A,{
   fvBench(pid){const ut=SL.userTeam();const sv=pltIn(false);let sel=null,ps=null;try{if(ui.selPid!=null&&ut.lineup.includes(ui.selPid)){sel=ui.selPid;ps=ut.pos[sel];}}finally{pltOut(sv);}if(sel==null||!ps){toast('먼저 구장에서 바꿀 자리를 누르세요.');return;}const a=S.players[sel],b=S.players[pid];ui.keepScroll=true;A.diaSet(ps,pid);ui.selPid=pid;toast(`${a.name} → ${b.name} (${SL.POS_KO[ps]||ps})`);ui.keepScroll=true;render();},
   fvOrd(d){const ut=SL.userTeam();const sv=pltIn(false);let i=-1;try{i=ut.lineup.indexOf(ui.selPid);}finally{pltOut(sv);}if(i<0)return;const j=i+d;if(j<0||j>8)return;const pid=ui.selPid;ui.keepScroll=true;A.setLineup(j,pid);ui.selPid=pid;ui.keepScroll=true;render();},
 });
+
+// ===================== v142 (R113): 스토브리그 일정 띠 · 스프링캠프 · 시범경기 결산 =====================
+function stoveLineHtml(){const L=SL.stoveSteps();const w=S.week;const cur=L.find(x=>x.w===w)||L[L.length-1];return `<div class="stvline" role="list" aria-label="스토브리그 일정">${L.map(x=>`<span role="listitem" class="${x.w<w?'dn':x.w===w?'on':''}"><i>${x.w}주</i><b>${x.t}</b></span>`).join('')}</div><div class="stvnow"><b>${cur.w}주차 · ${cur.t}</b> ${cur.d}</div>`;}
+function campHtml(){const ut=SL.userTeam();const C=SL.BAL.CAMP;const c=ui.campSel||(ui.campSel=(o=>({loc:o.loc,focus:o.focus}))(SL.campOf(ut)));const L=C.loc[c.loc],F=C.focus[c.focus];
+  const gb=Math.round((L.grow*F.b-1)*100),gp=Math.round((L.grow*F.p-1)*100);const sg=v=>`${v>=0?'+':''}${v}%`;
+  return `<div class="campm"><h3>스프링캠프</h3><div class="small dim">5주차에 출발 — 겨울 훈련(동계훈련) 효과와 개막 컨디션에 반영됩니다. 다른 구단은 국내 · 균형.</div>
+  <div class="skch">캠프지</div>${Object.keys(C.loc).map(k=>`<button class="campr ${c.loc===k?'on':''}" onclick="UI.campPick('loc','${k}')"><b>${C.loc[k].n}</b><small>${C.loc[k].d}</small><em>${C.loc[k].cost?Ms(C.loc[k].cost):'무료'}</em></button>`).join('')}
+  <div class="skch">중점</div><div class="seg">${Object.keys(C.focus).map(k=>`<button class="${c.focus===k?'on':''}" onclick="UI.campPick('focus','${k}')">${C.focus[k].n}</button>`).join('')}</div><div class="small dim" style="margin-top:6px">${F.d}</div>
+  <div class="campsum"><span>타자 성장 <b class="${gb>0?'ok':gb<0?'bad':''}">${sg(gb)}</b></span><span>투수 성장 <b class="${gp>0?'ok':gp<0?'bad':''}">${sg(gp)}</b></span><span>개막 컨디션 <b>+${(L.cond||0)+(F.cond||0)}</b></span><span>비용 <b>${L.cost?Ms(L.cost):'없음'}</b></span></div>
+  <div class="shbar n1"><button class="primary" onclick="UI.campSave()">이 계획으로</button></div></div>`;}
+function exhHtml(){const E=S.exh;if(!E)return '';const ut=SL.userTeam();const P=id=>S.players[id];const c=ut.camp&&ut.camp.s===E.s?ut.camp:null;const C=SL.BAL.CAMP;const reg=new Set(ut.lineup.concat(ut.rotation));
+  const line=id=>{const p=P(id);const x=E.st[id];if(!p||!x)return '';const s=SL.statLine(p,x);return `<div class="exr" onclick="UI.closeModal();UI.openPlayer(${id})">${face(p,34)}<div class="grow"><b>${esc(p.name)}${E.sup===id?' <em>깜짝 활약</em>':''}</b><small>${p.pos} · ${p.age}세${reg.has(id)?'':' · 백업'}</small></div><span>${SL.isPitcher(p)?`${s.ip}이닝 ${x.pER||0}자책 ${x.pSO||0}K`:`${x.ab||0}타수 ${x.h||0}안타${x.hr?' '+x.hr+'홈런':''} ${s.avg}`}</span></div>`;};
+  const ids=E.stars.slice();if(E.sup!=null&&!ids.includes(E.sup))ids.push(E.sup);const mvp=c&&c.mvp!=null?P(c.mvp):null;
+  let h=`<div class="exh"><div class="exhh"><small>${mkYear(E.s)} 시범경기</small><b>${E.w}승 ${E.l}패${E.d?` ${E.d}무`:''}</b><span>${E.g.map(g=>`<i class="${g.us>g.th?'w':g.us<g.th?'l':'d'}" title="${esc(S.teams[g.o].name)} ${g.us}:${g.th}${g.t?' (백업)':''}">${g.us>g.th?'승':g.us<g.th?'패':'무'}</i>`).join('')}</span></div>`;
+  h+=`<div class="small dim">홀수 경기는 주전, 짝수 경기는 백업 · 2군 선수로 치렀습니다. 기록은 시즌 기록에 들어가지 않습니다.</div>`;
+  if(c)h+=`<div class="exc"><span>스프링캠프</span><b>${C.loc[c.loc].n} · ${C.focus[c.focus].n}</b>${mvp?`<small>캠프 MVP ${esc(mvp.name)} (${mvp.age}세)</small>`:''}</div>`;
+  h+=`<div class="skch">감각이 좋은 선수 <small>개막 컨디션 +2</small></div>${ids.map(line).join('')}`;
+  const sup=E.sup!=null?P(E.sup):null;h+=`<div class="shbar n2"><button class="ghost" onclick="UI.exhClose();UI.go('roster','${sup&&SL.isPitcher(sup)?'pitch':'lineup'}')">${sup?`${esc(sup.name)} 써 보기`:'타순 보기'}</button><button class="primary" onclick="UI.exhClose()">개막 준비 끝</button></div></div>`;return h;}
+Object.assign(A,{
+  campOpen(){ui.campSel=null;modal(campHtml());},
+  campPick(k,v){ui.campSel=ui.campSel||{};ui.campSel[k]=v;modal(campHtml());},
+  campSave(){const c=ui.campSel;const r=SL.campSet(c.loc,c.focus);toast(r.msg);if(r.ok){autosave();closeModal();ui.keepScroll=true;render();}},
+  exhOpen(){if(S.exh)modal(exhHtml());},
+  exhClose(){SL.exhSeen();autosave();closeModal();render();},
+});
+{const f0=A.startSeasonGo;A.startSeasonGo=function(){const s0=SL.state().season;const r=f0.apply(this,arguments);S=SL.state();if(S.phase==='season'&&S.season!==s0&&S.exh&&S.exh.s===S.season&&!S.exh.seen)modal(exhHtml());return r;};}
+
+// v142 (R113): 글자 「작게」는 화면 전체를 줄여 그림 — 화면 좌표(px)로 잰 값을 자리 값으로 쓸 때 나눠 줌
+function zf(){try{return parseFloat(getComputedStyle(document.body).zoom)||1;}catch(e){return 1;}}
