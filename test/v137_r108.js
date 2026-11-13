@@ -20,7 +20,7 @@ const {chromium}=require('playwright');const path=require('path');
     r.skip?ok('다른 보직 2군 투수 없음 — 건너뜀'):r.hit&&/선발 투수를|불펜 투수가 선발/.test(r.hit)?ok(`${r.sp} → ${r.dn} 추천에 영향 표시: 「${r.hit.slice(0,80)}」`):bad('보직 추천 '+JSON.stringify(r));}
   // 4. 부상 투수 처리 → 투수진(그 투수 고른 상태 · 부상 표시), 타자는 타순
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const q=S.players[ut.rotation[1]];q.inj={type:'팔꿈치',left:12};UI.setTab('home');const o={};
-      UI.injGo(q.id);o.sub=(document.querySelector('.subtabs .on')||{textContent:''}).textContent.trim();o.sel=(document.querySelector('.prow2.sel .nm')||{}).textContent;o.tag=(document.querySelector('.prow2.sel .inj')||{}).textContent;delete q.inj;
+      UI.injGo(q.id);o.sub=(document.querySelector('.subtabs .on')||{textContent:''}).textContent.trim();o.sel=((document.querySelector('.prow2.sel .nm b')||{}).textContent||'').replace(/\s*›\s*$/,'');o.tag=(document.querySelector('.prow2.sel .inj')||{}).textContent;delete q.inj;
       const bt=S.players[ut.lineup[0]];UI.injGo(bt.id);o.sub2=(document.querySelector('.subtabs .on')||{textContent:''}).textContent.trim();o.nm=q.name;return o;});
     r.sub==='투수진'&&r.sel===r.nm&&/부상 12일/.test(r.tag||'')&&r.sub2==='타순'?ok(`부상 투수 → 투수진 · ${r.sel} 고른 상태 · 「${r.tag}」 / 타자 → 타순`):bad('부상 이동 '+JSON.stringify(r));}
   // 5. 광고 제안 여러 건: 처리하면 다음 제안 → 마지막엔 홈

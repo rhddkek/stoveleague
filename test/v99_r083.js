@@ -30,7 +30,7 @@ const {chromium}=require('playwright');const path=require('path');
     r.before===0&&r.n>0&&r.tile&&r.newChip===`새 소식 ${r.n}`&&r.rows===Math.min(14,r.n)&&r.after===0&&!r.tile2?ok(`수신함: 며칠 사이 새 소식 ${r.n}건 → 감독실 「받은 소식 · 안 읽음 ${r.n}」 → 수신함 「새 소식 ${r.n}」 칩 → 열고 나오면 0`):bad('수신함 '+JSON.stringify(r));}
   // 5. 찾기: 화면 이름·용어도 찾음 · 용어집 · 자주 가는 화면 넣기/빼기
   {const r=await p.evaluate(()=>{const s1=UI.searchList('재정');const s2=UI.searchList('관찰도');UI.go('club','fin');UI.menu();const fav0=[...document.querySelectorAll('.mfav button')].map(x=>x.textContent.trim());UI.favToggle();const fav1=[...document.querySelectorAll('.mfav button')].map(x=>x.textContent.trim());UI.favToggle();UI.closeModal();UI.glossary();const g=document.querySelectorAll('#modal .gls').length;UI.closeModal();
-      return {scr:/구단 › 재정/.test(s1),term:/관찰도/.test(s2),fav0:fav0.length,add:fav1.includes('재정'),g};});
+      return {scr:/구단 › 재정/.test(s1),term:/관찰도/.test(s2),fav0:fav0.length,add:fav1.some(x=>/재정/.test(x)),g};});
     r.scr&&r.term&&r.add&&r.g>=20?ok(`찾기: 「재정」 → 화면 구단 › 재정 · 「지식」 → 용어 지식 % · 용어집 ${r.g}개 · 메뉴 「자주 가는 화면」에 지금 화면 넣기·빼기`):bad('찾기 '+JSON.stringify(r));}
   // 6. PC 폭: 앞으로 2주 띠가 타일로 접히지 않고 그대로
   {const q=await b.newPage({viewport:{width:1280,height:800}});await q.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await q.waitForTimeout(300);

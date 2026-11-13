@@ -178,10 +178,12 @@ function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>par
 const PARK_MEMO={};
 // v95 (R079): 경기 리그의 타격 환경 (BAL.ENV, 홈 구단 리그 기준)
 function envOf(lg){const L=(S.teams[lg.home]||{}).league;return (BAL.ENV&&BAL.ENV[L])||{hit:1,hr:1,zone:0,con:0};}
-function parkOf(t){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const key=(t.orig||t.name)+'|'+t.name;if(PARK_MEMO[key])return PARK_MEMO[key];const d=parkDim0(t.orig||t.name);const R=parkRef();
+// v140 (R111): 홈구장 공사 — 펜스를 당기면(−1) 타자 친화, 밀면(+1) 투수 친화. 좌·중·우 ±2m (홈런 약 ±5~6%, 기존 구장 범위 0.92~1.08 안)
+function parkOf(t,modX){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const mod=modX!=null?modX:(t.parkMod||0);const key=(t.orig||t.name)+'|'+t.name+'|'+mod;if(PARK_MEMO[key])return PARK_MEMO[key];const d=Object.assign({},parkDim0(t.orig||t.name));d.l+=mod*2;d.c+=mod*2;d.r+=mod*2;const R=parkRef();
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
   const city=t.name.split(' ')[0];const nick=t.name.split(' ').slice(1).join(' ');const shared=t.league==='KR'&&TEAM_NAMES.KR.filter(x=>x[0].split(' ')[0]===city).length>1;const notes=[];if(d.l<=96)notes.push('좌측 펜스가 가깝습니다');if(d.r<=96)notes.push('우측 펜스가 가깝습니다');if(d.c>=123)notes.push('중앙이 깊어 2·3루타가 잘 나옵니다');if(d.fence)notes.push('외야 펜스가 높습니다');if(d.wind)notes.push('외야 쪽으로 부는 바람이 잦아 타구가 잘 뻗습니다');if(!notes.length)notes.push('표준 규격 구장입니다');
-  return PARK_MEMO[key]={name:shared?`${nick} ${d.sfx}`:`${city} ${d.sfx}`,hr,xb,dim:{l:d.l,c:d.c,r:d.r},fence:!!d.fence,wind:!!d.wind,notes,tag:hr>=1.04?'타자 친화':hr<=0.96?'투수 친화':'중립'};}
+  return PARK_MEMO[key]={name:shared?`${nick} ${d.sfx}`:`${city} ${d.sfx}`,hr,xb,dim:{l:d.l,c:d.c,r:d.r},fence:!!d.fence,wind:!!d.wind,notes,mod,tag:hr>=1.04?'타자 친화':hr<=0.96?'투수 친화':'중립'};}
+function parkRemodel(mod){const t=userTeam();mod=mod<0?-1:mod>0?1:0;if((t.parkMod||0)===mod)return '이미 그 상태입니다.';if(S.phase!=='offseason')return '구장 공사는 스토브리그(겨울)에만 할 수 있습니다.';const cost=BAL.PARK.cost;if(t.cash<cost)return `현금이 부족합니다 (공사비 ${money(cost)}).`;t.cash-=cost;t.fin.facility=(t.fin.facility||0)+cost;t.parkMod=mod;const pk=parkOf(t);news(`홈구장 공사 — ${pk.name} ${mod<0?'펜스를 당겼습니다 (타자 쪽)':mod>0?'펜스를 밀었습니다 (투수 쪽)':'원래 규격으로 되돌렸습니다'} · 공사비 ${money(cost)}`,'club');return null;}
 // 비거리 dist가 다른 국내 구장에선 넘어갔을지 (그 방향 펜스가 더 가까운 구장 중 가장 유명한 곳)
 function parkNear(side,dist,homeId){const home=S.teams[homeId];const c=krTeams().filter(t=>t.id!==homeId).map(t=>({t,p:parkOf(t)})).filter(x=>x.p.dim[side]+(x.p.fence?1:0)<dist).sort((a,b)=>presOf(b.t)-presOf(a.t)||a.p.dim[side]-b.p.dim[side]);return c[0]?c[0].p:null;}
 const KO_POS={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수'};

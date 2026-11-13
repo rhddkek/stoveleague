@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v139';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v140';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -20,6 +20,7 @@ const BAL={
   DIVIDEND:{1:[150000,120000,100000,85000,70000,60000,50000,40000,35000,30000]},
   OVERSEAS_CASH:{JP:1500000,US:4000000,TW:300000,MX:400000,AU:120000,CB:180000},
   FACILITY:{train:{cost:20000,upkeep:1500},youth:{cost:15000,upkeep:1200},scout:{cost:10000,upkeep:1000}},
+  PARK:{cost:30000},   // v140: 홈구장 펜스 공사비 15억
   SCOUT_COST:[800,2500,6000], SCOUT_N:[3,5,8], SCOUT_CONF:[0.12,0.25,0.4],
   VALUE_BASE:2000, VALUE_STEP:3.5,                        // ovr45=2000만, +10마다 x3.5
   SALARY_RATE:0.22, SALARY_MIN:600,  // 최저 연봉 3,000만(내부 600) — 2시즌(2027년)부터 3,300만 (minSal)
