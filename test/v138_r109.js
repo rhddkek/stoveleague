@@ -19,7 +19,7 @@ const {chromium}=require('playwright');const path=require('path');
     r.sheet&&r.btn==='7경기 자동|다음 경기 ▶'&&r.fold===0&&r.live?ok(`7경기 자동 → 결과 창이 저절로 · 다음 목표 「${r.hk||'(없음)'}」 · [${r.btn}] → 다음 경기 화면`):bad('결과 창 '+JSON.stringify(r));}
   // 3. 경기를 끝내도 결과 창 → [다음 경기 ▶]로 이어짐
   {await p.evaluate(()=>{const lg=SL.state().liveGame;let g=0;while(lg&&!lg.done&&g++<400)SL.stepGame(lg);UI.endGame();});await p.waitForTimeout(700);
-    const r=await p.evaluate(()=>({sheet:!!document.querySelector('#modal .rsheet'),t:((document.querySelector('#modal .rsheet .card')||{}).innerText||'').split('\n')[0],btn:[...document.querySelectorAll('#modal .rsheet .shbar button')].map(x=>x.textContent).join('|')}));
+    const r=await p.evaluate(()=>({sheet:!!document.querySelector('#modal .nxs'),t:((document.querySelector('#modal .nxs .nxh')||{}).innerText||'').replace(/\s+/g,' '),btn:[...document.querySelectorAll('#modal .nxs .shbar button')].map(x=>x.textContent).join('|')}));   /* v139: 직접 본 경기는 결과를 다시 띄우지 않고 「다음 경기」 창 */
     r.sheet&&r.t&&/다음 경기 ▶|감독실/.test(r.btn)?ok(`경기 끝 → 결과 창 「${r.t}」 · [${r.btn}]`):bad('경기 끝 결과 '+JSON.stringify(r));await p.evaluate(()=>UI.closeModal());}
   // 4. 다음 목표: 연승이면 「n연승 중 — n+1연승 도전」(실제 기록)
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const gs=S.schedule.filter(g=>g.res&&!g.post&&(g.home===ut.id||g.away===ut.id)).sort((a,b)=>b.day-a.day).slice(0,3);for(const g of gs){if(g.home===ut.id){g.res.hs=Math.max(g.res.hs,g.res.as+1);}else{g.res.as=Math.max(g.res.as,g.res.hs+1);}}const st=SL.teamStreak(ut);UI.sheet('result');const hk=[...document.querySelectorAll('#modal .hk b')].map(x=>x.textContent);UI.closeModal();return {n:st.n,hk};});

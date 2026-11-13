@@ -865,3 +865,8 @@ body:not(.ingame) .stv .eqman.gi .gil2 button.on .a small,body:not(.ingame) .stv
 .rsheet button[onclick*="clearResult"]{display:none}
 body:not(.ingame) .mail.td.wrow>button.ghost{background:var(--sunk)!important;color:var(--text)!important;border-color:var(--line)!important}
 .reccd .rch b.rcm{cursor:pointer}.reccd .rch b small{font-size:13px;color:var(--muted);font-weight:400;margin-left:4px}
+/* v139 (R110): 다음 경기 창 · 알림은 위로(아래 단추를 덮지 않게) · 진행 방식 단추 */
+.nxs .nxh{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 4px;text-align:center}.nxs .nxh small{font-size:13px;color:var(--muted)}.nxs .nxm{display:flex;align-items:center;gap:14px}.nxs .nxm b{font-size:15px;color:var(--muted);font-weight:400}.nxs .nxo{font-size:19px;font-weight:600}.nxs .nxh span{font-size:13.5px;color:var(--muted)}
+@media (max-width:699px){body:not(:has(.gamev)):not(:has(#modal)) .toast{top:calc(68px + env(safe-area-inset-top,0px))!important;bottom:auto!important}}
+.cmmd small{font-size:10.5px;opacity:.75;margin-bottom:1px}
+@media (max-width:699px){.rc1 .wl{white-space:normal;word-break:keep-all;width:min-content;text-align:right;line-height:1.25;font-size:16px}.rc1 .n{white-space:nowrap}.rc1>div{padding:0 8px}}

@@ -591,9 +591,9 @@ const GUIDE=[{k:'lineup',t:'라인업 보기',s:'선수단 → 타순·수비. �
   {k:'growth',t:'성장 점검 확인',s:'7경기마다 점검 — 육성 → 성장에서 누가 컸는지 봅니다.',go:"UI.go('dev','grow')",tab:'dev',after:8},
   {k:'market',t:'이적 둘러보기',s:'이적 → 영입 · 협상. 다른 구단 제안은 자동 진행 중에도 멈춰서 알려 줍니다.',go:"UI.go('market','deals')",tab:'market'},
   {k:'staff',t:'코치진 보기',s:'선수단 → 코치진. 코치가 좋을수록 성장·회복이 빠릅니다.',go:"UI.go('roster','staff')",tab:'roster'}];
-function guideOn(){return S&&S.season===1&&!(S.guide&&S.guide.off)&&GUIDE.some(g=>!guideDone(g.k));}
+function guideOn(){return S&&S.season===1&&S.phase==='season'&&!(S.guide&&S.guide.off)&&GUIDE.some(g=>!guideDone(g.k));}   /* v139: 첫 시즌 할 일은 시즌 동안만 — 겨울엔 알림도 없음 */
 function guideDone(k){return !!(S.guide&&S.guide.done&&S.guide.done[k]);}
-function guideMark(k){if(!S)return;S.guide=S.guide||{done:{}};S.guide.done=S.guide.done||{};if(!S.guide.done[k]){S.guide.done[k]=1;const n=GUIDE.filter(g=>guideDone(g.k)).length;if(S.season===1&&!S.guide.off)setTimeout(()=>toast(n===GUIDE.length?'첫 시즌 할 일을 모두 해 봤습니다!':`첫 시즌 할 일 ${n}/${GUIDE.length} — ✓ ${GUIDE.find(g=>g.k===k).t}`),30);}}
+function guideMark(k){if(!S)return;S.guide=S.guide||{done:{}};S.guide.done=S.guide.done||{};if(!S.guide.done[k]){S.guide.done[k]=1;const n=GUIDE.filter(g=>guideDone(g.k)).length;if(S.season===1&&S.phase==='season'&&!S.guide.off)setTimeout(()=>toast(n===GUIDE.length?'첫 시즌 할 일을 모두 해 봤습니다!':`첫 시즌 할 일 ${n}/${GUIDE.length} — ✓ ${GUIDE.find(g=>g.k===k).t}`),30);}}
 function guideSeen(v){if(!S||S.season!==1)return;if(v==='roster/lineup')guideMark('lineup');if(v.startsWith('market/'))guideMark('market');if(v==='club/staff'||v==='roster/staff')guideMark('staff');if((v==='dev/grow'||v==='dev/train'||v==='roster/train')&&S.day>8)guideMark('growth');}
 function guideNext(){return GUIDE.find(g=>!guideDone(g.k)&&!(g.after&&S.day<=g.after))||null;}
 /* v111 (R093): 여섯 가지를 한꺼번에 설명하지 않고 「다음 행동 하나」만 — 나머지는 접힌 줄 */
@@ -891,14 +891,14 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
 function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
-  if(!(S.phase==='season'&&SL.userGameToday()&&it.length))T.push({k:'dec',ic:'📋',t:it.length?'할 일':'할 일 없음',v:it.length?`${it.length}건`:'',s:it[0]?it[0].title:'',hot:it.length>0});
+  if(!(S.phase==='season'&&SL.userGameToday()&&it.length)&&!(mflow()&&!it.length))T.push({k:'dec',ic:'📋',t:it.length?'할 일':'할 일 없음',v:it.length?`${it.length}건`:'',s:it[0]?it[0].title:'',hot:it.length>0});
   if(st&&st.kind!=='quiet')T.push({k:'story',ic:'📖',t:'이번 주',v:'',s:st.title});
   if(off&&S.awards&&S.awards[S.season]&&S.week<=3){const L=S.lastSummary;const aw=(L&&L.awards)||[];T.push({k:'awards',ic:'🏆',t:'시상식',v:aw.length?`우리 ${aw.length}건`:'',s:aw[0]||'수상 결과 보기',hot:aw.length>0});}
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total&&S.day<=SL.lgGames(ut.league)?`예상 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});
-  T.push({k:'growth',ic:'🌱',t:'성장 점검',v:rep?`+${rep.r.d}`:'',s:rep?`${rep.p.name} ${rep.r.from}→${rep.r.to}`:'대기'});
+  if(rep||!mflow())T.push({k:'growth',ic:'🌱',t:'성장 점검',v:rep?`+${rep.r.d}`:'',s:rep?`${rep.p.name} ${rep.r.from}→${rep.r.to}`:'대기'});
   if(off&&S.asia&&S.asia[S.season]&&S.week<=3)T.push({k:'asia',ic:'🌏',t:'아시아 챔피언십',v:'',s:`우승 ${S.asia[S.season].final.wn}`});
   else{const un=SL.unreadN();if(un)T.push({k:'inbox',go:"UI.go('home','inbox')",ic:'✉',t:'받은 소식',v:`안 읽음 ${un}`,s:n0?String(n0.text).replace(/<[^>]+>/g,''):'',hot:true});else if(!tickerItems().length)T.push({k:'news',ic:'📰',t:'소식',v:'',s:n0?n0.text:'아직 소식이 없습니다'});}
-  {const b=SL.jobBoard();if(b.list.length)T.push({k:'jobs',ic:'💼',t:'감독 채용',v:`${b.list.length}곳`,s:`채용 ${b.list.length}곳 · 평판 ${b.rep}`});}
+  {const b=SL.jobBoard();if(b.list.length&&!(mflow()&&S.phase==='season'))T.push({k:'jobs',ic:'💼',t:'감독 채용',v:`${b.list.length}곳`,s:`채용 ${b.list.length}곳 · 평판 ${b.rep}`});}
   {const M=SL.myPlayers(4);if(M.length){const x=M[0];const c=x.p.cur;T.splice(guideOn()?2:1,0,{k:'mine',ic:'⭐',t:'내 선수',v:`${M.length}명`,s:`${x.p.name} ${x.up?`${SL.ATTR_KO[x.up.k]} +${x.up.d}`:''}${x.ev?' · '+x.ev.line:SL.isPitcher(x.p)?'':c.ab?` · 타율 ${(c.h/c.ab).toFixed(3).replace(/^0/,'')}`:''}`,hot:!!x.up});}}
   // v85: 타일은 6개까지(2×3 / 3×2로 딱 맞게) — 넘치면 이야기 → 성장 점검 순으로 뺌 (각자 탭에서 볼 수 있음)
   // v103: 키 작은 폰(높이 700 미만)은 한 줄(3개)만 — 오늘의 결정 줄이 붙은 날에도 감독실이 한 화면에

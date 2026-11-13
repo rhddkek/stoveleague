@@ -28,7 +28,7 @@ function dayDate(d){const G=SL.BAL.SEASON_GAMES||144;const off=Math.round((d-1)*
 // 상단 바: 로고 | 팀명 / 소제목 | 날짜 또는 예산
 function renderClubBar(){const ut=SL.userTeam();const d=mkDate();const sub={home:S.phase==='season'?'감독실 홈':'감독실 · 스토브리그',roster:'선수단 명단',dev:'육성',market:S.phase==='season'?'이적 시장':'스토브리그',league:'리그',club:'구단'}[ui.tab]||'';
   const I=ut.league==='KR'?SL.budgetInfo():null;const right=ui.tab==='market'||ui.tab==='club'||ui.tab==='roster'?(ui.tab==='roster'?`<div class="mkr"><span><small>연봉 총액 / 예산</small>${I?`${Ms(I.pay)} <small>/ ${Ms(I.wage)}</small>`:Ms(SL.payroll(ut))}</span></div>`:`<div class="mkr">${I?`<span><small>영입 예산</small>${Ms(I.xferLeft)}</span><span><small>연봉 한도</small>${Ms(I.wageLeft)}</span>`:`<span><small>보유 현금</small>${Ms(ut.cash)}</span>`}</div>`):(ui.tab==='home'&&S.phase!=='season'&&!ui.view?`<div class="wkbar wkpill"><b>겨울 ${Math.min(S.week,SL.BAL.OFFSEASON_WEEKS)}주차</b></div>`:`<div class="mkr date"><b>${mkDateTxt()}</b><small>${esc(d.sub)}</small></div>`);
-  return `<div class="club gut mk"><div class="r1">${emblem(ut,38)}<div class="grow" style="min-width:0"><div class="nm">${esc(ut.name)}</div><div class="cl2">${S.phase==='season'?`${ut.rec.w}승 ${ut.rec.l}패 · ${SL.rankOf(ut)}위`:'스토브리그'}</div></div>${right}${isWide()?`<button class="srchb" aria-label="선수 찾기" title="선수 찾기 ( / )" onclick="UI.search()">🔍</button>`:`<button class="menub" aria-label="전체 메뉴" onclick="UI.menu()">☰<small>메뉴</small></button>`}${nextBtn()}</div></div>`;}
+  return `<div class="club gut mk"><div class="r1">${emblem(ut,38)}<div class="grow" style="min-width:0"><div class="nm">${esc(ut.name)}</div><div class="cl2">${S.phase==='season'?(ut.rec.w+ut.rec.l?`${ut.rec.w}승 ${ut.rec.l}패 · ${SL.rankOf(ut)}위`:'개막 전'):'스토브리그'}</div></div>${right}${isWide()?`<button class="srchb" aria-label="선수 찾기" title="선수 찾기 ( / )" onclick="UI.search()">🔍</button>`:`<button class="menub" aria-label="전체 메뉴" onclick="UI.menu()">☰<small>메뉴</small></button>`}${nextBtn()}</div></div>`;}
 function nextBtn(){if(ui.tab==='home'||ui.view)return '';if(S.phase==='season'){const g=SL.userGameToday();return `<button class="nextb" onclick="UI.setTab('home');UI.startGame()">${g?'▶ 경기':'▶ 다음'}</button>`;}if(S.week<=SL.BAL.OFFSEASON_WEEKS)return `<button class="nextb" onclick="UI.advanceWeek()">▶ 진행</button>`;return `<button class="nextb" onclick="UI.setTab('home');UI.startSeason()">개막 ▶</button>`;}
 // ---------- 감독실 (겨울): 시즌 결과 → 오프시즌 일정 → 우편함 → 전력 진단 → 팀 지표 → 일정 진행 ----------
 function mailItems(n){const ut=SL.userTeam();const out=[];for(const r of (S.myRes||[]).filter(x=>x.s===S.season).slice(0,3)){const p=S.players[r.pid];out.push({ic:p?face(p,40):'<span class="mic">✍</span>',t:`${r.ok===true?'✅':r.ok===false?'❌':'⏳'} ${r.title}`,s:r.detail,on:`UI.resOpen(${r.pid})`,hot:!r.seen,when:r.w?`${r.w}주차`:'방금'});}const dec=decisionItems();for(const x of dec)out.push({ic:x.face?face(x.face,40):x.em?emblem(x.em,40):'<span class="mic">📋</span>',t:x.title,s:x.tag,on:x.on,hot:true,when:'지금'});
@@ -1039,7 +1039,7 @@ function cmControls(lg,my,B,P){const off=lg.half===my;const cur=SL.tacNow(lg);co
   const bench=SL.bench(lg,my).length,bp=SL.availableBullpen(lg,my).length;
   let h=`<div class="cmctl gut">`;
   if(T)h+=`<div class="tacinfo small"><span class="tst on">작전</span> <b>${esc(T.ko)}</b> — 이번 타석 · +${esc(T.g2||T.gain)} / −${esc(T.c2||T.cost)}</div>`;
-  h+=`<div class="cmgo"><button class="gold big" onclick="UI.step('${md}')">${md==='to'?`${toI}회까지 자동 ▶▶`:esc(M[2])+' ▶'}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식">${esc(M[1])}<small>진행</small></button></div>`;
+  h+=`<div class="cmgo"><button class="gold big" onclick="UI.step('${md}')">${md==='to'?`${toI}회까지 자동 ▶▶`:esc(M[2])+' ▶'}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식 바꾸기"><small>진행 방식</small>${esc(M[1])} ▾</button></div>`;
   if(md==='to')h+=`<div class="toinn small">구간 진행: ${toI}회 시작까지 자동 → 그다음부터 <b>직접(장면마다)</b> <button class="lnk" onclick="UI.cmSheet('mode')">바꾸기</button></div>`;
   h+=`<div class="cmbar"><button onclick="UI.cmSheet('tac')">${off?'작전지시':'수비 작전'}</button><button onclick="UI.sheet2('detail')">대결정보</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}>선수교체</button><button onclick="UI.cmSheet('lineup')">라인업</button></div>`;
   return h+`</div>`;}
@@ -1372,7 +1372,8 @@ if(typeof window!=='undefined'&&!window.__slBack){window.__slBack=1;document.add
   openPlayer(pid,tab){if(!ui.view&&!isWide())ui.retScroll={k:navKey(),y:window.scrollY||0};op.call(A,pid,tab);},
   back(){bk.call(A);if(!ui.view&&ui.retScroll&&ui.retScroll.k===navKey()&&!isWide()){const y=ui.retScroll.y;ui.retScroll=null;try{window.scrollTo(0,y);}catch(e){}}},
   // 3) 아래 탭: 지금 탭을 다시 누르면 맨 위로 (이미 맨 위면 그 탭 첫 화면)
-  navTap(t){if(ui.tab===t&&!ui.view){if((window.scrollY||0)>40){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}return;}if(t!=='home'){const H=HUB[t]&&HUB[t]();if(H&&H.core[0]){A.go(t,t==='market'?'deals':H.core[0][1][0]);return;}   /* 이적 첫 화면은 여전히 협상 · 전체(답변 필요 먼저) */}}A.setTab(t);},
+  navTap(t){if(t==='market'&&ui.tab!==t&&mflow()&&!mktNeedsReply()&&(ui.sub.market||'deals')==='deals'){const H=HUB.market&&HUB.market();if(H&&H.core[0]){ui.view=null;ui.stack=[];A.go('market',H.core[0][1][0]);return;}}   /* v139 (R110): 답할 게 없으면 빈 협상 대신 영입부터 */
+    if(ui.tab===t&&!ui.view){if((window.scrollY||0)>40){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}return;}if(t!=='home'){const H=HUB[t]&&HUB[t]();if(H&&H.core[0]){A.go(t,t==='market'?(mflow()&&!mktNeedsReply()?H.core[0][1][0]:'deals'):H.core[0][1][0]);return;}   /* 이적 첫 화면은 여전히 협상 · 전체(답변 필요 먼저) */}}A.setTab(t);},
   secStep(d){const pg=document.querySelector('.content>.pgtabs');if(pg){const bs=[...pg.querySelectorAll('button')];const i=bs.findIndex(b=>b.classList.contains('on'));const j=i+d;if(j>=0&&j<bs.length){bs[j].click();return true;}}
     const seq=screenSeq().filter(x=>x[0]===ui.tab);const i=seq.findIndex(x=>x[1]===(ui.sub[ui.tab]||''));const j=i+d;if(i<0||j<0||j>=seq.length)return false;A.go(seq[j][0],seq[j][1]);return true;},
   toTop(){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}},
@@ -1851,7 +1852,7 @@ A.calYM=function(v){ui.calYM=v;ui.keepScroll=true;render();};
 function recapModal(R){if(!R)return;const ut=SL.userTeam();R.seen=true;const L=S.lastSummary&&S.lastSummary.s===R.s?S.lastSummary:null;const C=SL.seasonRecap();const tab=ui.rcTab||'sum';const art=typeof ASSETS!=='undefined'&&ASSETS.stadiumHome;
   const psT=R.ps==='champ'?'우승':R.ps==='ks'?'준우승':R.ps?'탈락':'실패';const psL=R.ps==='champ'||R.ps==='ks'?'KS':R.ps?({wc:'WC',semi:'준PO',po:'PO'}[R.ps]||'PS'):'가을야구';const aw=S.awards&&S.awards[R.s];
   let b='';
-  if(tab==='sum'){const HF=SL.halfOf(ut);if(HF)b+=halfRow(HF,true);b+=`<div class="rc1">${emblem(ut,46)}<b class="n">${esc(ut.name)}</b><div><small>정규</small><b class="y">${R.rank}위</b></div><div><small>${psL}</small><b class="${R.ps==='champ'?'y':R.ps==='ks'?'':'dn'}">${psT}</b></div><b class="wl">${R.w}승 ${R.l}패</b></div>`;
+  if(tab==='sum'){const HF=SL.halfOf(ut);if(HF)b+=halfRow(HF,true);b+=`<div class="rc1">${emblem(ut,46)}<b class="n">${esc(isWide()?ut.name:shortNm(ut.name))}</b><div><small>정규</small><b class="y">${R.rank}위</b></div><div><small>${psL}</small><b class="${R.ps==='champ'?'y':R.ps==='ks'?'':'dn'}">${psT}</b></div><b class="wl">${R.w}승 ${R.l}패</b></div>`;
     b+=`<div class="rc3">${C&&C.grow?`<div onclick="UI.closeModal();UI.openPlayer(${C.grow.p.id})"><small>성장</small><span>${face(C.grow.p,44)}<b>${esc(C.grow.p.name)}</b><i class="${C.grow.d>0?'up':'dn'}">${C.grow.d>0?'+':''}${C.grow.d}</i></span></div>`:'<div><small>성장</small><span class="muted">-</span></div>'}<div><small>평판</small><b>${R.repFrom} → <em class="${R.repTo>=R.repFrom?'up':'dn'}">${R.repTo}</em></b></div>${L&&L.pres?`<div><small>위상</small><b>${Math.round(L.pres.from)} → <em class="${L.pres.to>=L.pres.from?'up':'dn'}">${Math.round(L.pres.to)}</em></b></div>`:''}</div>`;
     if(C&&C.need.length)b+=`<div class="rcneed"><b>다음 시즌 보강 필요</b>${C.need.slice(0,2).map(x=>`<button onclick="UI.closeModal();UI.go('market','fa')">${esc(x.ko)}</button>`).join('')}</div>`;
     if(art)b+=`<div class="rcart" style="background-image:url(${art})"></div>`;
@@ -2282,7 +2283,8 @@ function taskDoneHtml(){const lat=chainLater();const H=nextHooks();const off=S.p
   return `<div class="tsk done"><div class="tsok">✓</div><b class="tsd">할 일 끝</b><span class="tss">${off?'이번 주에 꼭 할 일은 다 했습니다':'지금 처리할 일이 없습니다'}</span>${H.length?`<div class="hooks">${H.map(hookRow).join('')}</div>`:''}${lat.length?`<button class="tsauto" onclick="UI.closeModal();UI.chainEnd();UI.todoGrp('later')">선택 업무 ${lat.length}건 — 하고 싶을 때만 <em>›</em></button>`:''}<div class="shbar n${S.phase==='season'&&SL.userGameToday()&&!S.liveGame?2:1}">${S.phase==='season'&&SL.userGameToday()&&!S.liveGame?`<button class="ghost" onclick="UI.closeModal();UI.chainEnd();UI.autoRun(7)">7경기 자동</button>`:''}${go}</div></div>`;}
 function chainPill(){if(!S||S.liveGame)return;const app=document.querySelector('#app');if(!app)return;const old=document.querySelector('.chainpill');if(old)old.remove();
   if(!ui.chain||!mflow()||document.querySelector('#modal')||document.querySelector('.mustbar'))return;
-  const n=chainItems().length;const el=document.createElement('button');el.className='chainpill';el.innerHTML=n?`할 일 <b>${n}</b>건 남음 · 다음 ▶`:'✓ 할 일 끝 · 감독실로';el.onclick=()=>A.taskNext(true);document.body.appendChild(el);}
+  const n=chainItems().length;const el=document.createElement('button');el.className='chainpill';el.innerHTML=n?`할 일 <b>${n}</b>건 남음 · 다음 ▶`:'✓ 할 일 끝 · 감독실로';el.onclick=()=>A.taskNext(true);document.body.appendChild(el);
+  {let top=innerHeight;for(const b of document.querySelectorAll('#app .gobar,#app .selwrap,#app .mvgo,#app .drsel,#app .lugo,#app .fgbar1,.nav')){const r=b.getBoundingClientRect();if(r.height&&r.top>innerHeight*0.55&&r.top<top)top=r.top;}el.style.bottom=Math.max(12,innerHeight-top+10)+'px';}}   /* v139 (R110): 아래 단추 줄 위에 — 단추를 가리지 않게 */
 // 3) 다음 목표 — 결과 창 · 할 일 끝 창에 「한 경기만 더」 이유 (실제 기록에서)
 function nextHooks(){const ut=SL.userTeam();const H=[];if(!ut||S.phase!=='season'||S.post)return H;
   {const c=slumpRec();if(c)H.push({ic:'⚠',t:`${c.n}연패 — ${c.t}`,s:c.s,b:c.b,on:`UI.closeModal();UI.slumpGo('${c.k}')`});else{const st=SL.teamStreak(ut);if(st.win&&st.n>=2)H.push({ic:'🔥',t:`${st.n}연승 중 — ${st.n+1}연승 도전`,s:'다음 경기를 이기면 이어집니다'});}}
@@ -2300,13 +2302,30 @@ function hookRow(x){return `<div class="hk">${x.face?face(x.face,30):`<span clas
 function resultSheetHtml(){const base=sheetHtml('result');if(!base)return '';const st=ui.autoStop;const H=nextHooks();const today=S.phase==='season'&&!S.liveGame&&SL.userGameToday();const post=!!S.post||!!(typeof abroadLg==='function'&&abroadLg()&&S.lpost);
   let h=`<div class="rsheet">${base}`;if(H.length)h+=`<div class="hooks"><div class="hkh">다음 목표</div>${H.map(hookRow).join('')}</div>`;
   let bar;if(st&&S.phase==='season'&&!stopDone(st)&&st.k!=='chk'){h+=`<div class="rstop"><b>자동 진행 멈춤</b> · ${esc(st.text)}</div>`;bar=`<button class="ghost" onclick="UI.closeModal();UI.autoGo()">${esc(st.go||'계속')}</button><button class="primary" onclick="UI.closeModal();${st.on}">${esc(st.rv||'제안 검토')} ▶</button>`;}
-  else if(S.phase==='season'&&!post&&today)bar=`<button class="ghost" onclick="UI.closeModal();UI.autoRun(7)">7경기 자동</button><button class="primary" onclick="UI.closeModal();UI.startGame()">다음 경기 ▶</button>`;
-  else bar=`<button class="primary" onclick="UI.closeModal()">감독실</button>`;
+  else bar=nextBar();
   return h+`<div class="shbar n${(bar.match(/<button/g)||[]).length}">${bar}</div></div>`;}
+// v139 (R110): 다음 걸음 단추 — 고른 진행 방식을 이어 감(직접 보기 → 다음 경기 · 7경기 자동 → 7경기 더 · 시즌 끝까지 → 계속) · 가을야구는 시리즈 다음 경기
+function nextBar(){const B=(c,t,on)=>`<button class="${c}" onclick="UI.closeModal();${on}">${t}</button>`;if(S.phase!=='season'||S.liveGame)return B('primary','감독실','');
+  const post=!!S.post||!!(typeof abroadLg==='function'&&abroadLg()&&S.lpost);const today=SL.userGameToday();const lr=ui.lastRun||0;
+  if(today&&post)return B('ghost','이 경기 자동','UI.autoRun(1)')+B('primary',`${esc(postStageName())} 다음 경기 ▶`,'UI.startGame()');
+  if(post)return B('ghost','감독실','')+B('primary','가을야구 계속 ▶','UI.autoRun(60)');
+  if(!today)return B('ghost','감독실','')+B('primary','다음 날 ▶','UI.autoDays(1)');
+  if(lr>=999)return B('ghost','다음 경기 보기','UI.startGame()')+B('primary','시즌 끝까지 계속 ▶','UI.autoRun(999)');
+  if(lr>=7)return B('ghost','다음 경기 보기','UI.startGame()')+B('primary','7경기 더 ▶','UI.autoRun(7)');
+  return B('ghost','7경기 자동','UI.autoRun(7)')+B('primary','다음 경기 ▶','UI.startGame()');}
+// 직접 본 경기가 끝나면 결과는 이미 봤으니 다시 띄우지 않고 「다음 경기」 창만 — 상대 · 선발 · 다음 목표 · 단추
+function nextSheetHtml(){const ut=SL.userTeam();const g=S.phase==='season'&&SL.userGameToday();const H=nextHooks();let h='<div class="nxs">';
+  if(g){const home=g.home===ut.id;const op=S.teams[home?g.away:g.home];const sp=S.players[ut.rotation[ut.rotIdx%Math.max(1,ut.rotation.length)]];const pi=g.post&&SL.postInfo?SL.postInfo(g):null;
+    h+=`<div class="nxh"><small>${pi?esc(pi.title):'다음 경기'}</small><div class="nxm">${emblem(ut,40)}<b>vs</b>${emblem(op,40)}</div><b class="nxo">${esc(op.name)}</b><span>${home?'홈':'원정'} · 상대 ${op.rec.w}승 ${op.rec.l}패${sp?` · 선발 ${esc(sp.name)}`:''}</span></div>`;}
+  else h+=`<div class="nxh"><small>다음 경기</small><b class="nxo">오늘은 우리 경기가 없습니다</b></div>`;
+  if(H.length)h+=`<div class="hooks"><div class="hkh">다음 목표</div>${H.map(hookRow).join('')}</div>`;
+  const bar=nextBar();return h+`<div class="shbar n${(bar.match(/<button/g)||[]).length}">${bar}</div></div>`;}
 {const op=A.openPlayer;A.openPlayerFull=function(pid,tab){closeModal();return op.call(A,pid,tab);};
   A.openPlayer=function(pid,tab){if(mflow()&&!tab&&!(ui.view&&ui.view.type==='player')&&S.players[pid]){const ids=listIdsOnScreen();ui.pcList=ids.includes(pid)?ids:[pid];A.pcard(pid);return;}return op.call(A,pid,tab);};}
 {const sh=A.sheet;A.sheet=function(k){if(k==='dec'&&mflow()){A.taskNext();return;}if(k==='result'&&mflow()){const h=resultSheetHtml();if(h){modal(h);return;}}return sh.apply(A,arguments);};}
-{const f0=afterDay;afterDay=function(){f0.apply(this,arguments);try{if(mflow()&&S.phase==='season'&&!S.liveGame&&(ui.weekReport||ui.gameResult)&&!ui.noRes)setTimeout(()=>{if(!document.querySelector('#modal')&&!S.liveGame&&!halfDue()){const h=resultSheetHtml();if(h)modal(h);}},260);}catch(e){}};}
+{const f0=afterDay;afterDay=function(){f0.apply(this,arguments);const live=ui.fromLive;ui.fromLive=0;try{if(mflow()&&S.phase==='season'&&!S.liveGame&&(ui.weekReport||ui.gameResult)&&!ui.noRes)setTimeout(()=>{if(!document.querySelector('#modal')&&!S.liveGame&&!halfDue()){const h=live?nextSheetHtml():resultSheetHtml();if(h)modal(h);}},260);}catch(e){}};}
+{const eg=A.endGame;A.endGame=function(){ui.fromLive=1;ui.lastRun=0;return eg.apply(A,arguments);};const ar=A.autoRun;A.autoRun=function(n){ui.lastRun=n>=60&&S.post?0:n;return ar.apply(A,arguments);};const sg=A.startGame;A.startGame=function(){ui.lastRun=0;return sg.apply(A,arguments);};}
+{const hs=A.halfStart;A.halfStart=function(){const lr=ui.lastRun||0;hs.apply(A,arguments);if(mflow()&&lr>=7&&S.phase==='season'&&!S.liveGame){toast(lr>=999?'후반기 — 시즌 끝까지 계속':'후반기 — 7경기 자동 계속',1800);setTimeout(()=>A.autoRun(lr>=999?999:7),60);}};}   /* 올스타 브레이크 뒤에도 고른 진행 방식 그대로 */
 {const r0=render;render=function(){r0.apply(this,arguments);try{chainPill();}catch(e){}};}
 Object.assign(A,{pcard(pid){if(!S.players[pid])return;ui.pcCur=pid;modal(pcardHtml(pid));},
   pcStep(d){const L=(ui.pcList||[]).filter(id=>S.players[id]);const i=L.indexOf(ui.pcCur);const j=i+d;if(i<0||j<0||j>=L.length)return;A.pcard(L[j]);},
@@ -2320,3 +2339,4 @@ Object.assign(A,{pcard(pid){if(!S.players[pid])return;ui.pcCur=pid;modal(pcardHt
 {const so=A.stageOk;A.stageOk=function(){so.apply(A,arguments);try{if(mflow()&&S.phase==='offseason'&&chainItems().length)setTimeout(()=>{if(!document.querySelector('#modal'))A.taskNext();},120);}catch(e){}};}   /* 다음 주 안내를 닫으면 이번 주 할 일이 바로 하나씩 */
 {const sr=A.selRow;A.selRow=function(pid){if(mflow()&&ui.tab==='roster'&&(ui.sub.roster||'list')==='list'&&!ui.view&&S.players[pid]){A.sqTap(pid);return;}return sr.apply(A,arguments);};}   /* v138: 휴대폰 명단 줄 → 선수 카드 창 */
 A.recAll=function(){modal(recCard(true));};
+function mktNeedsReply(){const ut=SL.userTeam();return !!((S.market.offers||[]).length||(S.market.negs||[]).length||(S.endorseOffers||[]).length||(typeof dealList==='function'&&dealList().some(x=>x.need)));}   /* v139 (R110): 이적 첫 화면 — 답할 게 있을 때만 협상, 없으면 영입 */
