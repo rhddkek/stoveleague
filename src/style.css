@@ -1511,3 +1511,7 @@ body:has(#modal) .toast{top:calc(10px + env(safe-area-inset-top,0px))!important;
 
 /* v146 (R117): 중계 픽셀 선수 */
 .fsv .sprh{visibility:hidden}.fsv .sprim{image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none}
+.cmsb .tm i.em,.cmls td.tn i.em{display:inline-flex;align-items:center;justify-content:center;overflow:hidden;vertical-align:middle}.cmsb .tm i.em:has(img){width:24px;height:24px;border-radius:50%;background:transparent!important}.cmls td.tn i.em:has(img){width:18px;height:18px;border-radius:50%;background:transparent!important}.cmsb .tm i.em img,.cmls td.tn i.em img{display:block;image-rendering:auto}
+
+/* v147 (R118): 리그 마크는 부드럽게 줄임 (코드로 그린 96px 방패) */
+img.px.lgb{image-rendering:auto}.lgseg .lgb{vertical-align:-5px;margin-right:4px}

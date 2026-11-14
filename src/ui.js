@@ -563,7 +563,7 @@ function renderTitle(){
     const fmt=LG_FMT[lg];
     const subName=lg==='KR'?'':L.subs?L.subs[S0.sub]:'';
     h+=`<div class="panel"><div class="b" style="margin-bottom:6px">리그와 구단을 고르세요</div>
-    <div class="seg lgseg">${LGS.map(x=>`<button class="${lg===x[0]?'on':''}" onclick="UI.pickLg('${x[0]}')">${x[1]}</button>`).join('')}</div>
+    <div class="seg lgseg">${LGS.map(x=>`<button class="${lg===x[0]?'on':''}" onclick="UI.pickLg('${x[0]}')">${lgBadge(x[0],20)}${x[1]}</button>`).join('')}</div>
     ${lg==='US'?`<div class="chiprow divrow">${L.subs.map((s,k)=>`<button class="${usDiv===k?'on':''}" onclick="UI.set('newDiv',${k})">${esc(s)}</button>`).join('')}</div>`:''}
     ${lg==='JP'?`<div class="jpleg">${[0,1].map(k=>`<div class="small dim">${esc(L.subs[k])}</div><div class="tsel5 t6">${all.filter(x=>x.sub===k).map(x=>teamBtn(x,sel)).join('')}</div>`).join('')}</div>`:`<div class="tsel5 ${lg==='TW'?'t6':''}">${shown.map(x=>teamBtn(x,sel)).join('')}</div>`}
     ${(()=>{const seed=ui.seed||(ui.seed=Math.floor(Math.random()*90000)+1000);const pv=teamPreview(seed,sel,lg);return `<div class="tdetail"><div class="row" style="gap:10px">${emblem({name:S0.n,color:S0.c},44)}<div class="grow" style="min-width:0"><div class="b" style="font-size:18px">${esc(S0.n)}</div><div class="small dim">${pv?`${esc(pv.park)} · ${esc(pv.tag)}`:''}${lg!=='KR'&&subName?` · ${esc(subName)}`:''}</div></div></div>${pvHtml(pv)}</div>`;})()}
