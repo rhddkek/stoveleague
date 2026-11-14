@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
   await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(3);UI.newGame();SL.state().tutorialDone=true;UI.closeModal();});
   // 1. 기본 테마 어두움 (새 브라우저) · 설정에 「밝은 색 / 어두운 색」 그대로
   {const r=await p.evaluate(()=>{const t=document.documentElement.dataset.theme;const bg=getComputedStyle(document.querySelector('#app')).backgroundColor;UI.go('club','data');const all=document.body.innerText+[...document.querySelectorAll('.pghide')].map(e=>e.textContent).join('');const has=/밝은 색/.test(all)&&/어두운 색/.test(all);UI.setTab('home');return {t,bg,has};});
-    r.t==='light'&&r.has?ok(`기본 테마 밝음(v141, R112) (#app 바탕 ${r.bg}) · 설정에서 어두운 색으로 바꿀 수 있음`):bad('테마 '+JSON.stringify(r));}
+    r.t==='dark'&&r.has?ok(`기본 테마 어두움(v149, R120) (#app 바탕 ${r.bg}) · 설정에서 밝은 색으로 바꿀 수 있음`):bad('테마 '+JSON.stringify(r));}
   // 2. 마우스 끌기: 1번 타자 손잡이를 4번 줄에 놓으면 순서 교환
   {await p.evaluate(()=>{UI.set('luView','list');UI.go('roster','lineup');UI.pgGo('roster:lineup',1);});await p.waitForTimeout(150);
     const r=await p.evaluate(()=>{const rows=[...document.querySelectorAll('tr.lurow')];const h=rows[0].querySelector('.luh').getBoundingClientRect();const t=rows[3].getBoundingClientRect();return {hx:h.x+h.width/2,hy:h.y+h.height/2,tx:t.x+t.width/2,ty:t.y+t.height/2,l0:SL.userTeam().lineup.slice(),pos0:Object.assign({},SL.userTeam().pos)};});

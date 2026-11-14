@@ -4,7 +4,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(500);
   // 0. 처음 여는 사람은 밝은 색
-  {const t=await p.evaluate(()=>document.documentElement.dataset.theme);t==='light'?ok('처음 열면 밝은 색'):bad('기본 색 '+t);}
+  {const t=await p.evaluate(()=>document.documentElement.dataset.theme);t==='dark'?ok('처음 열면 어두운 색 (v149, R120부터)'):bad('기본 색 '+t);}
   await p.getByText('블레이즈').first().click();await p.waitForTimeout(200);await p.getByText('감독으로 시작').first().click();await p.waitForTimeout(600);
   await p.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();const S=SL.state();S.settings.stopOnOffer=false;S.settings.stopOnCheck=false;});await p.waitForTimeout(300);
   // 1. 스킬 목록 · 선수마다 3칸 이내 · 투구폼 네 가지 · 옛 특성은 그대로 스킬로

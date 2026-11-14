@@ -61,8 +61,8 @@ function prefSave(){try{localStorage.setItem('stoveleague_prefs',JSON.stringify(
 function prefApply(){try{const r=document.documentElement;r.classList.toggle('fz-s',PREF.font==='s');r.classList.toggle('fz-l',PREF.font==='l');r.classList.toggle('fz-xl',PREF.font==='xl');r.classList.toggle('calm',!PREF.motion);r.classList.toggle('dense',!!PREF.dense);}catch(e){}}
 // 화면 색: 기본은 어두운 남색 + 주황 강조(EA 2011 느낌), 설정에서 밝은 색으로
 // v91 (R075): 기본은 어두운 테마 (광우: 밝으니 눈 아픔). 한 번만 어두움으로 맞추고, 그 뒤 설정에서 고른 값은 그대로
-function themeNow(){try{if(!localStorage.getItem('sl_theme_v141')){localStorage.setItem('sl_theme_v141','1');localStorage.setItem('sl_theme_v91','1');localStorage.setItem('sl_theme','light');}   /* v141 (R112): 밝은 색이 기본 — 한 번만 바꿔 놓고, 그 뒤 설정에서 고른 색은 그대로 */
-  return localStorage.getItem('sl_theme')||'light';}catch(e){return 'light';}}
+function themeNow(){try{if(!localStorage.getItem('sl_theme_v149')){localStorage.setItem('sl_theme_v149','1');localStorage.setItem('sl_theme_v141','1');localStorage.setItem('sl_theme_v91','1');localStorage.setItem('sl_theme','ea');}   /* v149 (R120, 광우: 「허옇다」): 어두운 색이 기본 — 한 번만 바꿔 놓고, 그 뒤 설정에서 고른 색은 그대로 */
+  return localStorage.getItem('sl_theme')||'ea';}catch(e){return 'ea';}}
 // v63: 기본은 밝은 종이색(GPT 개편안: 크림 바탕 · 짙은 슬레이트 바 · 주황 강조 하나). 「어두운 색」은 예전 EA 2011 느낌
 function applyTheme(){const t=themeNow();const r=document.documentElement;r.classList.add('ea');r.dataset.theme=t==='ea'||t==='dark'?'dark':'light';}
 const LOOK_COLORS=['#c8102e','#e4572e','#f28c28','#f2c14e','#2a9d8f','#1b998b','#2e7d32','#1d3557','#0057b8','#4361ee','#6a4c93','#9b2c6b','#333a48','#7f5539'];

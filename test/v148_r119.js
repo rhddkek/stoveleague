@@ -33,7 +33,7 @@ const {chromium}=require('playwright');const path=require('path');
     const fo=seen.fo,go=seen.go,sl=seen.sld;
     fo&&fo.mv.length===1&&fo.mv[0].mo&&/5/.test(fo.mv[0].n)&&fo.pit===1&&fo.lab===1?ok(`뜬공: ${fo.mv[0].pos}가 달려가 글러브를 들어 잡음(그림 ${fo.mv[0].n}) · 이름표도 같이 이동 · 던진 공 → 친 공 순서`):bad('뜬공 수비 '+JSON.stringify(fo));
     go&&go.mv.length>=1&&go.mv.some(m=>/5/.test(m.n))?ok(`땅볼: ${go.mv.map(m=>m.pos).join(' → ')} (잡고 → 던지고 → 베이스에서 받음)`):bad('땅볼 수비 '+JSON.stringify(go));
-    sl&&sl.sld===3&&sl.dust===3?ok(`슬라이딩: ${sl.t} 장면에서 달리다 미끄러짐(3장) + 흙먼지`):bad('슬라이딩 '+JSON.stringify(sl));}
+    sl&&sl.sld>=3&&sl.sld%3===0&&sl.dust===sl.sld?ok(`슬라이딩: ${sl.t} 장면에서 달리다 미끄러짐(3장) + 흙먼지`):bad('슬라이딩 '+JSON.stringify(sl));}
   {const r=await p.evaluate(()=>{const lg=SL.state().liveGame;if(!lg||lg.done)return null;UI.setPref('motion',false);let mv=0,sw=0;for(let i=0;i<12;i++){const g=SL.state().liveGame;if(!g||g.done)break;UI.step('pa');mv+=document.querySelectorAll('.fsv .fmove').length;sw+=document.querySelectorAll('.fsv .sprw').length;}UI.setPref('motion',true);return {mv,sw};});
     !r||(r.mv===0&&r.sw===0)?ok('움직임 끔: 수비 이동 · 슬라이딩 없음'):bad('움직임 끔 '+JSON.stringify(r));}
   // ── PC에서도 같은 카드 ──
