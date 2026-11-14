@@ -1515,3 +1515,8 @@ body:has(#modal) .toast{top:calc(10px + env(safe-area-inset-top,0px))!important;
 
 /* v147 (R118): 리그 마크는 부드럽게 줄임 (코드로 그린 96px 방패) */
 img.px.lgb{image-rendering:auto}.lgseg .lgb{vertical-align:-5px;margin-right:4px}
+/* v152 (R123): 경기 중 — 체력 경고 줄 · 교체 비교 줄 · 못 쓰는 작전 접기 */
+.cmwarn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0 0 6px;padding:8px 12px;border-radius:10px;border:1px solid #f08a24;background:rgba(240,138,36,.12);color:#ffd9b0;font-size:14px}.cmwarn b{font-weight:600}.cmwarn span{font-size:13px;white-space:nowrap}
+.subr.on{box-shadow:inset 0 0 0 1px #f2c14e;border-radius:10px}.subhint{margin:8px 0 2px;text-align:center}
+.subcmp{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:var(--sunk)}.subcmp .t{font-size:15px;margin-bottom:4px}.subcmp .t b{font-weight:600}.subcmp .d{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px}.subcmp .d b.ok{color:#4cd6a4}.subcmp .d b.bad{color:#e5534b}
+.tacno{margin-top:8px}.tacno>summary{font-size:13px;color:var(--muted);padding:6px 2px;cursor:pointer}

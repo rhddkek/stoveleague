@@ -399,7 +399,7 @@ body:not(.ingame) .luf .dslot{width:38px;padding:0;border:0;background:none;box-
 .lucmp>:is(img,svg,canvas,div):not(.df){flex:none}
 body:not(.ingame) .gobar.lugo{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0 6px;bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 body:not(.ingame) .gobar.lugo button{min-height:50px;border-radius:10px;font-size:18px;font-weight:600;margin:0}
-@media (min-width:700px){body:not(.ingame) .gobar.lugo{bottom:0}}
+@media (min-width:960px){body:not(.ingame) .gobar.lugo{bottom:0}}   /* v152 (R123): 700~959px(가로로 눕힌 휴대폰)은 하단 메뉴가 그대로라 그 위에 둠 — 「라인업 저장」이 메뉴에 가려 눌리지 않았음 */
 :root.ea[data-theme="light"] .lucand .lcg em,:root.ea[data-theme="light"] .lucmp em.up,:root.ea[data-theme="light"] .lucmp .df.up{color:#0e7a55}:root.ea[data-theme="light"] .lucmp em.gd,:root.ea[data-theme="light"] .lucmp i{color:#8a6100}:root.ea[data-theme="light"] .lucmp .warn{color:#9a4d00}:root.ea[data-theme="light"] .lucmp em.dn,:root.ea[data-theme="light"] .lucmp .df.dn{color:#c0392b}
 /* v120 (R102): 투수진 (시안) */
 .pgh.pit{min-height:64px;margin:0 -16px 0;padding:0 16px;background:var(--bg) right center/auto 100% no-repeat}
@@ -976,7 +976,7 @@ body:not(.ingame) .fvf .dfield.art-field::before,body:not(.ingame) .fvf .dfield.
 @media(min-width:900px){.modal .pck{min-width:420px}}
 
 /* v150 (R121): 진행이 걸리던 곳 — 알림은 탭을 가리지 않게 머리줄 왼쪽 · 알약은 오른쪽 작은 단추 · 다음 주 단추는 할 일이 남으면 테두리만 · 영입 조건 한 줄 */
-@media (max-width:699px){body:not(:has(.gamev)):not(:has(#modal)) .toast{top:calc(6px + env(safe-area-inset-top,0px))!important;left:10px!important;right:auto!important;transform:none!important;max-width:calc(100% - 150px)!important}}
+@media (max-width:959px){body:not(:has(.gamev)):not(:has(#modal)) .toast{bottom:auto!important;top:calc(6px + env(safe-area-inset-top,0px))!important;left:10px!important;right:auto!important;transform:none!important;max-width:calc(100% - 150px)!important}}
 .chainpill{left:auto;right:12px;transform:none;min-height:36px;padding:0 14px;font-size:13.5px}
 body:not(.ingame) .gobar.wgo .mkgo.sub{background:transparent;color:var(--text);border:1px solid var(--line)}
 .btns3.b2 button:first-child{flex:1}.btns3.b2 .more{flex:none;width:52px}
@@ -998,3 +998,6 @@ html.fz-s body:not(.ingame) .gl{font-size:11.5px!important}
 /* 줄마다 노란 단추 · 감독실의 노란 테두리 칸 여럿 → 강조는 화면에 한두 곳만: 줄 단추는 테두리만, 칸은 왼쪽 막대만 */
 :root.ea[data-theme="dark"] body:not(.ingame) .prow .act1{background:transparent!important;color:var(--text)!important;border:1px solid rgba(236,238,242,.22)!important}
 :root.ea[data-theme="dark"] body:not(.ingame) .tile.hot{border-color:var(--line)!important}
+/* v152 (R123): 타순 구장 보기 — 적성 밖 자리는 주황 테두리 + 느낌표로 바로 찾게 */
+.dfield .dslot.off{outline:2px solid #f08a24;outline-offset:1px}.dfield .dslot.off::after{content:"!";position:absolute;right:-5px;top:-7px;width:16px;height:16px;border-radius:50%;background:#f08a24;color:#15171c;font-size:12px;font-weight:600;line-height:16px;text-align:center}
+@media (min-width:700px) and (max-width:959px){body:not(.ingame) .gobar.lugo:not(.in){bottom:calc(62px + env(safe-area-inset-bottom,0px))}}

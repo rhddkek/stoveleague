@@ -263,6 +263,7 @@ function aiPitchCheck(lg,side,halfStart){
   const saveSpot=halfStart&&lg.inn>=9&&lead>0&&lead<=3&&closer!=null&&P.id!==closer;
   let need=false;
   if(pc>lim+12)need=true;else if(pc>lim&&(halfStart||lg.outs===0))need=true;
+  else if(P.pos==='SP'&&pc>lim&&lg.inn>=7&&Math.abs(lead)<=1)need=true;   /* v152 (R123): 7회 이후 1점 차 접전에서 한계 투구를 넘긴 선발은 이닝 도중이라도 바꿈 — 화면 체력 0%인데 계속 던지던 장면 */
   else if(P.pos==='SP'&&pb.pR>=6&&lg.inn>=4)need=true;else if(P.pos==='RP'&&pb.pR>=3&&lg.outs<3)need=true;
   if(saveSpot&&(pc>lim*0.75||P.pos==='RP')){changePitcher(lg,side,closer);return;}
   // 7·8회 3점 이내 리드: 필승조(마무리 아닌 가장 좋은 불펜)로 한 이닝씩 끊어 간다 — 홀드 상황
