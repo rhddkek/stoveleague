@@ -1508,3 +1508,6 @@ body:has(#modal) .toast{top:calc(10px + env(safe-area-inset-top,0px))!important;
 .fitl.fitx thead th{position:sticky;top:0;z-index:2}
 .mkfilt select.sm{-webkit-appearance:none;appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a93a6' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:10px 6px;min-width:0;font-size:13px}
 .mkfilt .dirb{min-width:34px;padding:0 8px}
+
+/* v146 (R117): 중계 픽셀 선수 */
+.fsv .sprh{visibility:hidden}.fsv .sprim{image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none}

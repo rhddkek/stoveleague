@@ -1007,7 +1007,9 @@ function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(
   let fLab='';const byPos={};dlu.forEach(id=>{const k=dpos[id];if(k&&k!=='DH')byPos[k]=id;});byPos.P=lg.pitcher[fs];
   Object.keys(FX_POS).forEach(k=>{const id=byPos[k];if(id==null&&k!=='P'&&k!=='C')return;const q=FX_POS[k];const pl=id!=null?S.players[id]:null;const nm=pl?shortNm(pl.name):'';const side=k==='1B'?'r':k==='3B'||k==='C'?'l':'b';
     const tx=side==='r'?q[0]+9:side==='l'?q[0]-9:q[0],ty=side==='b'?q[1]+16:q[1]-1,an=side==='r'?'start':side==='l'?'end':'middle';
-    sv+=`<g class="fdf"><circle cx="${q[0]}" cy="${q[1]}" r="5.5" style="fill:${ft.color}"/></g>`;fLab+=`<g class="fdl"><text class="fnm" x="${tx}" y="${ty}" style="text-anchor:${an}">${esc(nm||k)}</text><text class="fps" x="${tx}" y="${ty+9}" style="text-anchor:${an}">${esc(FX_KO[k])}</text></g>`;});
+    {const sp=sprOn();sv+=`<g class="fdf${sp?' sprh':''}"><circle cx="${q[0]}" cy="${q[1]}" r="5.5" style="fill:${ft.color}"/></g>`;
+      if(sp){if(k==='P'){const arm=pl?SL.armOf(pl):'O';sv+=sprTag(arm==='S'?'pit_s':arm==='U'?'pit_u':'pit_o',q[0],q[1],ft.color,{flip:pl&&pl.throws==='L',play:fresh&&!!F&&F.half===lg.half?{dur:.6,begin:0}:null});}else sv+=sprTag(k==='C'?'cat':'fld',q[0],q[1],ft.color,{});}}
+    fLab+=`<g class="fdl"><text class="fnm" x="${tx}" y="${ty}" style="text-anchor:${an}">${esc(nm||k)}</text><text class="fps" x="${tx}" y="${ty+9}" style="text-anchor:${an}">${esc(FX_KO[k])}</text></g>`;});
   // 타구 길 + 공
   if(BL){const d=BL.pts.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');const last=BL.pts[BL.pts.length-1];const hit=BL.pts[1];
     if(!BL.pitch)sv+=`<path class="ftrail${BL.fly?' fly':''}" d="M${BL.pts[0]} L${hit}" pathLength="1"${fresh?` style="stroke-dasharray:1;stroke-dashoffset:1"><animate attributeName="stroke-dashoffset" from="1" to="0" dur="${(bd*(BL.pts.length>2?.55:1)).toFixed(2)}s" fill="freeze"/></path>`:'/>'}`;
@@ -1021,12 +1023,16 @@ function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(
   const tags=[];const runSp=.32;let endT=BL&&!BL.pitch?bd:0;
   const moves=F&&F.t!=='p'?fxRun(F):lg.bases.map((x,i)=>x?{pid:x.pid,s:i,d:i}:null).filter(Boolean);
   moves.forEach(m=>{const pts=[];for(let k=m.s;k<=m.d;k++)pts.push(fxB(k));const end=pts[pts.length-1];const dur=Math.max(.01,(pts.length-1)*runSp);const beg=(BL&&!BL.pitch?(BL.catch?bd+.05:bd*.45):.1).toFixed(2);endT=Math.max(endT,+beg+dur);
-    if(m.d>=3||m.out){if(!fresh)return;sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/></circle>`;if(m.d>=3&&!m.out)sv+=`<text class="fsc" x="${FX_HM[0]+22}" y="${FX_HM[1]-14}" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(+beg+dur).toFixed(2)}s" dur=".2s" fill="freeze"/>+1</text>`;return;}
-    if(fresh&&pts.length>1)sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/></circle>`;
-    else sv+=`<circle class="frun" r="7" style="fill:${bt.color}" cx="${end[0]}" cy="${end[1]}"/>`;
+    const sp=sprOn();const mvP=`M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}`;const flipR=end[0]<pts[0][0]||(pts.length>1&&end[0]===pts[0][0]&&pts[1][0]<pts[0][0]);
+    if(sp&&fresh&&pts.length>1)sv+=sprTag('run',pts[0][0],pts[0][1],bt.color,{flip:flipR,loop:{dur:.36,end:+beg+dur},inner:`<animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="${mvP}"/>`+(m.d>=3||m.out?`<animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/>`:'')});
+    else if(sp&&!(m.d>=3||m.out))sv+=sprTag('run',end[0],end[1],bt.color,{flip:m.d===1||m.d===2});
+    if(m.d>=3||m.out){if(!fresh)return;sv+=`<circle class="frun${sp?' sprh':''}" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/></circle>`;if(m.d>=3&&!m.out)sv+=`<text class="fsc" x="${FX_HM[0]+22}" y="${FX_HM[1]-14}" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(+beg+dur).toFixed(2)}s" dur=".2s" fill="freeze"/>+1</text>`;return;}
+    if(fresh&&pts.length>1)sv+=`<circle class="frun${sp?' sprh':''}" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/></circle>`;
+    else sv+=`<circle class="frun${sp?' sprh':''}" r="7" style="fill:${bt.color}" cx="${end[0]}" cy="${end[1]}"/>`;
     tags.push({pid:m.pid,b:m.d,late:fresh&&pts.length>1?(+beg+dur):0});});
   // 타자 (다음 타자가 타석에 섬 — 왼손 타자는 1루 쪽)
-  if(!F||F.half===lg.half){const lh=B&&(B.bats==='L'||(B.bats==='S'&&P&&P.throws==='R'));const wait=fresh&&F&&F.t!=='p'&&endT>0;sv+=`<circle class="fbat" r="7" cx="${lh?196:164}" cy="288" style="fill:${(lg.half===1?S.teams[lg.home]:S.teams[lg.away]).color}"${wait?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(endT+.1).toFixed(2)}s" dur=".25s" fill="freeze"/></circle>`:'/>'}`;}
+  if(!F||F.half===lg.half){const lh=B&&(B.bats==='L'||(B.bats==='S'&&P&&P.throws==='R'));const wait=fresh&&F&&F.t!=='p'&&endT>0;const sp=sprOn();if(sp){const pzl=lg.pz&&lg.pz.l&&lg.pz.l.length?lg.pz.l[lg.pz.l.length-1]:null;const sw=fresh&&F&&(F.t==='p'?(pzl&&['w','f','x'].includes(pzl[0])):!['walk','bb','hbp','sb','cs'].includes(F.t));sv+=sprTag('bat',lh?197:163,286,(lg.half===1?S.teams[lg.home]:S.teams[lg.away]).color,{flip:lh,play:sw?{dur:.45,begin:.28}:null});}
+    sv+=`<circle class="fbat${sp?' sprh':''}" r="7" cx="${lh?196:164}" cy="288" style="fill:${(lg.half===1?S.teams[lg.home]:S.teams[lg.away]).color}"${wait?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(endT+.1).toFixed(2)}s" dur=".25s" fill="freeze"/></circle>`:'/>'}`;}
   sv+=fLab+`</svg>`;
   const pct=(p)=>`left:${(p[0]/FX_W*100).toFixed(1)}%;top:${(p[1]/FX_H*100).toFixed(1)}%`;
   let h=`<div class="cmf cmf2"><div class="fld">${sv}`;
@@ -2486,3 +2492,19 @@ const ARTX=(typeof ASSETS!=='undefined'&&ASSETS&&ASSETS.art)||{};
 function artHas(k){return !!ARTX[k];}
 function artBan(k,cls){return ARTX[k]?`<div class="artban art-${k} ${cls||''}" aria-hidden="true"></div>`:'';}
 (function(){try{const ks=Object.keys(ARTX);if(!ks.length||typeof document==='undefined')return;const st=document.createElement('style');st.textContent=ks.map(k=>`.art-${k}{background-image:url(${ARTX[k]})}`).join('\n');document.head.appendChild(st);}catch(e){}})();
+
+// ===================== v146 (R117): 중계 화면 픽셀 선수 (던지기 · 스윙 · 달리기) =====================
+const SPR=(typeof ASSETS!=='undefined'&&ASSETS&&ASSETS.sprites)||{};const SPRX={ready:false,im:{},url:{}};
+(function(){try{const ks=Object.keys(SPR);if(!ks.length||typeof document==='undefined'||/jsdom/i.test(navigator.userAgent))return;const c=document.createElement('canvas');if(!c.getContext||!c.getContext('2d')||typeof URL==='undefined'||!URL.createObjectURL)return;let n=0;ks.forEach(k=>{const im=new Image();im.onload=()=>{if(++n===ks.length)SPRX.ready=true;};im.src=SPR[k].src;SPRX.im[k]=im;});}catch(e){}})();
+function sprOn(){return SPRX.ready;}
+// 한 프레임을 구단 색으로 칠한 그림 주소(파란 모자 · 소매 → 구단 색) — 한 번 만들면 다시 씀
+function sprUrl(name,i,color){const key=name+'|'+i+'|'+color;if(SPRX.url[key])return SPRX.url[key];const im=SPRX.im[name];const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.drawImage(im,i*64,0,64,64,0,0,64,64);
+  const d=x.getImageData(0,0,64,64),a=d.data;const [th,ts,tl]=hexHsl(color);for(let j=0;j<a.length;j+=4){if(a[j+3]<100)continue;const [h,s2,l]=hexHsl('#'+[a[j],a[j+1],a[j+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));if(h>0.53&&h<0.72&&s2>0.35&&l>0.12){const nl=Math.max(0.06,Math.min(0.92,l*(tl/0.42)));const [r,g,b]=hslRgb(th,Math.max(ts,0.35),nl);a[j]=r;a[j+1]=g;a[j+2]=b;}}x.putImageData(d,0,0);
+  let u;try{const b64=c.toDataURL().split(',')[1];const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)arr[k]=bin.charCodeAt(k);u=URL.createObjectURL(new Blob([arr],{type:'image/png'}));}catch(e){u=c.toDataURL();}return SPRX.url[key]=u;}
+// o.play{dur,begin}: 한 번 재생하고 마지막 자세로 · o.loop{dur,end}: 달리는 동안 되풀이 · o.flip: 좌우 반전 · o.inner: 같이 움직일 SMIL(animateMotion 등)
+function sprTag(name,x,y,color,o){const S0=SPR[name];if(!S0)return '';const n=S0.n;const Z=34;const mot=PREF.motion!==false;const img=(i,an)=>`<image class="sprim" href="${sprUrl(name,i,color)}" x="${(x-Z/2).toFixed(1)}" y="${(y-24).toFixed(1)}" width="${Z}" height="${Z}"${an?an:'/>'}`;
+  const kt=v=>(+v.toFixed(3));let body='';
+  if(o.play&&mot&&n>1){for(let i=0;i<n;i++){const a0=i/n,a1=(i+1)/n;const vals=i===0?'1;0':i===n-1?'0;1':'0;1;0';const kts=i===0?`0;${kt(a1)}`:i===n-1?`0;${kt(a0)}`:`0;${kt(a0)};${kt(a1)}`;body+=img(i,`${i===0?'':' opacity="0"'}><animate attributeName="opacity" values="${vals}" keyTimes="${kts}" calcMode="discrete" begin="${o.play.begin}s" dur="${o.play.dur}s" fill="freeze"/></image>`);}}
+  else if(o.loop&&mot&&n>1){for(let i=0;i<n;i++){const a0=i/n,a1=(i+1)/n;const vals=i===0?'1;0':i===n-1?'0;1':'0;1;0';const kts=i===0?`0;${kt(a1)}`:i===n-1?`0;${kt(a0)}`:`0;${kt(a0)};${kt(a1)}`;body+=img(i,`${i===0?'':' opacity="0"'}><animate attributeName="opacity" values="${vals}" keyTimes="${kts}" calcMode="discrete" begin="0s" dur="${o.loop.dur}s" repeatCount="indefinite" end="${o.loop.end.toFixed(2)}s"/></image>`);}}
+  else body=img(0);
+  return `<g class="sprg">${o.inner||''}<g${o.flip?` transform="translate(${2*x},0) scale(-1,1)"`:''}>${body}</g></g>`;}
