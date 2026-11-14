@@ -1337,7 +1337,7 @@ body{padding-top:env(safe-area-inset-top,0px)}#app{min-height:calc(100vh - env(s
 .fsv .ftrail{fill:none;stroke:rgba(255,255,255,.75);stroke-width:2;stroke-linecap:round}.fsv .ftrail.fly{stroke:#fff1a8}
 .fsv .fthrow{fill:none;stroke:#f4c542;stroke-width:1.6;stroke-dasharray:4 3}
 .fsv .fland{fill:none;stroke:#fff;stroke-width:2}.fsv .fland.big{stroke:#f4c542;stroke-width:3}
-.fsv .fball{fill:#fff;stroke:#c33;stroke-width:1}
+.fsv .fball .fbc{fill:#fdfbf4;stroke:#5a2020;stroke-width:.6}.fsv .fball .fbst{fill:none;stroke:#d5252b;stroke-width:.9;stroke-linecap:round}.fsv .fdust{fill:#d9c29a}
 .fsv .frun,.fsv .fbat{stroke:#fff;stroke-width:2}
 .fsv .fbig{font-size:32px;font-weight:900;fill:#f4c542;text-anchor:middle;stroke:#3a2400;stroke-width:3px;paint-order:stroke;letter-spacing:1px}
 .fsv .fk{font-size:24px;font-weight:900;fill:#ff6b6b;stroke:#300;stroke-width:2px;paint-order:stroke}

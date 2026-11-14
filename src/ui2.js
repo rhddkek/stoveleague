@@ -972,15 +972,15 @@ function fxBall(fx){const t=fx.t,sd=fx.sd||'c',r2=fx.r2||0,d=fx.d||0;const H=[FX
   if(t==='hr'){const a=({l:-30,c:0,r:30})[sd]+(r2-0.5)*16;return {pts:[H,fxPt(a,262)],fly:1,dur:1.1,big:1};}
   if(t==='3b'){const a=sd==='c'?(r2<.5?-14:14):sgn*(sd==='r'&&r2<.5?43:36);return {pts:[H,fxPt(a,214)],fly:1,dur:.95};}
   if(t==='2b'){const a=sd==='c'?(d<.5?-6:6):sgn*(r2<.4?43:22);return {pts:[H,fxPt(a,206)],fly:1,dur:.9};}
-  if(t==='1b'){if(fx.inf){const f=FX_POS[sd==='r'?'2B':'SS'];const q=fxPol(f);return {pts:[H,fxPt(q[0],q[1]*.9)],fly:0,dur:.55};}
+  if(t==='1b'){if(fx.inf){const f=FX_POS[sd==='r'?'2B':'SS'];const q=fxPol(f);return {pts:[H,fxPt(q[0],q[1]*.9)],fly:0,dur:.55,fld:sd==='r'?'2B':'SS'};}
     const a=sd==='c'?(r2<.4?-4:4):sgn*(r2<.5?22:33);return {pts:[H,fxPt(a,sd==='c'?150:r2<.5?150:140)],fly:0,dur:.7};}
   if(t==='go'||t==='dp'||t==='e'||t==='sac'){const gp=t==='dp'?(sd==='l'?(fx.gp==='3B'?'3B':'SS'):sd==='r'?'2B':'SS'):(fx.gp||'SS');const f=FX_POS[gp]||FX_POS.SS;const q=fxPol(f);
-    if(t==='e')return {pts:[H,fxPt(q[0],q[1]*.95),fxPt(q[0]+4,q[1]*1.45)],fly:0,dur:.8};
+    if(t==='e')return {pts:[H,fxPt(q[0],q[1]*.95),fxPt(q[0]+4,q[1]*1.45)],fly:0,dur:.8,fld:gp,err:1};
     const at=gp==='P'?[180,250]:fxPt(q[0],q[1]*.96);
-    if(t==='dp')return {pts:[H,at,FX_BS[1],FX_BS[0]],fly:0,dur:1.05,thr:1};
-    if(fx.fc)return {pts:[H,at,FX_BS[1]],fly:0,dur:.85,thr:1};
-    return {pts:[H,at,FX_BS[0]],fly:0,dur:.85,thr:1};}
-  if(t==='fo'||t==='sf'){const fp=fx.fp||'CF';const f=FX_POS[fp]||FX_POS.CF;let p=f;if(fx.deep){const q=fxPol(f);p=fxPt(q[0],208);}return {pts:[H,p],fly:1,dur:.95,catch:1};}
+    if(t==='dp')return {pts:[H,at,FX_BS[1],FX_BS[0]],fly:0,dur:1.05,thr:1,fld:gp};
+    if(fx.fc)return {pts:[H,at,FX_BS[1]],fly:0,dur:.85,thr:1,fld:gp};
+    return {pts:[H,at,FX_BS[0]],fly:0,dur:.85,thr:1,fld:gp};}
+  if(t==='fo'||t==='sf'){const fp=fx.fp||'CF';const f=FX_POS[fp]||FX_POS.CF;let p=f;if(fx.deep){const q=fxPol(f);p=fxPt(q[0],208);}return {pts:[H,p],fly:1,dur:.95,catch:1,fld:fp};}
   return null;}
 // 주자 움직임: 같은 주자가 몇 루에서 몇 루로 (홈=−1 출발, 3=득점). 득점 수만큼 앞 주자부터 홈인, 나머지 사라진 주자는 아웃
 function fxRun(fx){const out=[];const r1=fx.r1||[null,null,null];const gone=[];
@@ -989,11 +989,44 @@ function fxRun(fx){const out=[];const r1=fx.r1||[null,null,null];const gone=[];
   gone.sort((a,b)=>b.s-a.s);let runs=fx.runs||0;gone.forEach(g=>{if(runs>0){runs--;out.push({pid:g.pid,s:g.s,d:3});}else if(!g.bat||!['so'].includes(fx.t))out.push({pid:g.pid,s:g.s,d:Math.min(3,g.s+1),out:1});});
   return out;}
 const fxB=i=>i<0||i>=3?FX_HM:FX_BS[i];
+// v148 (R119): 타구 시간표 — 점마다 도착(arr) · 출발(dep). 수비수가 잡은 자리에서는 hold 만큼 머문 뒤 송구
+function fxTimes(BL,T0,hold){const P=BL.pts,n=P.length;const L=[0];for(let i=1;i<n;i++)L[i]=L[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);const tot=L[n-1]||1;const H=n>2?hold:0;const dur=BL.dur+H*(n-2);const arr=[],dep=[],kp=[],kt=[];
+  for(let i=0;i<n;i++){arr[i]=T0+BL.dur*L[i]/tot+H*Math.max(0,i-1);dep[i]=arr[i]+(i>0&&i<n-1?H:0);const f=+(L[i]/tot).toFixed(4);kp.push(f);kt.push(+((arr[i]-T0)/dur).toFixed(4));if(dep[i]>arr[i]){kp.push(f);kt.push(+((dep[i]-T0)/dur).toFixed(4));}}
+  kt[kt.length-1]=1;return {arr,dep,dur,end:T0+dur,kp:kp.join(';'),kt:kt.join(';')};}
+// 야구공: 흰 공 + 빨간 실밥 두 줄. 날아가는 동안 돌고, 뜬공은 가운데에서 커짐
+const BALL_IN='<circle class="fbc" r="3.7"/><path class="fbst" d="M-2.7,-2.5Q-.7,0 -2.7,2.5M2.7,-2.5Q.7,0 2.7,2.5"/>';
+function ballSvg(o){if(!o.path)return `<g class="fball" transform="translate(${o.at[0]},${o.at[1]})">${BALL_IN}</g>`;const b=(o.begin||0).toFixed(2),d=o.dur.toFixed(2);
+  return `<g class="fball${o.cls?' '+o.cls:''}"${o.begin>0?' opacity="0"':''}>${o.begin>0?`<set attributeName="opacity" to="1" begin="${b}s"/>`:''}${o.hide!=null?`<animate attributeName="opacity" values="1;0" calcMode="discrete" keyTimes="0;1" begin="${o.hide.toFixed(2)}s" dur=".01s" fill="freeze"/>`:''}<animateMotion begin="${b}s" dur="${d}s" fill="freeze" path="${o.path}"${o.kp?` calcMode="linear" keyPoints="${o.kp}" keyTimes="${o.kt}"`:''}/><g>${o.fly?`<animateTransform attributeName="transform" type="scale" values="1;${o.big?2.4:1.9};1" keyTimes="0;.5;1" begin="${b}s" dur="${d}s" fill="freeze"/>`:''}<g><animateTransform attributeName="transform" type="rotate" from="0" to="${o.fly?540:900}" begin="${b}s" dur="${d}s" fill="freeze"/>${BALL_IN}</g></g></g>`;}
+// 수비 계획: 포지션 → {to 어디로, go 출발, arr 도착, acts [[그림, 시작, 길이]]} — 타구를 잡는 수비수 · 베이스에서 받는 수비수 · 공을 쫓는 외야수
+function fxPlan(F,BL,TM){const FP={};if(!BL||BL.pitch)return FP;const t=F.t,P=BL.pts,A=TM.arr;const put=(k,to,arrT,acts)=>{if(!FX_POS[k]||FP[k])return;const q=FX_POS[k];const d=Math.hypot(to[0]-q[0],to[1]-q[1]);const go=Math.max(.05,Math.min(arrT-.12,arrT-d/150));FP[k]={to,go,arr:Math.max(arrT,go+.12),acts,d};};
+  const nearOF=pt=>['LF','CF','RF'].map(k=>[k,Math.hypot(FX_POS[k][0]-pt[0],FX_POS[k][1]-pt[1])]).sort((a,b)=>a[1]-b[1])[0][0];
+  if(t==='sb'||t==='cs'){const b=P[1];const k=b===FX_BS[2]||(b[0]===FX_BS[2][0]&&b[1]===FX_BS[2][1])?'3B':'SS';put(k,[b[0]-7,b[1]+13],A[1]-.28,[['fld_f',A[1]-.26,.24]]);return FP;}
+  if(t==='hr'){const k=nearOF(P[1]);const q=fxPol(P[1]);put(k,fxPt(q[0],214),A[1]-.05,[]);return FP;}
+  if(t==='fo'||t==='sf'){put(BL.fld||'CF',[P[1][0]-8,P[1][1]+19],A[1]-.34,[['fld_f',A[1]-.32,.3]]);return FP;}
+  if(['1b','2b','3b'].includes(t)&&!BL.fld){const k=nearOF(P[1]);put(k,[P[1][0],P[1][1]-2],A[1]+.3,[['fld_g',A[1]+.3,.28]]);return FP;}
+  if(BL.fld){const k=BL.fld;const acts=[['fld_g',A[1]-.2,.2]];if(BL.thr&&P.length>2)acts.push(['pit_o',A[1]+.03,.26]);if(k==='P')FP.P={to:FX_POS.P,go:0,arr:0,acts,d:0,late:1};else put(k,[P[1][0],P[1][1]-2],A[1]-.22,acts);
+    if(P.length>2){const at2=P[2][0]===FX_BS[1][0]&&P[2][1]===FX_BS[1][1];
+      if(at2){const pv=(k==='SS'||k==='3B')?'2B':'SS';const a2=[['fld_f',A[2]-.22,.2]];if(P.length>3)a2.push(['pit_o',A[2]+.03,.24]);put(pv,[FX_BS[1][0]-7,FX_BS[1][1]+13],A[2]-.24,a2);if(P.length>3&&k!=='1B')put('1B',[FX_BS[0][0]-7,FX_BS[0][1]+13],A[3]-.24,[['fld_f',A[3]-.22,.2]]);}
+      else if(k!=='1B'&&!BL.err)put('1B',[FX_BS[0][0]-7,FX_BS[0][1]+13],A[2]-.24,[['fld_f',A[2]-.22,.2]]);}}
+  return FP;}
+// 수비수 한 명: 서 있다가 → 달려가서 → 동작(잡기 · 던지기). 마지막 동작의 끝 자세로 멈춤
+function fldSeq(k,q,color,fp){const dx=fp.to[0]-q[0],dy=fp.to[1]-q[1];const mv=fp.d>10;const first=fp.acts.length?fp.acts[0][1]:fp.arr;const vis=(a,b)=>`<animate attributeName="visibility" values="hidden;visible;hidden" keyTimes="0;${(a/(b||1)).toFixed(4)};1" calcMode="discrete" begin="0s" dur="${b.toFixed(2)}s" fill="freeze"/>`;
+  const show=(a,b,inner)=>`<g visibility="${a<=0?'visible':'hidden'}">${b==null?(a>0?`<set attributeName="visibility" to="visible" begin="${a.toFixed(2)}s"/>`:''):(a>0?vis(a,b):`<set attributeName="visibility" to="hidden" begin="${b.toFixed(2)}s"/>`)}${inner}</g>`;
+  let h=`<g class="fmove" data-pos="${k}">${fp.d>0?`<animateMotion begin="${fp.go.toFixed(2)}s" dur="${(fp.arr-fp.go).toFixed(2)}s" fill="freeze" path="M0,0 L${dx.toFixed(1)},${dy.toFixed(1)}"/>`:''}`;
+  const idle=k==='C'?'cat':'fld';const t1=mv?fp.go:first;
+  h+=show(0,t1,sprTag(idle,q[0],q[1],color,{}));
+  if(mv)h+=show(fp.go,first,sprTag('run',q[0],q[1],color,{flip:dx<0,loop:{dur:.3,end:first}}));
+  if(!fp.acts.length)h+=show(first,null,sprTag(idle,q[0],q[1],color,{}));
+  fp.acts.forEach((a,i)=>{const nx=fp.acts[i+1];h+=show(a[1],nx?nx[1]:null,sprTag(a[0],q[0],q[1],color,{flip:a[0]==='pit_o'&&dx>0&&k!=='P',play:{dur:a[2],begin:+a[1].toFixed(2)}}));});
+  return h+'</g>';}
+
 function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(fx0.t!=='p'&&(lg.balls||lg.strikes))&&(fx0.half===lg.half&&fx0.inn===lg.inn||(()=>{const ck=chgKey(lg);return !!ck&&ui.chgSeen!==ck;})())?fx0:null;
   const half=F?F.half:lg.half;const bt=half===1?S.teams[lg.home]:S.teams[lg.away];const ft=half===1?S.teams[lg.away]:S.teams[lg.home];const fs=1-half;
   const fresh=!!F&&ui.fxSeen!==F.id;if(F)ui.fxSeen=F.id;
   const PA=['1b','2b','3b','hr','so','walk','bb','dp','fo','go','hbp','sf','e','sb','cs','sac'];const lp=[...lg.log].reverse().find(l=>PA.includes(l.type));
-  const BL=F?fxBall(F):null;const bd=BL?BL.dur:0;const ink=inkOf(ft.color),ink2=inkOf(bt.color);
+  const BL=F?fxBall(F):null;const act=fresh&&!!F&&sprOn()&&PREF.motion!==false;   /* v148: 픽셀 선수가 움직이는 장면 */
+  const T0=act&&BL&&!BL.pitch&&!['sb','cs'].includes(F.t)?.55:0;const PT=act?.3:0;   /* T0: 방망이에 맞는 때 · PT: 투수 손에서 떠나는 때 */
+  const TM=BL?fxTimes(BL,BL.pitch?PT:T0,act&&BL.thr&&BL.fld?.2:0):null;const bd=BL?TM.dur:0;const FP=act?fxPlan(F,BL,TM):{};const ink=inkOf(ft.color),ink2=inkOf(bt.color);
   let sv=`<svg class="fsv" viewBox="0 0 ${FX_W} ${FX_H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">`;
   // 구장: 외야 잔디 부채꼴 · 담장 · 내야 흙 · 내야 잔디 · 파울선
   const pl=fxPt(-45,226),pr=fxPt(45,226);
@@ -1004,27 +1037,33 @@ function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(
   // 수비수 9명 (수비 팀 색)
   const dlu=lg.lineup[fs]||[];const dpos=lg.pos[fs]||{};
   // v94 (R078): 포지션 글자 대신 선수 이름 + 밑에 작게 포지션 (1루수·3루수는 바깥쪽, 포수는 왼쪽에 이름표 — 주자·타자와 안 겹치게)
-  let fLab='';const byPos={};dlu.forEach(id=>{const k=dpos[id];if(k&&k!=='DH')byPos[k]=id;});byPos.P=lg.pitcher[fs];
+  let fLab='',fLabMv='';const byPos={};dlu.forEach(id=>{const k=dpos[id];if(k&&k!=='DH')byPos[k]=id;});byPos.P=lg.pitcher[fs];
   Object.keys(FX_POS).forEach(k=>{const id=byPos[k];if(id==null&&k!=='P'&&k!=='C')return;const q=FX_POS[k];const pl=id!=null?S.players[id]:null;const nm=pl?shortNm(pl.name):'';const side=k==='1B'?'r':k==='3B'||k==='C'?'l':'b';
     const tx=side==='r'?q[0]+9:side==='l'?q[0]-9:q[0],ty=side==='b'?q[1]+16:q[1]-1,an=side==='r'?'start':side==='l'?'end':'middle';
     {const sp=sprOn();sv+=`<g class="fdf${sp?' sprh':''}"><circle cx="${q[0]}" cy="${q[1]}" r="5.5" style="fill:${ft.color}"/></g>`;
-      if(sp){if(k==='P'){const arm=pl?SL.armOf(pl):'O';sv+=sprTag(arm==='S'?'pit_s':arm==='U'?'pit_u':'pit_o',q[0],q[1],ft.color,{flip:pl&&pl.throws==='L',play:fresh&&!!F&&F.half===lg.half?{dur:.6,begin:0}:null});}else sv+=sprTag(k==='C'?'cat':'fld',q[0],q[1],ft.color,{});}}
-    fLab+=`<g class="fdl"><text class="fnm" x="${tx}" y="${ty}" style="text-anchor:${an}">${esc(nm||k)}</text><text class="fps" x="${tx}" y="${ty+9}" style="text-anchor:${an}">${esc(FX_KO[k])}</text></g>`;});
-  // 타구 길 + 공
-  if(BL){const d=BL.pts.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');const last=BL.pts[BL.pts.length-1];const hit=BL.pts[1];
-    if(!BL.pitch)sv+=`<path class="ftrail${BL.fly?' fly':''}" d="M${BL.pts[0]} L${hit}" pathLength="1"${fresh?` style="stroke-dasharray:1;stroke-dashoffset:1"><animate attributeName="stroke-dashoffset" from="1" to="0" dur="${(bd*(BL.pts.length>2?.55:1)).toFixed(2)}s" fill="freeze"/></path>`:'/>'}`;
-    if(BL.pts.length>2)sv+=`<path class="fthrow" d="M${BL.pts.slice(1).map(p=>p.join(',')).join(' L')}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(bd*.5).toFixed(2)}s" dur=".15s" fill="freeze"/></path>`:'/>'}`;
-    if(!BL.pitch)sv+=`<circle class="fland${BL.big?' big':''}" cx="${hit[0]}" cy="${hit[1]}" r="${BL.big?10:7}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(bd*(BL.pts.length>2?.55:1)).toFixed(2)}s" dur=".2s" fill="freeze"/></circle>`:'/>'}`;
-    if(fresh)sv+=`<circle class="fball" r="3.6"><animateMotion dur="${bd}s" fill="freeze" path="${d}"/>${BL.fly?`<animate attributeName="r" values="3.6;${BL.big?9:7};3.6" keyTimes="0;.5;1" dur="${bd}s" fill="freeze"/>`:''}</circle>`;
-    else sv+=`<circle class="fball" r="3.6" cx="${last[0]}" cy="${last[1]}"/>`;
-    if(F.t==='hr')sv+=`<text class="fbig" x="180" y="160"${fresh?` opacity="0"><animate attributeName="opacity" values="0;1;1" keyTimes="0;.3;1" begin="${bd}s" dur=".6s" fill="freeze"/>`:'>'}HOME RUN</text>`;
-    if(F.t==='so')sv+=`<text class="fk" x="206" y="300"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${bd}s" dur=".2s" fill="freeze"/>`:'>'}K</text>`;}
+      if(sp){if(k==='P'){const arm=pl?SL.armOf(pl):'O';sv+=sprTag(arm==='S'?'pit_s':arm==='U'?'pit_u':'pit_o',q[0],q[1],ft.color,{flip:pl&&pl.throws==='L',play:fresh&&!!F&&F.half===lg.half?{dur:.6,begin:0}:null});}else if(FP[k])sv+=fldSeq(k,q,ft.color,FP[k]);else sv+=sprTag(k==='C'?'cat':'fld',q[0],q[1],ft.color,{});}}
+    {const fp=FP[k];fLabMv=fp&&fp.d>0?`<animateMotion begin="${fp.go.toFixed(2)}s" dur="${(fp.arr-fp.go).toFixed(2)}s" fill="freeze" path="M0,0 L${(fp.to[0]-q[0]).toFixed(1)},${(fp.to[1]-q[1]).toFixed(1)}"/>`:'';}
+    fLab+=`<g class="fdl">${fLabMv}<text class="fnm" x="${tx}" y="${ty}" style="text-anchor:${an}">${esc(nm||k)}</text><text class="fps" x="${tx}" y="${ty+9}" style="text-anchor:${an}">${esc(FX_KO[k])}</text></g>`;});
+  // 타구 길 + 공 (v148: 야구공 모양 · 투구 → 타격 → 수비수가 잡고 → 송구 순서로 시간이 이어짐)
+  if(BL){const d=BL.pts.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');const last=BL.pts[BL.pts.length-1];const hit=BL.pts[1];const tHit=TM.arr[1],tThr=TM.dep[1];
+    if(!BL.pitch)sv+=`<path class="ftrail${BL.fly?' fly':''}" d="M${BL.pts[0]} L${hit}" pathLength="1"${fresh?` style="stroke-dasharray:1;stroke-dashoffset:1"><animate attributeName="stroke-dashoffset" from="1" to="0" begin="${T0.toFixed(2)}s" dur="${(tHit-T0).toFixed(2)}s" fill="freeze"/></path>`:'/>'}`;
+    if(BL.pts.length>2)sv+=`<path class="fthrow" d="M${BL.pts.slice(1).map(p=>p.join(',')).join(' L')}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${tThr.toFixed(2)}s" dur=".15s" fill="freeze"/></path>`:'/>'}`;
+    if(!BL.pitch)sv+=`<circle class="fland${BL.big?' big':''}" cx="${hit[0]}" cy="${hit[1]}" r="${BL.big?10:7}"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${tHit.toFixed(2)}s" dur=".2s" fill="freeze"/></circle>`:'/>'}`;
+    if(fresh){if(T0>0)sv+=ballSvg({path:`M${FX_M[0]},${FX_M[1]-6} L180,284`,begin:PT,dur:T0-PT,hide:T0,cls:'fpit'});   /* 던진 공이 타석까지 */
+      sv+=ballSvg({path:d,begin:BL.pitch?PT:T0,dur:bd,fly:BL.fly,big:BL.big,kp:BL.pts.length>2?TM.kp:null,kt:TM.kt});}
+    else sv+=ballSvg({at:last});
+    if(F.t==='hr')sv+=`<text class="fbig" x="180" y="160"${fresh?` opacity="0"><animate attributeName="opacity" values="0;1;1" keyTimes="0;.3;1" begin="${TM.end.toFixed(2)}s" dur=".6s" fill="freeze"/>`:'>'}HOME RUN</text>`;
+    if(F.t==='so')sv+=`<text class="fk" x="206" y="300"${fresh?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${TM.end.toFixed(2)}s" dur=".2s" fill="freeze"/>`:'>'}K</text>`;}
   // 주자 (공격 팀 색) — 달린 길 따라 움직임
-  const tags=[];const runSp=.32;let endT=BL&&!BL.pitch?bd:0;
+  const tags=[];const runSp=.32;let endT=BL&&!BL.pitch?TM.end:0;
   const moves=F&&F.t!=='p'?fxRun(F):lg.bases.map((x,i)=>x?{pid:x.pid,s:i,d:i}:null).filter(Boolean);
-  moves.forEach(m=>{const pts=[];for(let k=m.s;k<=m.d;k++)pts.push(fxB(k));const end=pts[pts.length-1];const dur=Math.max(.01,(pts.length-1)*runSp);const beg=(m.s<0&&sprOn()?HIT_T:(BL&&!BL.pitch?(BL.catch?bd+.05:bd*.45):.1)).toFixed(2);endT=Math.max(endT,+beg+dur);   /* v147: 타자 주자는 스윙이 끝나는 순간(HIT_T) 타석에서 출발 */
+  moves.forEach(m=>{const pts=[];for(let k=m.s;k<=m.d;k++)pts.push(fxB(k));const end=pts[pts.length-1];const dur=Math.max(.01,(pts.length-1)*runSp);const beg=(m.s<0&&sprOn()?HIT_T:(BL&&!BL.pitch?(BL.catch?TM.end+.05:T0+BL.dur*.45):.1)).toFixed(2);endT=Math.max(endT,+beg+dur);   /* v147: 타자 주자는 스윙이 끝나는 순간(HIT_T) 타석에서 출발 */
     const sp=sprOn();const fromBat=m.s<0;const mvP=`M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}`;const flipR=end[0]<pts[0][0]||(pts.length>1&&end[0]===pts[0][0]&&pts[1][0]<pts[0][0]);
-    if(sp&&fresh&&pts.length>1)sv+=sprTag('run',pts[0][0],pts[0][1],bt.color,{flip:flipR,hide0:fromBat,loop:{dur:.36,end:+beg+dur},inner:(fromBat?`<set attributeName="opacity" to="1" begin="${beg}s"/>`:'')+`<animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="${mvP}"/>`+(m.d>=3||m.out?`<animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/>`:'')});
+    /* v148 (R119): 승부가 걸린 베이스에는 미끄러져 들어감 — 도루 · 2루타의 2루 · 3루타의 3루 · 2·3루 포스아웃 · 홈 승부(희생플라이, 단타에 2루 주자, 2루타에 1루 주자) */
+    const slide=act&&pts.length>1&&!(m.s<0&&m.d===0)&&(['sb','cs'].includes(F.t)||(m.s<0&&((F.t==='2b'&&m.d===1)||(F.t==='3b'&&m.d===2)))||(m.out&&m.d>=1&&m.d<=2)||(m.d>=3&&!m.out&&(F.t==='sf'||(F.t==='1b'&&m.s===1)||(F.t==='2b'&&m.s===0))));
+    if(slide){const tS=+beg+dur-.3;const x0=pts[0][0],y0=pts[0][1];const dsx=flipR?9:-9;
+      sv+=`<g class="sprg sprw"${fromBat?' opacity="0"':''}>${fromBat?`<set attributeName="opacity" to="1" begin="${beg}s"/>`:''}<animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="${mvP}"/>${m.d>=3||m.out?`<animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.6).toFixed(2)}s" fill="freeze"/>`:''}<g><set attributeName="visibility" to="hidden" begin="${tS.toFixed(2)}s"/>${sprTag('run',x0,y0,bt.color,{flip:flipR,loop:{dur:.36,end:tS}})}</g><g class="sldg" visibility="hidden"><set attributeName="visibility" to="visible" begin="${tS.toFixed(2)}s"/>${sprTag('sld',x0,y0,bt.color,{flip:flipR,play:{dur:.3,begin:+tS.toFixed(2)}})}${[0,1,2].map(i=>`<circle class="fdust" cx="${x0+dsx+(flipR?i*4:-i*4)}" cy="${y0+7-i}" r="1.5" opacity="0"><animate attributeName="opacity" values="0;.85;0" begin="${(tS+i*.07).toFixed(2)}s" dur=".5s" fill="freeze"/><animate attributeName="r" values="1.5;${4+i}" begin="${(tS+i*.07).toFixed(2)}s" dur=".5s" fill="freeze"/></circle>`).join('')}</g></g>`;}
+    else if(sp&&fresh&&pts.length>1)sv+=sprTag('run',pts[0][0],pts[0][1],bt.color,{flip:flipR,hide0:fromBat,loop:{dur:.36,end:+beg+dur},inner:(fromBat?`<set attributeName="opacity" to="1" begin="${beg}s"/>`:'')+`<animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="${mvP}"/>`+(m.d>=3||m.out?`<animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/>`:'')});
     else if(sp&&!(m.d>=3||m.out))sv+=sprTag('run',end[0],end[1],bt.color,{flip:m.d===1||m.d===2});
     if(m.d>=3||m.out){if(!fresh)return;sv+=`<circle class="frun${sp?' sprh':''}" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.8;1" begin="${beg}s" dur="${(dur+.35).toFixed(2)}s" fill="freeze"/></circle>`;if(m.d>=3&&!m.out)sv+=`<text class="fsc" x="${FX_HM[0]+22}" y="${FX_HM[1]-14}" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(+beg+dur).toFixed(2)}s" dur=".2s" fill="freeze"/>+1</text>`;return;}
     if(fresh&&pts.length>1)sv+=`<circle class="frun${sp?' sprh':''}" r="7" style="fill:${bt.color}" cx="${pts[0][0]}" cy="${pts[0][1]}"><animateMotion begin="${beg}s" dur="${dur}s" fill="freeze" path="M0,0 ${pts.slice(1).map(p=>`L${p[0]-pts[0][0]},${p[1]-pts[0][1]}`).join(' ')}"/></circle>`;
@@ -2293,6 +2332,34 @@ Object.assign(A,{halfView(){modal(halfHtml());},halfStart(){SL.halfSeen();autosa
 function mflow(){return !!(S&&S.auto)&&!isWide()&&!ui.flow0;}   /* ui.flow0: 예전 화면 흐름을 검사하는 테스트용 */
 function icoOf(x,n){return x.face?face(x.face,n):x.em?emblem(x.em,n):x.ic?(String(x.ic).startsWith('<')?x.ic:pxIcon(x.ic,n-4)||`<span class="mic">${x.ic}</span>`):'<span class="mic">•</span>';}
 // 1) 선수 카드 창 — 누르면 화면을 옮기지 않고 아래에서 카드. 상세는 [상세 보기]로만
+
+// 줄에 누르는 동작이 없는 곳의 선수 얼굴도 누르면 같은 카드 (투수진 머리 · 훈련 · 성장 · 유망주 줄 등)
+document.addEventListener('click',e=>{try{const im=e.target&&e.target.closest&&e.target.closest('#app img.av[data-pid]');if(!im||!cardOn())return;if(im.closest('[onclick]')||im.closest('button,a,label'))return;const id=+im.dataset.pid;if(S.players[id])A.openPlayer(id);}catch(_){}});
+// v148 (R119): 선수 카드 하나로 통일 — 어느 화면에서 선수를 눌러도 같은 카드(정보 + 기록 + 계약 · 거래 조건 + 바로 할 수 있는 일)
+function cardOn(){return !!(S&&S.auto)&&!ui.flow0;}
+function pcStats(p){const inS=S.phase==='season';let st=hasSt(p.cur)?p.cur:null,lab=inS?'이번 시즌':`${S.season}시즌`;if(!st){const hs=(p.hist||[]).filter(x=>x&&hasSt(x.st));const l=hs[hs.length-1];if(l){st=l.st;lab=`${l.s}시즌`;}}
+  if(!st||hidOf(p)&&SL.knOf(p)<25)return {kv:[],lab};const ln=SL.statLine(p,st);
+  return {lab,kv:SL.isPitcher(p)?[['경기',ln.g||0],['승-패',`${ln.w}-${ln.l}`],['평균자책',ln.era],['이닝',ln.ip],['탈삼진',ln.so||0]]:[['경기',st.g||0],['타율',ln.avg],['홈런',ln.hr],['타점',ln.rbi],['OPS',ln.ops]]};}
+function pcDeal(p){const pid=p.id;const ut=SL.userTeam();const own=p.teamId===ut.id;const isP=SL.isPitcher(p);const t=p.teamId!=null?S.teams[p.teamId]:null;const inD=own&&ut.dev.includes(pid);const fa=p.teamId==null&&(S.fa||[]).includes(pid);const c=p.contract;const hid=hidOf(p);
+  const rows=[],btns=[];const pinB=`<button class="ghost" onclick="UI.pin(${pid});UI.pcard(${pid})">${(S.pins||[]).includes(pid)?'★ 관심':'☆ 관심'}</button>`;const go=(cls,lab,fn)=>btns.push(`<button class="${cls}" onclick="UI.closeModal();${fn}">${lab}</button>`);
+  const inDraft=!!(S.draft&&!S.draft.done&&S.draft.pool&&S.draft.pool.includes(pid));const os=!!t&&t.league!=='KR'&&!t.isUser&&ut.league==='KR';let cmp='';
+  if(!hid)rows.push(['잠재',esc(SL.potText(p))]);else rows.push(['관찰도',`${SL.knOf(p)}%`]);
+  if(own){if(c)rows.push(['계약',`연봉 ${Ms(c.salary)} · ${c.years}년 남음`]);rows.push(['시장가치',Ms(SL.calcValue(p))]);if(p.loan)rows.push(['상태','임대 중']);
+    if(!inD&&!p.loan){go('ghost','관리 ⋯',`UI.pmenu(${pid})`);go('ghost','재계약',`UI.openTable(${pid})`);if(isP)go('primary','보직',`UI.posPick(${pid})`);else go('primary',ut.lineup.includes(pid)?'타순·수비':'라인업',`UI.slotPick(${pid})`);cmp=`UI.compare(${pid})`;}
+    else{go('ghost','관리 ⋯',`UI.pmenu(${pid})`);go('primary','상세 보기',`UI.openPlayerFull(${pid})`);}}
+  else if(os){const w=SL.osWill(p,t);if(w.no){rows.push(['영입','<i class="no">불가</i> · '+esc(w.why)]);btns.push(pinB);}
+    else{const fc=SL.fgnCost(p);rows.push(['영입 비용',`연봉 ${Ms(fc.sal)} + 이적료 ${Ms(fc.fee)} = 첫해 ${Ms(fc.first)}${fc.sure?'':' (추정)'}`]);btns.push(pinB);
+      {const X=SL.scState();if(SL.knOf(p)<100&&!X.list.some(x=>x.focus===pid))go('ghost','집중 관찰',`UI.scFocus(${pid})`);}
+      if(fc.block){rows.push(['외국인 정원',esc(fc.block)]);go('primary','교체 대상 고르기',`UI.quotaPick(${pid})`);}else go('primary','영입 협상',`UI.openTable(${pid})`);}}
+  else if(fa){const F=SL.faM(pid);if(F){const b=SL.faBest(p);rows.push(['요구',`${F.ask.yrs}년 총액 ${Ms(F.ask.tot)}`]);rows.push(['경쟁',`${b?esc(S.teams[b.team].name)+' '+Ms(SL.faOfferTot(b)):'제시 없음'} · ${F.dec}주차 끝 결정`]);}else rows.push(['요구',`연봉 약 ${Ms(SL.playerDemand(p,ut))} · 우리 팀 예상 ${esc(SL.expectedRole(p,ut))}`]);
+    btns.push(pinB);go('primary',F?'FA 협상':'FA 계약 협상',`UI.openTable(${pid})`);}
+  else if(inDraft){const m=SL.draftMock()[pid];if(m)rows.push(['지명 예상',`${m}순위`]);const W=(S.draftWatch||[]).includes(pid);btns.push(`<button class="ghost" onclick="UI.dWatch(${pid});UI.pcard(${pid})">${W?'★ 관찰 해제':'☆ 관찰'}</button>`);cmp=`UI.draftToggle(${pid})`;
+    if(SL.draftTurn()){go('ghost','육성군 지명',`UI.draftPick(${pid},'dev')`);go('primary','선수단 지명',`UI.draftPick(${pid},'roster')`);}}
+  else if(t&&!t.isUser&&!isProsp(p)){if(c)rows.push(['계약',`연봉 ${Ms(c.salary)} · ${c.years}년 남음`]);const wi=SL.willingInfo(p,ut);rows.push(['영입',`예상 이적료 ${Ms(SL.aiAsk(t,p))} · 의향 ${esc(wi.level)}`]);
+    btns.push(pinB);go('primary','영입 제안',`UI.openTable(${pid})`);}
+  else btns.push(pinB);
+  if(!own&&!inDraft){const mine=ut.roster.map(id=>S.players[id]).filter(q=>q&&(isP?SL.isPitcher(q):q.pos===p.pos)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[0];if(mine)cmp=`UI.compareIds([${pid},${mine.id}])`;}
+  return {rows,btns,cmp};}
 const PC_KEYS={P:['stuff','control','movement','stamina'],B:['contact','power','eye','speed','defense']};
 function pcardHtml(pid){const p=S.players[pid];if(!p)return '';const ut=SL.userTeam();const own=p.teamId===ut.id;const isP=SL.isPitcher(p);const t=p.teamId!=null?S.teams[p.teamId]:null;const inD=own&&ut.dev.includes(pid);const fa=p.teamId==null&&(S.fa||[]).includes(pid);
   const L=(ui.pcList||[]).filter(id=>S.players[id]);const i=L.indexOf(pid);const c=p.contract;const inS=S.phase==='season';
@@ -2304,12 +2371,11 @@ function pcardHtml(pid){const p=S.players[pid];if(!p)return '';const ut=SL.userT
   h+=`<div class="pch">${face(p,64)}<div class="a"><b>${esc(p.name)}</b><small>${esc(SL.POS_KO[p.pos]||p.pos)} · ${p.age}세 · ${hand}</small><small>${esc(where)}${c?` · 연봉 ${Ms(c.salary)} · ${c.years}년`:''}</small></div><div class="g">${SL.ovrRange(p).exact?gradeTag(p):ovTxt(p)}</div></div>`;
   if(own&&inS)h+=`<div class="pcc">${p.inj?`<b class="bad">부상 ${esc(p.inj.type||'')} · 복귀까지 ${p.inj.left}일</b>`:`<span>컨디션</span><i><u style="width:${condPct(p)}%"></u></i><b>${condPct(p)}%</b>`}</div>`;
   h+=`<div class="pcs">${PC_KEYS[isP?'P':'B'].map(at).join('')}</div>`;
-  if(st)h+=`<div class="pcl"><span>${inS?'이번 시즌':'지난 기록'}</span><b>${esc(st)}</b></div>`;
+  {const cs=pcStats(p);if(cs.kv.length)h+=`<div class="pcst"><small>${esc(cs.lab)}</small>${cs.kv.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>`;else if(st)h+=`<div class="pcl"><span>${inS?'이번 시즌':'지난 기록'}</span><b>${esc(st)}</b></div>`;}
+  const D=pcDeal(p);if(D.rows.length)h+=`<div class="pcd">${D.rows.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>`;
   {const R=SL.skillRows(p);if(R.length)h+=`<div class="pcsk">${R.map(x=>`<span class="skc g${x.g}"><i class="skg">${x.g}</i>${esc(x.n)}${x.lv>1?`<em>Lv.${x.lv}</em>`:''}</span>`).join('')}</div>`;}
-  const B=[];if(own&&!inD&&!p.loan){B.push(`<button class="ghost" onclick="UI.closeModal();UI.pmenu(${pid})">관리 ⋯</button>`);B.push(`<button class="ghost" onclick="UI.closeModal();UI.compare(${pid})">비교</button>`);B.push(isP?`<button class="primary" onclick="UI.closeModal();UI.posPick(${pid})">보직</button>`:`<button class="primary" onclick="UI.closeModal();UI.slotPick(${pid})">${ut.lineup.includes(pid)?'타순·수비':'라인업'}</button>`);}
-  else if(own){B.push(`<button class="ghost" onclick="UI.closeModal();UI.pmenu(${pid})">관리 ⋯</button>`);B.push(`<button class="primary" onclick="UI.closeModal();UI.openPlayerFull(${pid})">상세 보기</button>`);}
-  else{B.push(`<button class="ghost" onclick="UI.pin(${pid});UI.pcard(${pid})">${(S.pins||[]).includes(pid)?'★ 관심':'☆ 관심'}</button>`);if(fa||(t&&!t.isUser&&!isProsp(p)))B.push(`<button class="primary" onclick="UI.closeModal();UI.openTable(${pid})">${fa?'FA 협상':'영입 협상'}</button>`);}
-  h+=`<button class="pcmore" onclick="UI.closeModal();UI.openPlayerFull(${pid})">능력 · 기록 · 계약 자세히 ›</button>`;
+  const B=D.btns;
+  h+=`<div class="pcm2">${D.cmp?`<button class="pccmp" onclick="UI.closeModal();${D.cmp}">비교</button>`:''}<button class="pcmore" onclick="UI.closeModal();UI.openPlayerFull(${pid})">능력 · 기록 · 계약 자세히 ›</button></div>`;
   h+=`<div class="shbar n${B.length}">${B.join('')}</div></div>`;return h;}
 // 2) 하나씩 처리 — 할 일을 아래 창으로 하나씩. 처리하면 다음 일, 다른 화면에 있으면 아래 알약
 const TASK_AUTO={'지명 차례':'draft','신인 계약':'rook','재계약 코치':'coach','겨울리그 파견':'disp','FA 보상':'comp','2차 드래프트':'sd'};
@@ -2367,7 +2433,7 @@ function nextSheetHtml(){const ut=SL.userTeam();const g=S.phase==='season'&&SL.u
   if(H.length)h+=`<div class="hooks"><div class="hkh">다음 목표</div>${H.map(hookRow).join('')}</div>`;
   const bar=nextBar();return h+`<div class="shbar n${(bar.match(/<button/g)||[]).length}">${bar}</div></div>`;}
 {const op=A.openPlayer;A.openPlayerFull=function(pid,tab){closeModal();return op.call(A,pid,tab);};
-  A.openPlayer=function(pid,tab){if(mflow()&&!tab&&!(ui.view&&ui.view.type==='player')&&S.players[pid]){const ids=listIdsOnScreen();ui.pcList=ids.includes(pid)?ids:[pid];A.pcard(pid);return;}return op.call(A,pid,tab);};}
+  A.openPlayer=function(pid,tab){if(cardOn()&&!tab&&!(ui.view&&ui.view.type==='player')&&S.players[pid]){const ids=listIdsOnScreen();ui.pcList=ids.includes(pid)?ids:[pid];A.pcard(pid);return;}return op.call(A,pid,tab);};}
 {const sh=A.sheet;A.sheet=function(k){if(k==='dec'&&mflow()){A.taskNext();return;}if(k==='result'&&mflow()){const h=resultSheetHtml();if(h){modal(h);return;}}return sh.apply(A,arguments);};}
 {const f0=afterDay;afterDay=function(){f0.apply(this,arguments);const live=ui.fromLive;ui.fromLive=0;try{if(mflow()&&S.phase==='season'&&!S.liveGame&&(ui.weekReport||ui.gameResult)&&!ui.noRes)setTimeout(()=>{if(!document.querySelector('#modal')&&!S.liveGame&&!halfDue()){const h=live?nextSheetHtml():resultSheetHtml();if(h)modal(h);}},260);}catch(e){}};}
 {const eg=A.endGame;A.endGame=function(){ui.fromLive=1;ui.lastRun=0;return eg.apply(A,arguments);};const ar=A.autoRun;A.autoRun=function(n){ui.lastRun=n>=60&&S.post?0:n;return ar.apply(A,arguments);};const sg=A.startGame;A.startGame=function(){ui.lastRun=0;return sg.apply(A,arguments);};}
