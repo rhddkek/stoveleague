@@ -36,7 +36,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       return {checked,badQ,got};});
     r.checked>=20&&!r.badQ&&(!r.got||(r.got.rep===1&&r.got.ok&&!r.got.again))?ok(`기자 질문: 우리 경기 ${r.checked}번 중 3연승·3연패 뒤에만 질문${r.got?` (${r.got.t}) → 「팬들 덕분입니다」 구단 인기 +1 · 한 번만`:''}`):bad('기자 '+JSON.stringify(r));}
   // 7. 화면: 선수단 → 라커룸(주장·리더·불만·약속·멘토·성격 표) · 선수 능력 탭 「성격」 · 경기 전 준비 「경기 준비 훈련」
-  {const r=await p.evaluate(()=>{const ut=SL.userTeam();UI.go('roster','locker');const t=document.querySelector('.content').innerText;const rows=[...document.querySelectorAll('.card')].find(c=>/선수 성격/.test(c.innerText)).querySelectorAll('tbody tr').length;
+  {const r=await p.evaluate(()=>{const ut=SL.userTeam();UI.go('roster','locker');const t=document.querySelector('.content').textContent;   /* v143: 휴대폰은 쪽으로 나뉨 — 다른 쪽 칸도 문서에는 있음 */const rows=[...document.querySelectorAll('.card')].find(c=>/선수 성격/.test(c.innerText)).querySelectorAll('tbody tr').length;
       UI.openPlayer(ut.roster[0]);UI.set&&0;const pv=ui=>0;const btn=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='능력');btn&&btn.click();const per=/성격/.test(document.body.innerText)&&/리더십/.test(document.body.innerText);UI.back&&UI.back();
       const g=SL.userGameToday()||SL.state().schedule.find(x=>x.day>=SL.state().day&&(x.home===ut.id||x.away===ut.id));UI.prematch(SL.state().schedule.indexOf(g));const pm=/경기 준비 훈련/.test(document.querySelector('#modal').innerText);UI.closeModal();
       return {cap:/주장/.test(t)&&/리더/.test(t)&&/멘토/.test(t)&&/지금 지키는 약속/.test(t),rows,n:ut.roster.length,per,pm};});

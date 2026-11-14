@@ -55,7 +55,7 @@
 
 ## 작은 글자 · 스토브리그 (v142, R113)
 - 글자 크기 기본은 「작게」 = `html.fz-s body:not(.ingame){zoom:.88}`(경기 중 화면 제외). 화면 좌표(`getBoundingClientRect` · `clientX`)로 잰 값을 `style`에 넣을 때는 `zf()`로 나눈다. `100vh`를 쓰는 틀은 `calc(100vh / .88)` 보정 묶음에 추가.
-- 선수 목록이 아닌 화면은 휴대폰 한 화면에 들어오게 — 새 카드를 얹을 때 높이를 본다(남은 곳: 구단 → 감독 · 투수진 · 시설).
+- 선수 목록이 아닌 화면은 휴대폰 한 화면에 들어오게 — 길면 `pageize`(`PAGE_SCOPES`)가 제목 있는 칸마다 쪽(`.pgtabs`)으로 나눈다(70px 넘게 넘칠 때). 제목 없는 칸은 `data-pg="쪽 이름"`. `test/v143_r114.js`가 높이를 잰다.
 - 겨울 감독실 일정 띠 `stoveLineHtml`(`SL.stoveSteps`) · 스프링캠프 `SL.campSet` / `campOpen` / `campFx`(`BAL.CAMP`, `team.camp`) · 시범경기 `exhRun`(개막 준비 끝에 6경기 — 시즌 기록 · 난수 흐름을 건드리지 않음, 결과 `S.exh`, 창 `exhHtml`).
 
 ## 화면 규칙 (v98, R082 — 같은 역할은 같은 모양)

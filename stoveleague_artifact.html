@@ -2885,6 +2885,8 @@ html.fz-s body:not(.ingame){zoom:.88}
 html.fz-s body:not(.ingame) #app,html.fz-s body:not(.ingame) .title,html.fz-s body:not(.ingame) .split{min-height:calc(100vh / .88)}
 html.fz-s body:not(.ingame) .title.t3{min-height:calc(100dvh / .88)}
 @media(min-width:960px){html.fz-s body:not(.ingame) .rp,html.fz-s body:not(.ingame) .side{height:calc(100vh / .88)}}
+/* v143 (R114): 순위표 한 화면 */
+@media(max-width:699px){body:not(.ingame) .card.main .stab td,body:not(.ingame) .card.main .stab th{padding-top:3px;padding-bottom:3px}body:not(.ingame) .card.form2 .f5b>div{padding:3px 2px;gap:1px}body:not(.ingame) .card.form2{margin-top:6px;padding-top:6px;padding-bottom:6px}}
 
 </style>
 <div id="app"></div>
@@ -2896,7 +2898,7 @@ const ASSETS={"portraits":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAA
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v142';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v143';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -7293,14 +7295,15 @@ function scLoad(){try{scLast=scScope();const m=SC_MEM[scLast];if(!m)return;docum
 function renderBase(){if(S)scSave();if(!(ui.tab==='home'&&ui.sub.home==='inbox'&&!ui.view))ui._inbOpen=false;   /* v99: 수신함을 떠나면 다음에 열 때 「새 소식」 기준을 다시 잡음 */if(ui.tab==='dev'){const m=navOf('dev',ui.sub.dev);ui.tab=m[0];ui.sub[m[0]]=m[1];}render0();try{ftabsScroll();fitScreen();scLoad();const m=$('#modal');if(m&&m.dataset.trade){const b=m.querySelector('#tsheet');if(b&&S&&ui.tab==='market'&&ui.sub.market==='trade')b.innerHTML=tradeDeal(SL.userTeam());else closeModal();}}catch(e){if(typeof console!=='undefined')console.error(e);}}
 function availH(el){const nav=document.querySelector('.nav');const rp=el.closest('#rpane');const top=rp?el.getBoundingClientRect().top-rp.getBoundingClientRect().top+rp.scrollTop:el.getBoundingClientRect().top+(window.scrollY||0);const pb=parseFloat(getComputedStyle(el).paddingBottom)||0;let res=Math.max(pb,8);for(const bar of document.querySelectorAll('.nav,.actbar')){if(!bar.offsetParent&&getComputedStyle(bar).position!=='fixed')continue;if(!!bar.closest('#rpane')!==!!rp)continue;const ps=getComputedStyle(bar).position;const nb=bar.getBoundingClientRect().height;if(ps==='fixed')res=Math.max(res,nb+8);else if(ps==='sticky'&&!el.contains(bar))res+=nb;}return window.innerHeight-top-res;}
 // v87 (R071): 여러 칸이 위아래로 길게 쌓인 화면(재정·설정·2군·시설·위상·해외 …)은 휴대폰에서 「한 화면씩」 나눠 보여 줌 — 위 칩을 누르면 그 묶음으로 (스크롤 대신 한 번 누름)
-const PAGE_SCOPES=['roster:locker','roster:lineup','club:fin','club:data','club:fac','club:pres','club:mgr','club:spon','dev:res','dev:dev','league:overseas','league:fut','league:rec'];
+const PAGE_SCOPES=['roster:locker','roster:lineup','club:fin','club:data','club:fac','club:pres','club:mgr','club:spon','dev:res','dev:dev','league:overseas','league:fut','league:rec','league:ach','roster:staff','league:sched'];
 function pageize(root,scope){if(isWide()||!PAGE_SCOPES.includes(scope))return;const old=root.querySelector(':scope>.pgtabs');if(old)old.remove();
-  const kids=[...root.children].filter(e=>!e.matches('.subtabs,.htabs2,.seg.hseg,.pgtabs,style,script')&&e.offsetHeight>0);if(kids.length<2)return;
+  const kf=e=>!e.matches('.subtabs,.htabs2,.seg.hseg,.pgtabs,.gobar,style,script')&&e.offsetHeight>0;let kids=[...root.children].filter(kf);if(kids.length===1&&scope==='roster:locker'&&kids[0].matches('.stv')){const o2=kids[0].querySelector(':scope>.pgtabs');if(o2)o2.remove();kids=[...kids[0].children].filter(kf);}   /* v143: 아래 고정 단추 줄은 높이 계산에서 빼고, 라커룸은 한 겹 안쪽 카드로 나눔 */
+  if(kids.length<2)return;
   const avail=innerHeight-kids[0].getBoundingClientRect().top-(document.querySelector('.nav')?document.querySelector('.nav').offsetHeight:0)-44;
-  const total=kids[kids.length-1].getBoundingClientRect().bottom-kids[0].getBoundingClientRect().top;if(total-avail<=200)return;
+  const total=kids[kids.length-1].getBoundingClientRect().bottom-kids[0].getBoundingClientRect().top;if(total-avail<=70)return;   /* v143 (R114): 조금만 넘쳐도 쪽으로 나눔(예전 200px) — 선수 목록이 아닌 화면은 스크롤 없이 */
   // 묶음 나누는 곳 = 제목이 있는 칸(소제목 줄 · 제목 달린 카드). 제목 없는 칸(필터·표·버튼 줄)은 앞 묶음에 붙임
   const first=e=>{const t=(e.innerText||'').split('\n').map(x=>x.trim()).find(x=>x);return t||'';};
-  const ttl=e=>{if(e.matches('.pgjoin'))return '';if(e.matches('.mkh,.sech,h2,h3'))return first(e);const h=e.querySelector(':scope>.hd h3,:scope>.hd .ttl,:scope>h3,:scope>.mksec .t,:scope>.bbh b');if(h)return h.textContent;if(e.matches('.stv')){const t=first(e);if(t&&t.length<=24)return t;}return '';};
+  const ttl=e=>{if(e.matches('.pgjoin'))return '';if(e.dataset&&e.dataset.pg)return e.dataset.pg;   /* v143: 제목 없는 칸도 쪽 이름을 달 수 있게 */if(e.matches('.mkh,.sech,h2,h3'))return first(e);const h=e.querySelector(':scope>.hd h3,:scope>.hd .ttl,:scope>h3,:scope>.mksec .t,:scope>.bbh b');if(h)return h.textContent;if(e.matches('.stv')){const t=first(e);if(t&&t.length<=24)return t;}return '';};
   const clean=t=>String(t).replace(/^[^가-힣A-Za-z0-9]+/,'').split('›').pop().replace(/\s*\(.*$/,'').replace(/\s+/g,' ').trim().slice(0,12);
   const blocks=[];for(const e of kids){const t=ttl(e);const h=e.offsetHeight+10;if(t||!blocks.length)blocks.push({els:[e],t:t?clean(t):'',h});else{const bk=blocks[blocks.length-1];bk.els.push(e);bk.h+=h;}}
   // 고른 선수의 상세·비교 칸은 바로 위 목록과 한 쪽에 (목록에서 누르면 바로 아래에 보이게)
@@ -10704,7 +10707,7 @@ const MG_IC={perf:'<path fill="#f2c14e" d="M7 3h10v2h3v3a4 4 0 01-4 4h-.3A5 5 0 
 const MG_HOW={perf:['성적','예상 전력 대비 순위, 가을야구·한국시리즈 우승, 시즌 목표 달성'],dev:['육성','유망주 주전 정착'],ops:['운영','시즌 중 팀 전력 유지·향상 (판매 이익은 전력을 지킨 경우만)'],abroad:['해외정착','해외 주전 배출'],loyalty:['의리','구단 잔류']};
 function mgIc(k,s){return `<svg viewBox="0 0 24 24" width="${s||26}" height="${s||26}" aria-hidden="true">${MG_IC[k]}</svg>`;}
 function renderMgrMock(ut){const m=S.mgr||{};const rp=m.rep!=null?m.rep:SL.calcRep();const P=SL.repParts();const cur=m.cur;const st=SL.standings(SL.compOf(ut));const rk=st.findIndex(t=>t.id===ut.id)+1;const N=SL.BAL.REP_NEED;const L=SL.titleList();const got=L.filter(x=>x.got).length;
-  let h=teamNowHtml(ut)+`<div class="mgtop">${coachFace({id:424242,nat:'KR',age:44},92)}<div class="mgr1"><div class="rp"><span>감독 평판</span><b>${rp}</b></div><small>${esc(SL.titleNow())} · ${esc(SL.repGrade(rp))}</small></div></div>`;
+  let h=teamNowHtml(ut)+`<div class="mgtop" data-pg="감독 평판">${coachFace({id:424242,nat:'KR',age:44},92)}<div class="mgr1"><div class="rp"><span>감독 평판</span><b>${rp}</b></div><small>${esc(SL.titleNow())} · ${esc(SL.repGrade(rp))}</small></div></div>`;
   h+=`<div class="mgneed"><div class="t">감독 제의 조건 <button aria-label="감독 제의 조건 설명" onclick="UI.mgHow('need')">?</button></div><div class="g"><span>대만 <b>${N.TW}</b></span><span>국내 <b>${N[1]}</b></span><span>일본 <b>${N.JP}</b></span></div></div>`;
   h+=`<div class="mglist">${Object.keys(MG_HOW).map(k=>{const v=P[k];return `<button onclick="UI.mgHow('${k}')">${mgIc(k)}<span class="n">${MG_HOW[k][0]} <i>i</i></span><b class="${v>0?'up':v<0?'dn':''}">${v}</b><em>›</em></button>`;}).join('')}</div>`;
   if(cur&&cur.goal){const art=typeof ASSETS!=='undefined'&&ASSETS.stadiumHome;const gp=S.phase==='season'?(SL.goalProgress()||{parts:[{ok:rk<=cur.goal.target,text:'현재 '+rk+'위'}]}).parts:null;const played=(ut.rec.w||0)+(ut.rec.l||0);
@@ -10822,7 +10825,7 @@ function calHtml(ut){const all=S.schedule.map((g,gi)=>({g,gi})).filter(x=>SL.isU
     <div class="calbox"><div class="calnav"><button aria-label="이전 달" ${ym>mn?'':'disabled'} onclick="UI.calYM(${step(-1)})">‹</button><b>${Y}년 ${M}월</b><button aria-label="다음 달" ${ym<mx?'':'disabled'} onclick="UI.calYM(${step(1)})">›</button></div><div class="calw">${'월화수목금토일'.split('').map(x=>`<span>${x}</span>`).join('')}</div><div class="calg">${cells}</div></div>
     <div class="calleg"><span><i class="h"></i>홈경기(${esc(ut.name.split(' ')[0])})</span><span><i class="a"></i>원정경기</span><span>– 휴식</span></div>
     <div class="calcard"><div class="hd"><b>${sd.getMonth()+1}월 ${sd.getDate()}일 (${wk})</b>${pill(home)}<b>${gameTime(sd)}</b></div><div class="vs">${emblem(ut,52)}<b>${esc(ut.name)}</b><em>VS</em><b>${esc(O.name)}</b>${emblem(O,52)}</div>${mid}</div>
-    ${after.length?`<div class="whd"><span>이후 일정</span></div><div class="calnext">${after.map(x=>{const dt=dayToDate(x.g.day);const hm=x.g.home===ut.id;const o=S.teams[hm?x.g.away:x.g.home];return `<button onclick="UI.calSel(${x.gi})"><span>${dt.getMonth()+1}월 ${dt.getDate()}일 (${'일월화수목금토'[dt.getDay()]})</span>${pill(hm)}<b>vs ${esc(o.name)}</b><span>${gameTime(dt)}</span></button>`;}).join('')}</div>`:''}
+    ${after.length?`<div class="whd" data-pg="이후 일정"><span>이후 일정</span></div><div class="calnext">${after.map(x=>{const dt=dayToDate(x.g.day);const hm=x.g.home===ut.id;const o=S.teams[hm?x.g.away:x.g.home];return `<button onclick="UI.calSel(${x.gi})"><span>${dt.getMonth()+1}월 ${dt.getDate()}일 (${'일월화수목금토'[dt.getDay()]})</span>${pill(hm)}<b>vs ${esc(o.name)}</b><span>${gameTime(dt)}</span></button>`;}).join('')}</div>`:''}
     <div class="gobar lugo calgo"><button class="primary" onclick="UI.prematch(${sel.gi})">경기준비</button><button class="ghost" onclick="UI.go('league','table')">순위</button></div>`;}
 A.calSel=function(gi){ui.calSel=gi;const g=S.schedule[gi];if(g){const d=dayToDate(g.day);ui.calYM=d.getFullYear()*100+d.getMonth()+1;}ui.keepScroll=true;render();};
 A.calYM=function(v){ui.calYM=v;ui.keepScroll=true;render();};
@@ -11329,7 +11332,7 @@ function teamNowHtml(ut){const m=S.mgr||{};const cp=SL.compOf(ut);const T=SL.com
   const rsR=played?rkBy(t=>t.rec.rs/Math.max(1,g(t)),true):0,raR=played?rkBy(t=>t.rec.ra/Math.max(1,g(t)),false):0;
   const style=!played?'':raR+2<rsR?'투수 · 수비로 버티는 팀':rsR+2<raR?'타격으로 밀어붙이는 팀':rsR<=3&&raR<=3?'공수 모두 상위권':rsR>=T.length-2&&raR>=T.length-2?'공수 모두 보강이 필요':'공수 균형형';
   const cell=(t,a,b,c)=>`<div class="tn1"><small>${t}</small><b>${a}</b><span>${b}</span>${c?`<em>${c}</em>`:''}</div>`;
-  let h=`<div class="tnow"><div class="tng">${cell('지난 시즌',prev?`${prev.user.rank}위`:'-',prev?`${prev.user.w}승 ${prev.user.l}패`:'첫 시즌',lastS&&lastS.ps==='champ'?'우승':lastS&&lastS.ps?'가을야구':'')}${cell(inS?'이번 시즌':'다음 시즌',inS&&played?`${SL.rankOf(ut)}위`:'-',inS&&played?`${ut.rec.w}승 ${ut.rec.l}패`:'개막 전',prev&&inS&&played?(()=>{const d=prev.user.rank-SL.rankOf(ut);return d>0?`▲ ${d}계단`:d<0?`▼ ${-d}계단`:'같은 순위';})():'')}${cell('팀 색깔',played?`득점 ${rsR}위 · 실점 ${raR}위`:'-',played?style:'경기를 치르면 나옵니다','')}</div>`;
+  let h=`<div class="tnow" data-pg="내 팀"><div class="tng">${cell('지난 시즌',prev?`${prev.user.rank}위`:'-',prev?`${prev.user.w}승 ${prev.user.l}패`:'첫 시즌',lastS&&lastS.ps==='champ'?'우승':lastS&&lastS.ps?'가을야구':'')}${cell(inS?'이번 시즌':'다음 시즌',inS&&played?`${SL.rankOf(ut)}위`:'-',inS&&played?`${ut.rec.w}승 ${ut.rec.l}패`:'개막 전',prev&&inS&&played?(()=>{const d=prev.user.rank-SL.rankOf(ut);return d>0?`▲ ${d}계단`:d<0?`▼ ${-d}계단`:'같은 순위';})():'')}${cell('팀 색깔',played?`득점 ${rsR}위 · 실점 ${raR}위`:'-',played?style:'경기를 치르면 나옵니다','')}</div>`;
   const P=id=>S.players[id];const all=ut.roster.concat(ut.dev).map(P).filter(Boolean);const core=all.slice().sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a)).slice(0,4);const pros=all.filter(p=>p.age<=23&&p.scout).sort((a,b)=>(b.scout.lo+b.scout.hi)-(a.scout.lo+a.scout.hi)).slice(0,4);
   const chip=(p,sub)=>`<button class="tnp" onclick="UI.openPlayer(${p.id})">${face(p,36)}<span><b>${esc(p.name)}</b><small>${sub}</small></span></button>`;
   h+=`<div class="tnl"><div class="t">핵심 전력</div><div class="g">${core.map(p=>chip(p,`${p.pos} · ${p.age}세 · 종합 ${Math.round(SL.calcOvr(p))}${hasSt(p.cur)?' · '+statShort(p,p.cur):''}`)).join('')}</div></div>`;

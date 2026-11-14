@@ -955,3 +955,5 @@ html.fz-s body:not(.ingame){zoom:.88}
 html.fz-s body:not(.ingame) #app,html.fz-s body:not(.ingame) .title,html.fz-s body:not(.ingame) .split{min-height:calc(100vh / .88)}
 html.fz-s body:not(.ingame) .title.t3{min-height:calc(100dvh / .88)}
 @media(min-width:960px){html.fz-s body:not(.ingame) .rp,html.fz-s body:not(.ingame) .side{height:calc(100vh / .88)}}
+/* v143 (R114): 순위표 한 화면 */
+@media(max-width:699px){body:not(.ingame) .card.main .stab td,body:not(.ingame) .card.main .stab th{padding-top:3px;padding-bottom:3px}body:not(.ingame) .card.form2 .f5b>div{padding:3px 2px;gap:1px}body:not(.ingame) .card.form2{margin-top:6px;padding-top:6px;padding-bottom:6px}}
