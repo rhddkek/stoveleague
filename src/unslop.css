@@ -957,3 +957,14 @@ html.fz-s body:not(.ingame) .title.t3{min-height:calc(100dvh / .88)}
 @media(min-width:960px){html.fz-s body:not(.ingame) .rp,html.fz-s body:not(.ingame) .side{height:calc(100vh / .88)}}
 /* v143 (R114): 순위표 한 화면 */
 @media(max-width:699px){body:not(.ingame) .card.main .stab td,body:not(.ingame) .card.main .stab th{padding-top:3px;padding-bottom:3px}body:not(.ingame) .card.form2 .f5b>div{padding:3px 2px;gap:1px}body:not(.ingame) .card.form2{margin-top:6px;padding-top:6px;padding-bottom:6px}}
+/* ===== v144 (R116): 픽셀랩 그림 ===== */
+.artban{width:100%;height:84px;border-radius:10px;background-size:cover;background-position:center;image-rendering:pixelated;margin:0 0 8px}.artban.sm{height:60px}
+body:not(.ingame) .whead.art{position:relative;background-color:#1b2433;background-size:cover;background-position:center 62%;image-rendering:pixelated;border-radius:12px;min-height:88px;padding:8px 12px;overflow:hidden;border:0}
+body:not(.ingame) .whead.art::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,16,26,.82),rgba(12,16,26,.45) 55%,rgba(12,16,26,.15))}
+body:not(.ingame) .whead.art>*{position:relative;z-index:1}body:not(.ingame) .whead.art small{color:#d8dde8}body:not(.ingame) .whead.art b{color:#fff}
+body:not(.ingame) .fvf .dfield.art-field{background-size:cover!important;background-position:center bottom!important;background-repeat:no-repeat!important;background-color:#2f6b3a;image-rendering:pixelated}
+body:not(.ingame) .fvf .dfield.art-field::before,body:not(.ingame) .fvf .dfield.art-field::after{display:none}
+/* ===== v145 (R116): 외국인 교체 — 지금 선수 고정 줄 · 차이 · 비용 합계 ===== */
+.fgnow{display:flex;align-items:center;gap:10px;margin:6px 0 8px;padding:8px 10px;border-radius:10px;background:var(--sunk);border:1px dashed var(--line)}.fgnow .a{display:flex;flex-direction:column;min-width:0}.fgnow small{font-size:12px;color:var(--muted)}.fgnow b{font-size:15px;font-weight:600}.fgnow b i{font-style:normal;font-weight:500;font-size:12px;color:var(--muted);margin:0 4px}.fgnow b em{font-style:normal;font-size:13px}
+.fgc .fgd{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;flex:none;padding-left:6px}.fgd b{font-size:13.5px;font-weight:600;white-space:nowrap}.fgd b.up{color:#2fa56f}.fgd b.dn{color:#d9614f}.fgd small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.fgsum{padding:7px 12px;background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;font-size:13px}.fgsum .l1 b{font-weight:600}.fgsum .l1 b.t{font-size:15px}.fgsum .l2{font-size:12px;color:#b4542a;margin-top:2px}

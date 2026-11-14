@@ -7,7 +7,7 @@ function uiJs(){let u=r('ui.js');const ren=[['renderHome','renderSeasonHome0'],[
   return u.slice(0,i)+'\n// ===== v64 ui2.js =====\n'+r('ui2.js')+'\n'+u.slice(i);}
 
 const path=require('path');const A='assets';const b64=(f,mime)=>'data:'+mime+';base64,'+fs.readFileSync(f).toString('base64');
-const portraits=fs.existsSync(A+'/portraits')?fs.readdirSync(A+'/portraits').filter(f=>f.endsWith('.png')).sort().map(f=>b64(A+'/portraits/'+f,'image/png')):[];
+const portraitFiles=fs.existsSync(A+'/portraits')?fs.readdirSync(A+'/portraits').filter(f=>f.endsWith('.png')).sort():[];const portraits=portraitFiles.map(f=>b64(A+'/portraits/'+f,'image/png'));const portraitMeta=portraitFiles.map(f=>f.replace(/-\d+\.png$/,''));   // v144: 파일 이름 = 분류(ea·wh·bl·la·cb·catch·coach)-나이대(young·mid·vet)-번호
 const emIdx=fs.existsSync(A+'/emblems/index.json')?JSON.parse(fs.readFileSync(A+'/emblems/index.json','utf8')):{};const emblems={};for(const k in emIdx)emblems[k]=b64(A+'/emblems/'+emIdx[k]+'.png','image/png');
 const sfx={};if(fs.existsSync(A+'/sfx'))for(const f of fs.readdirSync(A+'/sfx'))if(/\.(mp3|ogg|wav)$/.test(f))sfx[path.basename(f).replace(/\.[^.]+$/,'')]=b64(A+'/sfx/'+f,f.endsWith('.mp3')?'audio/mpeg':f.endsWith('.ogg')?'audio/ogg':'audio/wav');
 const field=fs.existsSync(A+'/field.png')?b64(A+'/field.png','image/png'):null;
@@ -21,7 +21,7 @@ const stadiumHome=fs.existsSync(A+'/stadium_home.png')?b64(A+'/stadium_home.png'
 const badges={};if(fs.existsSync(A+'/badges'))for(const f of fs.readdirSync(A+'/badges'))if(f.endsWith('.png'))badges[f.replace(/\.png$/,'')]=b64(A+'/badges/'+f,'image/png');
 const bgm={};if(fs.existsSync(A+'/bgm'))for(const f of fs.readdirSync(A+'/bgm'))if(/\.mp3$/.test(f))bgm[path.basename(f,'.mp3')]=b64(A+'/bgm/'+f,'audio/mpeg');   // v71: 배경 음악
 const leagues={};if(fs.existsSync(A+'/leagues'))for(const f of fs.readdirSync(A+'/leagues'))if(f.endsWith('.png'))leagues[f.replace(/\.png$/,'')]=b64(A+'/leagues/'+f,'image/png');   // v82: 리그 마크 (픽셀랩, 국기 모티프)
-const assetsJs='const ASSETS='+JSON.stringify({portraits,emblems,field,sfx,title,title2,officeWinter,pitchBanner,resBanner,winterCamp,newBanner,stadiumHome,stadiumGame,badges,office,bgm,leagues})+';';
+const assetsJs='const ASSETS='+JSON.stringify({art:(()=>{const o={};const d=A+'/art';if(fs.existsSync(d))for(const f of fs.readdirSync(d).filter(f=>f.endsWith('.png')).sort())o[f.replace('.png','')]=b64(d+'/'+f,'image/png');return o;})(),portraits,portraitMeta,emblems,field,sfx,title,title2,officeWinter,pitchBanner,resBanner,winterCamp,newBanner,stadiumHome,stadiumGame,badges,office,bgm,leagues})+';';
 const html=`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>

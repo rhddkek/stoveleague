@@ -39,8 +39,9 @@ function traitChip(t){return `<span class="chip ${NEG_TRAITS.includes(t)?'r':POS
 // ---------- 픽셀 아트 (Pixellab 생성) + 효과음 ----------
 const ART=(typeof ASSETS!=='undefined')?ASSETS:null;
 const PX={ready:false,imgs:[],cache:{},ok:false};
-const POOLS={KR:[0,1,2,3,4,12,13,14,15,17,18,19,20,22,23,24,25,26,27,37,38,39,40,41,42,43,47],JP:[5,6,3,12,0,38,23,43,41,19,26],TW:[12,0,2,14,15,44,39,25,17,40],US:[7,8,16,11,30,31,32,33,34,46],AU:[11,16,7,36,32,34],MX:[9,10,8,28,29,35],CB:[10,9,8,30,31,45,29]};
-const YOUNG=[0,2,12,11,14,3,17,18,27,29,31,34,36,37,39,44,47,22],VET=[1,13,7,10,20,24,33,35,42,45,19];const CATCHER_PX=21;
+/* v144 (R116): 초상화를 픽셀랩 128px 흉상으로 교체 — 분류는 파일 이름(build.js가 portraitMeta로 넘김). 국적 → 얼굴 분류, 나이대(23세 이하 young · 32세 이상 vet) */
+const PXM=(ART&&ART.portraitMeta)||[];const pxOf=(cats,age)=>PXM.map((m,i)=>[m,i]).filter(x=>cats.includes(x[0].split('-')[0])&&(!age||x[0].split('-')[1]===age)).map(x=>x[1]);
+const PX_NAT={KR:['ea'],JP:['ea'],TW:['ea'],CN:['ea'],US:['wh','bl'],AU:['wh'],CA:['wh'],MX:['la'],CB:['cb','la','bl'],DO:['cb','la','bl'],VE:['la','cb'],CU:['la','cb','bl'],PR:['la','cb']};
 (function initPx(){try{if(!ART||!ART.portraits||!ART.portraits.length||/jsdom/i.test(navigator.userAgent))return;const c=document.createElement('canvas');if(!c.getContext||!c.getContext('2d'))return;PX.ok=true;
   let n=0;ART.portraits.forEach((src,i)=>{const im=new Image();im.onload=()=>{n++;if(n===ART.portraits.length){PX.ready=true;try{if(SL.state())render();}catch(e){}}};im.src=src;PX.imgs[i]=im;});}catch(e){PX.ok=false;}})();
 function hexHsl(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0;const l=(mx+mn)/2;if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6;}return [h,s,l];}
@@ -49,8 +50,9 @@ function pxPortrait(idx,color){const key=idx+'|'+color;if(PX.cache[key])return P
   const d=x.getImageData(0,0,c.width,c.height),a=d.data;const [th,ts,tl]=hexHsl(color);
   for(let i=0;i<a.length;i+=4){if(a[i+3]<100)continue;const [h,s,l]=hexHsl('#'+[a[i],a[i+1],a[i+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));if(h>0.53&&h<0.72&&s>0.35&&l>0.12){const nl=Math.max(0.06,Math.min(0.92,l*(tl/0.42)));const [r,g,b]=hslRgb(th,Math.max(ts,0.35),nl);a[i]=r;a[i+1]=g;a[i+2]=b;}}
   x.putImageData(d,0,0);return PX.cache[key]=c.toDataURL();}
-function portraitIdx(p){const h=hsh(p.id+3);if(p.pos==='C'&&(h%4===0)&&PX.imgs[CATCHER_PX])return CATCHER_PX;const pool=(POOLS[p.nat]||POOLS.KR).filter(i=>i<PX.imgs.length||!PX.imgs.length);let cand=pool;const yp=pool.filter(i=>YOUNG.includes(i)),vp=pool.filter(i=>VET.includes(i));
-  if(p.age<=23&&yp.length&&(h%10)<7)cand=yp;else if(p.age>=32&&vp.length&&(h%10)<7)cand=vp;else{const mid=pool.filter(i=>!VET.includes(i));if(p.age<32&&mid.length)cand=mid;}return cand[(h>>>4)%cand.length];}
+function portraitIdx(p){const h=hsh(p.id+3);const cats=PX_NAT[p.nat]||PX_NAT.KR;if(p.coach){const cp=pxOf(['coach']);if(cp.length)return cp[h%cp.length];}
+  if(p.pos==='C'&&cats[0]==='ea'&&(h%2===0)){const cp=pxOf(['catch']);if(cp.length)return cp[(h>>>3)%cp.length];}
+  const age=p.age<=23?'young':p.age>=32?'vet':'mid';let cand=pxOf(cats,age);if(cand.length<3||(h%10)>=8)cand=cand.concat(pxOf(cats,'mid'));if(!cand.length)cand=pxOf(cats);if(!cand.length)cand=pxOf(['ea']);if(!cand.length)cand=PXM.map((m,i)=>i);return cand[(h>>>4)%cand.length];}
 const SFX={on:true,a:{},last:{}};
 // 개인 설정: 효과음 크기, 글자 크기, 움직임 줄이기 (기기별, 저장 파일과 별개)
 const PREF={vol:70,font:'s',motion:true,annc:true,ump:true,dense:true};   /* v142 (R113): 글자 크기 기본 = 작게(화면 전체 0.88배 — 한 화면에 더 많이) */
@@ -96,7 +98,7 @@ bgmInit();
 // ---------- 가상 초상화 / 엠블럼 ----------
 function hsh(n){return (n*2654435761)>>>0;}
 function face(p,size){
-  size=size||44;if(PX.ok&&PX.ready){const t=p.teamId!=null&&S.teams[p.teamId]?S.teams[p.teamId]:null;try{return `<img class="av px" alt="" src="${pxPortrait(portraitIdx(p),t?t.color:'#6b7280')}" width="${size}" height="${size}" style="background:${t?t.color:'#6b7280'}22">`;}catch(e){}}const h=hsh(p.id+7);const r=(i,m)=>((h>>>(i*3))%m);
+  size=size||44;if(PX.ok&&PX.ready){const t=p.teamId!=null&&S.teams[p.teamId]?S.teams[p.teamId]:null;try{return `<img class="av px${size<112?' pxs':''}" alt="" src="${pxPortrait(portraitIdx(p),t?t.color:'#6b7280')}" width="${size}" height="${size}" style="background:${t?t.color:'#6b7280'}22">`;}catch(e){}}const h=hsh(p.id+7);const r=(i,m)=>((h>>>(i*3))%m);
   const skins=p.nat==='US'||p.nat==='AU'?['#f1d3b8','#c68e65','#8d5a3b','#e8b896','#5c3a26']:p.nat==='MX'||p.nat==='CB'?['#d9a77f','#b9825a','#8d5a3b','#6b4129','#c68e65']:['#f3d6bd','#e9c4a2','#dcb48f','#f0cfb0'];
   const skin=skins[r(0,skins.length)];const hairs=['#1d1a17','#2b211b','#3b2b1f','#151515','#5a3d24'];const hair=p.nat==='US'||p.nat==='AU'?hairs[r(1,5)]:hairs[r(1,4)];
   const t=p.teamId!=null&&S.teams[p.teamId]?S.teams[p.teamId]:null;const cap=t?t.color:'#6b7280';const letter=t?(t.name.split(' ')[1]||t.name)[0]:'';
@@ -350,7 +352,7 @@ function standChips(p,t){t=t||(p.teamId!=null?S.teams[p.teamId]:null);if(!t)retu
   if(t.isUser){const cur=SL.rosterRole(t,p.id);return `<span class="chip ${ls.cls}">${ls.label}</span> <span class="chip">현재 ${esc(cur.text)}</span> <span class="chip ${role==='주전'?'g':role==='벤치'?'r':''}">실력상 ${role}급</span>${(()=>{const ps=SL.promiseStatus(p);if(!ps)return p.grudge?' <span class="chip r">약속 불이행 서운함</span>':'';return ` <span class="chip o">${ps.kind==='apology'?'사과 후 기회':'주전 약속'} ${ps.pending?'· 다음 시즌부터':`${ps.on}/${ps.n}경기 주전 (${ps.of}경기 중 ${ps.need} 필요)`}${SL.promiseKept(t,p)?'':' · 지금 미기용'}</span>`;})()}`;}
   return `<span class="chip ${ls.cls}">${ls.label}</span> <span class="chip ${p.tier>1&&SL.BAL.FARM[t.league]?'o':role==='주전'?'g':role==='벤치'?'r':''}">${p.tier>1&&SL.BAL.FARM[t.league]?esc(SL.farmKo(t.league,p.tier))+' · 콜업 대기':esc(t.name.split(' ').pop())+' '+role}</span>`;}
 // ----- 코치진 -----
-function coachFace(c,size){return face({id:900000+c.id,nat:c.nat,age:Math.max(40,c.age),teamId:null},size);}
+function coachFace(c,size){return face({id:900000+c.id,nat:c.nat,age:Math.max(40,c.age),teamId:c.teamId!=null?c.teamId:(S&&S.userTeamId!=null?S.userTeamId:null),coach:true},size);}
 function coachRow(c,mine){const ST=SL.BAL.STAFF;const g=SL.gradeOf(c.rating);const tm=mine?null:SL.coachTerms(c);const yrs=ui.coachYears||2;
   const sal=mine?(c.years>0?c.salary:SL.renewDemand(c)):tm.salary;
   let act='';if(mine){if(c.years<=0)act=S.phase==='offseason'?`<button class="sm go" onclick="UI.renewCoach(${c.id})">${yrs}년 재계약</button>`:'';
