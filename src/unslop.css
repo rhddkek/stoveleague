@@ -974,3 +974,11 @@ body:not(.ingame) .fvf .dfield.art-field::before,body:not(.ingame) .fvf .dfield.
 .pcd{margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}.pcd>div{display:flex;gap:10px;align-items:baseline;padding:7px 12px;font-size:13.5px}.pcd>div+div{border-top:1px solid var(--line)}.pcd span{flex:none;width:64px;color:var(--muted);font-size:12.5px}.pcd b{flex:1;min-width:0;font-weight:600}.pcd i.no{font-style:normal;color:var(--bad,#c8452f)}
 .pcm2{display:flex;gap:6px}.pcm2 .pccmp{flex:none;min-height:40px;padding:0 14px;background:none;border:0;color:var(--muted);font-size:14px}.pcm2 .pcmore{flex:1}
 @media(min-width:900px){.modal .pck{min-width:420px}}
+
+/* v150 (R121): 진행이 걸리던 곳 — 알림은 탭을 가리지 않게 머리줄 왼쪽 · 알약은 오른쪽 작은 단추 · 다음 주 단추는 할 일이 남으면 테두리만 · 영입 조건 한 줄 */
+@media (max-width:699px){body:not(:has(.gamev)):not(:has(#modal)) .toast{top:calc(6px + env(safe-area-inset-top,0px))!important;left:10px!important;right:auto!important;transform:none!important;max-width:calc(100% - 150px)!important}}
+.chainpill{left:auto;right:12px;transform:none;min-height:36px;padding:0 14px;font-size:13.5px}
+body:not(.ingame) .gobar.wgo .mkgo.sub{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btns3.b2 button:first-child{flex:1}.btns3.b2 .more{flex:none;width:52px}
+.bfr{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin-bottom:8px}.bfr>details.fbox{flex:none;margin:0}.bfr>details.fbox[open]{flex-basis:100%;order:2}.bfr>.row{flex:1;min-width:0;margin:0!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.bfr>.row::-webkit-scrollbar{display:none}.bfr>.row button{flex:none;white-space:nowrap}
+.bfnote{font-size:11.5px;color:var(--muted);margin:-2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

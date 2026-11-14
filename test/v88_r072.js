@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
   const p=await b.newPage({viewport:{width:390,height:844},hasTouch:true});p.on('pageerror',e=>errs.push(e.message));await start(p);
   const st=()=>p.evaluate(()=>({tab:(document.querySelector('.nav .on')||{}).textContent||'',sub:((document.querySelector('.htabs2 .on')||document.querySelector('.htabs .on')||{}).textContent||'').trim(),view:!!document.querySelector('.pv'),modal:!!document.querySelector('#modal'),y:Math.round(scrollY),url:location.href}));
   // 1. 뒤로 가기: 선수 상세 → 목록(보던 자리 그대로) → 전 화면 → 전 화면 → 감독실 → 「한 번 더 누르면 나감」
-  {await p.evaluate(()=>UI.setTab('roster'));await p.evaluate(()=>UI.go('market','fa'));await p.evaluate(()=>UI.go('market','buy'));await p.evaluate(()=>window.scrollTo(0,500));await p.evaluate(()=>UI.openPlayer(SL.userTeam().roster[0]));
+  {await p.evaluate(()=>UI.setTab('roster'));await p.evaluate(()=>UI.go('market','fa'));await p.evaluate(()=>{UI.go('market','buy');UI.setBuyF('n',160);});await p.evaluate(()=>window.scrollTo(0,500));await p.evaluate(()=>UI.openPlayer(SL.userTeam().roster[0]));
     const s0=await st();await p.goBack();await p.waitForTimeout(120);const s1=await st();await p.goBack();await p.waitForTimeout(120);const s2=await st();await p.goBack();await p.waitForTimeout(120);const s3=await st();await p.goBack();await p.waitForTimeout(120);const s4=await st();
     await p.goBack();await p.waitForTimeout(150);const s5=await st();const tt=await p.evaluate(()=>(document.querySelector('#toast')||{}).textContent||'');
     s0.view&&!s1.view&&s1.sub==='국내 선수'&&s1.y===500&&s2.sub==='FA'&&/선수단/.test(s3.tab)&&/감독실/.test(s4.tab)&&/감독실/.test(s5.tab)&&/한 번 더/.test(tt)&&s5.url===s0.url
@@ -27,7 +27,7 @@ const {chromium}=require('playwright');const path=require('path');
     await p.evaluate(()=>UI.go('market','buy'));await swipe('.content table',-140);const c=await st();
     a.sub==='타순'&&b2.sub==='명단'&&/^2/.test(pg)&&c.sub==='국내 선수'?ok(`좌우로 밀기: 선수 ← → 타순·수비 · 재정은 다음 쪽(${pg}) · 표 위에서 민 건 그대로`):bad('밀기 '+JSON.stringify({a,b2,pg,c}));}
   // 5. 맨 위로 단추: 600px 넘게 내리면 보임 · 누르면 맨 위
-  {await p.evaluate(()=>{UI.go('market','buy');window.scrollTo(0,900);});await p.waitForTimeout(100);const on=await p.evaluate(()=>document.querySelector('#totop').classList.contains('on'));await p.evaluate(()=>document.querySelector('#totop').click());await p.waitForTimeout(700);const y=await p.evaluate(()=>Math.round(scrollY));const off=await p.evaluate(()=>!document.querySelector('#totop').classList.contains('on'));
+  {await p.evaluate(()=>{UI.go('market','buy');UI.setBuyF('n',160);window.scrollTo(0,900);});await p.waitForTimeout(100);const on=await p.evaluate(()=>document.querySelector('#totop').classList.contains('on'));await p.evaluate(()=>document.querySelector('#totop').click());await p.waitForTimeout(700);const y=await p.evaluate(()=>Math.round(scrollY));const off=await p.evaluate(()=>!document.querySelector('#totop').classList.contains('on'));
     on&&y===0&&off?ok('「↑ 맨 위」: 길게 내리면 오른쪽 아래에 나타남 → 누르면 맨 위, 단추 사라짐'):bad('맨 위 '+JSON.stringify({on,y,off}));}
   // 6. 손가락 크기: 아래 줄 칩 32px 이상 · 켜진 칩은 줄 안에 보임
   {const r=await p.evaluate(()=>{UI.go('club','data');const row=document.querySelector('.htabs2');const on=row.querySelector('.on');const rb=row.getBoundingClientRect(),ob=on.getBoundingClientRect();const hs=[...document.querySelectorAll('.htabs2 button')].map(b=>b.offsetHeight);return {min:Math.min(...hs),vis:ob.left>=rb.left-1&&ob.right<=rb.right+1,t:on.textContent};});

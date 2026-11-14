@@ -9,7 +9,7 @@ const {chromium}=require('playwright');const path=require('path');
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();
       const auto=[...document.querySelectorAll('.content button')].map(x=>x.textContent.trim()).filter(t=>/자동/.test(t));UI.autoDays(5);UI.closeModal();UI.go('league','table');const t=document.querySelector('.content').innerText;
       return {cut:document.querySelectorAll('tr.pcut').length,txt:/▲|\d위까지 가을야구/.test(t),auto};});
-    !r.cut&&!r.txt&&r.auto.includes('이 경기 자동')&&!r.auto.some(x=>/▶▶ 자동 진행/.test(x))?ok(`순위표 컷 줄 없음 · 홈 단추 「${r.auto.join(' / ')}」`):bad('순위표·단추 '+JSON.stringify(r));}
+    !r.cut&&!r.txt&&(r.auto.includes('이 경기 자동')||r.auto.includes('7경기 자동')) /* v150: [자동] [⋯] 두 단추 */&&!r.auto.some(x=>/▶▶ 자동 진행/.test(x))?ok(`순위표 컷 줄 없음 · 홈 단추 「${r.auto.join(' / ')}」`):bad('순위표·단추 '+JSON.stringify(r));}
 
   // 2. 다른 리그: 대만·미국·일본을 고르면 첫 표가 그 리그 구단 · 국내 「라인업 보기」 없음 · 제목이 「한국」이 아님
   {const r=await p.evaluate(()=>{const S=SL.state();const out={};for(const lg of ['TW','US','JP']){UI.set('lgView',lg);const c=document.querySelector('.content');const first=(c.querySelector('table .tfn')||{}).textContent||'';
