@@ -32,10 +32,10 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 6. 화면 점검에서 고친 것: 0원은 「0」 · 투수진 안에 「타자단」 없음 · 시설 화면 「준비 중」 칸·같은 커리어 두 벌 없음 · 첫 시즌 해외 순위표에 「-」만 가득하지 않음 · 시즌 중 재계약·겨울리그 화면이 비어 있지 않음
   {const r=await p.evaluate(()=>{const o={};UI.go('roster','pitch');o.seg=[...document.querySelectorAll('.mktabs4 button')].map(x=>x.textContent.trim());
       UI.go('club','fac');const t=document.querySelector('.content').innerText;o.prep=/준비 중/.test(t);o.car=(t.match(/첫 시즌 완주/g)||[]).length;
-      UI.go('league','overseas');UI.ovLg('JP');o.dash=[...document.querySelectorAll('.content table td')].filter(td=>td.textContent.trim()==='-').length;
+      UI.go('league','overseas');UI.ovLg('JP');o.dash=[...document.querySelectorAll('.content table td')].filter(td=>td.textContent.trim()==='-').length;o.tbl=document.querySelectorAll('.content table').length;   /* v164: 시즌 중엔 지금 순위 — 표마다 1위 「차」 칸 하나만 「-」 */
       UI.go('market','renew');o.renew=document.querySelector('.content').innerText.length;o.renewTxt=/계약이 끝나는 선수|계약 만료 예정/.test(document.querySelector('.content').innerText);
       UI.go('dev','winter');o.win=/시즌 종료 후\s*신청/.test(document.querySelector('.content').innerText)&&/스토브리그 1주/.test(document.querySelector('.content').innerText);o.m0=SL.money(0);return o;});
-    !r.seg.includes('타자단')&&!r.prep&&r.car<=1&&r.dash===0&&r.renewTxt&&r.win&&r.m0==='0원'?ok(`투수진 칸 「${r.seg.join('·')}」 · 시설 「준비 중」 없음·커리어 한 벌 · 첫 시즌 해외 「-」 칸 0 · 재계약·겨울리그 안내 · money(0) = ${r.m0}`):bad('점검 '+JSON.stringify(r));}
+    !r.seg.includes('타자단')&&!r.prep&&r.car<=1&&r.dash<=r.tbl&&r.renewTxt&&r.win&&r.m0==='0원'?ok(`투수진 칸 「${r.seg.join('·')}」 · 시설 「준비 중」 없음·커리어 한 벌 · 해외 「-」 칸 ${r.dash}(1위 차 칸만) · 재계약·겨울리그 안내 · money(0) = ${r.m0}`):bad('점검 '+JSON.stringify(r));}
   // 7. 시즌이 끝나 선수 기록이 비면 우리 팀 지표가 0을 「리그 1위」로 보이지 않음 · 겨울 신인·유소년 희망 연봉도 최저 연봉 이상
   {const r=await p.evaluate(()=>{SL.testCmd('endSeason');UI.closeModal();UI.go('league','team');const rows=[...document.querySelectorAll('table.tit tr')].map(x=>x.innerText);const S=SL.state();const ut=SL.userTeam();
       const low=(S.youth||[]).map(id=>S.players[id]).filter(Boolean).filter(q=>SL.playerDemand(q,ut)<SL.minSal()).length;return {zero1:rows.filter(x=>/^☑ 팀 (타율|방어율)/.test(x)&&/1위/.test(x)&&/\.000|0\.00/.test(x)).length,rows:rows.slice(0,2),low,ys:(S.youth||[]).length,min:SL.minSal()};});

@@ -25,7 +25,7 @@ const {chromium}=require('playwright');const path=require('path');
   // 4. 폰 폭에서 가로로 넘치지 않음
   {const r=await p.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:innerWidth}));r.sw<=r.cw+1?ok(`폰 390px: 가로 넘침 없음`):bad('넘침 '+JSON.stringify(r));}
   // 5. 리그 → 다른 리그 → 해외에서 「○○ 선수 영입하러 가기」 → 그 리그 1군 「리그별」 화면
-  {const r=await p.evaluate(()=>{UI.go('league','overseas');UI.set('ovLg','TW');const b=[...document.querySelectorAll('.lnbtns button')].find(x=>/영입하러 가기/.test(x.textContent));if(b)b.click();const on=(document.querySelector('.lvrow button.on')||{}).textContent||'';return {b:!!b,on:on.trim(),tab:document.body.innerText.includes('해외 선수 찾기')};});
+  {const r=await p.evaluate(()=>{UI.go('league','overseas');UI.set('ovLg','TW');const b=[...document.querySelectorAll('.lnbtns button')].find(x=>/선수 찾기/.test(x.textContent));if(b)b.click();const on=(document.querySelector('.lvrow button.on')||{}).textContent||'';return {b:!!b,on:on.trim(),tab:document.body.innerText.includes('해외 선수 찾기')};});
     r.b&&r.tab&&r.on==='대만'?ok('리그 → 해외(대만) 「영입하러 가기」 → 해외 선수 찾기 「리그별」 대만'):bad('바로 가기 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v97 검사 실패 ${fails}건`:'v97 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});
