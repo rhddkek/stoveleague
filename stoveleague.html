@@ -3014,7 +3014,7 @@ const ASSETS={"sprites":{"bat":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUh
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v160';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v161';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -6739,9 +6739,9 @@ function osWill(p,t){const o=calcOvr(p);const tr=p.tier||1;if(t.league==='US'&&t
   const r=[];if(tr>1)r.push('하부 리그 연봉보다 우리 리그 조건이 좋음');if(p.age>=29)r.push('출장 기회 우선');return {no:false,why:r.join(' · ')||'조건 중시'};}
 // AI 한국 구단의 외국인 영입 (예전 「외국인 지명」 대신): 빈자리가 있으면 해외에서 데려온다 — 우리가 노리던 선수를 먼저 데려갈 수도
 function osAIWeek(force){if(S.phase!=='offseason'&&!force)return;const lvl=BAL.LEVEL_OVR.KR1;const all=overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_)).filter(p=>p&&!p.retired&&p.nat!=='KR'&&p.age<=33&&!p.loan);
-  for(const t of shuffle(krTeams().filter(x=>!x.isUser))){let g=0;while(fdNeeds(t)&&g++<3){const short=S.week>=4&&fgnList(t).length<2;/* v100: 겨울 4주차부터 외국인이 2명 미만인 AI 구단은 미루지 않음 (실제 구단은 개막 전 3명을 다 채움) */if(!force&&!short&&rnd()>0.42)break;const st=fgnStatus(t);const asiaOnly=!st.genFree&&st.quotaFree;
-      const cands=all.filter(p=>p.teamId!=null&&S.teams[p.teamId].league!=='KR'&&!osWill(p,S.teams[p.teamId]).no&&calcOvr(p)>=levelOf(t)-1&&calcOvr(p)<=lvl+12&&(!asiaOnly||ASIA_NAT.includes(p.nat))).map(p=>({p,v:calcOvr(p)+gauss()*3-(p.age>=32?2:0)})).sort((a,b)=>b.v-a.v);
-      let ok=false;for(const c of cands.filter(c=>osAsk(c.p,S.teams[c.p.teamId])<=t.cash*0.5).slice(0,6)){const p=c.p;const from=S.teams[p.teamId];   /* v160: 이적료를 낼 수 있는 선수 중에서 고름(미국 1군 선수는 v159부터 이적료가 실제 수준) */const asia=asiaOnly||(st.quotaFree&&ASIA_NAT.includes(p.nat)&&!st.genFree);const sal=fgnSalary(p,asia);if(fgnBlock(t,p,sal))continue;const fee=osAsk(p,from);if(t.cash<fee+sal*1.5)continue;
+  for(const t of shuffle(krTeams().filter(x=>!x.isUser))){let g=0;while(fdNeeds(t)&&g++<3){const short=S.week>=3&&fgnList(t).length<3;/* v100 · v161: 겨울 3주차부터 외국인 3명이 안 찬 AI 구단은 미루지 않음 (실제 구단은 12월 안에 거의 다 채움) */if(!force&&!short&&rnd()>0.7)break;const st=fgnStatus(t);const asiaOnly=!st.genFree&&st.quotaFree;
+      const cands=all.filter(p=>p.teamId!=null&&S.teams[p.teamId].league!=='KR'&&!osWill(p,S.teams[p.teamId]).no&&calcOvr(p)>=levelOf(t)-4&&calcOvr(p)<=lvl+12&&(!asiaOnly||ASIA_NAT.includes(p.nat))).map(p=>({p,v:calcOvr(p)+gauss()*3-(p.age>=32?2:0)})).sort((a,b)=>b.v-a.v);
+      let ok=false;for(const c of cands.filter(c=>osAsk(c.p,S.teams[c.p.teamId])<=t.cash*0.5).slice(0,12)){const p=c.p;const from=S.teams[p.teamId];   /* v160: 이적료를 낼 수 있는 선수 중에서 고름(미국 1군 선수는 v159부터 이적료가 실제 수준) */const asia=asiaOnly||(st.quotaFree&&ASIA_NAT.includes(p.nat)&&!st.genFree);const sal=fgnSalary(p,asia);if(fgnBlock(t,p,sal))continue;const fee=osAsk(p,from);if(t.cash<fee+sal*1.5)continue;
         const watched=(p.kn||0)>=45||(S.pins||[]).includes(p.id)||scState().list.some(s=>s.focus===p.id);if(!transferPlayer(p.id,t.id,fee,{salary:sal,years:1},'외국인 영입'))continue;autoLineup(t);
         news(`[외국인] ${t.name}, ${p.name}(${from.name}${p.tier>1?'':''} · ${POS_KO[p.pos]||p.pos}) 영입 — 1년 ${money(sal)}${watched?' · 우리가 지켜보던 선수':''}`,watched?'scout':'league');ok=true;break;}
       if(!ok)break;}}}
