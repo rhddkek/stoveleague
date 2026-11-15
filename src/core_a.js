@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v162';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v163';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -35,7 +35,7 @@ const BAL={
     AU:{name:'호주 야구리그',short:'호주',style:'4개 구단 겨울리그',games:36,roster:22,winter:true},
     CB:{name:'도미니카 윈터리그',short:'도미니카',style:'6개 구단 겨울리그',games:50,roster:22,winter:true},
     CN:{name:'중국 프로야구',short:'중국',style:'4개 구단 겨울리그 · 반프로',games:15,roster:22,winter:true}},   // v160 (R131): 2026년 1월 출범한 민간 리그(1~2월, 팀당 15경기) — 겨울리그로
-  // 리그 수준 (v38, 스카우트·구단 관계자 평가 기준): 메이저리그 > 일본 > 미국 2군(트리플A급) > 한국 > 멕시코 ≈ 미국 3군(더블A급) ≈ 도미니카 겨울 > 일본 2군 > 대만 > 호주 > 한국 퓨처스
+  // 리그 수준 (v38, 스카우트·구단 관계자 평가 기준): 메이저리그 > 일본 > 미국 챌린저스 > 한국 > 멕시코 ≈ 미국 루키스 ≈ 도미니카 겨울 > 일본 2군 > 대만 > 호주 > 한국 퓨처스
   BUY_MIN:{US:78,JP:69,TW:60,MX:62},
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
@@ -46,7 +46,7 @@ const BAL={
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
-  FARM:{US:[{t:2,ko:'트리플A',lvl:71},{t:3,ko:'더블A',lvl:65}],JP:[{t:2,ko:'일본 2군',lvl:59}]},   // v162 (R133): 미국 하부 = 트리플A · 더블A(실제 단계 이름)
+  FARM:{US:[{t:2,ko:'챌린저스',lvl:71},{t:3,ko:'루키스',lvl:65}],JP:[{t:2,ko:'일본 2군',lvl:59}]},   // v163 (R134): 미국 하부 = 챌린저스(메이저 바로 아래) · 루키스(유망주 단계) — 게임 안 이름
   HALF:{on:true,rest:20},   // v136 올스타 브레이크: 전반기/후반기 · 모든 구단 피로 −20(하루 회복 14 남짓)
   CAMP:{week:5,exN:6,mvp:1.25,loc:{home:{n:'한국 캠프',cost:0,grow:1,cond:0,d:'남해안 · 비용 없음'},oki:{n:'오키나와 캠프',cost:4000,grow:1.04,cond:2,d:'따뜻한 날씨 — 훈련 효과 +4% · 개막 컨디션 +2'},ari:{n:'애리조나 캠프',cost:10000,grow:1.08,cond:1,d:'최신 시설 — 훈련 효과 +8% · 개막 컨디션 +1'}},focus:{bal:{n:'균형',b:1,p:1,cond:0,d:'타자 · 투수 고르게'},bat:{n:'타격 중점',b:1.08,p:0.96,cond:0,d:'타자 성장 +8% · 투수 −4%'},pit:{n:'투수 중점',b:0.96,p:1.08,cond:0,d:'투수 성장 +8% · 타자 −4%'},rest:{n:'체력 관리',b:0.94,p:0.94,cond:3,d:'성장 −6% · 개막 컨디션 +3'}}},   // v142 (R113) 스프링캠프 · 시범경기(6경기, 기록은 따로)
   SKC:{n:3,learn:{C:1000,B:2000,A:4000,S:8000},up3:2,rem:2000,per:2000,perUp:10,tickUp:0.10,tickNew:0.08,tickRem:0.05},   // v141 스킬 캠프: 겨울마다 3명 · 배우기 등급별 0.5억~4억 · 레벨 2 = 배우기 값, 레벨 3 = 두 배 · 약점 지우기 · 성격 코스 1억
@@ -425,9 +425,9 @@ function minSal(s){s=s||(S?(S.phase==='offseason'?S.season+1:S.season):1);return
 function krAdj(p){if(!S||!S.krAdj)return 1;const t=p.teamId!=null?S.teams[p.teamId]:null;return (t?t.league==='KR':(p.nat||'KR')==='KR')?S.krAdj:1;}
 // v159 (R130): 리그 연봉 수준 — 같은 능력이라도 리그마다 받는 돈이 다르다(실제 금액에 맞춤). 미국 · 일본 2군 · 3군은 그 리그 하부 수준(배율 1)
 //   PAY_LG = 1군 연봉 배율 · PAY_MIN = 그 리그 최저 연봉(1군, 하부 — 내부 단위, ×5 = 원) · ECON_R = 리그 수입 · 구단 자금 배율(연봉 총액이 늘어난 만큼)
-const PAY_LG={US:4.2,JP:1.8,TW:2.4,CN:0.3};const PAY_MIN={US:[22000,1100,900],JP:[3000,840],CN:[160,160]};   /* 미국: 메이저 76만 달러 · 트리플A 3.7만 · 더블A 3.1만 · 중국: 한 시즌(한 달) 2만~4만 위안 수준 */
+const PAY_LG={US:4.2,JP:1.8,TW:2.4,CN:0.3};const PAY_MIN={US:[22000,1100,900],JP:[3000,840],CN:[160,160]};   /* 미국: 메이저 76만 달러 · 챌린저스 3.7만 · 루키스 3.1만 · 중국: 한 시즌(한 달) 2만~4만 위안 수준 */
 const ECON_R={US:4.07,JP:1.77,TW:2.35};   // 새 게임 구단 연봉 총액 평균이 늘어난 비율 (시드 3개, 내부 값: 미국 1,021,281 → 4,161,075 · 일본 314,122 → 556,738 · 대만 66,072 → 155,322)
-// v162: 우리 구단(미국 · 일본)의 단계 — 1군 등록 = 1, 그 밖은 p.tier(미국 트리플A 2 · 더블A 3, 정하지 않았으면 2)
+// v162: 우리 구단(미국 · 일본)의 단계 — 1군 등록 = 1, 그 밖은 p.tier(미국 챌린저스 2 · 루키스 3, 정하지 않았으면 2)
 function uTier(p,t){t=t||(p&&p.teamId!=null&&S.teams[p.teamId]);if(!t||!BAL.FARM[t.league])return 1;if(inEntry(t,p.id))return 1;const F=BAL.FARM[t.league];return F.some(x=>x.t===p.tier)?p.tier:F[0].t;}
 function lgOfP(p){const t=p&&p.teamId!=null&&S&&S.teams?S.teams[p.teamId]:null;return t?t.league:(p&&p.faLg)||'KR';}
 function payTier(p,lg){const t=p&&p.teamId!=null&&S&&S.teams?S.teams[p.teamId]:null;if(t&&t.league===lg)return t.isUser&&BAL.FARM[lg]?uTier(p,t):(p.tier||1);return BAL.FARM[lg]&&calcOvr(p)<(BAL.LEVEL_OVR[lg]||0)-4?2:1;}
