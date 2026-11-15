@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 1. 엠블럼: 모든 리그 구단 이름마다 그림 · 그림 파일에 겹침 없음 · 리그 마크 7개
   {const r=await p.evaluate(()=>{const N=SL.TEAM_NAMES;const miss=[];let n=0;for(const lg in N)for(const t of N[lg]){n++;if(!ASSETS.emblems[t[0]])miss.push(t[0]);}const u=new Set(Object.values(ASSETS.emblems));return {n,miss,uniq:u.size,all:Object.keys(ASSETS.emblems).length,lg:Object.keys(ASSETS.leagues).sort().join(',')};});
     r.n>=88&&!r.miss.length&&r.uniq===r.all?ok(`구단 엠블럼: ${r.n}개 구단 모두 그림 있음 (서로 다른 그림 ${r.uniq}장)`):bad('구단 엠블럼 '+JSON.stringify(r));
-    r.lg==='AU,CB,JP,KR,MX,TW,US'?ok('리그 마크 7개 (한국 · 일본 · 미국 · 대만 · 멕시코 · 호주 · 도미니카)'):bad('리그 마크 '+r.lg);
+    r.lg==='AU,CB,CN,JP,KR,MX,TW,US'?ok('리그 마크 8개 (한국 · 일본 · 미국 · 대만 · 멕시코 · 호주 · 도미니카 · 중국)'):bad('리그 마크 '+r.lg);
     const idx=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../assets/emblems/index.json'),'utf8'));const lost=Object.values(idx).filter(f=>!fs.existsSync(path.resolve(__dirname,'../assets/emblems/'+f+'.png')));lost.length?bad('엠블럼 파일 없음 '+lost.join(',')):ok('엠블럼 목록의 파일이 모두 있음');}
   await p.getByText('블레이즈').first().click();await p.waitForTimeout(200);
   {const n=await p.evaluate(()=>document.querySelectorAll('.lgseg img.lgb').length);n>=4?ok(`새 게임 리그 고르기: 리그 마크 ${n}개`):bad('새 게임 리그 마크 '+n);}

@@ -1053,3 +1053,4 @@ body:not(.ingame) .pctop .pctabs button{min-height:36px;height:36px;padding:0 6p
 .mkt tr.t2 td{color:var(--muted)}
 .pcrec th:first-child{text-align:left}
 .recall{display:block;width:100%;margin:-4px 0 10px;min-height:36px}
+.stv .fglg{grid-template-columns:repeat(7,1fr)}@media (max-width:520px){.stv .fglg{grid-template-columns:repeat(4,1fr)}}   /* v160: 리그 7개(중국 추가) — 휴대폰은 4 + 3 */

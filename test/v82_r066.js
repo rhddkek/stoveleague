@@ -32,6 +32,6 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       const lgs=[...new Set(B.list.map(x=>x.t.league))];return {tile:!!tile,n:B.list.length,lgs,shown:B.list.slice(0,3).every(x=>t.includes(x.t.name)),noApply:!/\n지원\n/.test(t),rule:B.list.every(x=>x.ok===(B.rep>=x.need))};});
     r.tile&&r.n&&r.shown&&r.rule?ok(`구직·구인: 감독실 타일 → ${r.n}곳 (${r.lgs.join('·')}) · 자격 = 평판 ≥ 요구 평판 · 시즌 중엔 지원 버튼 없음`):bad('구직·구인 '+JSON.stringify(r));}
   // 7. 리그 마크 7개 (픽셀 배지)
-  {const r=await p.evaluate(()=>Object.keys((typeof ASSETS!=='undefined'&&ASSETS.leagues)||{}).sort().join(','));r==='AU,CB,JP,KR,MX,TW,US'?ok('리그 마크 7개: '+r):bad('리그 마크 '+r);}
+  {const r=await p.evaluate(()=>Object.keys((typeof ASSETS!=='undefined'&&ASSETS.leagues)||{}).sort().join(','));r==='AU,CB,CN,JP,KR,MX,TW,US'?ok('리그 마크 8개(v160 중국 추가): '+r):bad('리그 마크 '+r);}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v82 검사 실패 ${fails}건`:'v82 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

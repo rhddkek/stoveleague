@@ -49,6 +49,10 @@ def flag(code):
         star(d,75,150,26,'#fff',pts=7,inner=.48)
         for x,y,r in ((225,35,13),(190,90,13),(225,165,13),(262,75,13)):star(d,x,y,r,'#fff',pts=7,inner=.48)
         star(d,243,112,7,'#fff')
+    elif code=='CN':   # 중국 — 빨간 바탕 · 큰 노란 별 하나 + 작은 별 넷
+        d.rectangle((0,0,w,h),fill='#de2910')
+        star(d,50,50,30,'#ffde00')
+        for x,y in ((100,20),(120,40),(120,70),(100,90)):star(d,x,y,10,'#ffde00')
     elif code=='CB':   # 도미니카 공화국
         d.rectangle((0,0,130,85),fill='#002d62');d.rectangle((170,0,w,85),fill='#ce1126')
         d.rectangle((0,115,130,h),fill='#ce1126');d.rectangle((170,115,w,h),fill='#002d62')
@@ -80,4 +84,4 @@ def make(code):
     d.ellipse((cx-r-1.6*S,cy-r-1.6*S,cx+r+1.6*S,cy+r+1.6*S),fill='#20242e');d.ellipse((cx-r,cy-r,cx+r,cy+r),fill='#fbf7ee')
     d.arc((cx-r*2.1,cy-r,cx-r*.35,cy+r),-48,48,fill='#c8102e',width=int(1.5*S));d.arc((cx+r*.35,cy-r,cx+r*2.1,cy+r),132,228,fill='#c8102e',width=int(1.5*S))
     out=img.resize((N,N),Image.LANCZOS);out.save('assets/leagues/%s.png'%code)
-for c in ('KR','JP','US','TW','MX','AU','CB'):make(c)
+for c in ('KR','JP','US','TW','MX','AU','CB','CN'):make(c)

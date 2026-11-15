@@ -11,7 +11,7 @@ function mkBtn2(a,b){return `<div class="mkbtn2">${a||''}${b||''}</div>`;}
 function mkBar(v,max,cls){const w=Math.max(0,Math.min(100,v/Math.max(1,max)*100));return `<span class="mkbar ${cls||''}"><i style="width:${w}%"></i></span>`;}
 function mkBlocks(n,max){return `<span class="mkblk">${Array.from({length:max||5},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;}
 function hw(p){const h=176+((p.id*37)%20);const w=76+((p.id*53)%30);return {h,w};}
-function flag(nat){return {KR:'🇰🇷',US:'🇺🇸',JP:'🇯🇵',TW:'🇹🇼',MX:'🇲🇽',CB:'🇩🇴',AU:'🇦🇺',VE:'🇻🇪',CA:'🇨🇦',PA:'🇵🇦'}[nat]||'';}
+function flag(nat){return {KR:'🇰🇷',US:'🇺🇸',JP:'🇯🇵',TW:'🇹🇼',MX:'🇲🇽',CB:'🇩🇴',AU:'🇦🇺',CN:'🇨🇳',VE:'🇻🇪',CA:'🇨🇦',PA:'🇵🇦'}[nat]||'';}
 // v82: 리그 마크 (국기 모티프 픽셀 배지 — 실제 리그 로고 아님)
 function lgBadge(lg,size){size=size||22;const src=ART&&ART.leagues&&ART.leagues[lg];return src?`<img class="px lgb" alt="" src="${src}" width="${size}" height="${size}">`:'';}
 // v82: 포지션 칩은 어디서나 같은 모양·같은 영문 약자 (선발 주황 · 마무리 빨강 · 나머지 남색)
@@ -1233,7 +1233,7 @@ function renderFaMock(ut){const f=ui.faF=ui.faF||{pos:'all',sal:'all',pin:false}
 // ---- 외국인(해외) 후보 ----
 // v83 (R067): 해외 선수 찾기 — FM처럼 리그 → 구단 → 선수단을 직접 보고, 선수(집중 관찰)·구단(구단 관찰)·지역(파견)에 스카우트를 보냄
 function scLabel(s){const fp=s.focus!=null?S.players[s.focus]:null;const t=s.team!=null?S.teams[s.team]:null;return t?`${esc(t.name)} 구단 관찰`:fp?`${esc(fp.name)} 집중 관찰`:`${esc(SL.SC_REG[s.reg].ko)} 파견`;}
-const FG_LG=['JP','US','TW','MX','AU','CB'];
+const FG_LG=['JP','US','TW','MX','AU','CB','CN'];
 function fgRow(p,i,X,showTeam){const c=SL.fgnCost(p);const foc=X.list.some(s=>s.focus===p.id);const tw=X.list.some(s=>s.team===p.teamId);const neg=(S.market.negs||[]).some(x=>x.pid===p.id);const no=SL.osWill(p,S.teams[p.teamId]).no;const pin=(S.pins||[]).includes(p.id);
   return `<tr class="${neg?'mine':''} ${no?'dim':''}" onclick="UI.fgMenu(${p.id})"><td class="no">${i+1}</td><td class="tn">${flag(p.nat)} ${esc(p.name)}${pin?' <span class="o">★</span>':''}${foc?'<small class="tg">관찰 중</small>':tw?'<small class="tg">구단 관찰</small>':''}${no?'<small class="tg r">이적 불가</small>':''}<small class="kn">${showTeam?esc(S.teams[p.teamId].name)+' · ':''}${p.tier>1?'2군 · ':''}${p.age}세 · 관찰도 ${SL.knOf(p)}%</small></td><td>${p.pos}</td><td>${ovTxt(p)}</td><td class="tr">${no?'-':Ms(c.first)}</td></tr>`;}
 function fgTable(ps,X,showTeam){return `<table class="stvt nosort"><thead><tr><th>NO</th><th class="tn">이름</th><th>포지션</th><th>종합</th><th class="tr">첫해 비용</th></tr></thead><tbody>${ps.map((p,i)=>fgRow(p,i,X,showTeam)).join('')||'<tr><td colspan="5" class="muted">없음</td></tr>'}</tbody></table>`;}

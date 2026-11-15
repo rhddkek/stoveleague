@@ -13,6 +13,13 @@ function leagueComps(lg){const L=BAL.LEAGUES[lg];if(!L||!L.subs)return [lg];if(S
 /* v155: 해외 리그를 맡으면 2군(미국은 40인 명단)까지 채움 — 그 리그 1군 등록 인원보다 선수단이 커야 2군이 있음 */
 function userFarmFill(t){const R=BAL.LR[t.league];if(!R||t.league==='KR')return 0;const lv=t.league==='US'?BAL.LEVEL_OVR.US2:t.league==='JP'?BAL.LEVEL_OVR.JP2:levelOf(t)-6;let n=0;const tgt=R.roster;let g=0;
   while(t.roster.length<tgt&&g++<60){const need=needOf(t);const p=genPlayer({pos:need.length?need[0]:pick(ROSTER_TEMPLATE),age:ri(20,27),lvl:lv,nat:t.league});registerPlayer(p);addToTeam(p,t,{salary:minSal(),years:ri(1,3)});n++;}applyEntry(t);return n;}
+// v160 (R131): 나중에 넣은 리그(중국)는 새 게임 맨 끝에 따로 만든다 — 다른 구단 · 선수 번호와 시즌 난수 흐름이 예전과 같게(고정 난수로 만들고 되돌림)
+const LATE_LG=['CN'];
+function addLateLeague(lg){const r0=S.rng;S.rng=((S.seed|0)^0x4c4e)|0;
+  for(const [n,c,sub] of TEAM_NAMES[lg]){if(Object.values(S.teams).some(t=>t.league===lg&&t.name===n))continue;if(S.fixR){let h=BAL.ROSTER_SEED|0;const k=n+'/r';for(let i=0;i<k.length;i++)h=Math.imul(h^k.charCodeAt(i),16777619);S.rng=h|0;}   /* 고정 선수단: 시드 · 맡은 구단이 달라도 같은 선수 */
+    const t=genTeam(n,c,lg,0,false);if(sub!=null)t.sub=sub;S.teams[t.id]=t;fillRoster(t);dedupNames(t);autoLineup(t);
+    for(const pid of t.roster){const p=S.players[pid];p.snap={s:S.season,ovr:r1(calcOvr(p)),val:calcValue(p)};if(p.age<=25)p.deb=1;}}
+  S.rng=r0;}
 function playLg(){const t=userTeam();return t&&t.league!=='KR'?t.league:null;}
 function liveTeams(){const pl=playLg();return pl?krTeams().concat([userTeam()]):krTeams();}
 function econ(t){const e=econ0(t);return gf()===1?e:{...e,ticket:e.ticket/gf()};}
@@ -31,7 +38,7 @@ function newGame(seed,userIdx,opt){opt=opt||{};const kg=BAL.SEASON_OPTIONS.inclu
   // v96 (R080): 선수단 고정 — 구단마다 이름에서 나온 고정 난수로 선수를 만든다 → 어느 구단을 고르든, 시드가 뭐든 새 게임마다 같은 선수(이름·나이·능력치)가 같은 구단에. 「무작위 선수단」을 고르면 예전처럼 시드대로
   const fixR=!opt.randRoster;S.fixR=fixR?1:0;const tsd=k=>{if(!fixR)return;let h=BAL.ROSTER_SEED|0;for(let i=0;i<k.length;i++)h=Math.imul(h^k.charCodeAt(i),16777619);S.rng=h|0;};
   TEAM_NAMES.KR.forEach(([n,c],i)=>{tsd(n);const t=genTeam(n,c,'KR',1,false);presInit(t,i);t.rep=clamp(Math.round(30+t.pres*0.55)+ri(-5,5),5,100);S.teams[t.id]=t;});
-  for(const lg in BAL.LEAGUES)TEAM_NAMES[lg].forEach(([n,c,sub])=>{tsd(n);const t=genTeam(n,c,lg,0,false);if(sub!=null)t.sub=sub;S.teams[t.id]=t;});
+  for(const lg in BAL.LEAGUES)if(!LATE_LG.includes(lg))TEAM_NAMES[lg].forEach(([n,c,sub])=>{tsd(n);const t=genTeam(n,c,lg,0,false);if(sub!=null)t.sub=sub;S.teams[t.id]=t;});
   const ut=ulg==='KR'?krTeams().find(t=>t.name===TEAM_NAMES.KR[ui][0]):Object.values(S.teams).find(t=>t.league===ulg&&t.name===TEAM_NAMES[ulg][clamp(userIdx|0,0,TEAM_NAMES[ulg].length-1)][0]);ut.isUser=true;S.userTeamId=ut.id;
   for(const t of Object.values(S.teams)){tsd(t.name+'/r');fillRoster(t);dedupNames(t);autoLineup(t);}
   for(const t of overseasTeams()){tsd(t.name+'/f');if(!t.isUser&&osFarmFill(t))autoLineup(t);}S.osv=1;
@@ -56,6 +63,7 @@ function newGame(seed,userIdx,opt){opt=opt||{};const kg=BAL.SEASON_OPTIONS.inclu
   aiAims(true);
   ensureSpon(ut);
   for(const t of krTeams())applySponsor(t);
+  for(const lg of LATE_LG)addLateLeague(lg);
   mgrStart();makeBudget();
   news(`${ut.name}의 감독으로 부임했습니다. ${presTier(ut)} 구단 — 가을야구, 그리고 한국시리즈 우승에 도전하세요.`,'sys');
   titleCheck();if(opt.scen&&ulg==='KR')scenApply(opt.scen);   // v102
@@ -924,7 +932,7 @@ function expectedRole(p,t){if(BAL.FARM[t.league]&&t.id!==p.teamId){const tmp=t.r
   const k=others.filter(v=>v>mine).length;
   if(k<slots){const c=others[slots-1];return c==null||mine>=c+3?'주전':'주전 경쟁';}
   const gap=others[slots-1]-mine;if(gap<=3)return '주전 경쟁';if(k<slots*2+1)return '백업';return '벤치';}
-function standingAll(p){return ['KR1','JP','US','TW','MX','AU','CB'].map(k=>({key:k,name:k==='KR1'?'한국 프로야구':BAL.LEAGUES[k].name,lvl:BAL.LEVEL_OVR[k],...leagueStanding(p,k)}));}
+function standingAll(p){return ['KR1','JP','US','TW','MX','AU','CB','CN'].map(k=>({key:k,name:k==='KR1'?'한국 프로야구':BAL.LEAGUES[k].name,lvl:BAL.LEVEL_OVR[k],...leagueStanding(p,k)}));}
 
 // ---------- 겨울리그 파견 (비시즌 전용, 동계훈련 대체) ----------
 function winterTeams(){return overseasTeams().filter(t=>BAL.LEAGUES[t.league].winter);}
@@ -1644,7 +1652,7 @@ function convTick(days){for(const t of krTeams()){if(!t.isUser)continue;for(cons
   if(p.posTrain.left<=0){const T=p.posTrain;delete p.posTrain;if(!isPitcher(p))p.pos2=T.from;p.pos=T.to;if(t.pos&&t.pos[id]===T.from&&!isPitcher(p))t.pos[id]=T.to;if(T.to==='RP')p.rpLock=S.season;if(T.to==='SP')delete p.rpLock;if(T.to==='RP'&&t.rotation.includes(id)){t.rotation=t.rotation.filter(x=>x!==id);if(!t.bullpen.includes(id))t.bullpen.push(id);}if(T.to==='SP'&&t.rotation.length<5&&!t.rotation.includes(id)){t.bullpen=t.bullpen.filter(x=>x!==id);if(t.closer===id)t.closer=null;t.rotation.push(id);}fixLineup(t);news(`${p.name} ${POS_KO[T.to]||T.to} 전환 완료${!isPitcher(p)?` — ${POS_KO[T.from]||T.from}는 부포지션으로 남습니다`:''}`,'contract');}}}}
 // ---------- 외국인 선수 (KBO 2026 규정: 외국인 3명 + 아시아쿼터 1명, 넷 다 출전 가능) ----------
 // 아시아쿼터 = 일본·대만·호주 국적, 연봉 20만 달러(약 2.8억) 이하. 외국인 계약은 1년. 겨울 3주차에 「외국인 선수 지명」(하위 팀부터)
-const ASIA_NAT=['JP','TW','AU'];
+const ASIA_NAT=['JP','TW','AU','CN'];   // v160: 중국도 아시아쿼터
 function isFgn(p){return !!(p&&p.nat&&p.nat!=='KR');}
 // 리그별 외국인 규정 — 한국: 외국인 3명 + 아시아쿼터 1명 / 일본: 1군 등록 4명까지(투수·야수 어느 한쪽만 4명은 안 됨, 2군은 제한 없음) / 대만: 구단당 4명 / 미국: 제한 없음
 const LG_NAT={KR:'KR',JP:'JP',TW:'TW',US:'US'};
@@ -2790,7 +2798,7 @@ function osWill(p,t){const o=calcOvr(p);const tr=p.tier||1;if(t.league==='US'&&t
 function osAIWeek(force){if(S.phase!=='offseason'&&!force)return;const lvl=BAL.LEVEL_OVR.KR1;const all=overseasTeams().filter(t=>!t.isUser).flatMap(t=>t.roster.map(P_)).filter(p=>p&&!p.retired&&p.nat!=='KR'&&p.age<=33&&!p.loan);
   for(const t of shuffle(krTeams().filter(x=>!x.isUser))){let g=0;while(fdNeeds(t)&&g++<3){const short=S.week>=4&&fgnList(t).length<2;/* v100: 겨울 4주차부터 외국인이 2명 미만인 AI 구단은 미루지 않음 (실제 구단은 개막 전 3명을 다 채움) */if(!force&&!short&&rnd()>0.42)break;const st=fgnStatus(t);const asiaOnly=!st.genFree&&st.quotaFree;
       const cands=all.filter(p=>p.teamId!=null&&S.teams[p.teamId].league!=='KR'&&!osWill(p,S.teams[p.teamId]).no&&calcOvr(p)>=levelOf(t)-1&&calcOvr(p)<=lvl+12&&(!asiaOnly||ASIA_NAT.includes(p.nat))).map(p=>({p,v:calcOvr(p)+gauss()*3-(p.age>=32?2:0)})).sort((a,b)=>b.v-a.v);
-      let ok=false;for(const c of cands.slice(0,6)){const p=c.p;const from=S.teams[p.teamId];const asia=asiaOnly||(st.quotaFree&&ASIA_NAT.includes(p.nat)&&!st.genFree);const sal=fgnSalary(p,asia);if(fgnBlock(t,p,sal))continue;const fee=osAsk(p,from);if(t.cash<fee+sal*1.5)continue;
+      let ok=false;for(const c of cands.filter(c=>osAsk(c.p,S.teams[c.p.teamId])<=t.cash*0.5).slice(0,6)){const p=c.p;const from=S.teams[p.teamId];   /* v160: 이적료를 낼 수 있는 선수 중에서 고름(미국 1군 선수는 v159부터 이적료가 실제 수준) */const asia=asiaOnly||(st.quotaFree&&ASIA_NAT.includes(p.nat)&&!st.genFree);const sal=fgnSalary(p,asia);if(fgnBlock(t,p,sal))continue;const fee=osAsk(p,from);if(t.cash<fee+sal*1.5)continue;
         const watched=(p.kn||0)>=45||(S.pins||[]).includes(p.id)||scState().list.some(s=>s.focus===p.id);if(!transferPlayer(p.id,t.id,fee,{salary:sal,years:1},'외국인 영입'))continue;autoLineup(t);
         news(`[외국인] ${t.name}, ${p.name}(${from.name}${p.tier>1?'':''} · ${POS_KO[p.pos]||p.pos}) 영입 — 1년 ${money(sal)}${watched?' · 우리가 지켜보던 선수':''}`,watched?'scout':'league');ok=true;break;}
       if(!ok)break;}}}
@@ -3196,9 +3204,9 @@ function lrRows(lg){const R=LR(lg);if(!R)return [];const f=R.fgn;const K=BAL.FA_
 // 처음 볼 때 한 번 만들어 p.pre에 짧게 남긴다(그때 능력 a0 · 시즌마다 소속 · 단계 · 종합 · 연봉, 계약 사건). 기록 숫자는 볼 때마다 a0와 고정 난수로 다시 계산 — 같은 숫자.
 // 게임 난수(S.rng)는 잠깐 바꿨다가 그대로 돌려놓음. 경기 계산 · 시상 · 리그 기록 순위 · 명예의 전당에는 쓰지 않는다 — 선수 카드 · 선수 기록 화면에만.
 const PRE_V=1;
-const PRE_KEYS={KR:['KR1','RES'],JP:['JP','JP2'],US:['US','US2','US3'],TW:['TW'],MX:['MX'],CB:['CB'],AU:['AU']};
-const PRE_DEB={KR:19,JP:19,TW:20,US:19,MX:19,CB:18,AU:19};
-const PRE_ECON={KR:1,JP:1.6,TW:0.35,US:4.8,MX:0.3,CB:0.12,AU:0.2};
+const PRE_KEYS={KR:['KR1','RES'],JP:['JP','JP2'],US:['US','US2','US3'],TW:['TW'],MX:['MX'],CB:['CB'],AU:['AU'],CN:['CN']};
+const PRE_DEB={KR:19,JP:19,TW:20,US:19,MX:19,CB:18,AU:19,CN:20};
+const PRE_ECON={KR:1,JP:1.6,TW:0.35,US:4.8,MX:0.3,CB:0.12,AU:0.2,CN:0.1};
 function preRate(a){return a<=22?3:a<=25?2:a<=28?0.8:a<=31?0:a<=33?-1.2:-2;}
 function preAgeAt(p,s){return p.age-(S.season-s)-(S.phase==='season'?0:1);}
 function preStart(p){if(p.bs!=null)return p.bs;if(p.id<(S.pid0||Infinity))return 1;let b=null;for(const x of S.pidS||[])if(x[1]<=p.id)b=x[0];return b;}   /* 게임 중 만든 선수: S.pidS(시즌마다 첫 id)로 들어온 시즌 */
