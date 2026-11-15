@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');const path=require('path');
 (async()=>{const b=await chromium.launch();let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);const errs=[];
   const p=await b.newPage({viewport:{width:360,height:760}});p.on('pageerror',e=>errs.push(e.message));await p.goto('file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1');await p.waitForTimeout(300);
-  // 1. 등급: 계약 만료로 나온 국내 FA 전원에 등급 · 기준 = 원 소속 구단 연봉 순위(1~3위·리그 30위 = A / 4~10위·60위 = B / 그 밖·35세↑ = C) · 외국인은 없음 · 보상액 = 전년 연봉 × 배수
+  // 1. 등급: 계약 만료로 나온 한국 FA 전원에 등급 · 기준 = 원 소속 구단 연봉 순위(1~3위·리그 30위 = A / 4~10위·60위 = B / 그 밖·35세↑ = C) · 외국인은 없음 · 보상액 = 전년 연봉 × 배수
   {const r=await p.evaluate(()=>{SL.newGame(2026,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;/* v155: FA는 1군 8시즌을 채운 선수만 — 만료 대상을 자격 있는 선수로 */for(const t of SL.krTeams().filter(t=>!t.isUser))for(const id of t.roster.slice(0,8)){const q=S.players[id];if(!SL.isFgn(q)){q.svcL={KR:10};q.contract.years=1;}}SL.testCmd('endSeason');UI.closeModal();try{const B=SL.budget();B.wage=(B.wage||0)+150000;B.xfer+=200000;}catch(e){}const ut=SL.userTeam();ut.cash+=400000;
       const P=S.fa.map(id=>S.players[id]);const ex=P.filter(q=>(q.transfers||[]).some(x=>x.s===S.season&&x.to==='FA'&&/계약 만료/.test(x.kind)));const g={A:0,B:0,C:0};let badG=0,fg=0,money=0;
       for(const q of ex){const c=SL.faCompOf(q);if(SL.isFgn(q)){if(c)fg++;continue;}if(!c){badG++;continue;}g[c.g]++;const R=SL.BAL.FA_COMP[c.g];if(c.withP!==Math.round(c.sal*R.p/10)*10||c.cashOnly!==Math.round(c.sal*R.c/10)*10||c.prot!==R.prot)money++;if(q.age>=35&&c.g!=='C')badG++;}

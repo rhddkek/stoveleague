@@ -236,10 +236,10 @@ console.log('[17] R018 선수 카드 · 1군/2군 비교 · 배지');
  const ab=S.players[u.roster.find(id=>id!==rk.id)];const jp=SL.overseasTeams().find(t=>t.league==='JP');SL.transferPlayer?0:0;
  {const keep=S.phase;const o={id:S.nextOfferId++,type:'overseas',pid:ab.id,team:jp.id,fee:Math.round(SL.calcValue(ab)*1.2),salary:20000,years:2,max:0,expires:S.clock+3,counters:0,status:'agreed',pw:1,willing:true,reasons:[]};S.market.offers.push(o);S.market.listed.push(ab.id);SL.respondOffer(o.id,'accept');}
  ab.teamId===jp.id&&ab.ms&&ab.ms.ab&&ab.ms.ab.lg==='JP'?ok(`해외 진출 배지: ${ab.name} → ${ab.ms.ab.tn}`):bad('해외 배지 '+JSON.stringify(ab.ms)+' team '+(S.teams[ab.teamId]||{}).league);}
-console.log('[18] v32 국내 구단 2곳 개명 (다른 게임 가상 구단명과 겹침 방지)');
+console.log('[18] v32 한국 구단 2곳 개명 (다른 게임 가상 구단명과 겹침 방지)');
 {const fs=require('fs');const KR=SL.TEAM_NAMES.KR.map(x=>x[0]);const avoid=['시걸스','시걸즈','팰컨스','팔콘스','팔콘즈','팬더스','팬더즈','클론즈','나이츠','드래곤즈','캣츠','라이거즈'];
- KR.every(n=>!avoid.some(a=>n.includes(a)))?ok('국내 10개 구단 애칭이 겹치지 않음: '+KR.join(' · ')):bad('겹치는 이름 '+KR.join(','));
- const nick=n=>n.split(' ').slice(1).join(' ');const all=Object.values(SL.TEAM_NAMES).flat().map(x=>nick(x[0]));KR.every(n=>all.filter(x=>x===nick(n)).length===1)?ok('국내 구단 애칭은 해외 구단과도 겹치지 않음'):bad('애칭 중복');
+ KR.every(n=>!avoid.some(a=>n.includes(a)))?ok('한국 10개 구단 애칭이 겹치지 않음: '+KR.join(' · ')):bad('겹치는 이름 '+KR.join(','));
+ const nick=n=>n.split(' ').slice(1).join(' ');const all=Object.values(SL.TEAM_NAMES).flat().map(x=>nick(x[0]));KR.every(n=>all.filter(x=>x===nick(n)).length===1)?ok('한국 구단 애칭은 해외 구단과도 겹치지 않음'):bad('애칭 중복');
  const j=fs.readFileSync(__dirname+'/v29_save.json','utf8');j.includes('부산 시걸스')&&j.includes('서울 팰컨스')?ok('v29 샘플에 옛 이름이 들어 있음 (변환 대상)'):bad('샘플에 옛 이름 없음');
  SL.load(j);S=SL.state();const raw=JSON.stringify(S);const kr=Object.values(S.teams).filter(t=>t.league==='KR');
  !raw.includes('시걸스')&&!raw.includes('팰컨스')?ok('v29 저장을 불러오면 이름·이적 기록·소식이 모두 새 이름으로'):bad('옛 이름 남음');
@@ -251,7 +251,7 @@ console.log('[19] v33 퓨처스 12팀 일정 · 올스타전 · 외국인 선수
  const sch=S.res.sched;const per={};for(const g of sch){per[g.home]=(per[g.home]||0)+1;per[g.away]=(per[g.away]||0)+1;}const days=new Set(sch.map(g=>g.d));Object.values(per).every(n=>n===SL.futGames())&&[...days].every(d=>sch.filter(g=>g.d===d).length===6)?ok(`퓨처스 일정: 팀당 ${SL.futGames()}경기, 경기일마다 6경기 (${days.size}일)`):bad('퓨처스 일정');
  const hm={};for(const g of sch)hm[g.home]=(hm[g.home]||0)+1;Object.values(hm).every(n=>Math.abs(n-SL.futGames()/2)<=1)?ok('퓨처스 홈·원정 균형'):bad('홈 원정 '+JSON.stringify(hm));
  // 외국인 3+1
- const fs0=SL.krTeams().map(t=>SL.fgnStatus(t));fs0.every(x=>x.list.length===4&&x.quota&&!x.over)?ok('개막 시 국내 10개 구단 모두 외국인 3명 + 아시아쿼터 1명'):bad('외국인 구성 '+fs0.map(x=>x.list.length));
+ const fs0=SL.krTeams().map(t=>SL.fgnStatus(t));fs0.every(x=>x.list.length===4&&x.quota&&!x.over)?ok('개막 시 한국 10개 구단 모두 외국인 3명 + 아시아쿼터 1명'):bad('외국인 구성 '+fs0.map(x=>x.list.length));
  fs0.every(x=>x.quota.contract.salary<=SL.BAL.FGN.asiaCap)?ok(`아시아쿼터 연봉 상한 ${SL.money(SL.BAL.FGN.asiaCap)} 이하`):bad('아시아쿼터 연봉');
  const fx=SL.overseasTeams().flatMap(t=>t.roster.map(id=>S.players[id])).find(p=>p.nat==='US');const blk=SL.fgnBlock(u,fx,20000);blk&&/외국인 선수 정원/.test(blk)?ok('정원이 차면 외국인 영입 차단: '+blk.slice(0,30)+'…'):bad('외국인 차단 안 됨');
  const ai=SL.krTeams().find(t=>!t.isUser);const n0=ai.roster.length;SL.transferPlayer(fx.id,ai.id,0,{salary:20000,years:1},'이적');ai.roster.length===n0&&!ai.roster.includes(fx.id)?ok('AI 구단도 외국인 정원을 지킴'):bad('AI 정원 무시');
@@ -343,7 +343,7 @@ console.log('[23] v37 해외 하부 리그 (미국 2군·3군, 일본 2군)');
  const o0=SL.calcOvr(weak);while(S.phase==='season')SL.playDayAuto();const h=weak.hist.slice(-1)[0];h.lg==='US'+weak.tier&&h.st.pa>=300&&/미국 [23]군/.test(h.tn)?ok(`하부에서 꾸준히 출장: ${h.tn} ${h.st.pa}타석`):bad('하부 기록 '+JSON.stringify([h.lg,h.tn,h.st.pa]));
  while(S.week<=SL.BAL.OFFSEASON_WEEKS)SL.advanceWeek();let rr=SL.startNewSeason();if(!rr.ok){SL.autoFillUser();rr=SL.startNewSeason();}const lgw=(weak.log||[])[0]||(weak.ledger||[]).slice(-1)[0];lgw&&((lgw.f||[]).some(f=>/미국 [23]군에서 꾸준히 출장/.test(f)))?ok('겨울 성장 요인: 하부에서 꾸준히 출장'):bad('하부 성장 요인 '+JSON.stringify(lgw&&lgw.f));
  const cnt={1:0,2:0,3:0};for(const t of SL.overseasTeams().filter(t=>t.league==='US'))for(const id of t.roster)cnt[S.players[id].tier||1]++;cnt[1]>=700&&cnt[1]<=800?ok(`미국 구단 1군 ${cnt[1]}명 · 2군 ${cnt[2]} · 3군 ${cnt[3]}`):bad('미국 분포 '+JSON.stringify(cnt));}
-{SL.newGame(3939,9,{games:36});S=SL.state();const t2=SL.krTeams().find(t=>!t.isUser);const p=S.players[t2.roster[3]];const t3=SL.krTeams().find(t=>!t.isUser&&t!==t2);SL.transferPlayer(p.id,t3.id,0,{salary:5000,years:2},'이적');!(S.ach&&S.ach.abroad)?ok('국내 이적으로는 「해외로」 안 됨'):bad('국내 이적에 해외로 달성');}
+{SL.newGame(3939,9,{games:36});S=SL.state();const t2=SL.krTeams().find(t=>!t.isUser);const p=S.players[t2.roster[3]];const t3=SL.krTeams().find(t=>!t.isUser&&t!==t2);SL.transferPlayer(p.id,t3.id,0,{salary:5000,years:2},'이적');!(S.ach&&S.ach.abroad)?ok('한국 이적으로는 「해외로」 안 됨'):bad('한국 이적에 해외로 달성');}
 console.log('[24] v38 리그 수준 재조정');
 {const L=SL.BAL.LEVEL_OVR;const ord=['US','JP','US2','KR1','US3','JP2','TW','RES'];ord.every((k,i)=>i===0||L[ord[i-1]]>L[k])&&L.MX>L.US3-1&&L.MX<L.KR1&&L.TW>L.RES?ok('수준 순서: 메이저 > 일본 > 미국 2군 > 한국 > 멕시코·미국 3군 > 일본 2군 > 대만 > 퓨처스'):bad('수준 순서 '+JSON.stringify(L));
  SL.newGame(4040,9,{games:36});S=SL.state();const top=lg=>{const ts=lg==='KR'?SL.krTeams():SL.overseasTeams().filter(t=>t.league===lg);return ts.map(t=>t.roster.map(id=>SL.calcOvr(S.players[id])).sort((a,b)=>b-a).slice(0,15).reduce((a,b)=>a+b,0)/15).reduce((a,b)=>a+b,0)/ts.length;};

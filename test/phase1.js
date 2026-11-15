@@ -37,7 +37,7 @@ let r=SL.startNewSeason();if(!r.ok){SL.autoFillUser();r=SL.startNewSeason();}
 // 동계 성장 1회
 let dup=0,miss=0;for(const id of ut.roster.concat(ut.dev)){const p=S.players[id];const w=p.log.filter(l=>/동계훈련|겨울리그 파견/.test(l.label)&&(l.label.startsWith(S.season+'시즌')||l.label.startsWith((S.season-1)+'시즌 겨울')));if(w.length>1)dup++;if(p.userLink&&w.length===0)miss++;}
 dup?bad('동계 성장 중복 '+dup):ok('동계훈련·파견 성장 선수당 1회 (중복 0)');
-for(const x of picks){const p=S.players[x.p.id];const l=p.log[0];if(!/겨울리그 파견/.test(l.label))bad('파견 선수가 국내 동계훈련으로 처리됨');}
+for(const x of picks){const p=S.players[x.p.id];const l=p.log[0];if(!/겨울리그 파견/.test(l.label))bad('파견 선수가 한국 동계훈련으로 처리됨');}
 ok('파견 성장 요인 예: '+picks.map(x=>S.players[x.p.id].log[0].f.join('·')).join(' / '));
 let ageBad=0;for(const id in ages){const p=S.players[id];if(p&&!p.retired&&p.age!==ages[id])ageBad++;}
 ageBad?bad('스토브리그 중 나이 변동 '+ageBad):ok('나이 변동 없음(시즌 종료 시 1회만)');
@@ -51,8 +51,8 @@ console.log('[3] 파견 효과 분포 (500명 모의)');
  for(const kind of ['domestic',...ROLE]){SL.load(snap);S=SL.state();let sum=0,n=0;for(const p of Object.values(S.players).filter(p=>p.age<=22&&!p.retired&&p.teamId!=null).slice(0,120)){const o=SL.calcOvr(p);
      if(kind==='domestic')SL.growthTick(p,{kind:'winter',label:'t',team:SL.userTeam()});else SL.growthTick(p,{kind:'dispatch',label:'t',team:SL.userTeam(),dd:{lg:'CB',role:kind,share:{'주전':0.95,'주전 경쟁':0.6,'백업':0.3,'벤치':0.1}[kind]}});sum+=SL.calcOvr(p)-o;n++;}
    res[kind]=(sum/n).toFixed(2);}
- console.log('  평균 동계 성장  국내:',res.domestic,'| 파견 주전:',res['주전'],'주전경쟁:',res['주전 경쟁'],'백업:',res['백업'],'벤치:',res['벤치']);
- if(!(+res['주전']>+res.domestic&&+res['벤치']<+res.domestic))bad('파견 손익 구조 이상');else ok('주전 파견 > 국내 > 벤치 파견');
+ console.log('  평균 동계 성장  한국:',res.domestic,'| 파견 주전:',res['주전'],'주전경쟁:',res['주전 경쟁'],'백업:',res['백업'],'벤치:',res['벤치']);
+ if(!(+res['주전']>+res.domestic&&+res['벤치']<+res.domestic))bad('파견 손익 구조 이상');else ok('주전 파견 > 한국 > 벤치 파견');
  SL.load(snap);S=SL.state();}
 // ---- 4. 장기 저장 ----
 console.log('[4] 장기 진행 15시즌');

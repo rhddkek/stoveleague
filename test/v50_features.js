@@ -7,7 +7,7 @@ while(S.phase==='season'){SL.playDayAuto();for(const o of [...S.market.offers])S
   for(const t of SL.krTeams()){for(const id of [...t.lineup,...t.rotation,...t.bullpen]){const p=S.players[id];if(p&&p.inj)lineupBad++;}
     for(const id of t.roster){const p=S.players[id];if(p&&p.inj){const k=id+':'+p.inj.s+':'+p.inj.d;if(!seen.has(k)){seen.add(k);perTeam[t.id]=(perTeam[t.id]||0)+1;if(t.isUser)userInj++;}}}}
   if(S.day===70){const j=SL.serialize();SL.load(j);S=SL.state();}}
-{const n=SL.krTeams().map(t=>perTeam[t.id]||0);const avg=n.reduce((a,b)=>a+b,0)/n.length;avg>=2&&avg<=12?ok(`국내 구단당 부상 ${avg.toFixed(1)}회 (최소 ${Math.min(...n)} · 최대 ${Math.max(...n)})`):bad('부상 빈도 '+avg);}
+{const n=SL.krTeams().map(t=>perTeam[t.id]||0);const avg=n.reduce((a,b)=>a+b,0)/n.length;avg>=2&&avg<=12?ok(`한국 구단당 부상 ${avg.toFixed(1)}회 (최소 ${Math.min(...n)} · 최대 ${Math.max(...n)})`):bad('부상 빈도 '+avg);}
 lineupBad===0?ok('부상 선수는 하루도 라인업·로테이션·불펜에 남지 않음 (경기 직후 자동 교체)'):bad('부상 선수가 편성에 남음 '+lineupBad);
 {const left=Object.values(S.players).filter(p=>p.inj).length;left===0?ok('시즌이 끝나면 부상 모두 회복 (겨울 재활)'):bad('시즌 뒤 남은 부상 '+left);}
 S.news.some(n=>n.kind==='injury')||userInj===0?ok(`우리 구단 부상 ${userInj}회 — 소식 남김`):bad('부상 소식 없음');

@@ -34,10 +34,10 @@ const {chromium}=require('playwright');const path=require('path');
       return {hr:Math.max(...L.map(st=>st.hr||0)),avg:Math.max(...L.filter(st=>st.pa>=446).map(st=>st.h/st.ab)),era:Math.min(...L.filter(st=>st.pOuts>=432).map(st=>st.pER*27/st.pOuts)),lg:h/ab};});
     r.hr<=55&&r.hr>=28&&r.avg<=0.395&&r.era>=1.5&&r.lg>=0.245&&r.lg<=0.285?ok(`한 시즌 기록: 홈런 1위 ${r.hr} · 타율 1위 ${r.avg.toFixed(3)} · 평균자책 1위 ${r.era.toFixed(2)} · 리그 타율 ${r.lg.toFixed(3)}`):bad('기록 '+JSON.stringify(r));}
 
-  // 6. 겨울 FA 시장: 종합 76 이상 국내 주요 FA에도 AI 구단 제시가 붙음 (전에는 거의 「경쟁 0」) · 개막 때 종합 75 이상 국내 FA가 무소속으로 남지 않음(외국인 정원 제외)
+  // 6. 겨울 FA 시장: 종합 76 이상 한국 주요 FA에도 AI 구단 제시가 붙음 (전에는 거의 「경쟁 0」) · 개막 때 종합 75 이상 한국 FA가 무소속으로 남지 않음(외국인 정원 제외)
   {const r=await p.evaluate(()=>{const S=SL.state();const o=q=>SL.calcOvr(q);let big=0,bid=0;for(let w=0;w<3;w++){for(const id in ((S.faM&&S.faM.m)||{})){const q=S.players[+id];const F=S.faM.m[id];if(q&&(q.nat||'KR')==='KR'&&o(q)>=76){big++;if(F.bids.length)bid++;}}SL.advanceWeek();UI.closeModal();}
       SL.renewAll();SL.testCmd('nextSeason');UI.closeModal();const left=S.fa.map(id=>S.players[id]).filter(q=>q&&(q.nat||'KR')==='KR'&&o(q)>=75&&q.age<=33).map(q=>q.age+'/'+Math.round(o(q)));return {big,bid,left};});
-    (r.big===0||r.bid>0)&&r.left.length<=1?ok(`겨울 FA: 종합 76 이상 국내 FA ${r.big}번 가운데 ${r.bid}번에 제시가 붙음 · 개막 때 무소속 대형 FA ${r.left.length}명`):bad('FA 경쟁 '+JSON.stringify(r));}
+    (r.big===0||r.bid>0)&&r.left.length<=1?ok(`겨울 FA: 종합 76 이상 한국 FA ${r.big}번 가운데 ${r.bid}번에 제시가 붙음 · 개막 때 무소속 대형 FA ${r.left.length}명`):bad('FA 경쟁 '+JSON.stringify(r));}
 
   // 7. 시작 화면(시안): 그림 + 「최근 플레이」 구단·시즌·지금 할 일 + [이어하기] / [새 커리어][불러오기] / 설정 — 폰 한 화면 안
   {await p.evaluate(()=>{UI.setTab('home');});await p.reload();await p.waitForTimeout(500);const r=await p.evaluate(()=>{const t=document.body.innerText;const bs=[...document.querySelectorAll('button')].filter(x=>x.offsetParent).map(x=>x.textContent.replace(/\s+/g,' ').trim());const hero=document.querySelector('.t3hero');return {lab:/최근 플레이/.test(t),now:(document.querySelector('.t3now')||{}).innerText||'',bs,img:!!hero&&/url\(/.test(hero.getAttribute('style')||''),h:document.documentElement.scrollHeight,ih:innerHeight,ow:document.documentElement.scrollWidth-innerWidth};});

@@ -32,8 +32,8 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   {const r=await p.evaluate(()=>{UI.menu();const n=document.querySelectorAll('#modal .msec .mi button').length;const labels=[...document.querySelectorAll('#modal .msec .ml')].map(x=>x.textContent);UI.closeModal();return {n,labels};});
     r.n>=38&&r.labels.includes('기록')&&r.labels.includes('영입')&&r.labels.includes('내 선수')&&r.labels.includes('설정')?ok(`☰ 메뉴: 화면 ${r.n}개 그대로 · 묶음 이름 ${r.labels.join('·')}`):bad('메뉴 '+JSON.stringify(r));}
   // 드래프트: 공개 전에도 할 일이 보임
-  {const r=await p.evaluate(()=>{UI.go('market','draft');const g=[...document.querySelectorAll('.dfgrid>div')].map(x=>x.innerText.replace(/\s+/g,' '));const go=[...document.querySelectorAll('.content button')].some(x=>/국내 스카우트로/.test(x.textContent));const ut=SL.userTeam();const rk=SL.rankOf(ut);return {g,go,rk};});
-    r.g.length===3&&/일 뒤|곧/.test(r.g[0])&&new RegExp(`${r.rk}위`).test(r.g[1])&&r.go?ok(`드래프트(공개 전): ${r.g.join(' | ')} · 「국내 스카우트로 유망주 미리 보기」`):bad('드래프트 '+JSON.stringify(r));}
+  {const r=await p.evaluate(()=>{UI.go('market','draft');const g=[...document.querySelectorAll('.dfgrid>div')].map(x=>x.innerText.replace(/\s+/g,' '));const go=[...document.querySelectorAll('.content button')].some(x=>/한국 스카우트로/.test(x.textContent));const ut=SL.userTeam();const rk=SL.rankOf(ut);return {g,go,rk};});
+    r.g.length===3&&/일 뒤|곧/.test(r.g[0])&&new RegExp(`${r.rk}위`).test(r.g[1])&&r.go?ok(`드래프트(공개 전): ${r.g.join(' | ')} · 「한국 스카우트로 유망주 미리 보기」`):bad('드래프트 '+JSON.stringify(r));}
   await p.close();
   // PC: 왼쪽 메뉴도 같은 묶음, 위 줄 5칸
   {const q=await b.newPage({viewport:{width:1280,height:800}});q.on('pageerror',e=>errs.push(e.message));await q.goto(url);await q.waitForTimeout(300);

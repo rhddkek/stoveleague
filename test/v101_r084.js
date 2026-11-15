@@ -9,7 +9,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       const fg=SL.krTeams().flatMap(t=>t.roster.map(id=>S.players[id])).filter(q=>SL.isFgn(q)).map(q=>q.contract.salary*W);
       const use=SL.krTeams().map(t=>SL.capUse(t)*W);return {W,avg:sal.reduce((a,x)=>a+x,0)/sal.length,min:sal[0],max:sal[sal.length-1],fgMax:Math.max(...fg),m1:SL.money(20000),m2:SL.money(600),lim:SL.capLimit()*W,umin:Math.min(...use),umax:Math.max(...use)};});
     r.W===5&&r.avg>=20000&&r.avg<=40000&&r.min>=3000&&r.max>=250000&&r.max<=450000&&r.fgMax<=250000&&r.m1==='10억원'&&r.m2==='3,000만원'&&Math.abs(r.lim-1439725)<10&&r.umin>=600000&&r.umax<r.lim
-      ?ok(`연봉: 국내 평균 ${(r.avg/1e4).toFixed(1)}억 · 최저 ${r.min}만 · 최고 ${(r.max/1e4).toFixed(1)}억 · 외국인 최고 ${(r.fgMax/1e4).toFixed(1)}억 · 구단 상위 40명 ${(r.umin/1e4).toFixed(0)}~${(r.umax/1e4).toFixed(0)}억 (상한 ${(r.lim/1e4).toFixed(1)}억) · 내부 20000 = ${r.m1}`):bad('연봉 분포 '+JSON.stringify(r));}
+      ?ok(`연봉: 한국 평균 ${(r.avg/1e4).toFixed(1)}억 · 최저 ${r.min}만 · 최고 ${(r.max/1e4).toFixed(1)}억 · 외국인 최고 ${(r.fgMax/1e4).toFixed(1)}억 · 구단 상위 40명 ${(r.umin/1e4).toFixed(0)}~${(r.umax/1e4).toFixed(0)}억 (상한 ${(r.lim/1e4).toFixed(1)}억) · 내부 20000 = ${r.m1}`):bad('연봉 분포 '+JSON.stringify(r));}
   // 2. 협상 입력칸은 화면 단위(만원): 칸 값 = 내부 × 5, 칸에 쓴 값 ÷ 5가 제시액 · 협상표에 샐러리캡 줄
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const p=S.players[ut.roster[5]];UI.openTable(p.id);const inp=document.querySelector('#tf_sal');const v0=+inp.value;const f0=UI&&SL.state().market.negs.find(n=>n.pid===p.id);
       inp.value='123450';inp.dispatchEvent(new Event('change'));const cap=(document.querySelector('.capl')||{}).innerText||'';const ff=+document.querySelector('#tf_sal').value;UI.leaveTable&&UI.leaveTable();UI.closeModal();return {v0,ff,cap};});
@@ -22,7 +22,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       return {rows,over,tax1,exp1:Math.round(over*0.3),news:!!n1,over2,tax2:h2.tax,exp2:Math.round(over2*0.5),streak:I.streak,rate:I.rate,fin:ut.fin.cap||0};});
     r.rows===10&&r.over>0&&Math.abs(r.tax1-r.exp1)<=1&&r.news&&r.over2>0&&Math.abs(r.tax2-r.exp2)<=1&&r.rate===0.5
       ?ok(`샐러리캡: 재정 화면 구단 ${r.rows}곳 표 · 1회 초과 ${r.over} → 30% ${r.tax1} 납부(소식) · 2회 연속 초과 ${r.over2} → 50% ${r.tax2}`):bad('샐러리캡 '+JSON.stringify(r));}
-  // 4. 최저 연봉: 2시즌(2027년)부터 3,300만 — 계약 중인 국내 선수 모두 그 이상
+  // 4. 최저 연봉: 2시즌(2027년)부터 3,300만 — 계약 중인 한국 선수 모두 그 이상
   {const r=await p.evaluate(()=>{const S=SL.state();const low=SL.krTeams().flatMap(t=>t.roster.concat(t.dev).map(id=>S.players[id])).filter(q=>q&&q.contract&&q.contract.years>0&&q.contract.salary<660).length;return {s:S.season,low,min:SL.minSal()};});
     r.s>=2&&r.low===0&&r.min===660?ok(`${r.s}시즌: 최저 연봉 ${r.min*5}만 — 밑도는 계약 0명`):bad('최저 연봉 '+JSON.stringify(r));}
   // 5. 예전 저장(v29 샘플): 불러오면 금액이 같은 비율(×5)로 보이고, 최저 연봉 아래 선수만 조정 · 안내 소식 · 저장 형식 그대로

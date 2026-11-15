@@ -11,7 +11,7 @@ const {chromium}=require('playwright');const path=require('path');
       return {cut:document.querySelectorAll('tr.pcut').length,txt:/▲|\d위까지 가을야구/.test(t),auto};});
     !r.cut&&!r.txt&&(r.auto.includes('이 경기 자동')||r.auto.includes('7경기 자동')) /* v150: [자동] [⋯] 두 단추 */&&!r.auto.some(x=>/▶▶ 자동 진행/.test(x))?ok(`순위표 컷 줄 없음 · 홈 단추 「${r.auto.join(' / ')}」`):bad('순위표·단추 '+JSON.stringify(r));}
 
-  // 2. 다른 리그: 대만·미국·일본을 고르면 첫 표가 그 리그 구단 · 국내 「라인업 보기」 없음 · 제목이 「한국」이 아님
+  // 2. 다른 리그: 대만·미국·일본을 고르면 첫 표가 그 리그 구단 · 한국 「라인업 보기」 없음 · 제목이 「한국」이 아님
   {const r=await p.evaluate(()=>{const S=SL.state();const out={};for(const lg of ['TW','US','JP']){UI.set('lgView',lg);const c=document.querySelector('.content');const first=(c.querySelector('table .tfn')||{}).textContent||'';
         const t=c.innerText;const nm=Object.values(S.teams).filter(x=>x.league===lg).map(x=>x.name);out[lg]={first:first.trim(),own:nm.some(n=>first.includes(n)),kr:/한국 프로야구/.test(t.slice(0,200)),lu:/라인업 보기/.test(t),fmt:/교류전|전반기|후반기/.test(t)};}UI.set('lgView','KR');return out;});
     Object.values(r).every(x=>x.own&&!x.kr&&!x.lu&&!x.fmt)?ok('다른 리그: '+Object.entries(r).map(([k,x])=>`${k} 첫 줄 「${x.first}」`).join(' · ')+' · 라인업 단추·형식 설명 없음'):bad('다른 리그 '+JSON.stringify(r));}

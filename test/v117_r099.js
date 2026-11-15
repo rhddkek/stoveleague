@@ -7,7 +7,7 @@ const {chromium}=require('playwright');const path=require('path');
   const fresh=`SL.newGame(4096,1,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();`;
   const toWinter=`{let k=0;while(S.phase!=='offseason'&&k++<30)SL.testCmd('endSeason');UI.closeModal();}`;
 
-  // 1. 이적 → 신인 → 국내 스카우트를 본 뒤 아래 「육성」을 누르면 육성 화면 (전에는 이적 화면이 다시 열림)
+  // 1. 이적 → 신인 → 한국 스카우트를 본 뒤 아래 「육성」을 누르면 육성 화면 (전에는 이적 화면이 다시 열림)
   {const r=await p.evaluate(new Function(fresh+`const tabs=()=>[...document.querySelectorAll('.htabs button')].map(x=>x.textContent.trim()).join(',');UI.go('market','scout');const a=tabs();UI.navTap('dev');const b2=tabs();UI.go('dev','draft');const c=tabs();UI.navTap('dev');return {a,b:b2,c,d:tabs()};`));
     /^영입/.test(r.a)&&/^훈련,성장/.test(r.b)&&/^영입/.test(r.c)&&/^훈련,성장/.test(r.d)?ok('이적 → 신인을 본 뒤 「육성」 = 훈련·성장 화면'):bad('육성 탭 '+JSON.stringify(r));}
 

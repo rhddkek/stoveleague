@@ -15,13 +15,13 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       f.scrollTop=9999;const fr=f.getBoundingClientRect();const at=document.elementFromPoint(fr.left+60,fr.top+6);const th2=at&&at.closest('th')?0:99;return {fitx:f.classList.contains('fitx'),scrolled:f.scrollTop>0||f.scrollHeight<=f.clientHeight+1 /* 어두운 색에서는 14명이 딱 들어가 밀 것이 없음 */,thTop:Math.round(th2),page:document.scrollingElement.scrollHeight-innerHeight,tabs2:document.querySelector('.htabs').getBoundingClientRect().top===tabs,bar2:document.querySelector('.selmg').getBoundingClientRect().top===bar,pos:getComputedStyle(th).position};});
     r.fitx&&r.scrolled&&Math.abs(r.thTop)<=1&&r.pos==='sticky'&&r.page<=40&&r.tabs2&&r.bar2?ok(`목록만 스크롤 (머리줄 고정 · 페이지 여유 ${r.page}px · 탭·단추 그대로)`):bad('목록 스크롤 '+JSON.stringify(r));}
 
-  // 3. 순위표: 「한국 프로야구 ▾」를 누르면 한국·일본·미국·대만 → 일본을 고르면 일본 리그 순위(경기가 쌓여 있음) → 한국으로 돌아옴 · 국내 결과는 그대로
+  // 3. 순위표: 「한국 프로야구 ▾」를 누르면 한국·일본·미국·대만 → 일본을 고르면 일본 리그 순위(경기가 쌓여 있음) → 한국으로 돌아옴 · 한국 결과는 그대로
   {const r=await p.evaluate(()=>{const S=SL.state();UI.autoDays(20);UI.closeModal();const kr=SL.standings(1).map(t=>t.rec.w).join();UI.go('league','table');document.querySelector('.lgsw').click();const chips=[...document.querySelectorAll('.chiprow button')].map(x=>x.textContent);
       [...document.querySelectorAll('.chiprow button')].find(x=>x.textContent==='일본').click();const t=document.querySelector('.content').innerText;const jp=SL.leagueComps('JP').map(c=>SL.standings(c).reduce((a,x)=>a+x.rec.w+x.rec.l,0));
       [...document.querySelectorAll('.chiprow button')].find(x=>x.textContent==='한국').click();const back=/한국 프로야구/.test(document.querySelector('.content').innerText);UI.set('lgPick',false);UI.set('lgView','KR');return {chips,jpT:/일본 프로야구/.test(t)&&/간이 순위/.test(t),jp,back,kr};});
     r.chips.join()==='한국,일본,미국,대만'&&r.jpT&&r.jp.every(n=>n>=100)&&r.back?ok(`리그 칩 ${r.chips.join('·')} → 일본 간이 순위(구분별 ${r.jp.join('/')}경기분) → 한국으로`):bad('리그 바꾸기 '+JSON.stringify(r));}
 
-  // 4. 간이 순위는 시즌이 끝나면 정해진 경기 수 · 새 시즌에 0부터 · 국내 순위·기록은 따로 (해외 팀 선수 기록은 안 쌓임)
+  // 4. 간이 순위는 시즌이 끝나면 정해진 경기 수 · 새 시즌에 0부터 · 한국 순위·기록은 따로 (해외 팀 선수 기록은 안 쌓임)
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;S.settings.stopOnOffer=false;UI.closeModal();let k=0;while(S.phase==='season'&&!S.post&&k++<20){UI.autoDays(999);UI.closeModal();}
       const G=SL.lgGames('JP');const jp=Object.values(S.teams).filter(t=>t.league==='JP').map(t=>t.rec.w+t.rec.l);const pst=Object.values(S.players).filter(q=>q.teamId!=null&&S.teams[q.teamId]&&S.teams[q.teamId].league==='JP').reduce((a,q)=>a+((q.cur&&q.cur.pa)||0),0);
       while(S.phase==='season'&&k++<40){UI.autoDays(999);UI.closeModal();}SL.testCmd('nextSeason');UI.closeModal();const jp0=Object.values(S.teams).filter(t=>t.league==='JP').every(t=>t.rec.w+t.rec.l===0);return {G,jp:[Math.min(...jp),Math.max(...jp)],pst,jp0};});

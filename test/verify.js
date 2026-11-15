@@ -13,14 +13,14 @@ function checkIntegrity(label){
   }
   for(const pid in S.players){const p=S.players[pid];if(+pid!==p.id)bad('id 키 불일치');if(p.teamId!=null&&!p.retired){const t=S.teams[p.teamId];if(!t||!(t.roster.includes(p.id)||(t.dev||[]).includes(p.id)))bad(`${label} teamId 있으나 로스터에 없음 ${p.name}`);}}
   for(const id of S.fa){const p=S.players[id];if(!p)bad('FA에 없는 선수');else if(p.teamId!=null)bad(`${label} FA인데 소속 있음 ${p.name}`);}
-  {const n=SL.krTeams().length;if(n!==10)bad(`${label} 국내 구단 수 ${n} (10개여야 함)`);if(SL.krTeams().some(t=>t.div!==1))bad(`${label} 승강제 잔재: div≠1 구단`);}
+  {const n=SL.krTeams().length;if(n!==10)bad(`${label} 한국 구단 수 ${n} (10개여야 함)`);if(SL.krTeams().some(t=>t.div!==1))bad(`${label} 승강제 잔재: div≠1 구단`);}
 }
 function checkSchedule(){
   const G=B.SEASON_GAMES;const games=S.schedule.filter(g=>!g.post);if(games.length!==G*5)bad('경기 수 '+games.length+' (10구단 × '+G+'경기 ÷ 2)');
   const per={},home={},dayTeam=new Set();
   for(const g of games){per[g.home]=(per[g.home]||0)+1;per[g.away]=(per[g.away]||0)+1;home[g.home]=(home[g.home]||0)+1;
     for(const t of [g.home,g.away]){const k=g.day+':'+t;if(dayTeam.has(k))bad('같은 날 2경기 '+k);dayTeam.add(k);}
-    if(S.teams[g.home].league!=='KR'||S.teams[g.away].league!=='KR')bad('국내 일정에 해외 구단');}
+    if(S.teams[g.home].league!=='KR'||S.teams[g.away].league!=='KR')bad('한국 일정에 해외 구단');}
   for(const t of SL.krTeams()){if(per[t.id]!==G)bad(`${t.name} 경기수 ${per[t.id]}`);if(home[t.id]!==G/2)bad(`${t.name} 홈경기 ${home[t.id]}`);}
   // 각 상대와 G/9경기 (36경기면 4경기)
   for(const t of SL.krTeams()){const opp={};for(const g of games){if(g.home===t.id)opp[g.away]=(opp[g.away]||0)+1;if(g.away===t.id)opp[g.home]=(opp[g.home]||0)+1;}for(const o in opp)if(opp[o]!==G/9)bad(`${t.name} vs ${o} ${opp[o]}경기`);}

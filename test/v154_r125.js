@@ -15,7 +15,7 @@ const {chromium}=require('playwright');const path=require('path');
     // 2. 타순 구장: 카드 수치 = 등급 글자 + 숫자 · 전력 합계 = 카드 수치 합 · 외국인 국기 수 = 주전 외국인 수
     const l=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();UI.go('roster','lineup');const C=[...document.querySelectorAll('.fvf:not(.pfv) .dslot:not(.empty)')];const vs=C.map(x=>{const d=x.querySelector('.dv');return d?{g:(d.querySelector('.gl2')||{}).textContent||'',v:parseInt(d.textContent.replace(/\D/g,''),10),fs:parseFloat(getComputedStyle(d).fontSize)}:null;});const pow=(document.querySelector('.fvpow')||{}).innerText||'';const fg=ut.lineup.map(id=>S.players[id]).filter(q=>q&&SL.isFgn(q)).length;return {n:C.length,okv:vs.every(x=>x&&/^[SABCD]$/.test(x.g)&&x.v>0&&x.fs>=13),sum:vs.reduce((a,x)=>a+(x?x.v:0),0),pow:pow.replace(/\s+/g,' '),fl:document.querySelectorAll('.fvf .dslot .nfl').length,fg};});
     l.n===9&&l.okv&&l.pow.includes(String(l.sum))&&/타자 전력/.test(l.pow)&&l.fl===l.fg?ok(`${W} 타순 구장: 카드 9장 등급 글자 + 숫자(13px 이상) · 「${l.pow}」 = 카드 합 ${l.sum} · 국기 ${l.fl}개 = 주전 외국인 ${l.fg}명`):bad(W+' 타순 구장 '+JSON.stringify(l));
-    // 3. 명단 표: 외국인 이름 옆 국기 · 국내 선수에는 없음
+    // 3. 명단 표: 외국인 이름 옆 국기 · 한국 선수에는 없음
     const q=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();UI.go('roster','list');const rows=[...document.querySelectorAll('table.rosterq2 tbody tr')];const fl=rows.filter(x=>x.querySelector('.nfl')).length;const fg=ut.entry.map(id=>S.players[id]).filter(x=>x&&SL.isFgn(x)).length;return {rows:rows.length,fl,fg};});
     q.rows>10&&q.fl===q.fg&&q.fg>0?ok(`${W} 명단: 국기 ${q.fl}줄 = 1군 외국인 ${q.fg}명`):bad(W+' 명단 국기 '+JSON.stringify(q));
     // 4. 선수 카드: FA 줄(계약 마지막 시즌 뒤) · 훈련 고르면 바로 바뀜

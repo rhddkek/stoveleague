@@ -1,4 +1,4 @@
-// v3(효과음 v8 빌드) 코드로 세이브 2종 생성: (a) 국내 3부 시즌 중 (b) 일본 구단 감독으로 이직 후 시즌 중
+// v3(효과음 v8 빌드) 코드로 세이브 2종 생성: (a) 한국 3부 시즌 중 (b) 일본 구단 감독으로 이직 후 시즌 중
 const fs=require('fs');const vm=require('vm');
 const src=fs.readFileSync(__dirname+'/../src_v3/core_all.js','utf8');
 const ctx={module:{exports:{}},console};vm.createContext(ctx);vm.runInContext(src,ctx);const SL=ctx.module.exports;

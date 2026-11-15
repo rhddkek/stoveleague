@@ -5,7 +5,7 @@ function integrity(label){S=SL.state();const seen=new Map();let users=0;
     for(const pid of all){const p=S.players[pid];if(!p){bad(label+' 없는 선수 '+t.name);continue;}if(p.teamId!==t.id)bad(label+' 소속 불일치 '+p.name);if(seen.has(pid))bad(label+' 이중 소속 '+p.name);seen.set(pid,1);}
     for(const id of t.lineup)if(!t.roster.includes(id))bad(label+' 라인업 비소속 '+t.name);}
   if(users!==1)bad(label+' 유저 구단 수 '+users);if(S.teams[S.userTeamId].isUser!==true)bad(label+' userTeamId 불일치');
-  if(SL.compTeams(1).length!==10)bad(label+' 국내 구단 수 '+SL.compTeams(1).length);}
+  if(SL.compTeams(1).length!==10)bad(label+' 한국 구단 수 '+SL.compTeams(1).length);}
 function checkSched(label){const per={},home={},dt=new Set();for(const g of S.schedule){for(const t of [g.home,g.away]){per[t]=(per[t]||0)+1;const k=g.day+':'+t;if(dt.has(k))bad(label+' 같은 날 2경기');dt.add(k);}home[g.home]=(home[g.home]||0)+1;}
   const G=SL.userGames();const ut=SL.userTeam();if(per[ut.id]!==G)bad(label+' 유저 경기 수 '+per[ut.id]);const comp=SL.compTeams(SL.compOf(ut));for(const t of comp){if(per[t.id]!==G)bad(label+' '+t.name+' 경기수 '+per[t.id]);if(Math.abs(home[t.id]-G/2)>1)bad(label+' 홈경기 불균형 '+t.name+' '+home[t.id]);}
   for(const t of SL.krTeams())if(per[t.id]!==SL.lgGames('KR'))bad(label+' KR '+t.name+' '+per[t.id]);}

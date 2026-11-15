@@ -9,10 +9,10 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       const avg=(f,k)=>{const L=ps.filter(f);return L.length?L.reduce((s,q)=>s+SL.perOf(q)[k],0)/L.length:null;};const all=k=>avg(()=>true,k);const inR=ps.every(q=>['ld','wk','mt'].every(k=>SL.perOf(q)[k]>=15&&SL.perOf(q)[k]<=95));
       return {same,inR,wk:[avg(q=>q.traits.includes('성실'),'wk'),all('wk')],ld:[avg(q=>q.traits.includes('리더'),'ld'),all('ld')],mt:[avg(q=>q.traits.includes('유리멘탈'),'mt'),all('mt')]};});
     r.same&&r.inR&&r.wk[0]>r.wk[1]+12&&r.ld[0]>r.ld[1]+12&&r.mt[0]<r.mt[1]-10&&Math.abs(r.ld[1]-52)<6&&Math.abs(r.wk[1]-55)<4&&Math.abs(r.mt[1]-50)<4?ok(`성격: 다시 계산해도 같음 · 15~95 · 평균 리더십 ${r.ld[1].toFixed(0)}·성실성 ${r.wk[1].toFixed(0)}·멘탈 ${r.mt[1].toFixed(0)} · 「성실」 ${r.wk[0].toFixed(0)} · 「리더」 ${r.ld[0].toFixed(0)} · 「유리멘탈」 멘탈 ${r.mt[0].toFixed(0)}`):bad('성격 '+JSON.stringify(r));}
-  // 2. 주장: 모든 국내 구단에 자국 선수 주장 · 바꾸면 새 주장 +5 · 전 주장 −6 · 소식
+  // 2. 주장: 모든 한국 구단에 자국 선수 주장 · 바꾸면 새 주장 +5 · 전 주장 −6 · 소식
   {const r=await p.evaluate(()=>{const S=SL.state();const caps=SL.krTeams().map(t=>{const L=SL.lockerOf(t);return S.players[L.cap];});const ut=SL.userTeam();const L=SL.lockerOf(ut);const old=S.players[L.cap];const c=SL.captainCands().find(x=>x.pid!==L.cap);const np=S.players[c.pid];const o0=old.morale,n0=np.morale;const e=SL.setCaptain(c.pid);
       return {all:caps.every(q=>q&&q.nat==='KR'),e,old:old.morale-o0,neu:np.morale-n0,cap:ut.captain===c.pid,nw:/새 주장/.test(S.news[0].text)};});
-    r.all&&!r.e&&r.old===-6&&r.neu===5&&r.cap&&r.nw?ok('주장: 국내 10개 구단 모두 자국 선수 주장 · 바꾸면 새 주장 사기 +5 · 전 주장 −6 · 소식'):bad('주장 '+JSON.stringify(r));}
+    r.all&&!r.e&&r.old===-6&&r.neu===5&&r.cap&&r.nw?ok('주장: 한국 10개 구단 모두 자국 선수 주장 · 바꾸면 새 주장 사기 +5 · 전 주장 −6 · 소식'):bad('주장 '+JSON.stringify(r));}
   // 3. 라커룸: 한 주 지나면 사기가 기준 쪽으로 8% · 면담 대기 선수는 끌어올리지 않음
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const ids=ut.roster.filter(id=>id!==ut.captain);const a=S.players[ids[0]],g=S.players[ids[1]];a.morale=30;g.morale=30;S.grievances=(S.grievances||[]).concat([{pid:g.id,s:S.season,on:0,n:10,exp:S.clock+99}]);const base=SL.lockerOf(ut).base;
       let k=0;const d0=S.day;while(S.day<d0+8&&k++<12){UI.autoDays(1);UI.closeModal();}const exp=30+(base-30)*0.08;return {a:a.morale,exp,g:g.morale,base};});

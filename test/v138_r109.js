@@ -31,7 +31,7 @@ const {chromium}=require('playwright');const path=require('path');
       return o;});
     await p.waitForTimeout(300);
     const r2=await p.evaluate(()=>{const o={};const pr=document.querySelector('#modal .tsk:not(.done) .shbar .primary');o.has=!!pr;if(!pr)return o;o.tt=(document.querySelector('#modal .tsc b')||{}).textContent;pr.click();
-      if(document.querySelector('#modal .todo')){o.inl=0;let g=0;let st;while((st=[...document.querySelectorAll('#modal .todo button')].find(x=>x.textContent==='국내 잔류'))&&g++<6){st.click();o.inl++;}o.next=(document.querySelector('#modal .tsh b')||{}).textContent||(document.querySelector('#modal .tsd')||{}).textContent||'';
+      if(document.querySelector('#modal .todo')){o.inl=0;let g=0;let st;while((st=[...document.querySelectorAll('#modal .todo button')].find(x=>x.textContent==='한국 잔류'))&&g++<6){st.click();o.inl++;}o.next=(document.querySelector('#modal .tsh b')||{}).textContent||(document.querySelector('#modal .tsd')||{}).textContent||'';
         const pr2=document.querySelector('#modal .tsk:not(.done) .shbar .primary');if(pr2){o.tt2=(document.querySelector('#modal .tsc b')||{}).textContent;pr2.click();}}return o;});
     await p.waitForTimeout(400);
     const r3=await p.evaluate(()=>{const pill=document.querySelector('.chainpill');const o={pill:pill?pill.innerText:'',away:!!(document.querySelector('.pv')||document.querySelector('.subtabs .on'))};if(pill)pill.click();o.back=(document.querySelector('#modal .tsh b')||{}).textContent||((document.querySelector('#modal .tsd')||{}).textContent)||'';
@@ -41,7 +41,7 @@ const {chromium}=require('playwright');const path=require('path');
     await p.waitForTimeout(400);
     const r5=await p.evaluate(()=>({task:(document.querySelector('#modal .tsh b')||{}).textContent||((document.querySelector('#modal .tsd')||{}).textContent)||''}));
     const R={r,r2,r3,r4,r5};
-    r.ph==='offseason'&&r.btn&&/^할 일 1 \/ \d+$/.test(r.h1)&&(!r.au||r.t2!==r.t1)&&(r2.inl==null||(r2.inl>0&&/^할 일 \d|할 일 끝/.test(r2.next)))&&(!r2.tt2||/남음/.test(r3.pill))&&r3.done==='할 일 끝'&&/^다음 주 ▶/.test(r3.go)&&r4.w===r3.w0+1&&(r5.task===''||/^할 일 1 \//.test(r5.task)||r5.task==='할 일 끝')?ok(`겨울 「하나씩 처리 ▶」 → 「${r.h1} ${r.t1}」 → 맡기기 → 「${r.t2}」 → [${r2.tt||'-'}]${r2.inl!=null?` 목록에서 국내 잔류 ${r2.inl}건 → 바로 「${r2.next}」`:''} → [${r2.tt2||'-'}] 다른 화면 알약 「${r3.pill||'-'}」 → 나중에… → 「할 일 끝」 [${r3.go}] → ${r4.w}주차 → 안내 닫으면 「${r5.task||'없음'}」`):bad('하나씩 처리 '+JSON.stringify(R));}
+    r.ph==='offseason'&&r.btn&&/^할 일 1 \/ \d+$/.test(r.h1)&&(!r.au||r.t2!==r.t1)&&(r2.inl==null||(r2.inl>0&&/^할 일 \d|할 일 끝/.test(r2.next)))&&(!r2.tt2||/남음/.test(r3.pill))&&r3.done==='할 일 끝'&&/^다음 주 ▶/.test(r3.go)&&r4.w===r3.w0+1&&(r5.task===''||/^할 일 1 \//.test(r5.task)||r5.task==='할 일 끝')?ok(`겨울 「하나씩 처리 ▶」 → 「${r.h1} ${r.t1}」 → 맡기기 → 「${r.t2}」 → [${r2.tt||'-'}]${r2.inl!=null?` 목록에서 한국 잔류 ${r2.inl}건 → 바로 「${r2.next}」`:''} → [${r2.tt2||'-'}] 다른 화면 알약 「${r3.pill||'-'}」 → 나중에… → 「할 일 끝」 [${r3.go}] → ${r4.w}주차 → 안내 닫으면 「${r5.task||'없음'}」`):bad('하나씩 처리 '+JSON.stringify(R));}
   // 6. PC 폭은 예전 그대로(명단 줄 = 아래 선택 카드 · 자동 진행 뒤 창 없음)
   await p.setViewportSize({width:1280,height:900});
   {const r=await p.evaluate(()=>{const S=SL.state();UI.closeModal();UI.go('roster','list');const tr=document.querySelectorAll('.rosterq2 tbody tr')[1];tr.click();return {pc:!!document.querySelector('#modal .pck'),sel:!!document.querySelector('.selcard')};});

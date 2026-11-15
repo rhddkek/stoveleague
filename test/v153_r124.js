@@ -5,7 +5,7 @@ const {chromium}=require('playwright');const path=require('path');
   const boot=async()=>{const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(400);
     await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(1);UI.newGame();const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();UI.closeModal();});await p.waitForTimeout(300);return p;};
   const click=(p,re,sel)=>p.evaluate(([re,sel])=>{const b=[...document.querySelectorAll(sel)].filter(x=>x.offsetParent&&!x.disabled).find(x=>new RegExp(re).test(x.textContent.trim()));if(b){b.click();return b.textContent.replace(/\s+/g,' ').trim();}return '';},[re,sel]);
-  // 1. 요구대로 → 계약 확정 → 실제 계약 (국내 영입 3명) · 1년으로 바꾸면 요구가 같이 오르고 그 값으로도 성사
+  // 1. 요구대로 → 계약 확정 → 실제 계약 (한국 영입 3명) · 1년으로 바꾸면 요구가 같이 오르고 그 값으로도 성사
   {const p=await boot();const ids=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();return Object.values(S.players).filter(q=>q.teamId!=null&&q.teamId!==ut.id&&S.teams[q.teamId].league==='KR'&&!SL.isFgn(q)&&SL.calcOvr(q)<60&&q.age>=24).slice(0,30).map(q=>q.id);});
     const out=[];for(const id of ids){if(out.length>=3)break;await p.evaluate(id=>{UI.closeModal();while(document.querySelector('.pv'))UI.back();UI.openTable(id);},id);await p.waitForTimeout(200);if(!(await p.evaluate(()=>!!document.querySelector('.pv'))))continue;
       if(await click(p,'^요구대로$','.pv button'))await p.waitForTimeout(120);if(await click(p,'^이적료 제안','.pv button')){await p.waitForTimeout(300);await click(p,'.','#modal button.primary');await p.waitForTimeout(250);}

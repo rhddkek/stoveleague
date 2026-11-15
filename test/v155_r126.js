@@ -55,7 +55,7 @@ for(const [lg,ent] of [['JP',31],['TW',28],['US',26]]){SL.newGame(901,0,{league:
   F.length<=5&&fp<=4&&fb<=4?ok(`일본 1군 외국인: 투수 5 + 야수 2명 → 1군 ${F.length}명(투 ${fp} · 야 ${fb}) · 넘친 투수는 2군`):bad(`일본 외국인 ${F.length} ${fp}/${fb}`);
   const g=S.schedule.find(x=>x.home===ut.id||x.away===ut.id);const LG=SL.createGame?SL.createGame(g.home,g.away,false):null;
   if(LG){const side=g.home===ut.id?1:0;const used=[LG.pitcher[side]].concat(LG.lineup[side]).map(id=>S.players[id]).filter(p=>SL.isFgnIn(p,lg)).length;const out=(LG.fgnOut||[[],[]])[side].length;const dressed=F.length-out;dressed<=4&&used<=4?ok(`일본 한 경기 외국인: 1군 ${F.length}명 중 ${dressed}명만 출전 가능 (선발 + 타순 ${used}명)`):bad(`경기 외국인 dressed ${dressed} used ${used}`);}else bad('createGame 없음');
-  const x=F[0];x.svcL=x.svcL||{};x.svcL.JP=7.9;S.phase==='season';SL.endSeason&&0;x.svcL.JP=8;x.jpLocal=true;!SL.isFgnIn(x,'JP')?ok('일본 1군 8시즌(국내 FA 자격)을 채운 외국인 → 외국인 수에서 빠짐'):bad('일본인 취급');
+  const x=F[0];x.svcL=x.svcL||{};x.svcL.JP=7.9;S.phase==='season';SL.endSeason&&0;x.svcL.JP=8;x.jpLocal=true;!SL.isFgnIn(x,'JP')?ok('일본 1군 8시즌(한국 FA 자격)을 채운 외국인 → 외국인 수에서 빠짐'):bad('일본인 취급');
   const ai=SL.lrLgTeams('JP').find(t=>!t.isUser);const top=ai.roster.map(id=>S.players[id]).filter(p=>!SL.isFgnIn(p,'JP')).sort((a,b)=>b.contract.salary-a.contract.salary);
   SL.faMark(top[0],ai);SL.faMark(top[6],ai);SL.faMark(top[15],ai);const gs=[top[0],top[6],top[15]].map(p=>p.faFrom&&p.faFrom.g).join('');
   gs==='ABC'?ok('일본 FA 등급: 구단 일본인 연봉 1위 A · 7위 B · 16위 C'):bad('일본 등급 '+gs);}

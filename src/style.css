@@ -1195,7 +1195,7 @@ details.more{margin:0 0 10px;border:1px dashed var(--line);border-radius:10px;pa
 .pv.tbl3 button.ghost,.stv button.ghost{background:var(--sunk)!important;color:var(--text)!important;border-color:var(--line)!important}
 /* v77: 팀 이름 전부 표시 */
 .cmsb .tm{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:14px}.cmls td.tn{font-size:11px;max-width:84px;overflow:hidden;text-overflow:ellipsis}.tth{font-size:12.5px}.tth span{min-width:0}
-/* v77: 어두운 판 안의 밝은 줄무늬·카드 지우기 (국내 구단 선수 표 등) */
+/* v77: 어두운 판 안의 밝은 줄무늬·카드 지우기 (한국 구단 선수 표 등) */
 .stv .ptab tbody tr:nth-child(even) td,.stv .mkt tbody tr:nth-child(even) td{background:rgba(255,255,255,.04)!important}
 .stv .ptab tbody tr td,.stv .mkt tbody tr td{color:var(--text)}
 .stv .ptab th,.stv .mkt th{background:#0a0f1b!important;color:#f4c542!important;border-color:#2f3b58!important}
