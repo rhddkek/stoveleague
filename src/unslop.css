@@ -1014,3 +1014,4 @@ body:not(.ingame) .pfv .dslot.pfc{position:relative;left:auto;top:auto;transform
 .pfn{position:absolute;top:-8px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;font-weight:600;padding:0 6px;border-radius:8px;background:var(--acc,#f2c14e);color:#15171c}
 .pcd select.pctr{min-height:32px;padding:2px 8px;font-size:14px}
 @media(min-width:960px){body:not(.ingame) .pfv .dslot.pfc{width:84px}.pfv .dslot.pfc b{max-width:78px}}
+:root.ea[data-theme="light"] .fvpow b{color:var(--text)}

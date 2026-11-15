@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
 
   // 1. 색깔 등급: 명단 종합 칸 = 「등급 글자 + 숫자」, 글자 = gradeOf(숫자), 등급마다 색이 다름 · 투수진 · 2군 현황에도
   {const r=await p.evaluate(()=>{SL.newGame(4096,1,{arch:true,games:144,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();UI.go('roster','list');const cells=[...document.querySelectorAll('.rosterq2 td.ov')];const badG=cells.filter(c=>{const g=c.querySelector('.gq');const n=+c.textContent.replace(/[^0-9+]/g,'').split('+')[0];return !g||g.textContent!==SL.gradeOf(n);}).length;const col={};for(const c of cells){const g=c.querySelector('.gq');col[g.textContent]=getComputedStyle(g).color;}
-      UI.go('roster','pitch');const pit=document.querySelectorAll('.prow2 .ov .gq').length;UI.go('dev','res');const res=document.querySelectorAll('.resq td.ov .gq').length;return {n:cells.length,badG,col,pit,res};});
+      UI.go('roster','pitch');UI.pitchF2('S');const pit=document.querySelectorAll('.prow2 .ov .gq').length;UI.go('dev','res');const res=document.querySelectorAll('.resq td.ov .gq').length;return {n:cells.length,badG,col,pit,res};});
     const cs=Object.values(r.col);r.n>20&&r.badG===0&&cs.length>=2&&new Set(cs).size===cs.length&&r.pit===5&&r.res>=1?ok(`색깔 등급: 명단 ${r.n}줄 모두 「등급+숫자」(등급 = 숫자 기준) · ${Object.keys(r.col).join('·')} 색이 서로 다름 · 투수진·2군 현황에도`):bad('등급 '+JSON.stringify(r));}
 
   // 2. 경기 준비: 선발 두 장(종합 · 체력) · 전력 막대 = 직접 계산한 값 · 상대 최근 5경기 · 휴식 추천/부상 수 · 경기 보고 · [라인업][경기 시작]
