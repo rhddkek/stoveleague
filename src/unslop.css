@@ -1015,3 +1015,13 @@ body:not(.ingame) .pfv .dslot.pfc{position:relative;left:auto;top:auto;transform
 .pcd select.pctr{min-height:32px;padding:2px 8px;font-size:14px}
 @media(min-width:960px){body:not(.ingame) .pfv .dslot.pfc{width:84px}.pfv .dslot.pfc b{max-width:78px}}
 :root.ea[data-theme="light"] .fvpow b{color:var(--text)}
+
+/* v155 (R126): 선수 카드 위 탭 · 기록 · 계약 · 리그 제도 */
+.pctop{display:flex;align-items:center;gap:8px;margin:0 0 10px}.pctop .pcnav{margin:0;flex:none}.pctabs{flex:1;margin:0}.pctabs button{min-height:36px}
+.pcrec{margin:6px 0 10px;overflow-x:auto}.pcrec table{width:100%;font-variant-numeric:tabular-nums}.pcrec td,.pcrec th{text-align:right;padding:6px 4px;white-space:nowrap}.pcrec td.tn{text-align:left}.pcrec td.tn small{display:block;color:var(--muted);font-size:11.5px}.pcrec tr.now td{color:var(--text);font-weight:600}
+.pctr2{margin:4px 0 10px;display:flex;flex-direction:column;gap:4px}.pctr2 .small{color:var(--muted)}.pctr2 b{color:var(--text);font-weight:600;margin-right:4px}
+.lrseg{margin:0 0 10px}.lrt th{text-align:left;white-space:nowrap;color:var(--muted);font-weight:500;padding:8px 10px 8px 4px;vertical-align:top;width:92px}.lrt td{text-align:left;padding:8px 4px;line-height:1.45}.lrfa{padding:4px 0;cursor:pointer}
+.rsvt .rseg button{min-width:44px}
+.rsvbar{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:6px 0 14px;padding:8px 10px;border:1px solid var(--line);border-radius:10px}.rsvbar .small{color:var(--muted)}.rsvbar button{flex:none;min-height:36px}
+.lrt td,.lrt th{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}.lrt{table-layout:fixed;width:100%}
+.cofh{display:flex;align-items:center;gap:12px;margin:4px 0 10px}.cofh b{display:block;font-size:17px;font-weight:600}.cofh small{display:block;color:var(--muted);margin-top:2px}

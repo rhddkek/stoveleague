@@ -62,6 +62,14 @@
 - 선수 카드(`pcDeal`) 우리 선수 줄: 잠재 · 계약 · FA(계약 마지막 시즌 뒤) · 훈련(바로 고름) · 시장가치.
 - 다른 게임 화면은 참고만 — 저장소에 넣지 않는다.
 
+## 리그 제도 (v155, R126 — 광우: 「리그마다 그 나라 규칙 다, 한국은 한국 방식」)
+- 규칙표 `BAL.LR`(KR · JP · TW · US) 하나 — 1군 등록 · 선수단 · 외국인 · FA 자격 · 1시즌 기준 · 보류 방식 · 보상 · 드래프트 · 트레이드 마감 · 미국 옵션 · 룰5 · 사치세. 화면은 리그 → 리그 제도(`lrRows`). 새 제도는 이 표에 값을 넣고 `lrRows`에 한 줄.
+- 1군 시즌 `p.svcL[리그]`(경기일마다 1군 등록이면 `p.sdy`, 시즌 끝 `svcSeasonEnd`) → `faElig` · `faLeft`. 계약이 끝나도 자격 전이면 보류 `resvAdd`(우리 팀은 `S.resv` · 재계약 화면 보류 표 · 4주차 마감 `resvDeadline`). 연봉 조정은 공정가에 가까운 쪽(`resvDecide`).
+- 해외 리그를 맡으면 그 리그 AI 구단(`lrAI`)도 계약 · 보류 · FA · 보상을 그 리그 규정대로(FA 입찰 `faBidTeams`, 보상 `compRule`). 트레이드 상대는 같은 리그(`lrLgTeams`).
+- 일본 · 대만 외국인: 1군 등록은 `fgnCanEnter`(엔트리 채우기 · 등록 단추가 모두 이 함수), 경기 출전은 `lrGameFgn`(`lg.fgnOut` — 벤치 · 불펜에서 뺌).
+- 미국: 퀄리파잉 오퍼 `qoOffer` · 보상 지명 `usPickOrder` · 사치세 `cbtInfo` · 옵션 `optUse`(entryDown) · 지명할당 `dfa` · 룰5 `r5Pick`/`r5AI`(3주차).
+- 코치 제의 `coachOfferInfo`/`coachOffer` → 시즌 끝(겨울이면 바로) `coachJoin`. 선수 카드 위 탭은 정보 · 기록 · 계약(`ui.pcTab`, `pcRecHtml` · `pcConHtml`).
+
 ## 선수 카드 통일 (v148, R119 — 광우: 「어떤 화면에서든 선수 누르면 정보 + 오퍼 · 계약이 바로」)
 - 선수를 여는 길은 `UI.openPlayer(pid)` 하나 → 휴대폰 · PC 모두 선수 카드(`pcardHtml`, 조건 `cardOn()`). 카드 = 머리 → 능력 → 기록 칸(`pcStats`) → 잠재 · 계약 · 거래 줄 + 단추(`pcDeal` — 우리 선수 / 다른 구단 / FA / 해외 / 드래프트). 상세 화면은 카드의 「자세히 ›」(`openPlayerFull`).
 - 새 목록을 만들면 줄에 `onclick="UI.openPlayer(id)"`. 줄이 「고르기」용이면(타순 · 선발 순서 · 외국인 후보) 그대로 둔다. 누르는 동작이 없는 줄의 얼굴(`face()`의 `data-pid`)은 눌러서 카드가 뜬다. 선수에게 할 수 있는 새 일은 메뉴를 따로 만들지 말고 `pcDeal` 단추나 `pmenu`(관리 ⋯)에 넣는다.

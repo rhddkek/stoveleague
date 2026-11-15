@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v154';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v155';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -51,6 +51,16 @@ const BAL={
   SKC:{n:3,learn:{C:1000,B:2000,A:4000,S:8000},up3:2,rem:2000,per:2000,perUp:10,tickUp:0.10,tickNew:0.08,tickRem:0.05},   // v141 스킬 캠프: 겨울마다 3명 · 배우기 등급별 0.5억~4억 · 레벨 2 = 배우기 값, 레벨 3 = 두 배 · 약점 지우기 · 성격 코스 1억
   AUTO:{coachKeep:60,dispAge:25},   // v135 맡기기: 평가 60 이상 코치만 재계약 · 25세 이하 비주전만 겨울리그 파견
   FA_COMP:{on:true,A:{prot:20,p:2,c:3},B:{prot:25,p:1,c:2},C:{prot:0,p:0,c:1.5}}, SD:{on:true,week:3,prot:25,rounds:3,fee:[4,3,2],maxLost:4,minAge:22},   // v132 (R106): FA 보상(보호 인원 · 선수+연봉 배수 · 돈만 배수) · 2차 드래프트(양도금 억)
+  /* v155 (R126): 리그 제도 — 리그마다 그 나라 규정대로 (조사 출처 · 추정 표시는 review/요청/R126_*.md)
+     entry 1군 등록 · roster 선수단 목표(1군+2군, 육성/마이너 제외) · fgn 외국인(ent 1군 등록 · pit/bat 한쪽 · game 한 경기) · fa FA 자격(서비스 시즌) · faCol 대학 출신 · osFA 해외 FA · reFA 재취득
+     svcR 1시즌으로 치는 1군 등록 비율 · resv 보류 재계약 방식(renew 연봉 재계약 + 조정 / arb 미국: 0~3년 구단 결정 · 3~6년 연봉 조정) · comp FA 보상 · draft 라운드 · tdl 트레이드 마감(시즌 비율) */
+  LR:{KR:{name:'한국',entry:26,roster:36,fgn:{ent:3,asia:1},fa:8,faCol:7,osFA:9,post:7,reFA:4,svcR:0.78,resv:'renew',adj:true,comp:'KR',draft:5,tdl:0.7,multiNonFA:true},
+    JP:{name:'일본',entry:31,roster:40,fgn:{ent:5,pit:4,bat:4,game:4},fa:8,faCol:7,osFA:9,post:0,reFA:4,svcR:0.76,resv:'renew',adj:true,comp:'JP',draft:6,tdl:0.68,local:8,
+      compT:{A:{rank:3,prot:28,p:0.5,c:0.8},B:{rank:10,prot:28,p:0.4,c:0.6},C:{rank:99,prot:0,p:0,c:0}}},
+    TW:{name:'대만',entry:28,roster:36,fgn:{ent:4,game:3},fa:9,faCol:8,osFA:3,post:0,reFA:4,svcR:0.7,resv:'renew',adj:false,comp:'TW',draft:8,tdl:0.7,
+      compT:{A:{rank:12,prot:25,p:0.75,c:1.25},B:{rank:99,prot:0,p:0,c:0.75}}},
+    US:{name:'미국',entry:26,roster:40,fgn:null,fa:6,faCol:6,osFA:0,post:0,reFA:0,svcR:0.92,resv:'arb',adj:true,comp:'QO',draft:10,tdl:0.65,arb:3,super2:0.22,opt:3,r5:{y18:5,y19:4,fee:0.13},
+      qoTop:125,cbt:{top:0.2,tiers:[0.082,0.164,0.246],rate:[0.2,0.3,0.5],sur:[0.12,0.425,0.6],pickBack:10}}},
   FARM_N:{US:10,JP:6}, FA_MAJOR_N:12,   // 주요 FA(경쟁 입찰) 최대 인원   // v62: 미국·일본 구단 하부 선수층 (메이저·1군과 오가는 선수)   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
   LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준
   FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 (화면 1.5억, 준우승 1/3)
@@ -470,7 +480,7 @@ function bestLineup(bats,opt){
   return {order:order.filter(Boolean).map(p=>p.id),pos:asg,score:total()};
 }
 // ---------- 1군 엔트리 (v61) — 라인업·로테이션·마무리 + 불펜·벤치 = 26명. 나머지 선수단은 2군(퓨처스) ----------
-function entryCap(t){return t.league==='KR'?BAL.ENTRY:Math.min(BAL.ENTRY,(BAL.LEAGUES[t.league]&&BAL.LEAGUES[t.league].roster)||BAL.ENTRY);}
+function entryCap(t){if(t.league==='KR')return BAL.ENTRY;const R=BAL.LR[t.league];if(R&&(t.isUser||(typeof playLg==='function'&&t.league===playLg())))return R.entry;return Math.min(BAL.ENTRY,(BAL.LEAGUES[t.league]&&BAL.LEAGUES[t.league].roster)||BAL.ENTRY);}   /* v155: 맡은 리그(일본 31 · 대만 28 · 미국 26)는 그 리그 1군 등록 인원 */
 function entryPitN(t){return Math.round(entryCap(t)*12/26);}
 function inEntry(t,pid){return !!(t.entry&&t.entry.includes(pid));}
 function autoEntry(t){const cap=entryCap(t);const ok=id=>{const p=S.players[id];return p&&!p.retired&&!p.inj;};
@@ -478,10 +488,11 @@ function autoEntry(t){const cap=entryCap(t);const ok=id=>{const p=S.players[id];
   const rest=t.roster.filter(id=>!set.has(id)&&ok(id)).map(id=>S.players[id]);
   const pits=rest.filter(isPitcher).sort((a,b)=>calcOvr(b)-calcOvr(a)),bats=rest.filter(p=>!isPitcher(p)).sort((a,b)=>calcOvr(b)-calcOvr(a));
   const nPit=entryPitN(t);let pc=[...set].filter(id=>isPitcher(S.players[id])).length;
-  for(const p of pits){if(set.size>=cap||pc>=nPit)break;set.add(p.id);pc++;}
+  const fOK=p=>fgnCanEnter(Object.assign({},t,{entry:[...set]}),p);
+  for(const p of pits){if(set.size>=cap||pc>=nPit)break;if(!fOK(p))continue;set.add(p.id);pc++;}
   if([...set].filter(id=>S.players[id].pos==='C').length<2){const bc=bats.find(p=>p.pos==='C');if(bc&&set.size<cap)set.add(bc.id);}
-  for(const p of bats){if(set.size>=cap)break;set.add(p.id);}
-  for(const p of pits){if(set.size>=cap)break;set.add(p.id);}
+  for(const p of bats){if(set.size>=cap)break;if(!fOK(p))continue;set.add(p.id);}
+  for(const p of pits){if(set.size>=cap)break;if(set.has(p.id)||!fOK(p))continue;set.add(p.id);}
   t.entry=[...set];applyEntry(t);}
 // 엔트리에 맞춰 불펜·마무리·보직 정리 (불펜 순서는 유지)
 function applyEntry(t){t.entry=(t.entry||[]).filter(id=>t.roster.includes(id)&&S.players[id]&&!S.players[id].retired);const e=new Set(t.entry);
@@ -489,7 +500,7 @@ function applyEntry(t){t.entry=(t.entry||[]).filter(id=>t.roster.includes(id)&&S
   t.bullpen=old.concat(add);if(t.closer!=null&&!t.bullpen.includes(t.closer))t.closer=null;if(t.closer==null&&t.bullpen.length)t.closer=[...t.bullpen].sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0];
   t.rpRole=t.rpRole||{};for(const k in t.rpRole)if(!t.bullpen.includes(+k))delete t.rpRole[k];}
 // 엔트리 빈자리를 2군에서 채움 (부상·말소 뒤). 채운 선수 이름 목록을 돌려줌
-function fillEntry(t){const cap=entryCap(t);const e=new Set(t.entry||[]);const names=[];const ok=id=>{const p=S.players[id];return p&&!p.retired&&!p.inj&&!e.has(id);};
+function fillEntry(t){const cap=entryCap(t);const e=new Set(t.entry||[]);const names=[];const ok=id=>{const p=S.players[id];return p&&!p.retired&&!p.inj&&!e.has(id)&&fgnCanEnter(t,p);};
   const nPit=entryPitN(t);let guard=0;
   while(e.size<cap&&guard++<40){const pc=[...e].filter(id=>isPitcher(S.players[id])).length;const cands=t.roster.filter(ok).map(id=>S.players[id]);if(!cands.length)break;
     const wantP=pc<nPit;let pool=cands.filter(p=>isPitcher(p)===wantP);if(!pool.length)pool=cands;
@@ -520,7 +531,8 @@ function teamPower(t,exclude){
   return {power:r1(la*0.55+spAvg*0.3+rpAvg*0.15),lineup:r,spIds:pits.filter(p=>p.pos==='SP').sort((a,b)=>calcOvr(b)-calcOvr(a)).slice(0,5).map(p=>p.id)};
 }
 // 유저 팀: 빠진 선수만 교체(기존 편성 유지)
-function fixLineup(t,o){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
+function fixLineup(t,o){if(t&&(t.league==='JP'||t.league==='TW')&&(t.isUser||t.league===playLg())&&typeof fgnEntryFix==='function'){const mv=fgnEntryFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 규정(${fgnRuleText(t.league)}): ${mv.join(', ')} 2군으로 내려갔습니다`,'contract');}
+  else if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){fgnActiveFix(t);}
   if(!t.entry||!t.entry.length)autoEntry(t);
   const hurt=(t.entry||[]).filter(id=>{const p=S.players[id];return !p||p.retired||p.inj||!t.roster.includes(id);});
   t.entry=t.entry.filter(id=>!hurt.includes(id));// 부상·이적 선수는 엔트리에서 자동 말소
@@ -534,10 +546,10 @@ function fixLineup(t,o){if(t&&t.league==='JP'&&typeof fgnActiveFix==='function')
   for(const ps_ of needPos){let best=null,bv=-1e9;for(const p of ps){if(isPitcher(p)||t.lineup.includes(p.id))continue;const v=fitScore(p,ps_,{});if(v>bv){bv=v;best=p;}}if(best){t.lineup.push(best.id);t.pos[best.id]=ps_;}}
   if(t.locks)for(const id in t.locks)if(!alive.has(+id))delete t.locks[id];
   // 라인업 자리가 비면 2군에서 올림 (엔트리에 자리 있을 때)
-  const cap=entryCap(t);for(const ps_ of needPos){if(Object.values(t.pos).includes(ps_)||t.entry.length>=cap)continue;let best=null,bv=-1e9;for(const id of t.roster){const p=S.players[id];if(!p||p.retired||p.inj||isPitcher(p)||alive.has(id))continue;const v=fitScore(p,ps_,{});if(v>bv){bv=v;best=p;}}if(best){t.entry.push(best.id);alive.add(best.id);t.lineup.push(best.id);t.pos[best.id]=ps_;}}
+  const cap=entryCap(t);for(const ps_ of needPos){if(Object.values(t.pos).includes(ps_)||t.entry.length>=cap)continue;let best=null,bv=-1e9;for(const id of t.roster){const p=S.players[id];if(!p||p.retired||p.inj||isPitcher(p)||alive.has(id)||!fgnCanEnter(t,p))continue;const v=fitScore(p,ps_,{});if(v>bv){bv=v;best=p;}}if(best){t.entry.push(best.id);alive.add(best.id);t.lineup.push(best.id);t.pos[best.id]=ps_;}}
   const pits=[...alive].map(id=>S.players[id]).filter(isPitcher);
   for(const p of pits)if(!t.rotation.includes(p.id)&&!t.bullpen.includes(p.id))t.bullpen.push(p.id);
-  while(t.rotation.length<5&&t.entry.length<cap){const up=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&!p.inj&&isPitcher(p)&&!alive.has(p.id)).sort((a,b)=>(b.pos==='SP')-(a.pos==='SP')||calcOvr(b)-calcOvr(a))[0];if(!up)break;t.entry.push(up.id);alive.add(up.id);t.bullpen.push(up.id);}
+  while(t.rotation.length<5&&t.entry.length<cap){const up=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&!p.inj&&isPitcher(p)&&!alive.has(p.id)&&fgnCanEnter(t,p)).sort((a,b)=>(b.pos==='SP')-(a.pos==='SP')||calcOvr(b)-calcOvr(a))[0];if(!up)break;t.entry.push(up.id);alive.add(up.id);t.bullpen.push(up.id);}
   while(t.rotation.length<5&&t.bullpen.length){const sp=t.bullpen.filter(id=>S.players[id].pos==='SP').sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0]||t.bullpen.filter(id=>id!==t.closer&&!S.players[id].rpLock).sort((a,b)=>(S.players[b].attrs.stamina||0)-(S.players[a].attrs.stamina||0))[0]||t.bullpen[0];t.bullpen=t.bullpen.filter(id=>id!==sp);t.rotation.push(sp);}
   if(t.closer==null&&t.bullpen.length)t.closer=[...t.bullpen].sort((a,b)=>calcOvr(S.players[b])-calcOvr(S.players[a]))[0];
   if(t.rotIdx>=t.rotation.length)t.rotIdx=0;
@@ -550,9 +562,10 @@ function entryEnsure(t,pid){t.entry=t.entry||[];if(t.entry.includes(pid))return 
   const core=new Set([...t.lineup,...t.rotation,...(t.closer!=null?[t.closer]:[]),...Object.keys(t.rpRole||{}).map(Number)]);const out=t.entry.filter(id=>!core.has(id)&&isPitcher(S.players[id])===isPitcher(p)).sort((a,b)=>calcOvr(S.players[a])-calcOvr(S.players[b]))[0];if(out==null)return {ok:false};
   t.entry=t.entry.filter(x=>x!==out);t.lineup=t.lineup.filter(x=>x!==out);delete t.pos[out];t.rotation=t.rotation.filter(x=>x!==out);t.bullpen=t.bullpen.filter(x=>x!==out);if(t.closer===out)t.closer=null;t.entry.push(pid);applyEntry(t);return {ok:true,down:S.players[out]};}
 // 1군 등록·말소 (유저)
-function entryUp(pid,downPid){const t=userTeam();const p=S.players[pid];if(!p||p.teamId!==t.id||!t.roster.includes(pid))return '선수단(1군·2군) 선수가 아닙니다. 육성군은 먼저 2군으로 올리세요.';if(inEntry(t,pid))return '이미 1군 엔트리에 있습니다.';if(p.inj)return '부상 중인 선수는 등록할 수 없습니다.';
+function entryUp(pid,downPid){const t=userTeam();const p=S.players[pid];if(!p||p.teamId!==t.id||!t.roster.includes(pid))return '선수단(1군·2군) 선수가 아닙니다. 육성군은 먼저 2군으로 올리세요.';if(inEntry(t,pid))return '이미 1군 엔트리에 있습니다.';if(p.inj)return '부상 중인 선수는 등록할 수 없습니다.';if(!fgnCanEnter(Object.assign({},t,{entry:(t.entry||[]).filter(x=>x!==downPid)}),p))return `1군 외국인 규정 — ${fgnRuleText(t.league)}. 다른 외국인을 먼저 내리세요.`;   /* v155 */
   if(t.entry.length>=entryCap(t)){if(downPid==null)return `1군 엔트리가 가득 찼습니다 (${entryCap(t)}명). 내릴 선수를 고르세요.`;const r=entryDown(downPid,true);if(r)return r;}
   t.entry.push(pid);applyEntry(t);fixLineup(t);news(`[1군 등록] ${p.name}`,'contract');return null;}
 function entryDown(pid,quiet){const t=userTeam();const p=S.players[pid];if(!p||!inEntry(t,pid))return '1군 엔트리 선수가 아닙니다.';
+  if(t.league==='US'&&S.phase==='season'&&!p.inj){if(p.r5&&p.r5.s===S.season)return `룰5로 데려온 선수는 시즌 내내 1군에 둬야 합니다 — 내리려면 원 소속 구단에 돌려줘야 합니다(선수 카드 ⋯ → 룰5 반환).`;if(!optUse(p))return `${p.name}: 옵션 ${BAL.LR.US.opt}년을 다 써서 2군으로 내릴 수 없습니다 — 선수 카드 ⋯ → 지명할당(웨이버)`;}   /* v155: 미국 옵션 · 룰5 */
   t.entry=t.entry.filter(x=>x!==pid);t.lineup=t.lineup.filter(x=>x!==pid);delete t.pos[pid];t.rotation=t.rotation.filter(x=>x!==pid);t.bullpen=t.bullpen.filter(x=>x!==pid);if(t.closer===pid)t.closer=null;if(t.rpRole)delete t.rpRole[pid];if(t.locks)delete t.locks[pid];
   applyEntry(t);if(!quiet){fixLineup(t,{noFill:true});news(`[1군 말소] ${p.name} → 2군`,'contract');}return null;}

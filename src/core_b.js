@@ -20,6 +20,7 @@ function createGame(homeId,awayId,userGame){
     lg.pitcher[side]=sp;lg.used[side].push(sp);const b=ensureBox(lg,sp);b.pGS=1;b.pG=1;lg.entryLead[sp]=0;}
   /* v121 (R104): 좌투·우투 상대 타순 — 상대 선발이 던지는 손에 맞춰 따로 짜 둔 타순(t.plt.L / t.plt.R)이 있고 9명이 모두 뛸 수 있으면 그 타순으로 */
   for(const side of [0,1]){const t=side===1?H:A;if(!t.plt)continue;const op=S.players[lg.pitcher[1-side]];const k=op&&op.throws==='L'?'L':'R';const x=t.plt[k];if(x&&pltOk(t,x)){lg.lineup[side]=[...x.lineup];lg.pos[side]={...x.pos};lg.pltUsed=lg.pltUsed||{};lg.pltUsed[side]=k;}}
+  for(const side of [0,1]){const t=side===1?H:A;try{lrGameFgn(lg,side,t);}catch(e){}}   /* v155: 일본 한 경기 외국인 4명 · 대만 3명 */
   for(const side of [0,1])for(const pid of lg.lineup[side]){const b=ensureBox(lg,pid);b.g=1;}
   glog(lg,`경기 시작: ${A.name} (원정) vs ${H.name} (홈)`,'info');
   return lg;
@@ -229,8 +230,8 @@ function finishGameState(lg,walkoff){
   for(const pid in (lg.svs||{})){const b=lg.box[pid];if(b&&b.pHD&&(+pid===wp||b.pSV))b.pHD=0;}
   glog(lg,`경기 종료${walkoff?' (끝내기)':''}: ${S.teams[lg.away].name} ${lg.score[0]} : ${lg.score[1]} ${S.teams[lg.home].name}`,'end');
 }
-function availableBullpen(lg,side){const t=teamSide(lg,side);return t.bullpen.filter(id=>!lg.used[side].includes(id)&&S.players[id]&&!S.players[id].retired&&!S.players[id].inj&&(S.players[id].fatigue||0)<78);}
-function bench(lg,side){const t=teamSide(lg,side);return (t.entry||t.roster).filter(id=>{const p=S.players[id];return p&&!p.retired&&!p.inj&&!isPitcher(p)&&!lg.lineup[side].includes(id)&&!lg.subbed[side].includes(id);});}
+function availableBullpen(lg,side){const t=teamSide(lg,side);const fo=lg.fgnOut&&lg.fgnOut[side]||[];return t.bullpen.filter(id=>!fo.includes(id)&&!lg.used[side].includes(id)&&S.players[id]&&!S.players[id].retired&&!S.players[id].inj&&(S.players[id].fatigue||0)<78);}
+function bench(lg,side){const t=teamSide(lg,side);const fo=lg.fgnOut&&lg.fgnOut[side]||[];return (t.entry||t.roster).filter(id=>{const p=S.players[id];return p&&!fo.includes(id)&&!p.retired&&!p.inj&&!isPitcher(p)&&!lg.lineup[side].includes(id)&&!lg.subbed[side].includes(id);});}
 function changePitcher(lg,side,newPid){
   if(lg.done||lg.pitcher[side]===newPid)return false;
   const t=teamSide(lg,side);if(!t.roster.includes(newPid)||lg.used[side].includes(newPid))return false;
