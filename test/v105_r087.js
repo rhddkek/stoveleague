@@ -5,8 +5,8 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   const p=await b.newPage({viewport:{width:390,height:844}});p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(300);
   // 1. 새 게임: 리그 순서 메이저 > 일본 > 한국 ≈ 트리플A(미국 2군) > 멕시코 > 대만 > 한국 퓨처스 · 한국 1군 주전 평균 66~67.5
   {const r=await p.evaluate(()=>{const out=[];for(const seed of [11,4096]){SL.newGame(seed,3,{arch:true,games:36,league:'KR'});out.push(SL.lvLive());}return out;});
-    const okv=r.every(v=>v.US>v.JP&&v.JP>v.KR1+3&&Math.abs(v.KR1-v.US2)<=1.5&&v.KR1>v.MX&&v.MX>v.TW&&v.TW>v.RES&&v.KR1>=66&&v.KR1<=67.5);
-    okv?ok(`리그 수준(주전 평균): 메이저 ${r[0].US} > 일본 ${r[0].JP} > 한국 ${r[0].KR1} ≈ 미국 2군 ${r[0].US2} > 멕시코 ${r[0].MX} > 대만 ${r[0].TW} > 한국 퓨처스 ${r[0].RES} (시드 두 개)`):bad('리그 수준 '+JSON.stringify(r));}
+    const okv=r.every(v=>v.US>v.JP&&v.JP>v.KR1+3&&v.US2>v.KR1&&v.KR1>v.US3&&v.KR1>v.MX&&v.MX>v.TW&&v.TW>v.RES&&v.KR1>=66&&v.KR1<=67.5);
+    okv?ok(`리그 수준(주전 평균): 메이저 ${r[0].US} > 일본 ${r[0].JP} > 미국 2군 ${r[0].US2} > 한국 ${r[0].KR1} > 미국 3군 ${r[0].US3} > 멕시코 ${r[0].MX} > 대만 ${r[0].TW} > 한국 퓨처스 ${r[0].RES} (시드 두 개)`):bad('리그 수준 '+JSON.stringify(r));}
   // 2. 능력은 내렸지만 연봉·몸값(화면 금액)은 예전 규모 그대로: 한국 평균 연봉 2.4~3.2억 · 최고 25~40억 · 구단 상위 40명 합 상한 안
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});const S=SL.state();const W=SL.BAL.WON;const sal=[];for(const t of SL.krTeams())for(const id of t.roster.concat(t.dev)){const q=S.players[id];if(!SL.isFgn(q))sal.push(q.contract.salary*W);}sal.sort((a,b)=>a-b);
       const use=SL.krTeams().map(t=>SL.capUse(t));const q=S.players[SL.userTeam().roster[0]];return {adj:S.krAdj,shift:S.krShift,avg:sal.reduce((a,x)=>a+x,0)/sal.length,max:sal[sal.length-1],over:use.filter(u=>u>SL.capLimit()).length,dem:SL.salaryFor?null:null};});

@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v156';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v157';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -12,7 +12,7 @@ const BAL={
   //   하한(2027년 = 2시즌부터 60억 6,538만, +5%) 밑이면 모자란 금액의 30%·50%·100% 납부
   CAP:{base:287945,grow:0.05,top:40,floor:121308,floorFrom:2,tax:[0.3,0.5,1],pick:9},
   SEASON_GAMES:36, SEASON_OPTIONS:[36,72,144], KR_TEAMS:10, OFFSEASON_WEEKS:6,   // SEASON_GAMES는 저장마다 S.games로 바뀜
-  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:75,US2:68,US3:63,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6, ROSTER_SEED:20260409, LEVEL_SD_LG:{}, STARS:{KR:{slug:1,pw:10,ace:3,ap:8},JP:{slug:2,pw:16,ace:2,ap:3},TW:{slug:1,pw:8,ace:1,ap:3},US:{slug:3,pw:8,ace:2,ap:3}},
+  LEVEL_OVR:{KR1:66,RES:55,JP:71,US:80,US2:71,US3:65,JP2:59,TW:57,MX:63,AU:56,CB:63,ROOKIE:44,FA:50}, LEVEL_SD:6, ROSTER_SEED:20260409, LEVEL_SD_LG:{}, STARS:{KR:{slug:1,pw:10,ace:3,ap:8},JP:{slug:2,pw:16,ace:2,ap:3},TW:{slug:1,pw:8,ace:1,ap:3},US:{slug:3,pw:8,ace:2,ap:3}},
   // 한국은 10개 구단 단일 리그(1군) + 2군. 승강제 없음. 경제 기준값은 1군 하나, 구단별 차이는 위상(시장 크기)으로만
   START_CASH:{1:900000},                                   // 만원 (AI 기준값)
   TICKET:{1:9000},                                         // 홈경기당 기본 입장수입(만원)
@@ -35,7 +35,7 @@ const BAL={
     AU:{name:'호주 야구리그',short:'호주',style:'4개 구단 겨울리그',games:36,roster:22,winter:true},
     CB:{name:'도미니카 윈터리그',short:'도미니카',style:'6개 구단 겨울리그',games:50,roster:22,winter:true}},
   // 리그 수준 (v38, 스카우트·구단 관계자 평가 기준): 메이저리그 > 일본 > 미국 2군(트리플A급) > 한국 > 멕시코 ≈ 미국 3군(더블A급) ≈ 도미니카 겨울 > 일본 2군 > 대만 > 호주 > 한국 퓨처스
-  BUY_MIN:{US:73,JP:69,TW:60,MX:62},
+  BUY_MIN:{US:78,JP:69,TW:60,MX:62},
   // 감독으로 맡을 수 있는 해외 무대의 경제 (만원)
   ECON:{JP:{ticket:8000,sponsor:250000,overhead:120000,dividend:[120000,100000,80000,60000,50000,40000]},TW:{ticket:2500,sponsor:60000,overhead:25000,dividend:[40000,30000,22000,16000]}},
   JOB_LEAGUES:['TW','JP'], REP_NEED:{1:58,TW:47,JP:63},
@@ -45,7 +45,7 @@ const BAL={
   SELL_LOCK:10, SELL_ON:0.1, OFFER_EXPIRE:3, LOAN_CAP:30000, LOAN_RATE:0.1,
   FATIGUE_RECOVER:14,
   FGN:{max:3,asiaCap:5600,genMin:4000,genMax:28000,renewMax:50000,genMul:0.75,lvl:2,poolGen:12,poolAsia:6,rounds:4},   // 외국인 3명 + 아시아쿼터 1명(연봉 20만 달러 ≈ 2.8억 이하) · 외국인 계약 1년 · 신규 외국인 100만 달러(≈14억, 연봉+계약금) 이하 · 재계약 상한 25억(게임 규칙)
-  FARM:{US:[{t:2,ko:'미국 2군',lvl:68},{t:3,ko:'미국 3군',lvl:63}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
+  FARM:{US:[{t:2,ko:'미국 2군',lvl:71},{t:3,ko:'미국 3군',lvl:65}],JP:[{t:2,ko:'일본 2군',lvl:59}]},
   HALF:{on:true,rest:20},   // v136 올스타 브레이크: 전반기/후반기 · 모든 구단 피로 −20(하루 회복 14 남짓)
   CAMP:{week:5,exN:6,mvp:1.25,loc:{home:{n:'한국 캠프',cost:0,grow:1,cond:0,d:'남해안 · 비용 없음'},oki:{n:'오키나와 캠프',cost:4000,grow:1.04,cond:2,d:'따뜻한 날씨 — 훈련 효과 +4% · 개막 컨디션 +2'},ari:{n:'애리조나 캠프',cost:10000,grow:1.08,cond:1,d:'최신 시설 — 훈련 효과 +8% · 개막 컨디션 +1'}},focus:{bal:{n:'균형',b:1,p:1,cond:0,d:'타자 · 투수 고르게'},bat:{n:'타격 중점',b:1.08,p:0.96,cond:0,d:'타자 성장 +8% · 투수 −4%'},pit:{n:'투수 중점',b:0.96,p:1.08,cond:0,d:'투수 성장 +8% · 타자 −4%'},rest:{n:'체력 관리',b:0.94,p:0.94,cond:3,d:'성장 −6% · 개막 컨디션 +3'}}},   // v142 (R113) 스프링캠프 · 시범경기(6경기, 기록은 따로)
   SKC:{n:3,learn:{C:1000,B:2000,A:4000,S:8000},up3:2,rem:2000,per:2000,perUp:10,tickUp:0.10,tickNew:0.08,tickRem:0.05},   // v141 스킬 캠프: 겨울마다 3명 · 배우기 등급별 0.5억~4억 · 레벨 2 = 배우기 값, 레벨 3 = 두 배 · 약점 지우기 · 성격 코스 1억
@@ -62,7 +62,7 @@ const BAL={
     US:{name:'미국',entry:26,roster:40,fgn:null,fa:6,faCol:6,osFA:0,post:0,reFA:0,svcR:0.92,resv:'arb',adj:true,comp:'QO',draft:10,tdl:0.65,arb:3,super2:0.22,opt:3,r5:{y18:5,y19:4,fee:0.13},
       qoTop:125,cbt:{top:0.2,tiers:[0.082,0.164,0.246],rate:[0.2,0.3,0.5],sur:[0.12,0.425,0.6],pickBack:10}}},
   FARM_N:{US:10,JP:6}, FA_MAJOR_N:12,   // 주요 FA(경쟁 입찰) 최대 인원   // v62: 미국·일본 구단 하부 선수층 (메이저·1군과 오가는 선수)   // 해외 하부 리그 (실제 리그명 대신 2군·3군)
-  LVL_VER:2, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55},   // 저장 변환용: v37까지의 리그 수준
+  LVL_VER:3, LVL_OLD:{JP:64,US:71,TW:57,MX:58,AU:50,CB:55}, LVL_OLD3:{US:75,US2:68,US3:63},   // v157 (R128): 미국 1군 75 → 80 · 2군 68 → 71 · 3군 63 → 65 (메이저리그 평균 주전 ≈ 한국 MVP급)   // 저장 변환용: v37까지의 리그 수준
   FUT_PRIZE:3000,               // 퓨처스 챔피언결정전 우승 상금 (화면 1.5억, 준우승 1/3)
   RES_EXP:0.62,                 // 2군(퓨처스) 경기 출장 성장 계수 (육성군 DEV_EXP 0.75, 1군 주전은 최대 1)
   LOAN:{deadline:14,maxAge:28,payShare:{'주전':1,'주전 경쟁':1,'백업':0.5}},  // 임대: 시즌 14일차까지, 임대 구단 연봉 부담 비율
@@ -99,7 +99,7 @@ const BAL={
   // 코치진: 부서별 정원, 등급별 기준 연봉(만원/시즌), 부서 특기
   STAFF:{bat:{name:'타격코치',max:3,what:'타자 컨택·파워·선구안 성장'},pit:{name:'투수코치',max:3,what:'투수 구위·제구·변화구·체력 성장'},def:{name:'수비·주루코치',max:2,what:'야수 주력·수비·송구 성장'},
     dev:{name:'육성코치',max:2,what:'23세 이하·육성군 성장, 육성군 정원'},scout:{name:'스카우트',max:5,what:'잠재력 판별 정확도, 유망주·드래프트 발굴'},med:{name:'트레이너·의무',max:5,what:'피로 회복, 노화 지연'}},
-  STAFF_PAY:{S:15000,A:8000,B:4000,C:2000,D:1000}, STAFF_REF:{bat:0.35,pit:0.35,def:0,dev:0,scout:0.3,med:0.3}, STAFF_CREDIT:{1:22000,2:13000,3:9000}, // 기본 코치진 인건비만큼 운영비에서 분리
+  STAFF_PAY:{SSS:15000,SS:15000,S:15000,A:8000,B:4000,C:2000,D:1000}, STAFF_REF:{bat:0.35,pit:0.35,def:0,dev:0,scout:0.3,med:0.3}, STAFF_CREDIT:{1:22000,2:13000,3:9000}, // 기본 코치진 인건비만큼 운영비에서 분리
   STAFF_TRAITS:{bat:{'장타 조련':'power','컨택 장인':'contact','선구안 교정':'eye'},pit:{'구위 조련':'stuff','제구 장인':'control','변화구 전수':'movement'},def:{'수비 장인':'defense','주루 전문':'speed','강견 조련':'arm'},
     dev:{'유망주 조련':'u20','육성군 전문':'devsq'},scout:{'고교 네트워크':'draft','해외 네트워크':'abroad','매의 눈':'watch'},med:{'체력 관리':'fatigue','노장 관리':'aging'}},
   DEV_BASE:4, DEV_EXP:0.75, DRAFT_POOL:80, DRAFT_ROUNDS:5,   // 5라운드 · 후보 80명 (3라운드부터는 자리 있는 구단만 지명)
@@ -322,7 +322,7 @@ const TEAM_NAMES={
 // ---------- 등급/능력 ----------
 function isPitcher(p){return p.pos==='SP'||p.pos==='RP';}
 // 화면에 보이는 반올림 수치와 등급이 항상 일치하도록 반올림 후 판정
-function gradeOf(v){v=Math.round(v);return v>=80?'S':v>=70?'A':v>=60?'B':v>=50?'C':'D';}
+function gradeOf(v){v=Math.round(v);return v>=95?'SSS':v>=88?'SS':v>=80?'S':v>=70?'A':v>=60?'B':v>=50?'C':'D';}
 function calcOvr(p){
   const a=p.attrs;
   if(isPitcher(p)){return p.pos==='SP'?a.stuff*.33+a.control*.3+a.movement*.25+a.stamina*.12:a.stuff*.4+a.control*.3+a.movement*.25+a.stamina*.05;}

@@ -1025,3 +1025,17 @@ body:not(.ingame) .pfv .dslot.pfc{position:relative;left:auto;top:auto;transform
 .rsvbar{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:6px 0 14px;padding:8px 10px;border:1px solid var(--line);border-radius:10px}.rsvbar .small{color:var(--muted)}.rsvbar button{flex:none;min-height:36px}
 .lrt td,.lrt th{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}.lrt{table-layout:fixed;width:100%}
 .cofh{display:flex;align-items:center;gap:12px;margin:4px 0 10px}.cofh b{display:block;font-size:17px;font-weight:600}.cofh small{display:block;color:var(--muted);margin-top:2px}
+
+/* v157 (R128): 등급 SS · SSS (S 위) */
+body{--gSS:#c2255c;--gSSS:#6741d9}[data-theme="dark"] body{--gSS:#ff6b9a;--gSSS:#b197fc}
+.grade.SS,.gl.SS{background:var(--gSS)!important;color:#fff!important}.grade.SSS,.gl.SSS{background:var(--gSSS)!important;color:#fff!important}
+.gnum.SS b,.gbadge2.SS b,.gbadge.SS b,.gl2.SS,body .g.SS,.farmg.gSS,.injt .gq.SS{color:var(--gSS)!important}.gnum.SSS b,.gbadge2.SSS b,.gbadge.SSS b,.gl2.SSS,body .g.SSS,.farmg.gSSS,.injt .gq.SSS{color:var(--gSSS)!important}
+/* v157 (R128): 긴 이름은 말줄임 · 미국 지구 칩 두 줄 · 타순표 옆 픽셀 구장 */
+body:not(.ingame) table.rosterq2.rqs td.tn .tfn{display:flex;min-width:0;max-width:100%;overflow:hidden}body:not(.ingame) table.rosterq2.rqs td.tn .tfn b{min-width:0;flex:1 1 auto;display:block}
+.title .divrow{grid-template-columns:repeat(3,minmax(0,1fr))!important}.title .divrow button{overflow:hidden;text-overflow:ellipsis}
+body:not(.ingame) .luf .dfield.art-lufield{background-size:cover!important;background-position:center bottom!important;background-repeat:no-repeat!important;image-rendering:pixelated;background-color:#3f7a2e}
+body:not(.ingame) .luf .dfield.art-lufield::before,body:not(.ingame) .luf .dfield.art-lufield::after{display:none!important}
+body:not(.ingame) .luf .dslot.lum{width:auto;min-width:46px;max-width:31%;height:auto;padding:2px 3px 3px;border-radius:9px;background:rgba(14,16,20,.78);border:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;gap:1px;transform:translate(-50%,-50%)}
+body:not(.ingame) .luf .dslot.lum>:first-child{width:26px;height:26px}body:not(.ingame) .luf .dslot.lum b{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.15}
+body:not(.ingame) .luf .dslot.lum small{font-size:11.5px;line-height:1;color:#f2c14e;background:none;padding:0}
+body:not(.ingame) .luf .dslot.lum.cur{border-color:#f2c14e;box-shadow:0 0 0 2px #f2c14e}body:not(.ingame) .luf .dslot.lum.off{border-color:#ff8a3d}body:not(.ingame) .luf .dslot.lum.empty .jn{font-size:16px;color:#fff}
