@@ -1283,7 +1283,7 @@ Object.assign(A,{
   r5Go(pid){const r=SL.r5Pick(pid);toast(r.ok?(r.pass?'올해 룰5 지명은 하지 않습니다':`${S.players[pid].name} 지명 — 다음 시즌 내내 1군에 둬야 합니다`):r.msg,3000);if(r.ok){closeModal();autosave();render();if(mflow()&&ui.chain)A.taskNext();}},
   coachOfferGo(pid){const I=SL.coachOfferInfo(pid);if(!I.ok){toast(I.why,2600);return;}modal(coachOfferHtml(pid));},
   coachOfferYes(pid){const r=SL.coachOffer(pid);closeModal();toast(r.msg,3200);autosave();render();},
-  dfaGo(pid){const p=S.players[pid];if(ui.dfaArm!==pid){ui.dfaArm=pid;toast('한 번 더 누르면 지명할당 — 다른 구단이 웨이버로 데려갈 수 있습니다',2600);return;}ui.dfaArm=null;const r=SL.dfa(pid);toast(r.ok?(r.lost?`${p.name} — ${r.to}이(가) 데려감`:`${p.name} — 마이너로 내려감`):r.msg,3000);autosave();render();},
+  dfaGo(pid){const p=S.players[pid];if(ui.dfaArm!==pid){ui.dfaArm=pid;toast('한 번 더 누르면 지명할당 — 다른 구단이 웨이버로 데려갈 수 있습니다',2600);return;}ui.dfaArm=null;const r=SL.dfa(pid);toast(r.ok?(r.lost?`${p.name} — ${SL.josa(r.to,'이','가')} 데려감`:`${p.name} — 마이너로 내려감`):r.msg,3000);autosave();render();},
   r5Back(pid){const ok=SL.r5Return(pid);toast(ok?'원 소속 구단에 돌려보냈습니다':'돌려보낼 수 없습니다',2400);autosave();render();}});
 function r5Html(){const P=SL.r5Pool();const ex=SL.r5Exposed();const ut=SL.userTeam();
   return `<div class="stvmenu"><div class="mt">룰5 드래프트 <small>지명료 ${Ms(SL.r5Fee())} · 40인 ${ut.roster.length}/40</small></div><div class="small muted" style="margin:0 2px 8px">다른 구단 40인 명단 밖 선수 중 입단 4년(18세 이하 입단은 5년)이 지난 선수 · 데려가면 다음 시즌 내내 1군(26명)에 둬야 하고, 내리려면 원 소속 구단에 돌려줘야 합니다.${ex.length?` 우리 쪽 노출 ${ex.length}명(마이너) — 지키려면 40인 명단에 올리세요.`:''}</div>

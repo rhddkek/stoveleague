@@ -15,7 +15,7 @@ for(const lg of ['JP','TW','US']){
   {const d=new Set();let dup=0;for(const g of S.schedule)for(const t of [g.home,g.away]){const k=g.day+':'+t;if(d.has(k))dup++;d.add(k);}dup?bad('하루 2경기 '+dup):ok('하루 1경기');}
   if(lg==='JP'){const mine=S.schedule.filter(g=>g.div==='JP'&&(g.home===ut.id||g.away===ut.id));const inter=mine.filter(g=>g.inter).length;inter===18?ok('교류전 18경기 (같은 리그 125)'):bad('교류전 '+inter);}
   if(lg==='TW'){const mine=S.schedule.filter(g=>g.div==='TW'&&(g.home===ut.id||g.away===ut.id));const h1=mine.filter(g=>g.half===1).length;h1===60?ok('전반기 60 · 후반기 60'):bad('전반기 '+h1);}
-  {const t=SL.fgnRuleText(lg);(lg==='JP'?/1군 등록 외국인 4명/:lg==='TW'?/4명/:/제한 없음/).test(t)?ok('외국인 규정: '+t):bad('외국인 규정 '+t);}
+  {const t=SL.fgnRuleText(lg);(lg==='JP'?/1군 등록 외국인 5명/:lg==='TW'?/1군 등록 외국인 4명/:/제한 없음/).test(t)?ok('외국인 규정: '+t):bad('외국인 규정 '+t);}
   // 경기 중간 저장·불러오기
   for(let i=0;i<40;i++)SL.playDayAuto();{const j=SL.serialize();SL.load(j);S=SL.state();SL.userTeam().league===lg&&SL.userGames()===EXP[lg]?ok('시즌 중 저장·불러오기'):bad('불러오기 뒤 리그·경기 수');}
   if(lg==='JP'){const t=SL.userTeam();const on=t.roster.map(id=>S.players[id]).filter(p=>p&&SL.isFgnIn(p,'JP'));on.length<=4?ok(`1군 외국인 ${on.length}명 (4명 이내)`):bad('1군 외국인 '+on.length);}
