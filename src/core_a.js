@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v158';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v159';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -413,26 +413,33 @@ function calcValue(p){
   const yrs=p.contract?p.contract.years:1;v*=yrs<=1?0.85:yrs===2?1:1.08;
   if(['C','SS','CF','SP'].includes(p.pos))v*=1.1;
   v*=perfFactor(p);v*=awardPrem(p);
-  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;v*=krAdj(p);
+  const t=p.teamId!=null?S.teams[p.teamId]:null;v*=t?(t.league==='KR'?BAL.LEAGUE_VALUE[1]:BAL.LEAGUE_VALUE[t.league]):1;v*=krAdj(p);v*=lvlPay(p);   // v159: 그 리그 연봉 수준
   return Math.max(500,Math.round(v/10)*10);
 }
 function minSal(s){s=s||(S?(S.phase==='offseason'?S.season+1:S.season):1);return s>=2?Math.round(BAL.SALARY_MIN*1.1):BAL.SALARY_MIN;}   // v101: KBO 최저 연봉 2026년 3,000만 → 2027년 3,300만
 // v105: 새 게임에서 한국 선수 능력을 리그 수준에 맞춰 내린 만큼(S.krShift) 한국 연봉·몸값 곡선을 올려 금액은 그대로 (예전 저장은 krAdj 없음 = 1)
 function krAdj(p){if(!S||!S.krAdj)return 1;const t=p.teamId!=null?S.teams[p.teamId]:null;return (t?t.league==='KR':(p.nat||'KR')==='KR')?S.krAdj:1;}
-function salaryFor(p){const v=baseVal(calcOvr(p))*krAdj(p)*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1);return Math.max(minSal(),Math.round(v/10)*10);}
+// v159 (R130): 리그 연봉 수준 — 같은 능력이라도 리그마다 받는 돈이 다르다(실제 금액에 맞춤). 미국 · 일본 2군 · 3군은 그 리그 하부 수준(배율 1)
+//   PAY_LG = 1군 연봉 배율 · PAY_MIN = 그 리그 최저 연봉(1군, 하부 — 내부 단위, ×5 = 원) · ECON_R = 리그 수입 · 구단 자금 배율(연봉 총액이 늘어난 만큼)
+const PAY_LG={US:4.2,JP:1.8,TW:2.4};const PAY_MIN={US:[22000,1100],JP:[3000,840]};const ECON_R={US:4.07,JP:1.77,TW:2.35};   // 새 게임 구단 연봉 총액 평균이 늘어난 비율 (시드 3개, 내부 값: 미국 1,021,281 → 4,161,075 · 일본 314,122 → 556,738 · 대만 66,072 → 155,322)
+function lgOfP(p){const t=p&&p.teamId!=null&&S&&S.teams?S.teams[p.teamId]:null;return t?t.league:(p&&p.faLg)||'KR';}
+function payTier(p,lg){const t=p&&p.teamId!=null&&S&&S.teams?S.teams[p.teamId]:null;if(t&&t.league===lg)return p.tier||1;return BAL.FARM[lg]&&calcOvr(p)<(BAL.LEVEL_OVR[lg]||0)-4?2:1;}
+function lvlPay(p,lg,tr){lg=lg||lgOfP(p);const f=PAY_LG[lg];if(!f)return 1;return BAL.FARM[lg]&&(tr||payTier(p,lg))>1?1:f;}
+function salFloor(p,lg,tr){lg=lg||lgOfP(p);const m=PAY_MIN[lg];return m?m[(tr||payTier(p,lg))>1?1:0]:minSal();}
+function salaryFor(p,lg,tr){lg=lg||lgOfP(p);const v=baseVal(calcOvr(p))*krAdj(p)*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1)*lvlPay(p,lg,tr);return Math.max(salFloor(p,lg,tr),Math.round(v/10)*10);}   // tr: 단계를 알 때(1 = 1군)
 function money(m){m=(m||0)*BAL.WON;const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}else s=m?m.toLocaleString()+'만원':'0원';return (neg?'-':'')+s;}
 
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){
   const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],entry:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rpRole:{},rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
   if(league==='KR'){t.cash=BAL.START_CASH[1]*(0.9+rnd()*0.3);t.rep=ri(60,85);}
-  else{t.cash=BAL.OVERSEAS_CASH[league];t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
+  else{t.cash=BAL.OVERSEAS_CASH[league]*(ECON_R[league]||1);t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
   t.cash=Math.round(t.cash);
   return t;
 }
 function newFin(){return {grant:0,tickets:0,sponsor:0,ads:0,endorse:0,dividend:0,sales:0,salary:0,buys:0,scout:0,facility:0,other:0,dispatch:0,staff:0,cap:0};}
 function levelOf(t){return t.league==='KR'?BAL.LEVEL_OVR.KR1:BAL.LEVEL_OVR[t.league];}
-function addToTeam(p,t,contract,dev){p.teamId=t.id;(dev?t.dev:t.roster).push(p.id);if(contract&&t.league==='KR'&&contract.salary<minSal())contract.salary=minSal();p.contract=contract;if(!dev&&t.isUser&&t.entry&&!p.inj&&t.entry.length<entryCap(t))t.entry.push(p.id);}
+function addToTeam(p,t,contract,dev){p.teamId=t.id;(dev?t.dev:t.roster).push(p.id);if(contract&&t.league==='KR'&&contract.salary<minSal())contract.salary=minSal();   /* v159: 그 리그 최저 연봉 */p.contract=contract;if(!dev&&t.isUser&&t.entry&&!p.inj&&t.entry.length<entryCap(t))t.entry.push(p.id);}
 function devCap(t){return BAL.DEV_BASE+(t.fac?t.fac.youth:1)+(t.staff&&typeof staffP==='function'&&staffP(t,'dev')>=1.2?1:0);}
 function fillRoster(t){
   const lvl=levelOf(t);const nat=t.league==='KR'?'KR':t.league;
@@ -444,7 +451,7 @@ function fillRoster(t){
     // 한국 구단: 선발 2명·야수 1명은 외국인, 불펜 1명은 아시아쿼터 (KBO 2026처럼 구단마다 3+1)
     let fg=null;if(F){if(pos==='SP'&&F.sp<2){F.sp++;fg='gen';}else if(['1B','LF','RF','DH'].includes(pos)&&F.bat<1){F.bat++;fg='gen';}else if(pos==='RP'&&F.asia<1){F.asia++;fg='asia';}}
     const p=fg?genPlayer({pos,lvl:lvl+(fg==='gen'?BAL.FGN.lvl:0),nat:fg==='asia'?pick(['JP','TW','AU']):pick(['US','US','US','MX','CB']),age:ri(25,31)}):genPlayer({pos,lvl,sd:BAL.LEVEL_SD_LG[t.league],nat:(t.league==='KR'?'KR':(rnd()<0.1?pick(['KR','US','MX']):nat))});
-    addToTeam(p,t,fg?{salary:fg==='asia'?Math.min(BAL.FGN.asiaCap,Math.max(minSal()*2,Math.round(salaryFor(p)*0.9/10)*10)):Math.min(BAL.FGN.genMax,Math.max(BAL.FGN.genMin,Math.round(salaryFor(p)*BAL.FGN.genMul/100)*100)),years:1}:{salary:Math.round(salaryFor(p)*(0.85+rnd()*0.3)/10)*10,years:ri(1,4)});
+    addToTeam(p,t,fg?{salary:fg==='asia'?Math.min(BAL.FGN.asiaCap,Math.max(minSal()*2,Math.round(salaryFor(p)*0.9/10)*10)):Math.min(BAL.FGN.genMax,Math.max(BAL.FGN.genMin,Math.round(salaryFor(p)*BAL.FGN.genMul/100)*100)),years:1}:{salary:Math.round(salaryFor(p,t.league,1)*(0.85+rnd()*0.3)/10)*10,years:ri(1,4)});
   }
   // 한국 구단: 2군(퓨처스) 선수층 — 1군 엔트리 밖 젊은 선수 (v61: 1군 26명 고정, 선수단 상한 없음)
   if(t.league==='KR'&&t.roster.length<=size)addFarmDepth(t);
