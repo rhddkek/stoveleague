@@ -12,8 +12,8 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
       ?ok(`보고서: 「초기 평가 · 1선발 후보 · 신뢰 낮음 / 강점 · 우려」 · 관찰·협상 단추 첫 화면 안(아래 끝 ${r.top}/${r.ih}) · 「${r.focus.replace(/\n/g,' ')}」 · 「${r.alt}」 접힘`):bad('보고서 '+JSON.stringify(r).slice(0,700));}
 
   // 2. 코치: ＋ 코치 영입 · 공석 n · 잔여 n년 · 조작 설명 문단 없음 · 감독실 「재계약」 단추로 오면 만료 코치가 맨 위 · 스카우트 효과 「정확도 · 관찰 n명/주」
-  {const r=await p.evaluate(()=>{UI.back();SL.testCmd('endSeason');UI.closeModal();UI.setTab('home');const btn=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='재계약'&&/staffExp/.test(x.getAttribute('onclick')||''));const ex=(SL.userTeam().staff||[]).filter(c=>c.years<=0).length;
-      if(btn)btn.click();const t=document.querySelector('.content').innerText;const first=(document.querySelector('.content .cod .coh b')||{}).textContent||'';return {btn:!!btn,ex,t:t.slice(0,1500),first};});
+  {const r=await p.evaluate(()=>{UI.back();SL.testCmd('endSeason');UI.closeModal();UI.setTab('home');const btn=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='재계약'&&/coachRe/.test(x.getAttribute('onclick')||''));const ex=(SL.userTeam().staff||[]).filter(c=>c.years<=0).length;
+      if(btn)btn.click();/* v153: 재계약 단추는 한 명씩 묻는 창 — 코치 화면의 「만료 위로」는 마감 띠에서 올 때 그대로 */const sheet=!!document.querySelector('#modal .core');UI.closeModal();UI.set('staffExp',1);UI.go('roster','staff');const t=document.querySelector('.content').innerText;const first=(document.querySelector('.content .cod .coh b')||{}).textContent||'';return {btn:!!btn&&(sheet||!ex),ex,t:t.slice(0,1500),first};});
     r.btn&&(r.ex===0||/^계약 만료 \d/.test(r.first))&&/코치 영입/.test(r.t)&&/공석 \d/.test(r.t)&&/잔여 \d년/.test(r.t)&&!/EMPTY|칸을 누르면|년 남음|— 영입 ›|판별 정확도/.test(r.t)&&/정확도 [+-]\d+%p · 관찰 \d+명\/주/.test(r.t)&&/동일 부서 추가 고용 시 효과 감소/.test(r.t)
       ?ok(`코치: 재계약 단추 → 맨 위 「${r.first}」 · 「＋ 코치 영입 · 공석」 · 「잔여 n년」 · 「정확도 … · 관찰 n명/주」 · 규칙은 「동일 부서 추가 고용 시 효과 감소 ⓘ」`):bad('코치 '+JSON.stringify(r).slice(0,900));}
 
