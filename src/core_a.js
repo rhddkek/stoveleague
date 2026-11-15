@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v157';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v158';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -372,6 +372,7 @@ function genPlayer(o){
   const attrs={};const keys=isP?PIT_KEYS:BAT_KEYS;const shape=POS_SHAPE[pos]||{};
   for(const k of keys)attrs[k]=target+(shape[k]||0)+gauss()*7;
   const p={id:nid(),name:genName(nat),nat,age,pos,bats:isP?'R':pick(['R','R','L','L','S']),throws:pick(['R','R','R','L']),attrs,velo:Math.round(gauss()*300)/100,traits:[],teamId:null,contract:null,focus:'balance',xp:0,fatigue:0,cond:0,morale:60,cur:newStat(),hist:[],log:[],transfers:[],valHist:[],retired:false};
+  if(S&&S.pid0!=null){const s0=S.phase==='offseason'?S.season+1:S.season;const L=S.pidS||(S.pidS=[]);if(!L.length||L[L.length-1][0]!==s0)L.push([s0,p.id]);}   // v158: 시즌마다 처음 만든 선수 id — 선수가 게임에 들어온 시즌(preStart)
   for(let i=0;i<3;i++){const d=target-calcOvr(p);for(const k of keys)attrs[k]=clamp(attrs[k]+d,15,99);}
   for(const k of keys)attrs[k]=r1(attrs[k]);
   let pot=calcOvr(p)+Math.max(0,(27-age)*2.0+gauss()*7+(o.potBoost||0));

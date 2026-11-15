@@ -15,30 +15,30 @@ const path=require('path');const fs=require('fs');const SL=require('./run.js');l
   F.length&&F.filter(r=>r.lg!=='KR1').every(r=>S.teams[r.team].league===home)&&FC.some(c=>c.kind==='외국인 계약'&&c.team===fg.teamId)?ok(`외국인 ${fg.name}: ${F.length}시즌 ${home} 리그(${[...new Set(F.map(r=>r.tn.split(' · ')[0]))].slice(0,3).join(' · ')}) → 「외국인 계약」으로 우리 팀`):bad('외국인 '+JSON.stringify({F:F.map(r=>[r.s,r.tn]),FC}));
   const sz0=JSON.stringify(S).length;SL.preRows(ps.find(p=>p.age>=30&&p!==vet&&p!==fg));const add=JSON.stringify(S).length-sz0;add<1500?ok(`저장 크기: 한 선수 경력을 펼쳐도 +${add}바이트 (기록 숫자는 저장하지 않고 다시 계산)`):bad('저장 증가 '+add);
   // 게임 중 새로 들어온 선수(드래프트 · 긴급 보강)는 게임 전 경력 없음
-  const dr=Object.values(S.players).find(p=>p.draft);dr&&!SL.preRows(dr).length?ok('드래프트 후보: 게임 전 프로 경력 없음'):bad('드래프트 후보 '+(dr&&SL.preRows(dr).length));
+  const dr=Object.assign({},vet,{id:vet.id,draft:true,pre:null}),bs2=Object.assign({},vet,{bs:4,pre:null,transfers:[{s:3,kind:'드래프트 2라운드 5순위',to:'x'}]});!SL.preRows(dr).length&&!SL.preRows(bs2).length?ok('드래프트 후보 · 게임 중 지명된 선수: 게임 전 프로 경력 없음'):bad('드래프트 후보 '+SL.preRows(dr).length);
   // 구버전 저장: S.pid0 정해지고 경력이 만들어짐
-  const j=fs.readFileSync(__dirname+'/v3_save.json','utf8');SL.load(j);const S2=SL.state();const any=Object.values(S2.players).find(p=>p.teamId!=null&&p.age>=28&&!p.retired);const r3=SL.preRows(any);
+  const j=fs.readFileSync(__dirname+'/v29_save.json','utf8');SL.load(j);const S2=SL.state();const any=Object.values(S2.players).find(p=>p.teamId!=null&&p.age>=28&&!p.retired);const r3=SL.preRows(any);
   S2.pid0>0&&r3.length>0&&r3[r3.length-1].s<1?ok(`구버전 저장: 게임 시작 선수 기준(id < ${S2.pid0}) · ${any.name} ${r3.length}시즌 경력`):bad('구버전 '+JSON.stringify({pid0:S2.pid0,n:r3.length}));
   console.log(fails?`실패 ${fails}건`:'v158 엔진 통과');}
 (async()=>{const {chromium}=require('playwright');const b=await chromium.launch();const errs=[];const url='file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1';
   for(const vp of [{width:390,height:844,m:1},{width:1280,height:860}]){
     const c=await b.newContext({viewport:{width:vp.width,height:vp.height},isMobile:!!vp.m,hasTouch:!!vp.m});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(400);
     const tag=vp.m?'휴대폰':'PC';
-    const r=await p.evaluate(async()=>{const w=()=>new Promise(r=>setTimeout(r,120));SL.newGame(31,0);UI.render();const S=SL.state();const ut=SL.userTeam();const vet=ut.roster.map(id=>S.players[id]).filter(p=>p.nat==='KR').sort((a,b)=>b.age-a.age)[0];
-      UI.go('roster','list');await w();UI.openPlayer(vet.id);await w();const o={};const nav=document.querySelector('#modal .pctop .pcnav'),tabs=document.querySelector('#modal .pctop .pctabs');
+    const r=await p.evaluate(async()=>{const w=()=>new Promise(r=>setTimeout(r,120));SL.newGame(31,0);const S=SL.state();S.auto=S.auto||{};UI.render();const ut=SL.userTeam();const vet=ut.entry.map(id=>S.players[id]).filter(p=>p.nat==='KR').sort((a,b)=>b.age-a.age)[0];
+      UI.go('roster','list');await w();if(document.querySelector('[data-pid]'))0;UI.openPlayer(vet.id);await w();   /* 명단에 보이는 선수 → 카드 위 ‹ n/N › 가 생김 */const o={};const nav=document.querySelector('#modal .pctop .pcnav'),tabs=document.querySelector('#modal .pctop .pctabs');
       if(nav&&tabs){const a=nav.getBoundingClientRect(),t=tabs.getBoundingClientRect();o.h=[Math.round(a.height),Math.round(t.height)];o.top=Math.abs(a.top-t.top);o.bg=[getComputedStyle(nav).backgroundColor,getComputedStyle(tabs).backgroundColor];o.btnH=[...nav.querySelectorAll('button')].map(x=>Math.round(x.getBoundingClientRect().height)).concat([...tabs.querySelectorAll('button')].map(x=>Math.round(x.getBoundingClientRect().height)));}
       o.info=(document.querySelector('#modal .pcst small')||{}).textContent||'';
       UI.pcTab('rec');await w();const rows=[...document.querySelectorAll('#modal .pcrec tbody tr')];o.rec=rows.length;o.first=rows[0]?rows[0].innerText.replace(/\s+/g,' '):'';o.tot=(document.querySelector('#modal .pcrec tr.tot')||{}).innerText||'';o.t2=document.querySelectorAll('#modal .pcrec tr.t2').length;
       o.recW=document.querySelector('#modal .pcrec').scrollWidth<=document.querySelector('#modal .pcrec').clientWidth+1;
       UI.pcTab('con');await w();const cr=[...document.querySelectorAll('#modal .pccon tbody tr')];o.con=cr.length;o.conTxt=cr.map(x=>x.innerText.replace(/\s+/g,' '));o.conW=document.querySelector('#modal .pccon').scrollWidth<=document.querySelector('#modal .pccon').clientWidth+1;
-      UI.pcTab('info');UI.closeModal();UI.openPlayerFull(vet.id);await w();UI.pTab('record');await w();o.full=document.querySelectorAll('.content .mkt.mini')[0]?document.querySelectorAll('.content .mkt.mini')[0].querySelectorAll('tbody tr').length:0;
-      UI.pTab('contract');await w();o.fullCon=/연봉 · 계약 이력/.test(document.querySelector('.content').innerText);o.n=vet.name;o.pre=SL.preRows(vet).length;return o;});
+      UI.pcTab('info');UI.closeModal();UI.openPlayerFull(vet.id);await w();UI.pTab('record');await w();{const pv=()=>document.querySelector('.pv')||document.body;o.full8=pv().querySelector('.mkt.mini').querySelectorAll('tbody tr').length;const rb=pv().querySelector('.recall');o.recall=rb?rb.textContent:'';if(rb)rb.click();await w();const t=pv().querySelector('.mkt.mini');o.full=t?t.querySelectorAll('tbody tr').length:0;}
+      UI.pTab('contract');await w();o.fullCon=/연봉 · 계약 이력/.test((document.querySelector('.pv')||document.body).innerText);o.n=vet.name;o.pre=SL.preRows(vet).length;return o;});
     const tabOk=r.h&&Math.abs(r.h[0]-r.h[1])<=1&&r.top<=1&&r.bg[0]===r.bg[1]&&r.btnH.every(x=>Math.abs(x-r.btnH[0])<=1);
     tabOk?ok(`${tag} 카드 위 줄: ‹ n/N › 상자 ${r.h[0]}px = 정보·기록·계약 상자 ${r.h[1]}px · 같은 색 · 단추 높이 모두 ${r.btnH[0]}px`):bad(tag+' 위 줄 규격 '+JSON.stringify(r));
     /^\d{4} 시즌/.test(r.info)?ok(`${tag} 정보 탭 기록 칸 「${r.info}」 (경기 전엔 지난 시즌)`):bad(tag+' 정보 기록 '+r.info);
     r.rec>=r.pre&&/^20\d\d/.test(r.first)&&/1군 통산/.test(r.tot)&&r.t2>0&&r.recW?ok(`${tag} 기록 탭 ${r.rec}줄: 첫 줄 「${r.first.slice(0,40)}」 · 2군 ${r.t2}줄 흐리게 · 「${r.tot.replace(/\s+/g,' ').slice(0,30)}」 · 옆으로 안 넘침`):bad(tag+' 기록 탭 '+JSON.stringify(r));
     r.con>=r.pre&&r.conTxt.some(x=>/드래프트 \d+라운드 · 계약금/.test(x))&&r.conW?ok(`${tag} 계약 탭 연봉 · 계약 이력 ${r.con}줄: 「${r.conTxt[0].slice(0,36)}」 … 「${r.conTxt[r.conTxt.length-1].slice(0,40)}」`):bad(tag+' 계약 탭 '+JSON.stringify(r));
-    r.full>=r.pre&&r.fullCon?ok(`${tag} 선수 상세: 기록 ${r.full}줄(데뷔부터) · 계약 「연봉 · 계약 이력」`):bad(tag+' 상세 '+JSON.stringify(r));
+    r.full8===8&&/데뷔부터 전부/.test(r.recall)&&r.full>=r.pre&&r.fullCon?ok(`${tag} 선수 상세: 기록 최근 8줄 → 「${r.recall}」 → ${r.full}줄(데뷔부터) · 계약 「연봉 · 계약 이력」`):bad(tag+' 상세 '+JSON.stringify(r));
     await c.close();}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`실패 ${fails}건`:'v158 통과');process.exit(fails?1:0);})();

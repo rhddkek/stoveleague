@@ -72,6 +72,7 @@
 - 일본 · 대만 외국인: 1군 등록은 `fgnCanEnter`(엔트리 채우기 · 등록 단추가 모두 이 함수), 경기 출전은 `lrGameFgn`(`lg.fgnOut` — 벤치 · 불펜에서 뺌).
 - 미국: 퀄리파잉 오퍼 `qoOffer` · 보상 지명 `usPickOrder` · 사치세 `cbtInfo` · 옵션 `optUse`(entryDown) · 지명할당 `dfa` · 룰5 `r5Pick`/`r5AI`(3주차).
 - 코치 제의 `coachOfferInfo`/`coachOffer` → 시즌 끝(겨울이면 바로) `coachJoin`. 선수 카드 위 탭은 정보 · 기록 · 계약(`ui.pcTab`, `pcRecHtml` · `pcConHtml`).
+- 게임 전 경력(v158, R129): `SL.preRows(p)` · `SL.preCons(p)`(처음 볼 때 `p.pre`에 짧게, 기록 숫자는 a0 + 고정 난수로 다시 계산 · 게임 난수 그대로) · 화면 줄은 `SL.careerRows` → `recRows`(+ 이번 시즌) · 연봉 이력 `conRows`/`conHistHtml`. 대상 = 게임 전부터 있던 선수(`S.pid0`, 게임 중 만든 선수는 `S.pidS`로 들어온 시즌까지), 1군 시즌 수 = `svcOf`. 경기 계산 · 시상 · 통산 순위에는 넣지 않는다. 시즌 끝 기록 줄에 `sal`.
 
 ## 선수 카드 통일 (v148, R119 — 광우: 「어떤 화면에서든 선수 누르면 정보 + 오퍼 · 계약이 바로」)
 - 선수를 여는 길은 `UI.openPlayer(pid)` 하나 → 휴대폰 · PC 모두 선수 카드(`pcardHtml`, 조건 `cardOn()`). 카드 = 머리 → 능력 → 기록 칸(`pcStats`) → 잠재 · 계약 · 거래 줄 + 단추(`pcDeal` — 우리 선수 / 다른 구단 / FA / 해외 / 드래프트). 상세 화면은 카드의 「자세히 ›」(`openPlayerFull`).
