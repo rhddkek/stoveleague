@@ -583,7 +583,7 @@ function tableOffer0(pid,offer){
   if(neg.mode!=='renew'&&ut.cash<totalCost){return {ok:false,msg:`현금이 부족합니다. 필요 ${money(totalCost)} / 보유 ${money(ut.cash)}`,neg};}
   {const e=budgetCheck(p,salary,neg.mode==='renew'?bonus:bonus+(neg.mode==='sign'?Math.round(calcValue(p)*0.1):0));if(e)return {ok:false,msg:e,neg};}
   neg.rounds++;neg.log.push({who:'me',text:`연봉 ${money(salary)} × ${years}년${bonus?` + 계약금 ${money(bonus)}`:''}${promise?' + 주전 출장 약속':''}`});
-  let dem=neg.demand*(years>=3?0.95:years===1&&!neg.fgn1?1.08:1)*(neg.mood<35?1.08:neg.mood>=75?0.96:1)*(promise&&neg.wantPromise?0.92:1);dem=Math.round(dem/10)*10;
+  const dem=negDem(neg,years,promise);
   if(eff>=dem){
     const key=neg.mode==='renew'?'renew'+pid+':'+S.season:pid+':'+S.season;S.market.attempts[key]=(S.market.attempts[key]||0)+1;
     neg.log.push(...tableLines(p,neg,'accept',{promise}));end();
@@ -2609,12 +2609,17 @@ function fgnCands(slot,side){const pool=[];const seen=new Set();const un=userTea
   return pool.filter(p=>!side||(side==='P')===isPitcher(p)).map(p=>Object.assign({p},fgnSlotCost(p,slot))).filter(x=>slot!=='asia'||x.asia);}
 // ======================= v69 (R053): EA 프로야구 2011 비교 반영 (구조만 참고, 문구·그림은 우리 것) =======================
 // 협상 규칙을 미리 보여 준다 — tableOffer0과 같은 계산 (선수 단계는 난수가 없어 결과가 그대로 맞는다)
+/* v153 (R124): 선수가 실제로 받아들이는 연봉 — 기간(1년 +8% · 3년 이상 −5%) · 분위기 · 주전 약속까지 넣은 값. 협상 계산 · 미리 보기 · 화면의 「선수 요구」가 같은 함수 */
+function negDem(neg,years,promise){const d=neg.demand*(years>=3?0.95:years===1&&!neg.fgn1?1.08:1)*(neg.mood<35?1.08:neg.mood>=75?0.96:1)*(promise&&neg.wantPromise?0.92:1);return Math.round(d/10)*10;}
+function negAsk(pid,o){const neg=S.market.negs.find(n=>n.pid===pid);const p=P_(pid);if(!neg||!p||neg.stage!=='player')return null;o=o||{};
+  if(neg.major&&S.phase==='offseason'&&faM(pid)){const F=faM(pid);const k=neg.mood<35?1.06:neg.mood>=75?0.97:1;const sal=k>1?Math.ceil((F.ask.tot*k-(F.ask.bonus||0))/F.ask.yrs/10)*10:F.ask.sal;return {sal,yrs:F.ask.yrs,bonus:F.ask.bonus,major:true,comp:!!faBest(p)};}
+  const yrs=clamp(Math.round(+o.years||neg.yrsAsk||(neg.fgn1?1:p.age>=32?1:2)),1,4);return {sal:negDem(neg,yrs,!!o.promise),yrs,bonus:neg.bonusAsk||0,major:false,comp:false};}
 function negPreview(pid,offer){const neg=S.market.negs.find(n=>n.pid===pid);const p=P_(pid);if(!neg||!p||neg.stage!=='player')return null;const ut=userTeam();
   const salary=Math.round(+offer.salary||0),years=clamp(Math.round(+offer.years||1),1,4),bonus=Math.max(0,Math.round(+offer.bonus||0)),promise=!!offer.promise;
   const out={left:Math.max(0,neg.maxRounds-neg.rounds),tables:tableLeft(neg),mood:neg.mood,major:false};
   if(neg.major&&S.phase==='offseason'&&faM(pid)){const F=faM(pid);out.major=true;out.dec=F.dec;const mine={team:ut.id,sal:salary,yrs:years,bonus,promise};const tot=faOfferTot(mine);const askTot=F.ask.tot*(neg.mood<35?1.06:neg.mood>=75?0.97:1);const best=faBest(p);const ms=faScore(p,mine),bs=best?faScore(p,best):0;
     if(salary>=F.ask.sal*0.9&&tot>=askTot&&(!best||ms>=bs*1.08))out.zone='sure';else if(tot>=askTot*0.93&&salary>=F.ask.sal*0.85&&(!best||ms>=bs*0.96))out.zone='wait';else{out.zone=tot>=askTot*0.85?'close':'low';out.dMood=tot>=askTot*0.85?-5:-15;out.comp=!!best&&tot>=askTot*0.93&&salary>=F.ask.sal*0.85&&ms<bs*0.96;}}
-  else{const CV=neg.fgn1?{raiseEq:0,buyF:0}:clauseVal(p,{salary,years,raise:offer.raise,buy:offer.buy});const eff=(salary+(years?bonus/years*0.8:0)+CV.raiseEq)*(1+(CV.buyF||0));let dem=neg.demand*(years>=3?0.95:years===1&&!neg.fgn1?1.08:1)*(neg.mood<35?1.08:neg.mood>=75?0.96:1)*(promise&&neg.wantPromise?0.92:1);dem=Math.round(dem/10)*10;
+  else{const CV=neg.fgn1?{raiseEq:0,buyF:0}:clauseVal(p,{salary,years,raise:offer.raise,buy:offer.buy});const eff=(salary+(years?bonus/years*0.8:0)+CV.raiseEq)*(1+(CV.buyF||0));const dem=negDem(neg,years,promise);
     if(eff>=dem)out.zone='sure';else if(eff>=dem*0.85){out.zone='close';out.dMood=-4;}else{out.zone='low';out.dMood=-18;}}
   if(out.dMood){out.mood1=clamp(neg.mood+out.dMood,0,100);out.leave=out.mood1<20;out.walk=out.leave&&!out.major;out.close=out.leave||out.left<=1;out.up8=!out.major&&neg.mood>=35&&out.mood1<35;}
   return out;}
@@ -3048,7 +3053,7 @@ return {stoveSteps,campOf,campSet,exhRun,exhSeen,skApply,SKILLS,SK_ROWS,SK_GRADE
   compOf,compTeams,leagueComps,lgOf,jerseyOf,pltOk,PLT_FX,createGame,aiPitchCheck,compLabel,AWARD_LABEL,parkOf,setNextGames,loanDeadline,dayAt,gf,advStats,batLine,pitLine,batWar,pitWar,lgCtx,leaders,compKeyOf,sponSettle,sponBase,sponSign,boardSign,boardDrop,boardSlots,sponStatus,starScore,endorseOffers,endorseAnswer,ensureSpon,sponAutoPick,presSeasonEnd,presOf,presTier,presTierOf,presTierIdx,presTable,presIncome,presPull,reserveTable,reserveIds,loanCheck,loanOptions,loanPlayer,postInfo,goalProgress,goalCheck,youngGrown,testInfo,testCmd,TEAM_NAMES,staffSummary,staffFx,staffP,hireCoach,fireCoach,renewCoach,coachTerms,severanceOf,renewDemand,deptCount,staffPay,refreshStaffPool,compName,playLg,calcRep,repGrade,repParts,teamOutlook,genJobOffers,declineJob,moveManager,econ,
   leagueKey,leagueStanding,expectedRole,standingAll,winterTeams,dispatchEligible,dispatchOptions,dispatchPlayer,cancelDispatch,declineDispatch,resolveDispatch,levelOf,
   rookSign,negActed,parkRemodel,fgnSlots,fgnSlotCost,fgnCands,postReach,postRecord,postCur,POST_TEXT,lgGames,calDays,userGames,lpostInfo,lpostText,lpostRule,setPlan,planEval,myPlayers,PLAN_KO,nickCheck,customizeTeam,EMB_SHAPES,injList,recSeason,leadersPast,hofParts,hofScore,hofList,hofCands,carLine,mainTeam,HOF_MIN,lpostReach,lpostNextName,fgnRuleText,isFgnIn,asNames,asLg,twHalf,LPOST_LG,DRAFT_LG,perfRankBonus,OLD_SAVE_MSG,aimOf,callupPlan,callupSwap,AIM_KO,setResFocus,resFocusList,resFocusWarn,callupCands,stallList,perfBonus,watchReasons,WATCH_KO,careerMs,firstPickCands,firstPick,firstPickResult,recapNext,needCats,draftAutoOne,draftMyLeft,farmKo,farmTierOf,farmCheck,capOf,nearCap,bdOf,dateOf,WGOAL,achList,ACH,farmGrade,renewAll,renewDemandOf,ledgerAdd,tradeEval,tradePropose,tradeOpen,tradeDeadline,tradeCore,tradeVal,convOpts,convDays,startConv,cancelConv,TACTICS,tacOk,setTactic,tacNow,stealP,transferPlayer,isFgn,fgnList,fgnStatus,fgnBlock,asiaOk,NAT_KO,ASIA_NAT,createFDraft,fdAvail,fdPick,fdAuto,fdTurn,fdCur,fdStep,fdNeeds,fdFits,allStar,asDay,AS_SQUAD,asSquadOf,futGames,futStand,futTeam,futNext,futDivOf,FUT_DIV_KO,FUT_INDEP,futDay,futPost,
-  missionsToday,missionsResolve,MIS_TIER_KO,diffNow,DIFF_KO,DRIVES,DRIVE_DAYS,DRIVE_USES,setDrive,driveInfo,driveNow,grantProjection,careerStages,dailyDecision,dailyAnswer,fgnSalary,faScore,myResult,myResSeen,faWhy,faStanding,keyReason,advancePreview,releaseExpiring,fgnCost,negPreview,negCost,preCheck,stageInfo,stageSeen,renewWhy,offerImpact,budgetRule,tacOdds,tradeWants,
+  missionsToday,missionsResolve,MIS_TIER_KO,diffNow,DIFF_KO,DRIVES,DRIVE_DAYS,DRIVE_USES,setDrive,driveInfo,driveNow,grantProjection,careerStages,dailyDecision,dailyAnswer,fgnSalary,faScore,myResult,myResSeen,faWhy,faStanding,keyReason,advancePreview,releaseExpiring,fgnCost,negPreview,negAsk,negCost,preCheck,stageInfo,stageSeen,renewWhy,offerImpact,budgetRule,tacOdds,tradeWants,
   P:P_,krTeams,overseasTeams,rnd};
 })();
 if(typeof module!=='undefined')module.exports=SL;
