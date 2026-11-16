@@ -16,7 +16,7 @@ const path=require('path');let fails=0;const bad=m=>{fails++;console.log('  FAIL
     r.kr.includes('2군으로')&&r.kr.includes('육성군으로')&&r.kr.includes('매물 등록')&&r.kr[r.kr.length-1]==='방출'&&r.kr.length===exp&&r.btn.join('|')==='재계약|타순·수비'&&r.above?ok(`${tag} 한국 타자 카드 바로 하기 「${r.kr.join(' · ')}」(관리 ⋯ 창 ${r.menu.length}줄 중 카드 아래 단추 · 훈련 칸에 있는 것 빼고 모두) · 능력 · 기록 바로 아래 · 아래 단추 「${r.btn.join(' · ')}」`):bad(tag+' 한국 카드 '+JSON.stringify({kr:r.kr,menu:r.menu,btn:r.btn,above:r.above}));
     r.pinStay&&r.listed&&r.kr2.includes('매물 해제')?ok(`${tag} 「관심」은 카드에 머문 채 「관심 해제」로 · 「매물 등록」 → 다시 열면 「매물 해제」`):bad(tag+' 누름 '+JSON.stringify({p:r.pinStay,l:r.listed,k:r.kr2}));
     !r.fg||r.fg.includes('외국인 교체')?ok(`${tag} 외국인 투수 카드에 「외국인 교체」${r.fg?'':' (외국인 투수 없음)'}`):bad(tag+' 외국인 '+r.fg);
-    r.full.length===r.kr2.length?ok(`${tag} 선수 상세 개요에도 「바로 하기」 ${r.full.length}칸`):bad(tag+' 상세 '+JSON.stringify(r.full));
+    /* v169: 선수 상세 개요는 한 화면(ui_layout 852px)이라 「바로 하기」 칸을 두지 않음 — 위 ⋯ 메뉴 · 카드에서 */
     r.us.includes('챌린저스로')&&r.us.includes('40인 빼기')&&r.us.includes('지명할당')&&r.usd.includes('40인 넣기')&&r.usdBtn.join('|')==='상세 보기'?ok(`${tag} 미국 메이저 선수 「${r.us.join(' · ')}」 · 40인 밖 선수 「${r.usd.join(' · ')}」`):bad(tag+' 미국 '+JSON.stringify({us:r.us,usd:r.usd,b:r.usdBtn}));
     await c.close();}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');await b.close();console.log(fails?`실패 ${fails}건`:'v166 통과');process.exit(fails?1:0);})();

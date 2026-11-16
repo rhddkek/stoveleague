@@ -5,7 +5,7 @@ const path=require('path');const fs=require('fs');const SL=require('./run.js');l
 SL.postFee(700000)===140000&&SL.postFee(1400000)===262500&&SL.postFee(2000000)===352500&&SL.postFee(100000)===20000?ok('이적료 = 계약 총액의 20% · 2,500만 달러 넘는 부분 17.5% · 5,000만 달러 넘는 부분 15%'):bad('이적료 식');
 // 2. 새 게임: 게임 전 지명 기록 · 우리가 키운 선수 · 프랜차이즈 진행
 {SL.newGame(31,3,{games:36});const S=SL.state();S.mgr.noSack=1;const ut=SL.userTeam();const ps=ut.roster.map(id=>S.players[id]);const hg=ps.filter(p=>SL.homegrown(p));const d=hg[0]&&SL.dftOf(hg[0]);
-  hg.length>=3&&d&&d.k==='p'&&d.team===ut.id&&S.frV===1?ok(`게임 전부터 있던 선수 중 우리 구단 지명 ${hg.length}명 · 예 ${hg[0].name} ${2025+d.s} ${d.r}라운드`):bad('게임 전 지명 '+JSON.stringify({n:hg.length,d,frV:S.frV}));
+  hg.length>=3&&d&&d.k==='p'&&d.team===ut.id&&S.frV===2?ok(`게임 전부터 있던 선수 중 우리 구단 지명 ${hg.length}명 · 예 ${hg[0].name} ${2025+d.s} ${d.r}라운드`):bad('게임 전 지명 '+JSON.stringify({n:hg.length,d,frV:S.frV}));
   const rng0=S.rng;const aw=SL.awakenSeasonEnd(0);S.rng===rng0?ok(`각성 계산은 게임 난수를 쓰지 않음 (시즌 0 기록 기준 ${aw.length}명)`):bad('각성 난수');for(const p of aw){delete p.ms.awk;}
   // 3. 한 시즌 → 결산 「육성」 · 새 프랜차이즈 · 해외 진출 요청
   let g=0;while(S.phase==='season'&&g++<200)SL.playDayAuto();const D=S.lastRecap&&S.lastRecap.dev;
@@ -33,7 +33,7 @@ SL.postFee(700000)===140000&&SL.postFee(1400000)===262500&&SL.postFee(2000000)==
 {SL.newGame(31,3,{games:36});const S=SL.state();S.mgr.noSack=1;let g=0;while(S.phase==='season'&&g++<200)SL.playDayAuto();const R=SL.postReqs();let k=0;while(S.week<=2&&k++<4)SL.advanceWeek();
   R.length&&!SL.postReqs().length&&R.every(r=>r.st==='no'&&r.auto)?ok(`답하지 않은 요청 ${R.length}건 → 2주차에 거절로 처리`):bad('자동 거절 '+JSON.stringify(R));}
 // 10. 예전 저장
-{for(const f of ['v29_save.json','v158_us_save.json']){SL.load(fs.readFileSync(path.join(__dirname,f),'utf8'));const S=SL.state();const A=SL.albumRows();S.frV===1&&Array.isArray(A)?ok(`예전 저장 ${f}: 우리가 키운 선수 ${A.length}명 · 프랜차이즈 ${SL.frCount(SL.userTeam())}명`):bad('예전 저장 '+f);}}
+{for(const f of ['v29_save.json','v158_us_save.json']){SL.load(fs.readFileSync(path.join(__dirname,f),'utf8'));const S=SL.state();const A=SL.albumRows();S.frV===2&&Array.isArray(A)?ok(`예전 저장 ${f}: 우리가 키운 선수 ${A.length}명 · 프랜차이즈 ${SL.frCount(SL.userTeam())}명`):bad('예전 저장 '+f);}}
 console.log(fails?`실패 ${fails}건`:'v165 엔진 통과');
 (async()=>{const {chromium}=require('playwright');const b=await chromium.launch();const errs=[];const url='file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1';
   for(const vp of [{width:390,height:844,m:1},{width:1280,height:860}]){const c=await b.newContext({viewport:{width:vp.width,height:vp.height},isMobile:!!vp.m,hasTouch:!!vp.m});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(400);const tag=vp.m?'휴대폰':'PC';

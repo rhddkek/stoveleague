@@ -1076,3 +1076,9 @@ body:not(.ingame) .pctop .pctabs button{min-height:36px;height:36px;padding:0 6p
 body:not(.ingame) .modal-bg .modal:has(>.pck){display:flex;flex-direction:column}
 body:not(.ingame) .modal-bg .modal>.pck{flex:1 0 auto;display:flex;flex-direction:column}
 body:not(.ingame) .modal-bg .modal>.pck>.shbar{margin-top:auto}
+
+/* v169 (R140): 전수 점검 — 카드 「바로 하기」 묶음 이름  · 점수판 구단 이름은 낱말 단위로 줄바꿈 */
+.pcag{margin:8px 0 0}.pcag>small{display:block;color:var(--muted);font-size:11.5px;margin:0 2px 4px}.pcag .pcacts{margin:0}
+.sbd .sbt span{word-break:keep-all;overflow-wrap:normal}
+/* v169 (R140): 겨울 감독실 휴대폰 — 답변대기 · 완료 두 칸을 한 줄에 나란히(펼치면 한 줄 전체) → 한 화면(1.15) 안 */
+@media (max-width:699px){body:not(.ingame) details.wmore.w9f{display:inline-block;width:calc(50% - 4px);vertical-align:top;box-sizing:border-box;overflow:hidden;min-width:0}body:not(.ingame) details.wmore.w9f+details.wmore.w9f{margin-left:4px}body:not(.ingame) details.wmore.w9f[open]{display:block;width:100%;margin-left:0}}
