@@ -1,0 +1,17 @@
+// v170 (R141): unslop 다듬기 — 「작게」(기본)에서 글자가 11.5px 아래로 내려가지 않음(정렬 화살표 제외) · 구역 막대는 강조색 하나 · 화면 문구에 느낌표 없음(중계 · 소식 제외)
+const path=require('path');const fs=require('fs');let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
+(async()=>{const {chromium}=require('playwright');const b=await chromium.launch();const errs=[];const url='file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1';
+  for(const vp of [{width:390,height:844,m:1},{width:1280,height:860}]){const c=await b.newContext({viewport:{width:vp.width,height:vp.height},isMobile:!!vp.m,hasTouch:!!vp.m});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(400);const tag=vp.m?'휴대폰':'PC';
+    const r=await p.evaluate(async()=>{const w=()=>new Promise(r=>setTimeout(r,80));const small={};let seen=0,scr=0;const o={};
+      UI.pickLg('KR');UI.pickTeam(2);UI.newGame();const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();UI.closeModal();const S=SL.state();S.tutorialDone=true;S.mgr.noSack=1;for(let i=0;i<12;i++)SL.playDayAuto();UI.closeModal();UI.render();
+      const scan=()=>{scr++;const root=document.querySelector('#modal .modal')||document.body;for(const e of root.querySelectorAll('*')){if(!e.offsetParent)continue;if(e.matches('i.as,.srt i'))continue;const own=[...e.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim();if(!own)continue;seen++;const fs=parseFloat(getComputedStyle(e).fontSize);if(fs<11.45){const k=e.tagName.toLowerCase()+'.'+String(e.className||'').split(/\s+/)[0]+' ‹ .'+String((e.parentElement||{}).className||'').split(/\s+/)[0]+' '+fs;small[k]=(small[k]||0)+1;}}};
+      for(const t of ['home','roster','dev','market','league','club']){UI.setTab(t);await w();const ups=document.querySelectorAll('.htabs button').length||1;for(let i=0;i<ups;i++){const ub=document.querySelectorAll('.htabs button')[i];if(ub){ub.click();await w();}const lows=document.querySelectorAll('.htabs2 button').length||1;for(let j=0;j<lows;j++){const lb=document.querySelectorAll('.htabs2 button')[j];if(lb){lb.click();await w();}scan();}}}
+      UI.setTab('home');await w();const se=document.querySelector('.sech');if(se){const d=document.createElement('i');d.style.color='var(--sel)';document.body.appendChild(d);o.bar=[getComputedStyle(se).borderLeftColor,getComputedStyle(d).color];d.remove();}
+      UI.openPlayer(SL.userTeam().lineup[0]);await w();scan();UI.closeModal();o.small=small;o.seen=seen;o.scr=scr;return o;});
+    const ks=Object.keys(r.small);!ks.length&&r.seen>2000?ok(`${tag} 화면 ${r.scr}개 · 글자 ${r.seen}곳 모두 11.5px 이상`):bad(`${tag} 작은 글자 ${ks.length}종 `+JSON.stringify(Object.entries(r.small).slice(0,8)));
+    if(!vp.m)(r.bar&&r.bar[0]===r.bar[1])?ok('PC 구역 막대(오늘의 구단) = 강조색 '+r.bar[0]):bad('구역 막대 색 '+JSON.stringify(r.bar));
+    await c.close();}
+  const src=fs.readFileSync(path.resolve(__dirname,'../src/ui.js'),'utf8')+fs.readFileSync(path.resolve(__dirname,'../src/ui2.js'),'utf8');
+  const ex=(src.match(/toast\(`[^`]*!`|toast\('[^']*!'/g)||[]).concat(['취임했습니다!','시즌 개막!',"'승리!'",'가을야구 진출!','해 봤습니다!'].filter(x=>src.includes(x)));
+  ex.length?bad('화면 문구 느낌표 '+ex.join(' | ')):ok('알림 · 결과 상자 문구에 느낌표 없음');
+  errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');await b.close();console.log(fails?`실패 ${fails}건`:'v170 통과');process.exit(fails?1:0);})();

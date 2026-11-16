@@ -1082,3 +1082,17 @@ body:not(.ingame) .modal-bg .modal>.pck>.shbar{margin-top:auto}
 .sbd .sbt span{word-break:keep-all;overflow-wrap:normal}
 /* v169 (R140): 겨울 감독실 휴대폰 — 답변대기 · 완료 두 칸을 한 줄에 나란히(펼치면 한 줄 전체) → 한 화면(1.15) 안 */
 @media (max-width:699px){body:not(.ingame) details.wmore.w9f{display:inline-block;width:calc(50% - 4px);vertical-align:top;box-sizing:border-box;overflow:hidden;min-width:0}body:not(.ingame) details.wmore.w9f+details.wmore.w9f{margin-left:4px}body:not(.ingame) details.wmore.w9f[open]{display:block;width:100%;margin-left:0}}
+
+/* v170 (R141): unslop 다듬기 — 「작게」에서 10px 아래로 내려가던 글자를 11.5px로 · 구역 막대는 강조색 하나 · 4px 눈금에서 벗어난 간격 정리 (경기 중 화면 제외) */
+body:not(.ingame) :is(.gban .k,.strip .k,.bub .who,.ovseg .chip,.dtag,.atag,.adv .l,.adv .chip,.prevline .tag,.tile .ts,.wtag,.attr .k em,.tst,.witem span,.tile2 small,.wgo button small,.tsel5 .c,.tsel5 .t,.glen button small,.ar,.gl,.hd .lmbtn,.tsum,.ticker .tk-l,.stab tr.pcut td,.mvs .vs,.lookemb small,.hlc .hli,.tpv .k,.tpvps .k,.hbd,.rrow .k em,.seg.pf button i,.ptag,.dslot small,.dslot .dn,.dslot b,.mvx .att,.mvx .att b,.seg.spd button,.misl .mt i,.drow2 .dk,.prow.sq .chip,.tbl2 .seats .rl,.screg span,.kpi span,.kpi small,.needrow .dot,.mkr small,.grptab small,.draftbn .r small,.ostep small,.mail .when,.kpi5 span,.kpi5 small,.gbox small,.stline small,.ptg,.lr,.kv5 small,.tg,.agrid span,.axis,.rin small,.prevpk>div,.coach small,.statrow small,.bb2 small,.usebar span small,.mkt.rot td.small,.rtag,.negt small,.jno,button small,.rwhy,.tacb small,.dec3 small,.st5 .ostep small,.tdh,.tdg span,.tdn small,.lur .no,.lur em,.lur small,.stvm,.stvt td.tr small,.stvt .tn small,.trs .sl span,.trs .sl i,.pp2 small,.pv .phd .no,.tiles.t3 .tile .ts,.pv .adv .l,.pv .adv .chip,.form2 .fnx .k,.stv .fglg button,.stv .fgth small,.stv .fgsc .r small,.stv .eqgrid button i,.stv .eqgrid.inv small,.stv .eql small,.stv .eqwho small,.stv .eqslots>*,.stv .eqslots .emp small,.stv .eqslots .full small,.stv .coh span,.stv .co small,.stv .gih small,.stv .gir em,.stv .gibh em,.stv .eql em,.fbt small,.fbt span,.fzone small,.side .msec .ml,.side .skeys,.side kbd,.pgtabs button small,.achg .achrow .small.dim,.achg .achrow>span:last-child,.mktabs3 button small,.fsel i,.fpick button i,.dfgrid small,.dfgrid span,.cbar .cl,.mglist .n i,.dsf.tr6 .rcm,.lu2 .lul .lun small .gq,.lu2 .lul .lun small em,.fvf .dslot small,.fvp,.pfsk .skg,.stvline i,.stv .coh small,.stv .bstep small,.plb,.dcell .dha){font-size:11.5px}
+body:not(.ingame) .tn button.sm{font-size:11.5px!important}
+body:not(.ingame) .gq{font-size:max(.78em,11.5px)}
+body:not(.ingame) .sech{border-left-color:var(--sel)}
+body:not(.ingame) .club .r1{gap:8px}
+body:not(.ingame) .club .nextb{padding:8px 12px}
+@media (max-width:400px){body:not(.ingame) .club .nextb{padding:6px 8px}}
+body:not(.ingame) .mksec{padding-top:8px;padding-bottom:8px}
+body:not(.ingame) .tile{padding:8px 12px}
+body:not(.ingame) :is(.pfg,.pfg>div,.stv .cod .cos,.stv .stvact,.rt .row){gap:4px}
+body:not(.ingame) .stv .cod .cos,body:not(.ingame) .sub .mschips{margin-top:4px}
+body:not(.ingame) .side .msec .mi,body:not(.ingame) .stv .eql{gap:4px}
