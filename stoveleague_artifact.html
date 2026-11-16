@@ -3012,6 +3012,13 @@ body:not(.ingame) .pctop .pctabs button{min-height:36px;height:36px;padding:0 6p
 .pcacts button.bad{color:var(--bad,#e5675b);border-color:color-mix(in srgb,var(--bad,#e5675b) 45%,transparent)}
 @media (min-width:960px){.pcacts{grid-template-columns:repeat(6,1fr)}}
 
+/* v168 (R139): 선수 카드 창은 탭(정보 · 기록 · 계약)을 바꿔도 같은 크기 — 내용이 짧아도 창은 그대로 */
+@media (max-width:699px){body:not(.ingame) .modal-bg .modal:has(>.pck){height:90vh}}
+@media (min-width:700px){body:not(.ingame) .modal-bg .modal:has(>.pck){height:min(720px,90vh)}}
+body:not(.ingame) .modal-bg .modal:has(>.pck){display:flex;flex-direction:column}
+body:not(.ingame) .modal-bg .modal>.pck{flex:1 0 auto;display:flex;flex-direction:column}
+body:not(.ingame) .modal-bg .modal>.pck>.shbar{margin-top:auto}
+
 </style>
 <div id="app"></div>
 <script>
@@ -3022,7 +3029,7 @@ const ASSETS={"sprites":{"bat":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUh
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v167';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v168';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.

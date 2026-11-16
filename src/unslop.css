@@ -1069,3 +1069,10 @@ body:not(.ingame) .pctop .pctabs button{min-height:36px;height:36px;padding:0 6p
 .pcacts button i{font-style:normal;font-size:16px;line-height:1}
 .pcacts button.bad{color:var(--bad,#e5675b);border-color:color-mix(in srgb,var(--bad,#e5675b) 45%,transparent)}
 @media (min-width:960px){.pcacts{grid-template-columns:repeat(6,1fr)}}
+
+/* v168 (R139): 선수 카드 창은 탭(정보 · 기록 · 계약)을 바꿔도 같은 크기 — 내용이 짧아도 창은 그대로 */
+@media (max-width:699px){body:not(.ingame) .modal-bg .modal:has(>.pck){height:90vh}}
+@media (min-width:700px){body:not(.ingame) .modal-bg .modal:has(>.pck){height:min(720px,90vh)}}
+body:not(.ingame) .modal-bg .modal:has(>.pck){display:flex;flex-direction:column}
+body:not(.ingame) .modal-bg .modal>.pck{flex:1 0 auto;display:flex;flex-direction:column}
+body:not(.ingame) .modal-bg .modal>.pck>.shbar{margin-top:auto}
