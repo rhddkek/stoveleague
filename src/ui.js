@@ -336,6 +336,16 @@ function pActs(pid){S=SL.state();const p=S.players[pid];const ut=SL.userTeam();i
     if(ut.league==='US'&&!SL.inEntry(ut,pid)){const tr=SL.uTier(p,ut);add('↕',tr===3?'챌린저스로':'루키스로',tr===3?'한 단계 위 · 메이저 바로 아래':'한 단계 아래 · 출전 기회 늘림',`UI.closeModal();UI.setTier(${pid},${tr===3?2:3})`);}   /* v163: 챌린저스 ↔ 루키스 */
     if(ut.league==='US')add(inDev?'⬆':'⬇',inDev?'40인 명단에 넣기':'40인 명단에서 빼기',inDev?'40인 명단에 들어가야 메이저에 올릴 수 있습니다':'마이너 계약으로 돌립니다 (경기는 지금 단계에서 계속)',`UI.closeModal();UI.${inDev?'promote':'demote'}(${pid})`,'',inDev?'40인 넣기':'40인 빼기');
     else add(inDev?'⬆':'⬇',inDev?'2군(선수단)으로':'육성군으로',inDev?'육성 계약을 풀고 선수단에 넣습니다 (1군 등록은 따로)':'선수단에서 빼고 육성군에서 키웁니다 (2군 경기 출장)',`UI.closeModal();UI.${inDev?'promote':'demote'}(${pid})`,'',inDev?'2군 등록':'육성군으로');
+    /* v167 (R138): 다른 화면 깊숙이 있던 선수별 일 — 해외 진출 답 · 방침 · 멘토 · 장비 · 스킬 캠프 · 겨울 계획 */
+    if(SL.postReqs().some(r=>r.pid===pid))add('✈','해외 진출 요청','2주차까지 답 · 허락하면 입찰 · 이적료',`UI.closeModal();UI.postView(${pid})`,'','해외 진출 답');
+    if(!inDev&&typeof polCardHtml==='function'&&polCardHtml(p)){const k=isP?'hook':'bat';add('⚙',`방침 · ${SL.POL_KO[k][SL.polOf(p,k)]}`,isP?'선발 등판 때 강판 시점':'타석에서 어떻게 칠지',`UI.closeModal();UI.polView(${pid})`,'','방침');}
+    {const C=SL.mentorCands();const mt=(ut.mentors||[]).find(x=>x.m===pid||x.y===pid);if(mt){const o=S.players[mt.m===pid?mt.y:mt.m];add('🤝',`멘토 짝 · ${o?esc(o.name):''}`,mt.m===pid?'후배를 이끄는 중 · 누르면 짝을 풉니다':'선배에게 배우는 중 · 누르면 짝을 풉니다',`UI.closeModal();UI.mentorDel(${mt.y})`,'','멘토 풀기');}
+      else if(C.m.includes(pid))add('🤝','멘토 맡기기',`리더십 ${SL.perOf(p).ld} · 24세 이하 후배 성장을 돕습니다`,`UI.closeModal();UI.mentorPick(${pid})`,'','멘토 맡기기');
+      else if(C.y.includes(pid)&&C.m.some(id=>SL.isPitcher(S.players[id])===isP))add('🤝','멘토 붙이기','선배를 골라 짝을 짓습니다 · 성장 +',`UI.closeModal();UI.mentorFor(${pid})`,'','멘토 붙이기');}
+    if(!inDev)add('🧤','장비',(p.eq||[]).length?`${p.eq.length}개 착용`:'착용한 장비 없음',`UI.closeModal();UI.eqOpen(${pid})`,'','장비');
+    if(S.phase==='offseason'){const o=SL.skCampOpts(pid);if(o&&!o.done&&o.left>0)add('🎓','스킬 캠프',`이번 겨울 남은 자리 ${o.left} / ${SL.BAL.SKC.n}`,`UI.closeModal();UI.skCamp(${pid})`,'','스킬 캠프');
+      if(!p.dispatch){if(S.dispatch&&S.dispatch.phase==='open'&&SL.dispatchEligible(p))add('🧭','겨울리그 파견','해외 겨울리그에서 실전 경험',`UI.closeModal();UI.dispatchView(${pid})`,'','겨울 파견');
+        add('🛏',p.winterPlan==='rest'?'동계훈련으로':'겨울 휴식',p.winterPlan==='rest'?'한국에서 훈련합니다':'성장 거의 없음 · 노화 절반',`UI.closeModal();UI.winterPlan(${pid},${p.winterPlan==='rest'?'null':"'rest'"})`,'',p.winterPlan==='rest'?'동계훈련':'겨울 휴식');}}
     if(p.age<=SL.BAL.LOAN.maxAge&&!inL&&!ut.rotation.includes(pid)){const o=SL.loanOptions(pid)[0];add('✈','임대 보내기',o?`예: ${esc(o.team.name)} · 예상 ${esc(o.role)}`:'받을 구단 없음',`UI.closeModal();UI.loanView(${pid})`,'','임대');}
     add(listed?'🏷':'💰',listed?'매물 해제':'매물 등록',listed?'':`시장가치 ${Ms(SL.calcValue(p))} · 관심 구단이 제안합니다`,`UI.closeModal();UI.${listed?'unlist':'list'}(${pid})`);
     add('✍','재계약 협상',p.contract?`지금 ${Ms(p.contract.salary)} · ${p.contract.years}년 남음`:'',`UI.closeModal();UI.openTable(${pid})`,'','','renew');

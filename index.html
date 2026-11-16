@@ -3029,7 +3029,7 @@ const ASSETS={"sprites":{"bat":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUh
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v166';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v167';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -7713,6 +7713,16 @@ function pActs(pid){S=SL.state();const p=S.players[pid];const ut=SL.userTeam();i
     if(ut.league==='US'&&!SL.inEntry(ut,pid)){const tr=SL.uTier(p,ut);add('↕',tr===3?'챌린저스로':'루키스로',tr===3?'한 단계 위 · 메이저 바로 아래':'한 단계 아래 · 출전 기회 늘림',`UI.closeModal();UI.setTier(${pid},${tr===3?2:3})`);}   /* v163: 챌린저스 ↔ 루키스 */
     if(ut.league==='US')add(inDev?'⬆':'⬇',inDev?'40인 명단에 넣기':'40인 명단에서 빼기',inDev?'40인 명단에 들어가야 메이저에 올릴 수 있습니다':'마이너 계약으로 돌립니다 (경기는 지금 단계에서 계속)',`UI.closeModal();UI.${inDev?'promote':'demote'}(${pid})`,'',inDev?'40인 넣기':'40인 빼기');
     else add(inDev?'⬆':'⬇',inDev?'2군(선수단)으로':'육성군으로',inDev?'육성 계약을 풀고 선수단에 넣습니다 (1군 등록은 따로)':'선수단에서 빼고 육성군에서 키웁니다 (2군 경기 출장)',`UI.closeModal();UI.${inDev?'promote':'demote'}(${pid})`,'',inDev?'2군 등록':'육성군으로');
+    /* v167 (R138): 다른 화면 깊숙이 있던 선수별 일 — 해외 진출 답 · 방침 · 멘토 · 장비 · 스킬 캠프 · 겨울 계획 */
+    if(SL.postReqs().some(r=>r.pid===pid))add('✈','해외 진출 요청','2주차까지 답 · 허락하면 입찰 · 이적료',`UI.closeModal();UI.postView(${pid})`,'','해외 진출 답');
+    if(!inDev&&typeof polCardHtml==='function'&&polCardHtml(p)){const k=isP?'hook':'bat';add('⚙',`방침 · ${SL.POL_KO[k][SL.polOf(p,k)]}`,isP?'선발 등판 때 강판 시점':'타석에서 어떻게 칠지',`UI.closeModal();UI.polView(${pid})`,'','방침');}
+    {const C=SL.mentorCands();const mt=(ut.mentors||[]).find(x=>x.m===pid||x.y===pid);if(mt){const o=S.players[mt.m===pid?mt.y:mt.m];add('🤝',`멘토 짝 · ${o?esc(o.name):''}`,mt.m===pid?'후배를 이끄는 중 · 누르면 짝을 풉니다':'선배에게 배우는 중 · 누르면 짝을 풉니다',`UI.closeModal();UI.mentorDel(${mt.y})`,'','멘토 풀기');}
+      else if(C.m.includes(pid))add('🤝','멘토 맡기기',`리더십 ${SL.perOf(p).ld} · 24세 이하 후배 성장을 돕습니다`,`UI.closeModal();UI.mentorPick(${pid})`,'','멘토 맡기기');
+      else if(C.y.includes(pid)&&C.m.some(id=>SL.isPitcher(S.players[id])===isP))add('🤝','멘토 붙이기','선배를 골라 짝을 짓습니다 · 성장 +',`UI.closeModal();UI.mentorFor(${pid})`,'','멘토 붙이기');}
+    if(!inDev)add('🧤','장비',(p.eq||[]).length?`${p.eq.length}개 착용`:'착용한 장비 없음',`UI.closeModal();UI.eqOpen(${pid})`,'','장비');
+    if(S.phase==='offseason'){const o=SL.skCampOpts(pid);if(o&&!o.done&&o.left>0)add('🎓','스킬 캠프',`이번 겨울 남은 자리 ${o.left} / ${SL.BAL.SKC.n}`,`UI.closeModal();UI.skCamp(${pid})`,'','스킬 캠프');
+      if(!p.dispatch){if(S.dispatch&&S.dispatch.phase==='open'&&SL.dispatchEligible(p))add('🧭','겨울리그 파견','해외 겨울리그에서 실전 경험',`UI.closeModal();UI.dispatchView(${pid})`,'','겨울 파견');
+        add('🛏',p.winterPlan==='rest'?'동계훈련으로':'겨울 휴식',p.winterPlan==='rest'?'한국에서 훈련합니다':'성장 거의 없음 · 노화 절반',`UI.closeModal();UI.winterPlan(${pid},${p.winterPlan==='rest'?'null':"'rest'"})`,'',p.winterPlan==='rest'?'동계훈련':'겨울 휴식');}}
     if(p.age<=SL.BAL.LOAN.maxAge&&!inL&&!ut.rotation.includes(pid)){const o=SL.loanOptions(pid)[0];add('✈','임대 보내기',o?`예: ${esc(o.team.name)} · 예상 ${esc(o.role)}`:'받을 구단 없음',`UI.closeModal();UI.loanView(${pid})`,'','임대');}
     add(listed?'🏷':'💰',listed?'매물 해제':'매물 등록',listed?'':`시장가치 ${Ms(SL.calcValue(p))} · 관심 구단이 제안합니다`,`UI.closeModal();UI.${listed?'unlist':'list'}(${pid})`);
     add('✍','재계약 협상',p.contract?`지금 ${Ms(p.contract.salary)} · ${p.contract.years}년 남음`:'',`UI.closeModal();UI.openTable(${pid})`,'','','renew');
@@ -12164,7 +12174,11 @@ function skCampHtml(pid){const p=S.players[pid];const o=SL.skCampOpts(pid);if(!p
 function skCampPickHtml(){const ut=SL.userTeam();const left=SL.skCampLeft();const done=(S.skc&&S.skc.s===S.season+1?S.skc.ids:[]);const ps=ut.roster.concat(ut.dev||[]).map(id=>S.players[id]).filter(Boolean).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));
   return `<div class="skcamp"><h3>스킬 캠프</h3><div class="small dim">이번 겨울 남은 자리 <b>${left} / ${SL.BAL.SKC.n}</b> · 보낼 선수를 고르세요</div>${ps.map(p=>`<div class="prow act" onclick="UI.skCamp(${p.id})">${face(p,32)}<div class="grow"><div class="nm">${esc(p.name)} <span class="muted small">${p.pos} · ${p.age}세</span></div><div class="sub">${SL.skillRows(p).map(x=>`${x.n}${x.lv>1?' Lv.'+x.lv:''}`).join(' · ')||'스킬 없음'}</div></div>${done.includes(p.id)?'<span class="chip g">다녀옴</span>':`<b>${Math.round(SL.calcOvr(p))}</b>`}</div>`).join('')}</div>`;}
 Object.assign(A,{
-  polSet(pid,k,v){const r=SL.setPol(pid,k,v);toast(r.msg);if(r.ok)autosave();ui.keepScroll=true;render();},
+  polSet(pid,k,v){const r=SL.setPol(pid,k,v);toast(r.msg);if(r.ok)autosave();ui.keepScroll=true;render();if(ui.polV===pid&&document.querySelector('#modal .polcard'))A.polView(pid);},
+  /* v167 (R138): 카드 「바로 하기」에서 여는 방침 · 멘토 · 장비 */
+  polView(pid){const p=S.players[pid];if(!p)return;ui.polV=pid;modal(`<h3 class="pmh">${esc(p.name)} 방침</h3>${polCardHtml(p)}<div class="shbar n2"><button class="ghost" onclick="UI.closeModal()">닫기</button><button class="primary" onclick="UI.closeModal();UI.openPlayer(${pid})">선수 카드 ›</button></div>`);},
+  mentorFor(y){const C=SL.mentorCands();const Y=S.players[y];const ms=C.m.filter(id=>SL.isPitcher(S.players[id])===SL.isPitcher(Y));modal(`<h3>${esc(Y.name)}의 멘토 고르기</h3>${ms.map(id=>{const p=S.players[id];return `<div class="prow act" onclick="UI.mentorSet(${id},${y})">${face(p,32)}<div class="grow"><div class="nm">${esc(p.name)} <span class="muted small">${p.pos} · ${p.age}세</span></div><div class="sub small">리더십 ${SL.perOf(p).ld} → 후배 성장 +${Math.round(Math.max(0,SL.perOf(p).ld-50)*0.2)}%</div></div></div>`;}).join('')}<div class="btns" style="margin-top:8px"><button class="ghost" onclick="UI.closeModal()">닫기</button></div>`);},
+  eqOpen(pid){ui.eqF=Object.assign(ui.eqF||{side:'B'},{v:'on',pid});const p=S.players[pid];if(p)ui.eqF.side=SL.isPitcher(p)?'P':'B';UI.go('dev','equip');},
   skCamp(pid){modal(skCampHtml(pid));},
   pvSkill(){const v=ui.view;if(!v||v.type!=='player')return;v.tab='ability';if(ui.pvSubPid!==v.id){ui.pvSub={};ui.pvSubPid=v.id;}ui.pvSub=ui.pvSub||{};ui.pvSub.ability='skill';render();},
   skCampPick(){modal(skCampPickHtml());},

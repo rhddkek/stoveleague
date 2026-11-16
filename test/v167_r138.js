@@ -1,0 +1,22 @@
+// v167 (R138): 선수 카드 「바로 하기」에 더 꺼냄 — 방침 · 멘토(맡기기 · 붙이기 · 풀기) · 장비 · 겨울(스킬 캠프 · 겨울리그 파견 · 휴식) · 해외 진출 답
+const path=require('path');let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
+(async()=>{const {chromium}=require('playwright');const b=await chromium.launch();const errs=[];const url='file://'+path.resolve(__dirname,'../stoveleague.html')+'?test=1';
+  for(const vp of [{width:390,height:844,m:1},{width:1280,height:860}]){const c=await b.newContext({viewport:{width:vp.width,height:vp.height},isMobile:!!vp.m,hasTouch:!!vp.m});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(url);await p.waitForTimeout(400);const tag=vp.m?'휴대폰':'PC';
+    const r=await p.evaluate(async()=>{const w=()=>new Promise(r=>setTimeout(r,200));const acts=()=>[...document.querySelectorAll('#modal .pcacts button')].map(x=>x.querySelector('span').textContent);const tap=re=>[...document.querySelectorAll('#modal .pcacts button')].find(x=>re.test(x.textContent)).click();const o={};
+      UI.pickLg('KR');UI.pickTeam(3);UI.newGame();const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();UI.closeModal();const S=SL.state();S.tutorialDone=true;for(let i=0;i<3;i++)SL.playDayAuto();UI.go('roster','list');const ut=SL.userTeam();const C=SL.mentorCands();const id=ut.lineup[0];
+      UI.openPlayer(id);await w();o.bat=acts();o.ico=[...document.querySelectorAll('#modal .pcacts button i')].every(i=>i.querySelector('svg')||i.textContent.trim());
+      tap(/방침/);await w();o.polT=(document.querySelector('#modal h3')||{}).textContent;const bs=[...document.querySelectorAll('#modal .polcard .seg button')];bs.find(x=>!x.classList.contains('on')).click();await w();o.polOn=(document.querySelector('#modal .polcard .seg button.on')||{}).textContent;o.polV=SL.POL_KO.bat[SL.polOf(S.players[id],'bat')];UI.closeModal();
+      UI.openPlayer(C.m[0]);await w();o.vet=acts();UI.closeModal();const y=C.y.find(q=>C.m.some(m=>SL.isPitcher(S.players[m])===SL.isPitcher(S.players[q])));UI.openPlayer(y);await w();o.young=acts();tap(/멘토 붙이기/);await w();o.mfor=(document.querySelector('#modal h3')||{}).textContent;document.querySelector('#modal .prow.act').click();await w();o.pair=(ut.mentors||[]).some(x=>x.y===y);
+      UI.openPlayer(y);await w();o.young2=acts();tap(/멘토 풀기/);await w();o.unpair=!(ut.mentors||[]).some(x=>x.y===y);UI.closeModal();
+      UI.openPlayer(id);await w();tap(/장비/);await w();o.eq=(document.querySelector('.eql button.on span')||{}).textContent===S.players[id].name;
+      let g=0;while(S.phase==='season'&&g++<60){if(S.half&&!S.half.seen)SL.halfSeen();SL.testCmd('endSeason');UI.closeModal();}UI.closeModal();UI.go('roster','list');const q=ut.roster.map(i=>S.players[i]).find(x=>SL.dispatchEligible(x)&&!SL.postReqs().some(r=>r.pid===x.id));
+      UI.openPlayer(q.id);await w();o.win=acts();tap(/겨울 휴식/);await w();o.rest=q.winterPlan==='rest';UI.openPlayer(q.id);await w();o.win2=acts();UI.closeModal();
+      const pr=SL.postReqs()[0];if(pr){UI.openPlayer(pr.pid);await w();o.post=acts();tap(/해외 진출 답/);await w();o.postM=/해외 진출 요청/.test(document.querySelector('#modal').innerText);UI.closeModal();}return o;});
+    r.bat.includes('방침')&&r.bat.includes('장비')&&r.bat[r.bat.length-1]==='방출'&&r.ico?ok(`${tag} 타자 카드 「${r.bat.join(' · ')}」 · 칸마다 아이콘`):bad(tag+' 타자 '+JSON.stringify({b:r.bat,i:r.ico}));
+    /방침$/.test(r.polT)&&r.polOn===r.polV?ok(`${tag} 방침 → 창 「${r.polT}」 → 고르면 바로 「${r.polOn}」(실제 값과 같음)`):bad(tag+' 방침 '+JSON.stringify({t:r.polT,on:r.polOn,v:r.polV}));
+    r.vet.includes('멘토 맡기기')&&r.young.includes('멘토 붙이기')&&/멘토 고르기/.test(r.mfor)&&r.pair&&r.young2.includes('멘토 풀기')&&r.unpair?ok(`${tag} 선배 「멘토 맡기기」 · 후배 「멘토 붙이기」 → 「${r.mfor}」 → 짝 → 「멘토 풀기」 → 풀림`):bad(tag+' 멘토 '+JSON.stringify(r));
+    r.eq?ok(`${tag} 장비 → 육성 · 장비 화면에 그 선수가 골라져 있음`):bad(tag+' 장비');
+    r.win.includes('스킬 캠프')&&r.win.includes('겨울 파견')&&r.win.includes('겨울 휴식')&&r.rest&&r.win2.includes('동계훈련')?ok(`${tag} 겨울 카드 「${r.win.join(' · ')}」 · 겨울 휴식 → 「동계훈련」으로 바뀜`):bad(tag+' 겨울 '+JSON.stringify({w:r.win,r:r.rest,w2:r.win2}));
+    !r.post||(r.post.includes('해외 진출 답')&&r.postM)?ok(`${tag} 해외 진출을 요청한 선수 카드에 「해외 진출 답」 → 요청 창${r.post?'':' (요청 없음)'}`):bad(tag+' 해외 진출 '+JSON.stringify(r.post));
+    await c.close();}
+  errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');await b.close();console.log(fails?`실패 ${fails}건`:'v167 통과');process.exit(fails?1:0);})();
