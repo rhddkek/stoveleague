@@ -6,10 +6,10 @@ const {chromium}=require('playwright');const path=require('path');
     await p.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();UI.closeModal();});return p;};
   const p=await boot({width:390,height:844},true);
   // ── 선수 카드 (휴대폰) ──
-  {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const T=Object.values(S.teams);const ot=T.find(t=>t&&!t.isUser&&t.league==='KR');const out={};const grab=()=>{const m=document.querySelector('#modal .pck');return m?{rows:[...m.querySelectorAll('.pcd span')].map(x=>x.textContent).join(','),btn:[...m.querySelectorAll('.shbar button')].map(x=>x.textContent.trim()).join('|'),cmp:!!m.querySelector('.pccmp'),more:!!m.querySelector('.pcmore')}:null;};
+  {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const T=Object.values(S.teams);const ot=T.find(t=>t&&!t.isUser&&t.league==='KR');const out={};const grab=()=>{const m=document.querySelector('#modal .pck');return m?{rows:[...m.querySelectorAll('.pcd span')].map(x=>x.textContent).join(','),btn:[...m.querySelectorAll('.shbar button')].map(x=>x.textContent.trim()).join('|'),cmp:!!m.querySelector('.pccmp'),more:!!m.querySelector('.pcmore'),acts:m.querySelectorAll('.pcacts button').length}:null;};
       UI.go('roster','list');UI.openPlayer(ut.lineup[0]);out.own=grab();UI.closeModal();UI.openPlayer(ot.lineup[0]);out.oth=grab();UI.closeModal();UI.mmenu(ot.lineup[1]);out.menu=grab();UI.closeModal();
       const fa=(S.fa||[])[0];if(fa!=null){UI.openPlayer(fa);out.fa=grab();UI.closeModal();}const os=T.find(t=>t&&t.league==='US');if(os){UI.openPlayer(os.roster[0]);out.os=grab();UI.closeModal();}return out;});
-    r.own&&/계약/.test(r.own.rows)&&/시장가치/.test(r.own.rows)&&/재계약/.test(r.own.btn)&&/관리/.test(r.own.btn)&&r.own.more?ok(`우리 선수 카드: 줄 [${r.own.rows}] · 단추 [${r.own.btn}]`):bad('우리 선수 카드 '+JSON.stringify(r.own));
+    r.own&&/계약/.test(r.own.rows)&&/시장가치/.test(r.own.rows)&&/재계약/.test(r.own.btn)&&!/관리/.test(r.own.btn)&&r.own.acts>=3&&r.own.more?ok(`우리 선수 카드: 줄 [${r.own.rows}] · 단추 [${r.own.btn}]`):bad('우리 선수 카드 '+JSON.stringify(r.own));
     r.oth&&/영입/.test(r.oth.rows)&&/영입 제안/.test(r.oth.btn)&&r.oth.cmp?ok(`다른 구단 선수 카드: 줄 [${r.oth.rows}] · 단추 [${r.oth.btn}] · 비교`):bad('다른 구단 카드 '+JSON.stringify(r.oth));
     r.menu&&/영입 제안/.test(r.menu.btn)?ok('조치 메뉴(⋯)도 같은 카드'):bad('조치 메뉴 '+JSON.stringify(r.menu));
     !r.fa||/FA/.test(r.fa.btn)?ok(`FA 선수 카드: 단추 [${r.fa?r.fa.btn:'FA 없음'}]`):bad('FA 카드 '+JSON.stringify(r.fa));

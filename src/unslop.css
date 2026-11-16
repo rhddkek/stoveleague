@@ -1062,3 +1062,10 @@ body:not(.ingame) .pctop .pctabs button{min-height:36px;height:36px;padding:0 6p
 .pcl.story b{white-space:normal;line-height:1.45;font-weight:500;font-size:12.5px}
 .devrc .rline{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line)}.devrc .rline>span{flex:0 0 92px;color:var(--muted);font-size:12px}.devrc .rline>b{font-weight:500;line-height:1.5}
 .devrc button.lnk{font-weight:600}
+
+/* v166 (R137): 선수 카드 「바로 하기」 — 관리 ⋯ 창의 일을 카드에 4칸 바둑판으로 */
+.pcacts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 4px}
+.pcacts button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;padding:6px 2px;margin:0;border-radius:10px;font-size:12px;line-height:1.25;font-weight:500;white-space:normal;word-break:keep-all;text-align:center}
+.pcacts button i{font-style:normal;font-size:16px;line-height:1}
+.pcacts button.bad{color:var(--bad,#e5675b);border-color:color-mix(in srgb,var(--bad,#e5675b) 45%,transparent)}
+@media (min-width:960px){.pcacts{grid-template-columns:repeat(6,1fr)}}
