@@ -47,7 +47,7 @@ console.log('[5] 단계 안내: 단계가 바뀌는 주에 한 번');
   const keys=Object.keys(S.stageSeen||{});keys.every(k=>k.startsWith(S.season+':'))?ok('지난 시즌 확인 기록은 지움'):bad(keys);restore(base);}
 
 console.log('[6] 재계약 요구 이유 = 실제 요구 계산');
-{for(const id of S.pendingFA.slice(0,4)){const p=P(id);const w=SL.renewWhy(p);const base=w.base==='mk'?w.mk:w.cur*1.05;let m=1;if(w.mods.some(x=>x.startsWith('스타')))m*=1.25;if(w.mods.some(x=>x.startsWith('33세')))m*=0.85;if(w.mods.some(x=>x.startsWith('서운함')))m*=1.15;
+{for(const id of S.pendingFA.slice(0,4)){const p=P(id);const w=SL.renewWhy(p);const base=w.base==='mk'?w.mk:w.cur*1.05;let m=1;if(w.mods.some(x=>x.startsWith('스타')))m*=1.25;if(w.mods.some(x=>x.startsWith('33세')))m*=0.85;if(w.mods.some(x=>x.startsWith('서운함')))m*=1.15;if(w.mods.some(x=>x.startsWith('프랜차이즈')))m*=0.92;else if(w.mods.some(x=>x.startsWith('우리가 키운')))m*=0.96;   /* v165: 원클럽 할인 */
   Math.round(base*m/10)*10===w.dem&&w.dem===SL.renewDemandOf(p)?ok(`${p.name}: 능력 ${w.ovr0}→${w.ovr1} · ${w.base==='mk'?'시세':'현 연봉+5%'} → ${SL.money(w.dem)}`):bad(`${p.name} ${JSON.stringify(w)}`);}}
 
 console.log('[7] 받은 판매 제안: 받으면 전력 변화');
