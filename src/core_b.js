@@ -198,7 +198,8 @@ let PARK_REF=null;
 function parkRef(){if(PARK_REF)return PARK_REF;const ds=TEAM_NAMES.KR.map(x=>parkDim0(x[0]));const m=k=>ds.reduce((a,d)=>a+d[k],0)/ds.length;const eff=d=>(d.l+d.r)*0.3+d.c*0.4+(d.fence?2:0)-(d.wind?1.5:0);PARK_REF={eAvg:ds.reduce((a,d)=>a+eff(d),0)/ds.length,c:m('c'),eff};return PARK_REF;}
 const PARK_MEMO={};
 // v95 (R079): 경기 리그의 타격 환경 (BAL.ENV, 홈 구단 리그 기준)
-function envOf(lg){const L=(S.teams[lg.home]||{}).league;return (BAL.ENV&&BAL.ENV[L])||{hit:1,hr:1,zone:0,con:0};}
+const _envC={};
+function envOf(lg){const L=(S.teams[lg.home]||{}).league;const E=(BAL.ENV&&BAL.ENV[L])||{hit:1,hr:1,zone:0,con:0};const b=S.ball&&S.ball[L];if(!b||b===1)return E;const k=L+':'+b;return _envC[k]||(_envC[k]=Object.assign({},E,{hit:E.hit*b}));}   /* v172 (R143): 공인구 — 리그 득점이 기준에서 벗어나면 다음 해 안타 확률을 조금 조정 */
 // v140 (R111): 홈구장 공사 — 펜스를 당기면(−1) 타자 친화, 밀면(+1) 투수 친화. 좌·중·우 ±2m (홈런 약 ±5~6%, 기존 구장 범위 0.92~1.08 안)
 function parkOf(t,modX){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구장'};const mod=modX!=null?modX:(t.parkMod||0);const key=(t.orig||t.name)+'|'+t.name+'|'+mod;if(PARK_MEMO[key])return PARK_MEMO[key];const d=Object.assign({},parkDim0(t.orig||t.name));d.l+=mod*2;d.c+=mod*2;d.r+=mod*2;const R=parkRef();
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
