@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v176';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v177';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -523,7 +523,7 @@ function fillEntry(t){const cap=entryCap(t);const e=new Set(t.entry||[]);const n
     const best=pool.sort((a,b)=>calcOvr(b)-calcOvr(a))[0];e.add(best.id);names.push(best.name);}
   t.entry=[...e];applyEntry(t);return names;}
 function autoLineup(t,opt){
-  if(t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 4명 규정: ${mv.join(', ')} 2군(육성군)으로 내려갔습니다`,'contract');}
+  if(t.league==='JP'&&typeof fgnActiveFix==='function'){const mv=fgnActiveFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`[외국인 규정] 1군 4명 · ${mv.join(' · ')} → 2군`,'contract');}
   opt=opt||{mode:t.lineupMode||'win',locks:t.isUser?(t.locks||{}):{}};
   const ps=t.roster.map(id=>S.players[id]).filter(p=>p&&!p.retired&&!p.inj);
   const bats=ps.filter(p=>!isPitcher(p)),pits=ps.filter(isPitcher);
@@ -546,7 +546,7 @@ function teamPower(t,exclude){
   return {power:r1(la*0.55+spAvg*0.3+rpAvg*0.15),lineup:r,spIds:pits.filter(p=>p.pos==='SP').sort((a,b)=>calcOvr(b)-calcOvr(a)).slice(0,5).map(p=>p.id)};
 }
 // 유저 팀: 빠진 선수만 교체(기존 편성 유지)
-function fixLineup(t,o){if(t&&(t.league==='JP'||t.league==='TW')&&(t.isUser||t.league===playLg())&&typeof fgnEntryFix==='function'){const mv=fgnEntryFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`1군 외국인 규정(${fgnRuleText(t.league)}): ${mv.join(', ')} 2군으로 내려갔습니다`,'contract');}
+function fixLineup(t,o){if(t&&(t.league==='JP'||t.league==='TW')&&(t.isUser||t.league===playLg())&&typeof fgnEntryFix==='function'){const mv=fgnEntryFix(t);if(mv.length&&t.isUser&&typeof news==='function')news(`[외국인 규정] ${fgnRuleText(t.league)} · ${mv.join(' · ')} → 2군`,'contract');}
   else if(t&&t.league==='JP'&&typeof fgnActiveFix==='function'){fgnActiveFix(t);}
   if(!t.entry||!t.entry.length)autoEntry(t);
   const hurt=(t.entry||[]).filter(id=>{const p=S.players[id];return !p||p.retired||p.inj||!t.roster.includes(id);});

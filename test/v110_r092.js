@@ -19,7 +19,7 @@ const {chromium}=require('playwright');const path=require('path');
     !r.car&&r.title&&r.row&&r.btn&&r.sp&&r.ad?ok(`시설: 「훈련장 증설 · Lv.1 → 2」 · 「성장 보너스 0% → 12%」 · 단추 「${r.btn}」 · 커리어 없음 / 스폰서: 예상 금액만 · 광고 제안 가능 n명`):bad('시설·스폰서 '+JSON.stringify(r));}
   // 4. 트레이드: 구단별 수요 · 보강 포지션 · 빈칸 「-」 대신 「＋ 선수 선택」 2칸 · 고르기 전엔 교환 조건 줄 없음 · 단추 「선택 해제 · 교환 제안」 · 표의 「상대 관심」·「핵심 전력」
   {const r=await p.evaluate(()=>{UI.go('market','thub');const h=document.querySelector('.content').innerText;UI.go('market','trade');UI.tradeReset&&UI.tradeReset();const t=document.querySelector('.content').innerText;const plus=[...document.querySelectorAll('.sl.e')].map(x=>x.textContent.trim());const bs=[...document.querySelectorAll('.content button')].map(x=>x.textContent.trim());
-      return {h:/구단별 수요/.test(h)&&/보강 포지션/.test(h)&&!/구단별 사정|원하는 자리|나와 있는 매물|우리가 내놓은/.test(h),plus,sum:/교환 조건/.test(t),bs:bs.includes('선택 해제')&&bs.includes('교환 제안'),old:/원함|트레이드 요약|초기화/.test(t)};});
+      return {h:/구단별 수요/.test(h)&&/보강/.test(h)&&!/구단별 사정|원하는 자리|나와 있는 매물|우리가 내놓은/.test(h),plus,sum:/교환 조건/.test(t),bs:bs.includes('선택 해제')&&bs.includes('교환 제안'),old:/원함|트레이드 요약|초기화/.test(t)};});
     r.h&&r.plus.length===2&&r.plus.every(x=>/선수 선택/.test(x))&&!r.sum&&r.bs&&!r.old?ok('트레이드: 구단별 수요 · 보강 포지션 · 「＋ 선수 선택」 양쪽 한 칸 · 고르기 전 0 요약 없음 · 「선택 해제」「교환 제안」'):bad('트레이드 '+JSON.stringify(r));}
   // 5. 스카우트·유소년: 「해외 스카우트 ›」 바로가기 · 「조사 시작 · ○만」 · 나이·가치 상한 / 유소년(겨울) 「입단 후보」 「요구 연봉」 · 투수에게 타격 특성(장타본능·빠른발) 안 보임
   {const r=await p.evaluate(()=>{UI.go('market','scout');const t=document.querySelector('.content').innerText;const bs=[...document.querySelectorAll('.content button')].map(x=>x.textContent.trim());const ph=[...document.querySelectorAll('.content input')].map(x=>x.placeholder);

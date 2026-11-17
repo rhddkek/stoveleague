@@ -51,7 +51,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   // 5. 첫 시즌 할 일: 다음 행동 하나만 펼침(가기 단추 하나) · 나머지는 접힘 · 조용한 주는 이야기 칸 없음 · 표현 통일
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();UI.sheet('guide');const g=document.querySelector('#modal .guide');
       const open=[...g.querySelectorAll(':scope>.grow1')].length;const prim=g.querySelectorAll('button.primary').length;const det=g.querySelector('details.more');const dimDesc=[...g.querySelectorAll(':scope>.grow1 .small.dim')].length;UI.closeModal();
-      const news=S.news.some(n=>/감독으로 부임/.test(n.text))&&!S.news.some(n=>/단장으로 부임/.test(n.text));const html=document.documentElement.outerHTML;
+      const news=S.news.some(n=>/감독 부임/.test(n.text))&&!S.news.some(n=>/단장으로 부임/.test(n.text));const html=document.documentElement.outerHTML;
       const st=SL.weeklyStory();UI.setTab('home');const tiles=[...document.querySelectorAll('.tile,.htile,.hcard')].map(x=>x.innerText).join('|');return {open,prim,det:det?det.querySelector('summary').innerText:'',dimDesc,news,quiet:st.kind,storyTile:/이번 주 이야기/.test(tiles)};});
     const src=fs.readFileSync(file,'utf8');const words=/실점 위기/.test(src)&&/다음날 ▶/.test(src)&&!/결과 확인 후 계속/.test(src)&&/감독으로 시작/.test(src)&&!/단장으로 시작|단장 \(나\)/.test(src);
     r.open===1&&r.prim===1&&/남은 \d개/.test(r.det)&&r.dimDesc===1&&r.news&&words&&(r.quiet!=='quiet'||!r.storyTile)
