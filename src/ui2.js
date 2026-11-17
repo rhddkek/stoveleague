@@ -979,7 +979,7 @@ function offseasonSteps(){if(S.phase!=='offseason')return '';const w=S.week;cons
 
 // ======================= v74 (R058): 경기 화면 = 감독모드 (EA 프로야구 2011 감독모드의 화면 구성을 참고, 그림·글꼴은 우리 것) =======================
 // 위: 감독모드 제목 · 점수판 한 줄(팀 색 · 점수 · ▲▼회 · 볼카운트 · OUT) / 가운데: 어둡게 비친 구장 + 다이아몬드 + 타자·주자 이름표 + 방금 결과 반투명 창 / 아래: 두 팀 TODAY 칸 + 작전지시·대결정보·선수교체 + OK 진행
-function renderGame(){if(['pitch','pa','hl'].includes(ui.stepMode))ui.dmode=ui.stepMode;if(PREF.gview==='classic')return renderGame0();const lg=S.liveGame;if(!lg)return renderGame0();const H=S.teams[lg.home],A=S.teams[lg.away];const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
+function renderGame(){if(['pitch','pa','hl','half'].includes(ui.stepMode))ui.dmode=ui.stepMode;if(PREF.gview==='classic')return renderGame0();const lg=S.liveGame;if(!lg)return renderGame0();const H=S.teams[lg.home],A=S.teams[lg.away];const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
   const g0=SL.userGameToday();const pi=g0&&SL.postInfo(g0);const nm=t=>esc(t.name);
   const ck=chgKey(lg);const chgNow=!!ck&&ui.chgShow===ck&&ui.chgSeen!==ck;
   let h=`<div class="cmv${lg.done?' done':''}${chgNow?' int':''}">`;
@@ -1161,13 +1161,13 @@ function seasonBrief(p,lg){const post=!!(SL.userGameToday()&&SL.userGameToday().
 const CM_MODES=[['pitch','공','공 하나'],['pa','타석','다음 타석'],['hl','장면','다음 장면'],['half','이닝','이닝 끝까지'],['game','경기','경기 끝까지'],['to','N회까지','N회까지 자동']];
 // v152 (R123): 투수 체력(화면 표시와 같은 식) · 직접 지휘 때 바닥나면 구장 아래에 「불펜 보기」
 function pitSta(lg,p){const pc=lg.pc[p.id]||0;const lim=p.pos==='SP'?p.attrs.stamina*0.9+30:p.attrs.stamina*0.45+14;return {pc,pct:Math.max(0,Math.round(100-Math.min(1,pc/lim)*100))};}
-function cmControls(lg,my,B,P){const off=lg.half===my;const cur=SL.tacNow(lg);const T=cur&&SL.TACTICS[cur];const md=ui.stepMode||'hl';const toI=ui.toInn||7;const M=CM_MODES.find(x=>x[0]===md)||CM_MODES[2];
+function cmControls(lg,my,B,P){const off=lg.half===my;const cur=SL.tacNow(lg);const T=cur&&SL.TACTICS[cur];const md=ui.stepMode||'half';const toI=ui.toInn||7;const M=CM_MODES.find(x=>x[0]===md)||CM_MODES[3];
   const bench=SL.bench(lg,my).length,bp=SL.availableBullpen(lg,my).length;
   let h=`<div class="cmctl gut">`;
   if(T)h+=`<div class="tacinfo small"><span class="tst on">작전</span> <b>${esc(T.ko)}</b> — 이번 타석 · +${esc(T.g2||T.gain)} / −${esc(T.c2||T.cost)}</div>`;
   if(!off&&P&&bp&&!lg.done){const st=pitSta(lg,P);if(st.pct<=15)h+=`<button class="cmwarn" onclick="UI.pitchMenu()"><b>${esc(P.name)} ${st.pc}구 · 체력 ${st.pct}%</b><span>불펜 보기 ›</span></button>`;}
   h+=`<div class="cmgo"><button class="gold big" onclick="UI.step('${md}')">${md==='to'?`${toI}회까지 자동 ▶▶`:esc(M[2])+' ▶'}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식 바꾸기"><small>진행 방식</small>${esc(M[1])} ▾</button></div>`;
-  if(md==='to')h+=`<div class="toinn small">구간 진행: ${toI}회 시작까지 자동 → 그다음부터 <b>직접(장면마다)</b> <button class="lnk" onclick="UI.cmSheet('mode')">바꾸기</button></div>`;
+  if(md==='to')h+=`<div class="toinn small">구간 진행: ${toI}회 시작까지 자동 → 그다음부터 <b>${DM_KO[ui.dmode||'half']}</b> <button class="lnk" onclick="UI.cmSheet('mode')">바꾸기</button></div>`;
   h+=`<div class="cmbar"><button onclick="UI.cmSheet('tac')">${off?'작전지시':'수비 작전'}</button><button onclick="UI.sheet2('detail')">대결정보</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}>선수교체</button><button onclick="UI.cmSheet('lineup')">라인업</button></div>`;
   return h+`</div>`;}
 function cmSheetHtml(k){const lg=S.liveGame;if(!lg)return '';const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
@@ -1177,7 +1177,7 @@ function cmSheetHtml(k){const lg=S.liveGame;if(!lg)return '';const ut=SL.userTea
   if(k==='lineup'){const col=side=>{const t=side?S.teams[lg.home]:S.teams[lg.away];const L=lg.lineup[side];const cur=lg.half===side&&!lg.done?lg.bat[side]:-1;const pit=S.players[lg.pitcher[side]];
       return `<div class="lu" style="--c:${t.color}"><div class="luh">${esc(t.name)}${t.id===ut.id?' <em>MY</em>':''}</div>${L.map((id,i)=>{const p=S.players[id];const b=lg.box[id]||{};return `<div class="lur ${i===cur?'on':''}" onclick="UI.closeModal();UI.openPlayer(${id})"><span class="no">${i+1}</span><em>${esc((lg.pos[side]&&lg.pos[side][id])||p.pos)}</em><b>${esc(p.name)}</b><small>${b.ab||0}-${b.h||0}${b.hr?` ${b.hr}홈`:''}${b.rbi?` ${b.rbi}점`:''}</small></div>`;}).join('')}<div class="lur pit"><span class="no">P</span><em>${esc(pit.pos)}</em><b>${esc(pit.name)}</b><small>${lg.pc[pit.id]||0}구</small></div></div>`;};
     return `<h3>라인업</h3><div class="small muted" style="margin-bottom:6px">오늘 타수-안타 · 지금 타석은 노란 줄. 이름을 누르면 선수 정보</div><div class="lu2">${col(0)}${col(1)}</div><div class="btns" style="margin-top:10px"><button class="primary" onclick="UI.closeModal()">닫기</button></div>`;}
-  if(k==='mode'){const md=ui.stepMode||'hl';const toI=ui.toInn||7;return `<h3>진행 방식</h3><div class="cmmodes">${CM_MODES.map(x=>`<button class="${x[0]===md?'on':''}" onclick="UI.set('stepMode','${x[0]}');${x[0]==='to'?`UI.cmSheet('mode')`:'UI.closeModal()'}"><b>${x[1]}</b><small>${x[0]==='to'?`${toI}회까지 자동, 그다음 직접`:x[2]}</small></button>`).join('')}</div>
+  if(k==='mode'){const md=ui.stepMode||'half';const toI=ui.toInn||7;return `<h3>진행 방식</h3><div class="cmmodes">${CM_MODES.map(x=>`<button class="${x[0]===md?'on':''}" onclick="UI.set('stepMode','${x[0]}');${x[0]==='to'?`UI.cmSheet('mode')`:'UI.closeModal()'}"><b>${x[1]}</b><small>${x[0]==='to'?`${toI}회까지 자동, 그다음 직접`:x[2]}</small></button>`).join('')}</div>
     <div class="toinn small" style="margin-top:10px">N회까지: <select class="sm" aria-label="자동으로 넘길 이닝" onchange="UI.set('toInn',+this.value);UI.cmSheet('mode')">${[3,4,5,6,7,8,9].map(n=>`<option value="${n}" ${n===toI?'selected':''}>${n}회</option>`).join('')}</select> <label><input type="checkbox" ${ui.toKey?'checked':''} onchange="UI.set('toKey',this.checked)"> 그 전에 접전 찬스·위기면 멈춤</label></div><div class="btns" style="margin-top:12px"><button class="primary" onclick="UI.closeModal()">닫기</button></div>`;}
   return '';}
 // 공수교대 화면: 회 · 점수표 · 공격팀 다음 타순 3명 · 수비팀 투수 · 진행 방식 고르기 (원작: PLAY / AI SIMULATION / COACH MODE)
@@ -1193,8 +1193,8 @@ function cmCmp(lg,my){const A=S.teams[lg.away],H=S.teams[lg.home];const a=gameTe
   const R=[['h','안타',8],['hr','홈런',2],['sb','도루',2],['so','삼진',8],['bb','볼넷',4],['dp','병살',2]];
   return `<div class="cmcmp"><div class="cch"><b style="--c:${A.color}">${esc(A.name)}${my===0?' <em>MY</em>':''}</b><span>VS</span><b style="--c:${H.color}">${esc(H.name)}${my===1?' <em>MY</em>':''}</b></div>${R.map(([k,l,base])=>{const m=Math.max(base,a[k],h[k]);const w=v=>Math.round(v/m*100);return `<div class="ccr"><i class="bar l"><i style="width:${w(a[k])}%;background:${A.color}"></i></i><b class="${a[k]>h[k]?'hi':''}">${a[k]}</b><span>${l}</span><b class="${h[k]>a[k]?'hi':''}">${h[k]}</b><i class="bar"><i style="width:${w(h[k])}%;background:${H.color}"></i></i></div>`;}).join('')}</div>`;}
 // v82: 공수교대 화면 「직접 지휘」는 지금까지 쓰던 직접 진행 방식(공 하나씩·한 타자씩·장면마다)을 그대로 이어 감 — 예전엔 늘 「장면마다」로 바꿔 3~4회·6~7회가 한꺼번에 넘어감
-const DM_KO={pitch:'공 하나씩',pa:'한 타자씩',hl:'장면마다'};
-function cmInter(lg,my){{const ck=chgKey(lg);if(ui.intKey!==ck){ui.intKey=ck;ui.intT=Date.now();}}const dm=['pitch','pa','hl'].includes(ui.stepMode)?ui.stepMode:(ui.dmode||'pa');const bs=lg.half;const bt=bs===1?S.teams[lg.home]:S.teams[lg.away],ft=bs===1?S.teams[lg.away]:S.teams[lg.home];const P=SL.curPitcher(lg);const pb=lg.box[P.id]||{};const L=lg.lineup[bs];const toI=Math.max(lg.inn+1,ui.toInn||7);
+const DM_KO={pitch:'공 하나씩',pa:'한 타자씩',hl:'장면마다',half:'이닝마다'};
+function cmInter(lg,my){{const ck=chgKey(lg);if(ui.intKey!==ck){ui.intKey=ck;ui.intT=Date.now();}}const dm=['pitch','pa','hl','half'].includes(ui.stepMode)?ui.stepMode:(ui.dmode||'half');const bs=lg.half;const bt=bs===1?S.teams[lg.home]:S.teams[lg.away],ft=bs===1?S.teams[lg.away]:S.teams[lg.home];const P=SL.curPitcher(lg);const pb=lg.box[P.id]||{};const L=lg.lineup[bs];const toI=Math.max(lg.inn+1,ui.toInn||7);
   const next=[0,1,2].map(k=>{const i=(lg.bat[bs]+k)%L.length;const p=S.players[L[i]];const b=lg.box[p.id]||{};return `<div class="nb">${face(p,44)}<div><div class="no">No.${i+1}</div><div><em>${esc((lg.pos[bs]&&lg.pos[bs][p.id])||p.pos)}</em> <b>${esc(p.name)}</b></div><div class="small">${b.ab||0}타수 ${b.h||0}안타${b.hr?` ${b.hr}홈런`:''}</div></div></div>`;}).join('');
   const ip=Math.floor((pb.pOuts||0)/3)+'.'+((pb.pOuts||0)%3);
   return `<div class="gut cmintw">${lineScore(lg,true)}<div class="cmint"><div class="pn" style="--c:${bt.color}"><div class="ph2">${esc(bt.name)} 타순정보${bt.id===SL.userTeam().id?' <em>MY</em>':''}</div>${next}</div><div class="pn" style="--c:${ft.color}"><div class="ph2">${esc(ft.name)} 투수정보</div><div class="nb">${face(P,44)}<div><em>${esc(P.pos)}</em> <b>${esc(P.name)}</b></div></div><div class="pg"><span>이닝</span><span>실점</span><span>탈삼진</span><b>${ip}</b><b>${pb.pR||0}</b><b>${pb.pSO||0}</b><span>사사구</span><span>투구수</span><span></span><b>${pb.pBB||0}</b><b>${lg.pc[P.id]||0}</b><b></b></div></div></div>${cmCmp(lg,my)}
@@ -2610,17 +2610,11 @@ function nextBar(){const B=(c,t,on)=>`<button class="${c}" onclick="UI.closeModa
   if(lr>=999)return B('ghost','다음 경기 보기','UI.startGame()')+B('primary','시즌 끝까지 계속 ▶','UI.autoRun(999)');
   if(lr>=7)return B('ghost','다음 경기 보기','UI.startGame()')+B('primary','7경기 더 ▶','UI.autoRun(7)');
   return B('ghost','7경기 자동','UI.autoRun(7)')+B('primary','다음 경기 ▶','UI.startGame()');}
-// 직접 본 경기가 끝나면 결과는 이미 봤으니 다시 띄우지 않고 「다음 경기」 창만 — 상대 · 선발 · 다음 목표 · 단추
-function nextSheetHtml(){const ut=SL.userTeam();const g=S.phase==='season'&&SL.userGameToday();const H=nextHooks();let h='<div class="nxs">';
-  if(g){const home=g.home===ut.id;const op=S.teams[home?g.away:g.home];const sp=S.players[ut.rotation[ut.rotIdx%Math.max(1,ut.rotation.length)]];const pi=g.post&&SL.postInfo?SL.postInfo(g):null;
-    h+=`<div class="nxh"><small>${pi?esc(pi.title):'다음 경기'}</small><div class="nxm">${emblem(ut,40)}<b>vs</b>${emblem(op,40)}</div><b class="nxo">${esc(op.name)}</b><span>${home?'홈':'원정'} · 상대 ${op.rec.w}승 ${op.rec.l}패${sp?` · 선발 ${esc(sp.name)}`:''}</span></div>`;}
-  else h+=`<div class="nxh"><small>다음 경기</small><b class="nxo">오늘은 우리 경기가 없습니다</b></div>`;
-  if(H.length)h+=`<div class="hooks"><div class="hkh">다음 목표</div>${H.map(hookRow).join('')}</div>`;
-  const bar=nextBar();return h+`<div class="shbar n${(bar.match(/<button/g)||[]).length}">${bar}</div></div>`;}
+// v176 (R147): 직접 본 경기 끝 — 창 없이 감독실(광우: 「무심결에 눌러서 헷갈림」)
 {const op=A.openPlayer;A.openPlayerFull=function(pid,tab){closeModal();return op.call(A,pid,tab);};
   A.openPlayer=function(pid,tab){if(cardOn()&&!tab&&!(ui.view&&ui.view.type==='player')&&S.players[pid]){const ids=listIdsOnScreen();ui.pcList=ids.includes(pid)?ids:[pid];A.pcard(pid);return;}return op.call(A,pid,tab);};}
 {const sh=A.sheet;A.sheet=function(k){if(k==='dec'&&mflow()){A.taskNext();return;}if(k==='result'&&mflow()){const h=resultSheetHtml();if(h){modal(h);return;}}return sh.apply(A,arguments);};}
-{const f0=afterDay;afterDay=function(){f0.apply(this,arguments);const live=ui.fromLive;ui.fromLive=0;try{if(mflow()&&S.phase==='season'&&!S.liveGame&&(ui.weekReport||ui.gameResult)&&!ui.noRes)setTimeout(()=>{if(!document.querySelector('#modal')&&!S.liveGame&&!halfDue()){const h=live?nextSheetHtml():resultSheetHtml();if(h)modal(h);}},260);}catch(e){}};}
+{const f0=afterDay;afterDay=function(){f0.apply(this,arguments);const live=ui.fromLive;ui.fromLive=0;try{if(mflow()&&S.phase==='season'&&!S.liveGame&&(ui.weekReport||ui.gameResult)&&!ui.noRes)setTimeout(()=>{if(!document.querySelector('#modal')&&!S.liveGame&&!halfDue()){if(live)return;const h=resultSheetHtml();if(h)modal(h);}},260);}catch(e){}};}
 {const eg=A.endGame;A.endGame=function(){ui.fromLive=1;ui.lastRun=0;return eg.apply(A,arguments);};const ar=A.autoRun;A.autoRun=function(n){ui.lastRun=n>=60&&S.post?0:n;return ar.apply(A,arguments);};const sg=A.startGame;A.startGame=function(){ui.lastRun=0;return sg.apply(A,arguments);};}
 {const hs=A.halfStart;A.halfStart=function(){const lr=ui.lastRun||0;hs.apply(A,arguments);if(mflow()&&lr>=7&&S.phase==='season'&&!S.liveGame){toast(lr>=999?'후반기 — 시즌 끝까지 계속':'후반기 — 7경기 자동 계속',1800);setTimeout(()=>A.autoRun(lr>=999?999:7),60);}};}   /* 올스타 브레이크 뒤에도 고른 진행 방식 그대로 */
 {const r0=render;render=function(){r0.apply(this,arguments);try{chainPill();}catch(e){}};}

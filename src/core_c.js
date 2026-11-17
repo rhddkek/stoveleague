@@ -1584,12 +1584,19 @@ function aiFgnRefill(){const lg=playLg();if(lg!=='JP'&&lg!=='TW')return 0;const 
       news(`[외국인] ${t.name}, ${p.name}(${NAT_KO[p.nat]||p.nat} · ${POS_KO[p.pos]||p.pos}) 영입`,'league');}if(g)autoLineup(t);}return n;}
 /* ---------- 라이벌 ---------- */
 /* v175 (R146): 라이벌은 구단마다 하나 — 같은 리그(미국은 지구) 안에서 짝을 지음. 같은 연고끼리 먼저, 나머지는 고정 순서로 둘씩. 홀수면 남은 한 구단은 첫 구단을 라이벌로 */
+const CITY_XY={서울:[37.57,126.98],대구:[35.87,128.6],수원:[37.26,127.03],광주:[35.16,126.85],인천:[37.46,126.71],대전:[36.35,127.38],부산:[35.18,129.08],창원:[35.23,128.68],
+  도쿄:[35.68,139.69],오사카:[34.69,135.5],삿포로:[43.06,141.35],후쿠오카:[33.59,130.4],나고야:[35.18,136.91],히로시마:[34.39,132.46],요코하마:[35.44,139.64],센다이:[38.27,140.87],사이타마:[35.86,139.65],치바:[35.61,140.12],고베:[34.69,135.2],
+  타이베이:[25.03,121.57],가오슝:[22.63,120.3],타이중:[24.15,120.67],타이난:[22.99,120.21],신베이:[25.01,121.46],타오위안:[24.99,121.3],
+  뉴욕:[40.71,-74.01],댈러스:[32.78,-96.8],샌디에이고:[32.72,-117.16],시카고:[41.88,-87.63],마이애미:[25.76,-80.19],애틀랜타:[33.75,-84.39],보스턴:[42.36,-71.06],볼티모어:[39.29,-76.61],탬파베이:[27.95,-82.46],토론토:[43.65,-79.38],클리블랜드:[41.5,-81.69],디트로이트:[42.33,-83.05],캔자스시티:[39.1,-94.58],미네소타:[44.98,-93.27],휴스턴:[29.76,-95.37],애너하임:[33.84,-117.91],시애틀:[47.61,-122.33],새크라멘토:[38.58,-121.49],필라델피아:[39.95,-75.17],워싱턴:[38.91,-77.04],신시내티:[39.1,-84.51],밀워키:[43.04,-87.91],피츠버그:[40.44,-80],세인트루이스:[38.63,-90.2],로스앤젤레스:[34.05,-118.24],샌프란시스코:[37.77,-122.42],피닉스:[33.45,-112.07],덴버:[39.74,-104.99]};
 function rivalMap(comp){const ts=compTeams(comp).filter(activeT).slice().sort((a,b)=>idHash(a.id,31)-idHash(b.id,31)||a.id-b.id);const M={};const city=n=>String(n||'').split(' ')[0];const left=[];const by={};for(const t of ts)(by[city(t.name)]=by[city(t.name)]||[]).push(t);
   for(const c of Object.keys(by).sort()){const g=by[c];while(g.length>=2){const a=g.shift(),b=g.shift();M[a.id]=b.id;M[b.id]=a.id;}if(g.length)left.push(g[0]);}
-  left.sort((a,b)=>idHash(a.id,31)-idHash(b.id,31)||a.id-b.id);while(left.length>=2){const a=left.shift(),b=left.shift();M[a.id]=b.id;M[b.id]=a.id;}if(left.length&&ts.length>1)M[left[0].id]=ts.find(t=>t.id!==left[0].id).id;return M;}
+  /* v176 (R147): 남은 구단은 가까운 연고끼리(CITY_XY) — 모르는 도시는 맨 뒤 */
+  const D=(a,b)=>{const p=CITY_XY[city(a.name)],q=CITY_XY[city(b.name)];if(!p||!q)return 1e6+Math.abs(idHash(a.id,31)-idHash(b.id,31));const dy=p[0]-q[0],dx=(p[1]-q[1])*Math.cos((p[0]+q[0])/2*Math.PI/180);return Math.sqrt(dx*dx+dy*dy);};
+  left.sort((a,b)=>a.id-b.id);while(left.length>=2){let bi=0,bj=1,bd=Infinity;for(let x=0;x<left.length;x++)for(let y=x+1;y<left.length;y++){const d=D(left[x],left[y]);if(d<bd-1e-9){bd=d;bi=x;bj=y;}}const b=left.splice(bj,1)[0],a=left.splice(bi,1)[0];M[a.id]=b.id;M[b.id]=a.id;}
+  if(left.length&&ts.length>1){const a=left[0];M[a.id]=ts.filter(t=>t.id!==a.id).sort((x,y)=>D(a,x)-D(a,y)||x.id-y.id)[0].id;}return M;}
 function rivalOfTeam(t){if(!t)return null;const id=rivalMap(compOf(t))[t.id];return id!=null?S.teams[id]:null;}
 function rivalPick(ut){const R=rivalOfTeam(ut);return R?R.id:null;}
-function rivalId(){const ut=userTeam();if(!ut)return null;const R=S.rival;if(!R||R.v!==2||R.me!==ut.id||!S.teams[R.id]||compOf(S.teams[R.id])!==compOf(ut)){const id=rivalPick(ut);if(id==null){S.rival=null;return null;}S.rival={v:2,me:ut.id,id,s:S.season,hist:R&&R.me===ut.id&&R.id===id?(R.hist||[]):[]};}return S.rival.id;}
+function rivalId(){const ut=userTeam();if(!ut)return null;const R=S.rival;if(!R||R.v!==3||R.me!==ut.id||!S.teams[R.id]||compOf(S.teams[R.id])!==compOf(ut)){const id=rivalPick(ut);if(id==null){S.rival=null;return null;}S.rival={v:3,me:ut.id,id,s:S.season,hist:R&&R.me===ut.id&&R.id===id?(R.hist||[]):[]};}return S.rival.id;}
 function rivalTeam(){const id=rivalId();return id!=null?S.teams[id]:null;}
 function isRivalGame(g){const ut=userTeam();const id=rivalId();return !!(g&&id!=null&&(g.home===ut.id&&g.away===id||g.away===ut.id&&g.home===id));}
 function rivalH2H(){const ut=userTeam();const o={w:0,l:0,t:0,left:0};if(rivalId()==null)return o;for(const g of S.schedule||[]){if(g.post||!isRivalGame(g))continue;if(!g.res){o.left++;continue;}const my=g.home===ut.id?g.res.hs:g.res.as,op=g.home===ut.id?g.res.as:g.res.hs;if(my>op)o.w++;else if(my<op)o.l++;else o.t++;}return o;}
