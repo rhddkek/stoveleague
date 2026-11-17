@@ -75,9 +75,14 @@
 - 수치는 `SL.LONG_FX` 한곳, 새 규칙은 `idHash`. 점검 스크립트 방식: 4개 리그 × 10시즌 자동 진행으로 리그별 주전 평균 · 나이 · 득점 · 자금을 시즌마다 기록(`review/수정기록/v172.md` 전후 표). 리그에 영향을 주는 규칙을 바꾸면 다시 돌린다.
 - 리그 수준 닻: 처음 주전 평균 `S.lvA[리그]`(`lgAnchorInit`, 예전 저장은 `LVA0`) → 겨울마다 `lgAnchor`가 AI 구단 1군을 조금 되돌림(우리 구단 · `userLink` · `exUser`는 건드리지 않음). 해외 AI 세대 교체 `osCut`, 새 선수 수준 `lgRefillAdj`, 신인 · 유소년 출발 수준 `rookOff(리그)` — 새로 선수를 만드는 곳은 리그 수준을 넣는다(한국 고정 금지).
 - 공인구 `S.ball[리그]`(`ballUpdate` · 기준 `RG0`) → `envOf`의 `hit`에 곱해짐. 득점 환경을 바꾸는 수정은 이 값이 따라 움직인다는 걸 감안.
-- 우리 리그 AI 구단: SS급 자국 선수 해외 진출 `aiStarOut` · 자금 바닥 `aiFloor` · 일본 · 대만 외국인 다시 채우기 `aiFgnRefill` · 겨울 2주차 보강 소식 `aiWinterNews`(실제 약점 `teamUnits` · 실제 FA 제시). 우리 구단 현금은 `ownerSweep`(리그 기준 자금 4배 초과분의 절반).
+- 우리 리그 AI 구단: SS급 자국 선수 해외 진출 `aiStarOut` · 자금 바닥 `aiFloor` · 일본 · 대만 외국인 다시 채우기 `aiFgnRefill` · 겨울 2주차 보강 소식 `aiWinterNews`(실제 약점 `teamUnits` · 실제 FA 제시). 우리 구단 현금 회수(`ownerSweep`)는 v173에서 뺌(광우) — 현금이 쌓이면 쓸 곳을 늘린다.
 - 라이벌 `S.rival`(`rivalId` — 같은 연고 먼저 · 같은 리그/지구) · `rivalH2H` · `rivalDay`(사기 · 순위 뒤바뀜 소식) · `rivalSeasonEnd`(팬 평판 ±1). `news()`가 라이벌 구단 이름 앞에 「라이벌」을 붙인다 — 소식 문구를 정확히 맞춰 보는 검사는 이 점을 감안.
 - 선수 불만은 `S.grievances`의 `kind`: 없음(약속 불이행) · `play`(출전) · `out`(이적 요청). `complainTick` — 시즌 2건까지 · 한 번에 한 건. 설득 확률 `stayOdds` = 화면 표시. 지어낸 인터뷰 · 언론 문장은 넣지 않는다(실제 수치에서 나오는 소식만).
+
+## 돈 쓸 곳 (v173, R144 — 광우: 「구단주 회수는 빼고, 돈 쓸 구멍을 더」)
+- 수치는 `SL.INV` 한곳, 상태는 구단 `inv`(`invOf`). 금액은 `invCost(구단, 한국 기준)` — 리그 돈 규모를 곱한다(한국 고정값 금지). 우리 구단만(AI 구단은 기준값).
+- 새 시설 `INV.fac`(의료센터 `med` · 전력분석실 `lab` · 2군 구장 `farm`, 0 ~ 5레벨, `invFacUp` · 화면 표 `invFacRows` = 실제 적용 값 `invLv`). 구장 `seatBuild` → 개막 `invSeasonStart`에서 완공 · 입장 수입 `invTicketF`. 아카데미 `acadOpen` → 겨울 `acadIntake`(유소년 후보로 · `p.natv` = 외국인 정원 밖, `isFgn` · `isFgnIn`이 봄). 마케팅 `mktSet` · 보너스 `bonusSet`(적용 시즌 `invKey`) → 시즌 끝 `invSeasonEnd`.
+- 화면: 구단 → 구단 → 시설(여섯 칸 `facGrid`) · 투자(`renderInvest`). 되돌릴 수 없는 큰돈(착공 · 닫기)은 `UI.sure2` 확인 창. 새 돈 쓸 곳은 이 두 화면에 넣는다.
 
 ## 구장 한 장 · 전력 합계 (v154, R125 — 광우가 보낸 다른 게임 화면과 비교)
 - 투수진 첫 화면은 「한눈에」(`pitchStaff` · `ui.pitchF2` 'F' 기본 · 'S' 선발 · 'B' 불펜): 구장 그림 위에 보직 묶음(`.pfv` · `.pfg` · `.pfc`), 카드를 누르면 선수 카드. 예전 선발 · 불펜 목록은 옆 칸 그대로. 검사에서 목록이 필요하면 `UI.pitchF2('S')`.
