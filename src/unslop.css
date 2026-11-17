@@ -1096,3 +1096,7 @@ body:not(.ingame) .tile{padding:8px 12px}
 body:not(.ingame) :is(.pfg,.pfg>div,.stv .cod .cos,.stv .stvact,.rt .row){gap:4px}
 body:not(.ingame) .stv .cod .cos,body:not(.ingame) .sub .mschips{margin-top:4px}
 body:not(.ingame) .side .msec .mi,body:not(.ingame) .stv .eql{gap:4px}
+
+/* v171 (R142): 외국인 교체 확정 단추 — 나가는 선수 · 들어오는 선수 이름(길면 두 줄) */
+.sw19 .swgo{white-space:normal;line-height:1.25;word-break:keep-all}
+body:not(.ingame) .whead .wmust{display:block;position:relative;margin:4px 0 0;padding:0 10px;height:28px;min-height:0;line-height:28px;max-width:100%;border:0;border-radius:14px;background:var(--sel);color:var(--sel-ink);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto}body:not(.ingame) .whead .x{min-width:0}

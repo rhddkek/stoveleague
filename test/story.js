@@ -253,7 +253,7 @@ console.log('[19] v33 퓨처스 12팀 일정 · 올스타전 · 외국인 선수
  // 외국인 3+1
  const fs0=SL.krTeams().map(t=>SL.fgnStatus(t));fs0.every(x=>x.list.length===4&&x.quota&&!x.over)?ok('개막 시 한국 10개 구단 모두 외국인 3명 + 아시아쿼터 1명'):bad('외국인 구성 '+fs0.map(x=>x.list.length));
  fs0.every(x=>x.quota.contract.salary<=SL.BAL.FGN.asiaCap)?ok(`아시아쿼터 연봉 상한 ${SL.money(SL.BAL.FGN.asiaCap)} 이하`):bad('아시아쿼터 연봉');
- const fx=SL.overseasTeams().flatMap(t=>t.roster.map(id=>S.players[id])).find(p=>p.nat==='US');const blk=SL.fgnBlock(u,fx,20000);blk&&/외국인 선수 정원/.test(blk)?ok('정원이 차면 외국인 영입 차단: '+blk.slice(0,30)+'…'):bad('외국인 차단 안 됨');
+ const fx=SL.overseasTeams().flatMap(t=>t.roster.map(id=>S.players[id])).find(p=>p.nat==='US');const blk=SL.fgnBlock(u,fx,20000);blk&&/외국인 정원 초과/.test(blk)?ok('정원이 차면 외국인 영입 차단: '+blk.slice(0,30)+'…'):bad('외국인 차단 안 됨');
  const ai=SL.krTeams().find(t=>!t.isUser);const n0=ai.roster.length;SL.transferPlayer(fx.id,ai.id,0,{salary:20000,years:1},'이적');ai.roster.length===n0&&!ai.roster.includes(fx.id)?ok('AI 구단도 외국인 정원을 지킴'):bad('AI 정원 무시');
  // 시즌 진행: 퓨처스 매일 경기, 우리 2군 경기 기록, 올스타전
  let g=0;while(S.day<=SL.asDay()&&g++<60)SL.playDayAuto();const A=S.allstar;
