@@ -29,7 +29,7 @@ function econ(t){const e=econ0(t);return gf()===1?e:{...e,ticket:e.ticket/gf()};
 // 리그 경제: 한국 기준값 × 리그 규모(선수 연봉 총액 비율). 우리 리그가 어디든 「연봉 대비 수입」 감각은 같게
 const LG_ECON={JP:1.6*ECON_R.JP,TW:0.35*ECON_R.TW,US:4.8*ECON_R.US};   /* v159 (R130): 리그 연봉 수준(PAY_LG)을 실제에 맞추면서 수입도 같은 비율(ECON_R) */   /* v157 (R128): 미국 수준을 올리면서 연봉 총액이 한국의 약 4.9배 → 리그 경제도 같은 비율 */
 function econ0(t){if(t.league==='KR')return {ticket:BAL.TICKET[1],sponsor:BAL.SPONSOR[1],overhead:BAL.OVERHEAD[1]*presIncome(t),dividend:BAL.DIVIDEND[1]};const f=LG_ECON[t.league];if(f){const g=(BAL.LEAGUES[t.league]&&BAL.LEAGUES[t.league].games||144)/144;return {ticket:BAL.TICKET[1]*f/g,sponsor:BAL.SPONSOR[1]*f,overhead:BAL.OVERHEAD[1]*f,dividend:BAL.DIVIDEND[1].map(x=>Math.round(x*f))};}return BAL.ECON[t.league]||{ticket:2000,sponsor:50000,overhead:20000,dividend:[20000]};}
-function news(text,kind){if(S.rival&&S.rival.id!=null&&S.rival.me===S.userTeamId&&S.teams){const R=S.teams[S.rival.id];if(R&&text.indexOf(R.name)>=0&&text.indexOf('라이벌')<0)text=text.replace(R.name,'라이벌 '+R.name);}   /* v172: 라이벌 구단 소식은 이름 앞에 표시 */S.newsSeq=(S.newsSeq||0)+1;S.news.unshift({i:S.newsSeq,s:S.season,d:S.phase==='season'?S.day:'OFF'+S.week,text,kind:kind||'n'});if(S.news.length>160)S.news.length=160;}
+function news(text,kind){if(S.rival&&S.rival.id!=null&&S.rival.me===S.userTeamId&&S.teams){const R=S.teams[S.rival.id];if(R&&text.indexOf('라이벌')<0){const i=text.indexOf(R.name);if(i>=0&&(kind==='contract'||kind==='overseas'||kind==='offer'||kind==='fin'||/^(\[[^\]]+\]\s*)?$/.test(text.slice(0,i))))text=text.replace(R.name,'라이벌 '+R.name);}}   /* v174: 계약 · 영입 소식과 라이벌이 주어인 소식에만(대진 · 결과 줄마다 붙이지 않음) */   /* v172: 라이벌 구단 소식은 이름 앞에 표시 */S.newsSeq=(S.newsSeq||0)+1;S.news.unshift({i:S.newsSeq,s:S.season,d:S.phase==='season'?S.day:'OFF'+S.week,text,kind:kind||'n'});if(S.news.length>160)S.news.length=160;}
 function warn(text){S.warn.push(text);}
 
 // ---------- 새 게임 ----------
@@ -2611,9 +2611,13 @@ function faMktLg(p){const L=p&&p.faLg;return L&&L!=='KR'&&lrLiveLg(L)?L:'KR';}  
 function faBidTeams(p){const L=p&&p.faLg;return L&&L!=='KR'&&lrLiveLg(L)?lrLgTeams(L):krTeams();}   /* v155: 해외 리그를 맡으면 그 리그 FA는 그 리그 구단끼리 경쟁 */
 function faBidsWeek(){const M=S.faM;if(!M||S.phase!=='offseason')return;
   for(const id in M.m){const p=P_(+id);const F=M.m[id];if(!p||p.teamId!=null){delete M.m[id];continue;}
+    const nb=[];
     for(const t of faBidTeams(p)){if(t.isUser)continue;if(F.bids.some(b=>b.team===t.id)&&rnd()<0.6)continue;if(!faNeedFit(t,p)||fgnBlock(t,p,F.ask.sal))continue;if(t.cash<F.ask.bonus+F.ask.sal*1.5+faCompMax(p,t))continue;if(rnd()>0.24)continue;   /* v118: 총액×1.4 현금 → 계약금+연봉 1.5년치 (대형 FA에도 제시가 붙게) */
       const sal=Math.round(F.ask.sal*(0.9+rnd()*0.2)/10)*10,yrs=F.ask.yrs,bonus=Math.round(F.ask.bonus*(0.75+rnd()*0.55)/100)*100;if(capBlock(t,p.id,sal+Math.round(bonus/Math.max(1,yrs))))continue;const b={team:t.id,sal,yrs,bonus,w:S.week};F.bids=F.bids.filter(x=>x.team!==t.id);F.bids.push(b);
-      if(F.mine||(S.pins||[]).includes(p.id)||calcOvr(p)>=BAL.LEVEL_OVR.KR1+2)news(`[FA] ${t.name}, ${p.name}에게 ${yrs}년 총액 ${money(faOfferTot(b))} 제시 (연봉 ${money(sal)}${bonus?` · 계약금 ${money(bonus)}`:''})`,'contract');}
+      nb.push({t,b});}
+    if(nb.length&&(F.mine||(S.pins||[]).includes(p.id)||calcOvr(p)>=BAL.LEVEL_OVR.KR1+2)){   /* v174: 한 선수에게 온 제시는 한 줄로(예전에는 구단마다 한 줄 — 개장 주에 열 줄 넘게) */
+      if(nb.length===1){const b=nb[0].b;news(`[FA] ${nb[0].t.name}, ${p.name}에게 ${b.yrs}년 총액 ${money(faOfferTot(b))} 제시 (연봉 ${money(b.sal)}${b.bonus?` · 계약금 ${money(b.bonus)}`:''})`,'contract');}
+      else{const top=nb.slice().sort((x,y)=>faOfferTot(y.b)-faOfferTot(x.b))[0];news(`[FA] ${p.name}에게 ${nb.length}개 구단 제시 — ${nb.map(x=>x.t.name).join(' · ')} · 최고 ${top.t.name} ${top.b.yrs}년 총액 ${money(faOfferTot(top.b))}`,'contract');}}
     F.bids.sort((a,b)=>faScore(p,b)-faScore(p,a));F.bids=F.bids.slice(0,4);}}
 function faBest(p){const F=faM(p.id);if(!F)return null;return F.bids.slice().sort((a,b)=>faScore(p,b)-faScore(p,a))[0]||null;}
 function faSignUser(p,o){const ut=userTeam();const e=budgetCheck(p,o.sal,o.bonus);if(e)return e;if(ut.cash<(o.bonus||0))return '현금 부족';const sw=swapOk(ut,o.swap);faSignUser.sw='';if(ut.cash<(o.bonus||0)+faCompMax(p,ut)+(sw?swapSev(sw):0))return `현금 부족 — FA 보상금(최대 ${money(faCompMax(p,ut))})${sw?' · 위약금':''} 포함`;const fb=fgnBlock(ut,p,o.sal,sw?sw.id:undefined);if(fb)return fb;
