@@ -700,7 +700,7 @@ function decisionItems(){const ut=SL.userTeam();const it=[];const lgShort=t=>t.l
   if(S.phase==='offseason'&&ut.spon){if(!ut.spon.main&&ut.spon.offers.length)it.push({tag:'메인 스폰서 · 개막 전까지',title:`스폰서 제안 ${ut.spon.offers.length}건`,sub:ut.spon.offers.map(o=>o.co+' '+SL.BAL.SPON.kinds[o.kind].name).join(' · '),btn:'제안 검토',on:"UI.go('club','spon')"});
     const free=SL.boardSlots(ut)-ut.spon.boards.length;if(free>0&&ut.spon.boardOffers.length)it.push({tag:'광고판 · 개막 전까지',title:`광고판 공석 ${free}곳`,sub:'비워 두면 개막 때 기본 단가 80%로 채움',btn:'스폰서',on:"UI.go('club','spon')"});}
   for(const o of (S.endorseOffers||[])){const p=S.players[o.pid];if(!p)continue;it.push({tag:`개인 광고 제안 · ${Math.max(0,o.exp-S.clock)}일 남음`,title:`${p.name} ← ${o.co} 연 ${Ms(o.fee)}`,sub:`${o.years}년 · 구단 수수료 ${Math.round(SL.BAL.SPON.endorse.comm*100)}% (${Ms(Math.round(o.fee*SL.BAL.SPON.endorse.comm))}/시즌) · 수락 시 사기↑ 재계약 요구 +5% · 거절 시 사기↓`,btn:'제안 검토',on:"UI.go('club','spon')",face:p});}
-  for(const g of (S.grievances||[])){const p=S.players[g.pid];if(p)it.unshift({tag:'면담 요청 · 3일 안에',title:g.kind==='out'?`${p.name}: "이기는 팀에서 뛰고 싶습니다"`:g.kind==='play'?`${p.name}: "경기에 나가고 싶습니다"`:`${p.name}: "주전 약속은 어떻게 된 건가요?"`,sub:g.kind==='out'?'팀 성적에 실망 · 이적 요청':g.kind==='play'?`${g.n}경기 중 ${g.on}경기 출전 · 주전보다 종합 +${g.gap}`:`약속 뒤 ${g.n}경기 중 ${g.on}경기만 주전`,btn:'면담',on:`UI.grievance(${p.id})`,face:p});}
+  for(const g of (S.grievances||[])){const p=S.players[g.pid];if(p)it.unshift({tag:'면담 요청 · 3일 안에',title:g.kind==='out'?`${p.name} · 이적 요청`:g.kind==='play'?`${p.name} · 출전 불만`:`${p.name}: "주전 약속은 어떻게 된 건가요?"`,sub:g.kind==='out'?'팀 성적 실망':g.kind==='play'?`${g.n}경기 중 ${g.on}경기 · 주전보다 +${g.gap}`:`약속 뒤 ${g.n}경기 중 ${g.on}경기만 주전`,btn:'면담',on:`UI.grievance(${p.id})`,face:p});}
   if(S.phase==='season')for(const id of ut.roster.concat(ut.dev)){const p=S.players[id];const ps=p&&SL.promiseStatus(p);if(!ps||ps.pending||SL.promiseKept(ut,p))continue;const left=ps.of-ps.n,needMore=ps.need-ps.on;
     it.push({tag:ps.kind==='apology'?'사과 후 기회 약속':'주전 약속 이행 중',title:`${SL.josa(p.name,'이','가')} 지금 주전이 아닙니다`,sub:`${ps.of}경기 중 ${ps.need}경기 이상 주전 필요 · 지금 ${ps.n}경기 중 ${ps.on}경기${needMore>left?' · 이미 어려움':needMore>0?` · 남은 ${left}경기 중 ${needMore}경기 더`:''}`,btn:'라인업',on:"UI.go('roster','lineup')",face:p});}
   if(S.phase==='season'&&ut.league==='KR'){const cu=SL.callupCands(1)[0];if(cu&&cu.gap>=0&&cu.good)it.push({tag:'콜업 추천',title:`${cu.p.name} 1군 등록 검토`,sub:`2군 ${statShort(cu.p,cu.p.res)} · 1군 ${cu.rival.name}보다 종합 ${cu.gap>=0?'+':''}${cu.gap}`,btn:'비교',on:`UI.callupView(${cu.p.id},${cu.rival.id})`,face:cu.p});}
@@ -1723,9 +1723,9 @@ function alumniCoachCard(c){const op=S.players[c.alumni];const ut=SL.userTeam();
     <div class="cquote"><b>${esc(c.name)}</b> "이 유니폼을 다시 입게 될 줄 몰랐습니다. 후배들 잘 키워 보겠습니다."</div><button class="primary" style="margin-top:12px;width:100%" onclick="UI.closeModal()">닫기</button></div>`);}
 function grievanceModal(pid){const p=S.players[pid];const g=(S.grievances||[]).find(x=>x.pid===pid);if(!p||!g)return;const ut=SL.userTeam();
   modal(`<div class="cere" style="--tc:var(--orange)"><div class="ctag">면담 요청</div><div class="cface">${face(p,96)}</div><div class="ctitle"><b>${esc(p.name)}</b></div><div class="muted">${SL.POS_KO[p.pos]||p.pos} · 종합 ${Math.round(SL.calcOvr(p))} · 사기 ${Math.round(p.morale)} · 현재 ${esc(SL.rosterRole(ut,p.id).text)}</div>
-    <div class="cquote"><b>${esc(p.name)}</b> ${g.kind==='out'?`"2년째 순위가 그대로입니다. 저도 선수 생활이 길지 않아요. 이길 수 있는 팀으로 보내 주십시오."`:g.kind==='play'?`"${g.n}경기 동안 ${g.on}경기밖에 못 나갔습니다. 지금 ${SL.isPitcher(p)?'선발진':'주전'}보다 못하다고 생각하지 않습니다. 기회를 주십시오."`:`"주전으로 뛸 수 있다고 하셔서 왔습니다. 그런데 ${g.n}경기 중 ${g.on}경기만 나갔어요. 어떻게 하실 건가요?"`}</div>
+    <div class="cquote"><b>${esc(p.name)}</b> ${g.kind==='out'?`"이기는 팀에서 뛰고 싶습니다."`:g.kind==='play'?`"${g.n}경기 중 ${g.on}경기. 기회를 주십시오."`:`"주전으로 뛸 수 있다고 하셔서 왔습니다. 그런데 ${g.n}경기 중 ${g.on}경기만 나갔어요. 어떻게 하실 건가요?"`}</div>
     <div class="glist">
-      ${g.kind==='out'?`<button class="gopt" onclick="UI.grievanceAns(${pid},'stay')"><b>남아 달라고 설득한다</b><span>성공 가능성 ${Math.round(SL.stayOdds(p)*100)}% (감독 평판 · 선수 사기) · 되면 사기 +6, 안 되면 사기 −8 · 서운함</span></button>`:`<button class="gopt" onclick="UI.grievanceAns(${pid},'apology')"><b>${g.kind==='play'?'기회를 약속한다':'사과하고 기회를 약속한다'}</b><span>사기 +8 · 다음 7경기 중 4경기 이상 주전으로 써야 함 (못 지키면 사기 −15, 서운함)</span></button>`}
+      ${g.kind==='out'?`<button class="gopt" onclick="UI.grievanceAns(${pid},'stay')"><b>잔류 설득</b><span>성공 ${Math.round(SL.stayOdds(p)*100)}% · 성공 +6 / 실패 −8</span></button>`:`<button class="gopt" onclick="UI.grievanceAns(${pid},'apology')"><b>${g.kind==='play'?'기회 약속':'사과하고 기회를 약속한다'}</b><span>${g.kind==='play'?'사기 +8 · 7경기 중 4경기 주전 (어기면 −15)':'사기 +8 · 다음 7경기 중 4경기 이상 주전으로 써야 함 (못 지키면 사기 −15, 서운함)'}</span></button>`}
       <button class="gopt" onclick="UI.grievanceAns(${pid},'trade')"><b>트레이드 요청을 받아들인다</b><span>사기 +5 · 판매 목록에 오름 · 사정을 아는 구단들이 이적료를 12% 낮게 부름</span></button>
       <button class="gopt" onclick="UI.grievanceAns(${pid},'ignore')"><b>그냥 넘긴다</b><span>사기 −10 · 서운함: 재계약 때 연봉 15% 더 요구</span></button>
     </div><div class="muted small" style="margin-top:8px">3일 안에 답하지 않으면 「그냥 넘긴다」로 처리됩니다.</div></div>`);}
@@ -2126,11 +2126,11 @@ const A={
   invUp(k){const e=SL.invFacUp(k);toast(e||'공사 완료');autosave();render();},   /* v173 (R144): 돈 쓸 곳 */
   sure2(t,d,b,fn){ui._sure=fn;modal(`<h3 class="pmh">${esc(t)}</h3><div class="small" style="margin:8px 0">${esc(d)}</div><div class="shbar n2"><button class="ghost" onclick="UI.closeModal()">취소</button><button class="primary" onclick="UI.sure2Go()">${esc(b)}</button></div>`);},
   sure2Go(){const f=ui._sure;ui._sure=null;UI.closeModal();if(f)f();},
-  seatBuild(){const s=SL.seatInfo(SL.userTeam());if(!s.next)return;UI.sure2(`${s.next.ko} — ${Ms(s.next.cost)}`,`입장 수입 +${Math.round(s.next.tk*100)}% · ${mkYear(s.next.open)} 개막에 완공. 공사비는 지금 나가고 되돌릴 수 없습니다.`,'착공',()=>{const e=SL.seatBuild();toast(e||'착공했습니다');autosave();render();});},
-  acadOpen(n){const e=SL.acadOpen(n);toast(e||'아카데미를 세웠습니다');autosave();render();},
-  acadClose(n){UI.sure2(`${SL.INV.acad.nat[n]} 아카데미 닫기`,'설립비는 돌려받지 못합니다. 이미 온 유망주는 그대로 남습니다.','닫기',()=>{const e=SL.acadClose(n);toast(e||'닫았습니다');autosave();render();});},
-  mktSet(lv){const e=SL.mktSet(lv);toast(e||'마케팅을 집행했습니다');autosave();render();},
-  bonusSet(k){const e=SL.bonusSet(k);toast(e||'보너스를 약속했습니다');autosave();render();},
+  seatBuild(){const s=SL.seatInfo(SL.userTeam());if(!s.next)return;UI.sure2(`${s.next.ko} — ${Ms(s.next.cost)}`,`입장 +${Math.round(s.next.tk*100)}% · ${mkYear(s.next.open)} 완공 · 취소 불가`,'착공',()=>{const e=SL.seatBuild();toast(e||'착공');autosave();render();});},
+  acadOpen(n){const e=SL.acadOpen(n);toast(e||'설립 완료');autosave();render();},
+  acadClose(n){UI.sure2(`${SL.INV.acad.nat[n]} 아카데미 닫기`,'설립비 환불 없음 · 유망주는 유지','닫기',()=>{const e=SL.acadClose(n);toast(e||'닫음');autosave();render();});},
+  mktSet(lv){const e=SL.mktSet(lv);toast(e||'집행 완료');autosave();render();},
+  bonusSet(k){const e=SL.bonusSet(k);toast(e||'약속 완료');autosave();render();},
   loan(){const e=SL.takeLoan(Math.round(+$('#loanAmt').value/SL.BAL.WON));toast(e||'대출 실행');autosave();render();},
   tutNext(n){ui.tut++;if(ui.tut>=Math.min(n||1,TUT_N)){SL.state().tutorialDone=true;autosave();}render();},
   tutSkip(){SL.state().tutorialDone=true;autosave();render();},

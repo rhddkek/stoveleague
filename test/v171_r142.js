@@ -11,7 +11,7 @@ const play=S=>{let k=0;while(S.phase==='season'&&k++<500){SL.playDayAuto();if(SL
   const neg=S.market.negs.find(n=>n.pid===pid);const n0=fl().length;const off={salary:sal,years:yrs,bonus:F.ask.bonus||0};
   // 교체 선수 없이 보내면: 테이블 · 기회 그대로, 이유는 정원 한 가지
   const at0=S.market.attempts[pid+':'+S.season]||0;const r0=SL.tableOffer(pid,off);
-  if(r0.ok===false&&!r0.done&&S.market.negs.includes(neg)&&(S.market.attempts[pid+':'+S.season]||0)===at0&&/외국인 정원 초과 — (일반 \d+\/\d+명|\d+명 \/ \d+명)/.test(r0.msg))blocked++;else bad(`교체 없이 보냄 ${seed}: ${JSON.stringify({ok:r0.ok,done:r0.done,msg:r0.msg})}`);
+  if(r0.ok===false&&!r0.done&&S.market.negs.includes(neg)&&(S.market.attempts[pid+':'+S.season]||0)===at0&&/외국인 정원 초과 · (일반 \d+\/\d+명|\d+\/\d+명 · \d+명 더 방출)/.test(r0.msg))blocked++;else bad(`교체 없이 보냄 ${seed}: ${JSON.stringify({ok:r0.ok,done:r0.done,msg:r0.msg})}`);
   if(SL.preCheck(pid,off).some(x=>x.k==='fgn'))kept++;else bad('확정 전 검사가 정원을 못 잡음');
   const C=SL.fgnSwapCands(pid).filter(x=>x.ok);if(!C.length){continue;}const q=C[0].q;const e=SL.negSwap(pid,q.id);if(e){bad('교체 선수 지정 '+e);continue;}
   if(SL.preCheck(pid,off).length){bad('교체 선수를 골랐는데 확정 전 검사가 막음 '+JSON.stringify(SL.preCheck(pid,off)));continue;}
@@ -43,7 +43,7 @@ const play=S=>{let k=0;while(S.phase==='season'&&k++<500){SL.playDayAuto();if(SL
     return o;});
   /^\d+회[초말] \d사 .+ → .+ → .+ · /.test(r.tac||'')&&(r.tac||'').length<70?ok(`작전 결과 한 줄: 「${r.tac}」`):bad('작전 결과 '+JSON.stringify(r.tac));
   r.pulse?ok('타구가 떨어진 자리 강조(.fpulse)'):bad('타구 강조 없음');
-  (r.rec||[]).some(x=>/^경기당 실점 [\d.]+ — 리그 \d+위$/.test(x))&&!(r.rec||[]).some(x=>/^[가-힣]+ 리그 \d+위 — 약점$/.test(x))&&(r.recS||[]).some(x=>/최근 결과/.test(x))?ok(`감독실 진단: 결과 줄 「${r.rec.find(x=>/실점/.test(x))}」(${r.recS.find(x=>/최근 결과/.test(x))}) · 전력 줄은 「○○ 전력 리그 n위」`):bad('진단 '+JSON.stringify([r.rec,r.recS]));
+  (r.rec||[]).some(x=>/^실점 [\d.]+ · \d+위$/.test(x))&&!(r.rec||[]).some(x=>/^[가-힣]+ 리그 \d+위/.test(x))&&(r.recS||[]).some(x=>/선발 \d+위 · 불펜 \d+위/.test(x))?ok(`감독실 진단: 결과 줄 「${r.rec.find(x=>/실점/.test(x))}」(${r.recS.find(x=>/선발 \d+위/.test(x))}) · 전력 줄은 「○○ 전력 리그 n위」`):bad('진단 '+JSON.stringify([r.rec,r.recS]));
   r.inbox&&/새 소식 (\d+|99\+)/.test(r.inbox[0])&&!r.inbox[1]?ok(`받은 소식 타일: 「${r.inbox[0].trim().slice(0,22)}」 · 강조 없음`):bad('소식 타일 '+JSON.stringify(r.inbox));
   r.guidePost===false?ok(`정규 시즌이 끝나면(${r.phase}) 첫 시즌 안내 타일 없음`):bad('첫 시즌 안내가 남음 '+r.phase);
   r.un0<40?ok(`겨울로 넘어가면 지난 소식은 읽은 것으로 — 새 소식 ${r.un0}건(전체 ${r.news})`):bad('안 읽음 '+r.un0);

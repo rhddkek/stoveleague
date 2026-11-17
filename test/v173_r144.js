@@ -17,20 +17,20 @@ const V=SL.INV;
 // 3. 구장 증축
 {SL.newGame(17305,2,{games:36});let S=SL.state();let ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const i0=SL.seatInfo(ut);const e=SL.seatBuild();const e2=SL.seatBuild();
   (!e&&b-ut.cash===V.seat[0].cost&&e2==='이미 공사 중입니다.'&&SL.invTicketF(ut)===1&&i0.next.open===2&&S.news.some(n=>/^\[구장\] 외야석 증축 착공/.test(n.text)))?ok(`외야석 증축 착공 ${SL.money(V.seat[0].cost)} · 공사 중에는 수입 그대로 · 또 누르면 「${e2}」`):bad('착공 '+JSON.stringify([e,e2,b-ut.cash]));
-  season(S);offseason(S);S=SL.state();ut=SL.userTeam();(SL.invOf(ut).seat===1&&!SL.invOf(ut).build&&Math.abs(SL.invTicketF(ut)-1.1)<1e-9&&S.news.some(n=>/^\[구장\] 외야석 증축 완공 — 입장 수입 \+10%/.test(n.text)))?ok('다음 개막에 완공 — 입장 수입 ×1.10'):bad('완공 '+JSON.stringify(SL.invOf(ut)));
+  season(S);offseason(S);S=SL.state();ut=SL.userTeam();(SL.invOf(ut).seat===1&&!SL.invOf(ut).build&&Math.abs(SL.invTicketF(ut)-1.1)<1e-9&&S.news.some(n=>/^\[구장\] 외야석 증축 완공 · 입장 \+10%/.test(n.text)))?ok('다음 개막에 완공 — 입장 수입 ×1.10'):bad('완공 '+JSON.stringify(SL.invOf(ut)));
   const a=SL.ticketIncome?1:0;SL.invOf(ut).seat=3;Math.abs(SL.invTicketF(ut)-1.4)<1e-9&&SL.seatInfo(ut).next===null?ok('새 구장까지 지으면 ×1.40 · 더 지을 것 없음'):bad('새 구장');}
 // 4. 해외 아카데미
 {SL.newGame(17306,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const e=SL.acadOpen('CB');SL.acadOpen('AU');SL.acadOpen('MX');const dup=SL.acadOpen('CB');const badN=SL.acadOpen('JP');
   (!e&&b-ut.cash===V.acad.set*3&&dup==='이미 운영 중입니다.'&&/세울 수 없는/.test(badN)&&SL.invUpkeep(ut)===V.acad.run*3)?ok(`아카데미 3곳 설립 ${SL.money(V.acad.set)}씩 · 운영비 한 해 ${SL.money(SL.invUpkeep(ut))}`):bad('아카데미 설립 '+JSON.stringify([e,dup,badN]));
   season(S);const ys=S.youth.map(i=>S.players[i]).filter(p=>p&&p.acad===ut.id);const nats=ys.map(p=>p.nat).sort().join();const p=ys[0];
-  (ys.length===3&&nats==='AU,CB,MX'&&ys.every(q=>q.natv&&!SL.isFgn(q)&&q.age>=17&&q.age<=19&&q.pot>SL.calcOvr(q)+8)&&SL.fgnBlock(ut,p,3000)===null&&S.news.some(n=>/^\[아카데미\] 유망주 3명 도착/.test(n.text)))?ok(`겨울에 유망주 3명(${ys.map(q=>`${q.name} ${q.nat} ${q.age}세 ${Math.round(SL.calcOvr(q))}/${Math.round(q.pot)}`).join(' · ')}) — 외국인 정원에 들지 않음`):bad('아카데미 유망주 '+JSON.stringify(ys.map(q=>[q.nat,q.natv,q.age,q.pot])));
+  (ys.length===3&&nats==='AU,CB,MX'&&ys.every(q=>q.natv&&!SL.isFgn(q)&&q.age>=17&&q.age<=19&&q.pot>SL.calcOvr(q)+8)&&SL.fgnBlock(ut,p,3000)===null&&S.news.some(n=>/^\[아카데미\] 유망주 3명 · /.test(n.text)))?ok(`겨울에 유망주 3명(${ys.map(q=>`${q.name} ${q.nat} ${q.age}세 ${Math.round(SL.calcOvr(q))}/${Math.round(q.pot)}`).join(' · ')}) — 외국인 정원에 들지 않음`):bad('아카데미 유망주 '+JSON.stringify(ys.map(q=>[q.nat,q.natv,q.age,q.pot])));
   SL.acadClose('AU');Object.keys(SL.invOf(ut).acad).length===2?ok('닫으면 운영비에서 빠짐 '+SL.money(SL.invUpkeep(ut))):bad('닫기');}
 // 5. 마케팅 · 보너스
 {SL.newGame(17307,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const e=SL.mktSet(2);const e2=SL.mktSet(3);const rep0=ut.rep;
   (!e&&b-ut.cash===V.mkt[2].cost&&/이미 정했습니다/.test(e2)&&Math.abs(SL.invTicketF(ut)-1.06)<1e-9)?ok(`시즌 캠페인 ${SL.money(V.mkt[2].cost)} — 입장 수입 ×1.06 · 한 해에 한 번`):bad('마케팅 '+JSON.stringify([e,e2]));
   const m0=ut.roster.map(i=>S.players[i].morale);const b2=ut.cash;const eb=SL.bonusSet('champ');const m1=ut.roster.map(i=>S.players[i].morale);const up=m1.filter((x,i)=>x===Math.min(100,m0[i]+V.bonus.champ.mor)).length;
   (!eb&&ut.cash===b2&&up===m0.length&&/이미 약속/.test(SL.bonusSet('ps')))?ok(`우승 보너스 ${SL.money(V.bonus.champ.cost)} 약속 — 돈은 아직 그대로 · 선수단 사기 +${V.bonus.champ.mor}`):bad('보너스 약속 '+JSON.stringify([eb,up,m0.length]));
-  const c1=ut.cash;SL.invSeasonEnd({post:{champ:ut.id,ser:[]}});(c1-ut.cash===V.bonus.champ.cost&&ut.rep>=rep0+V.mkt[2].rep&&S.news.some(n=>/^\[보너스\] 우승 달성 — 약속한/.test(n.text))&&S.news.some(n=>/^\[마케팅\] 시즌 캠페인 효과 — 팬 평판 \+2/.test(n.text)))?ok('시즌 끝: 우승하면 보너스 지급 · 마케팅 팬 평판 +2'):bad('시즌 끝 '+JSON.stringify([c1-ut.cash,ut.rep,rep0]));
+  const c1=ut.cash;SL.invSeasonEnd({post:{champ:ut.id,ser:[]}});(c1-ut.cash===V.bonus.champ.cost&&ut.rep>=rep0+V.mkt[2].rep&&S.news.some(n=>/^\[보너스\] 우승 달성 · /.test(n.text))&&S.news.some(n=>/^\[마케팅\] 시즌 캠페인 · 평판 \+2/.test(n.text)))?ok('시즌 끝: 우승하면 보너스 지급 · 마케팅 팬 평판 +2'):bad('시즌 끝 '+JSON.stringify([c1-ut.cash,ut.rep,rep0]));
   const c2=ut.cash;SL.invSeasonEnd({post:{champ:ut.id,ser:[]}});c2===ut.cash?ok('두 번 불러도 한 번만'):bad('중복 지급');}
 {SL.newGame(17308,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;for(let i=0;i<V.bonusDay+2;i++)SL.playDayAuto();const e=SL.bonusSet('ps');/일차까지만/.test(e||'')?ok(`개막 ${V.bonusDay}일차가 지나면 보너스 약속 마감`):bad('보너스 마감 '+e);
   SL.bonusOpen()===false?0:bad('bonusOpen');}
@@ -49,7 +49,7 @@ const V=SL.INV;
       o.a=await clickTxt(/^설립 ·/);o.m=await clickTxt(/^15억$/);o.b=await clickTxt(/^약속 · 20억/);const I=SL.invOf(ut);o.acad=Object.keys(I.acad).length;o.mkt=I.mkt&&I.mkt.lv;o.bonus=I.bonus&&I.bonus.k;o.body=document.body.textContent.replace(/\s+/g,' ');o.primary=[...document.querySelectorAll('button.primary.big')].filter(x=>x.offsetParent).length;return o;});
     r.chips.join()==='시설,투자,구단 위상,옛 제자'&&r.grid.join()==='훈련장,유소년 센터,스카우트 조직,의료센터,전력분석실,2군 구장'?ok(`${tag} 구단 → 구단: 칩 「${r.chips.join(' · ')}」 · 시설 6칸`):bad(`${tag} 칩/시설 `+JSON.stringify([r.chips,r.grid]));
     /의료센터 신설 · Lv\.0 → 1/.test(r.sec)&&r.med===1&&r.paid===V.fac.med.cost&&/의료센터 증설 · Lv\.1 → 2/.test(r.sec2)&&r.ow1<=0?ok(`${tag} 의료센터 신설 단추 → Lv.1 (${SL.money(r.paid)})`):bad(`${tag} 의료센터 `+JSON.stringify([r.sec,r.med,r.paid,r.sec2,r.ow1]));
-    r.title==='구단 투자'&&/공사비는 지금 나가고/.test(r.sure)&&r.build&&r.seatRow&&r.ow2<=0&&(!vp.m||r.h<=1.02)?ok(`${tag} 투자: 구장 착공은 확인 창 뒤에 · 「공사 중」 줄${vp.m?` · 한 화면(${r.h.toFixed(2)}) · 쪽 「${r.pg.join(' / ')}」`:''}`):bad(`${tag} 투자 `+JSON.stringify([r.title,r.sure.slice(0,40),r.build,r.seatRow,r.ow2,r.h]));
+    r.title==='구단 투자'&&/취소 불가/.test(r.sure)&&r.build&&r.seatRow&&r.ow2<=0&&(!vp.m||r.h<=1.02)?ok(`${tag} 투자: 구장 착공은 확인 창 뒤에 · 「공사 중」 줄${vp.m?` · 한 화면(${r.h.toFixed(2)}) · 쪽 「${r.pg.join(' / ')}」`:''}`):bad(`${tag} 투자 `+JSON.stringify([r.title,r.sure.slice(0,40),r.build,r.seatRow,r.ow2,r.h]));
     r.a&&r.m&&r.b&&r.acad===1&&r.mkt===1&&r.bonus==='ps'&&r.primary<=1?ok(`${tag} 아카데미 설립 · 지역 광고 · 가을야구 보너스 단추 동작 · 노란 큰 단추 ${r.primary}개`):bad(`${tag} 단추 `+JSON.stringify([r.a,r.m,r.b,r.acad,r.mkt,r.bonus,r.primary]));
     await c.close();}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');await b.close();
