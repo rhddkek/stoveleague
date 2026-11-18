@@ -1132,3 +1132,10 @@ body:has(.gamev) .toast{top:auto!important;bottom:calc(6px + env(safe-area-inset
 .ngopt .dfsel{margin:4px 0}
 .ngopt .dfsel button{min-height:30px;padding-top:4px;padding-bottom:4px}
 .ngopt .dfwhy{margin:0 0 4px}
+
+/* v182 (R153): 교체 확인 — 즉시 지출 합계 한 줄 · 눌러서 내역 */
+.swtot>summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none}
+.swtot>summary::-webkit-details-marker{display:none}
+.swtot>summary b{margin-left:auto}
+.swtot>summary i{font-style:normal;font-size:11.5px;color:var(--muted,#9aa4b2)}
+.swtot>div{display:flex;justify-content:space-between;padding-top:4px}
