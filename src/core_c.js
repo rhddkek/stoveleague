@@ -2615,7 +2615,7 @@ function missionsResolve(lg){const M=misState();const T=M.today;if(!T||T.d!==S.d
   let okN=0;for(const it of T.list){const m=MISSIONS.find(x=>x.k===it.k);it.ok=!!(m&&m.chk(lg,side));if(it.ok)okN++;M.hist.push({k:it.k,ok:it.ok,d:S.day,s:S.season});}
   if(M.hist.length>40)M.hist=M.hist.slice(-40);M.n+=T.list.length;M.ok+=okN;T.done=true;
   M.pt=(M.pt||0)+(okN===2?2:okN===1?0:-1);if(M.pt>=4){M.pt=0;if(M.tier<2){M.tier++;T.up=true;}}else if(M.pt<=-3){M.pt=0;if(M.tier>0){M.tier--;T.down=true;}}
-  const bonus=Math.round(okN*(T.tier+1)*500*(ECON_R[ut.league]||1));if(bonus){ut.cash+=bonus;ut.fin.grant=(ut.fin.grant||0)+bonus;}T.bonus=bonus;
+  const bonus=Math.round(okN*(T.tier+1)*500*grantF(ut));if(bonus){ut.cash+=bonus;ut.fin.grant=(ut.fin.grant||0)+bonus;}T.bonus=bonus;
   if(okN)achGet('mis1');if(M.ok>=10)achGet('mis10');if(M.ok>=50)achGet('mis50');if(M.tier>=2)achGet('tier2');
   return T;}
 const MIS_TIER_KO=['기본','숙련','고난도'];
@@ -2629,7 +2629,9 @@ function setDrive(k){const ut=userTeam();if(!DRIVES[k])return '없는 지시입�
   ut.drive={k,s:S.season,from:S.day,until:S.day+DRIVE_DAYS-1};ut.driveUses={s:S.season,n:DRIVE_USES-driveUsesLeft(ut)+1};const fx=driveFx(ut);news(`감독 지시 「${DRIVES[k].name}」 — 앞으로 ${DRIVE_DAYS}경기 ${DRIVES[k].what}${fx.half?' (담당 코치가 없어 효과 절반)':''}`,'team');if(ut.driveUses.n>=3)achGet('drive3');return null;}
 function driveInfo(t){const d=driveNow(t);return {cur:d?{k:d.k,name:DRIVES[d.k].name,what:DRIVES[d.k].what,left:d.until-S.day+1,half:driveFx(t).half}:null,left:driveUsesLeft(t),list:Object.entries(DRIVES).map(([k,v])=>({k,name:v.name,what:v.what,dept:BAL.STAFF[v.dept]?BAL.STAFF[v.dept].name:'의료',has:(t.staff||[]).some(c=>c.dept===v.dept&&c.years>0)}))};}
 // ---------- 성적 연동 지원금 (EA 2011: 시즌 성적이 좋으면 예산이 늘어난다) ----------
-function grantFor(t,w,l,rank,n){const G=lgGames(t);const over=Math.max(0,w-l);const rankB=[20,15,12,9,7,5,3,2][rank-1]||0;const base=Math.round(over*(144/Math.max(1,G))*0.6);const f=(t&&ECON_R[t.league])||1;const bv=Math.round(base*10000*f),rv=Math.round(rankB*10000*f);return {total:bv+rv,parts:[['승패 마진',`+${over}승 → ${money(bv)}`],['순위',`${rank}위 → ${money(rv)}`]]};}   /* v159: 해외 리그는 그 리그 살림 크기(ECON_R)로 */
+/* v181: 지원금 배율 = min(ECON_R, LG_ECON) — 대만은 ECON_R(2.35)이 한국 대비 살림(0.82)보다 커서 지원금이 연봉의 5.8배 → 10시즌 현금 8배. 일본 · 미국은 그대로 */
+function grantF(t){const lg=t&&t.league;if(!lg||lg==='KR')return 1;return Math.min(ECON_R[lg]||1,LG_ECON[lg]||1);}
+function grantFor(t,w,l,rank,n){const G=lgGames(t);const over=Math.max(0,w-l);const rankB=[20,15,12,9,7,5,3,2][rank-1]||0;const base=Math.round(over*(144/Math.max(1,G))*0.6);const f=grantF(t);const bv=Math.round(base*10000*f),rv=Math.round(rankB*10000*f);return {total:bv+rv,parts:[['승패 마진',`+${over}승 → ${money(bv)}`],['순위',`${rank}위 → ${money(rv)}`]]};}   /* v159: 해외 리그는 그 리그 살림 크기(ECON_R)로 */
 function grantProjection(t){t=t||userTeam();const cp=compOf(t);const st=standings(cp);const rank=Math.max(1,st.findIndex(x=>x.id===t.id)+1);const n=st.length;const G=lgGames(t);const g=t.rec.w+t.rec.l;
   if(!g)return {total:0,parts:[],rank,n,proj:true};const w=Math.round(t.rec.w*G/g),l=G-w;const r=grantFor(t,w,l,rank,n);r.rank=rank;r.n=n;r.proj=g<G;r.now=grantFor(t,t.rec.w,t.rec.l,rank,n).total;return r;}
 function ownerGrantSettle(t){const cp=compOf(t);const n=compTeams(cp).length;const r=grantFor(t,t.rec.w,t.rec.l,t.lastRank||n,n);t.cash+=r.total;t.fin.grant=(t.fin.grant||0)+r.total;S.lastSummary&&(S.lastSummary.grant=r.total);news(`모기업 성과 지원금 ${money(r.total)} — ${r.parts.map(x=>x[1]).join(' · ')}. 내년 살림에 보탭니다.`,'team');return r;}
