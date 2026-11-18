@@ -31,7 +31,7 @@ const {chromium}=require('playwright');const path=require('path');
       return o;});
     await p.waitForTimeout(300);
     const r2=await p.evaluate(()=>{const o={};const pr=document.querySelector('#modal .tsk:not(.done) .shbar .primary');o.has=!!pr;if(!pr)return o;o.tt=(document.querySelector('#modal .tsc b')||{}).textContent;pr.click();
-      if(document.querySelector('#modal .todo')){o.inl=0;let g=0;let st;while((st=[...document.querySelectorAll('#modal .todo button')].find(x=>x.textContent==='한국 잔류'))&&g++<6){st.click();o.inl++;}o.next=(document.querySelector('#modal .tsh b')||{}).textContent||(document.querySelector('#modal .tsd')||{}).textContent||'';
+      if(document.querySelector('#modal .todo')){o.inl=0;let g=0;let st;while((st=[...document.querySelectorAll('#modal .todo button')].find(x=>x.textContent==='동계훈련'))&&g++<6){st.click();o.inl++;}o.next=(document.querySelector('#modal .tsh b')||{}).textContent||(document.querySelector('#modal .tsd')||{}).textContent||'';
         const pr2=document.querySelector('#modal .tsk:not(.done) .shbar .primary');if(pr2){o.tt2=(document.querySelector('#modal .tsc b')||{}).textContent;pr2.click();}}return o;});
     await p.waitForTimeout(400);
     const r3=await p.evaluate(()=>{const pill=document.querySelector('.chainpill');const o={pill:pill?pill.innerText:'',away:!!(document.querySelector('.pv')||document.querySelector('.subtabs .on'))};if(pill)pill.click();o.back=(document.querySelector('#modal .tsh b')||{}).textContent||((document.querySelector('#modal .tsd')||{}).textContent)||'';

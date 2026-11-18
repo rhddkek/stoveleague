@@ -1104,3 +1104,7 @@ body:not(.ingame) .whead .wmust{display:block;position:relative;margin:4px 0 0;p
 /* v175 (R146): 경기 화면 — 알림은 맨 아래(점수판을 가리지 않게) · 아래 메뉴 줄은 어두운 바탕 */
 body:has(.gamev) .toast{top:auto!important;bottom:calc(6px + env(safe-area-inset-bottom,0px))!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;pointer-events:none}
 .gamev .cmbar{background:#1b202b;border:1px solid rgba(236,238,242,.08)}.gamev .cmbar button{color:#e9ecf2;font-weight:600}
+
+/* v178 (R149): 겨울리그 일정 줄 */
+.wlsteps{margin-top:8px;line-height:1.7}
+.wlsteps span.on{color:var(--sel);font-weight:600}
