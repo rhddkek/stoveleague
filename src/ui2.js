@@ -217,7 +217,7 @@ function renderLineupMock1(ut){const bats=ut.entry.map(id=>S.players[id]).filter
     h+=cmp;}
   h+=`<div class="gobar lugo"><button class="ghost" onclick="UI.autoLineup()">자동 편성</button><button class="primary" onclick="UI.luSave()">라인업 저장</button></div>`;
   return h;}
-function renderRoster(){const ut=SL.userTeam();let h=hubTabs('roster');   /* v134: 큰 제목 줄을 없애고 찾기는 칩 줄 끝으로 */if(ui.sub.roster==='plan')return h+planHtml();if(ui.sub.roster==='locker')return h+lockerHtml();if(ui.sub.roster==='staff')return h+renderStaff(ut);if(ui.sub.roster==='lineup')return h+renderLineupMock(ut);if(ui.sub.roster==='pitch')return h+pitchStaff(ut);return h+squadList(ut);}
+function renderRoster(){const ut=SL.userTeam();let h=hubTabs('roster');   /* v134: 큰 제목 줄을 없애고 찾기는 칩 줄 끝으로 */if(ui.sub.roster==='style')return h+styleHtml();if(ui.sub.roster==='plan')return h+planHtml();if(ui.sub.roster==='locker')return h+lockerHtml();if(ui.sub.roster==='staff')return h+renderStaff(ut);if(ui.sub.roster==='lineup')return h+renderLineupMock(ut);if(ui.sub.roster==='pitch')return h+pitchStaff(ut);return h+squadList(ut);}
 // ---------- 이적 시장 (시안 09·10·13·15) ----------
 function mkMarketTabs(){return '';}
 function faDetailBase(p,ut){const st3=(p.hist||[]).slice(-3).reverse();const isP=SL.isPitcher(p);const keys=isP?SL.PIT_KEYS:SL.BAT_KEYS;const F=SL.faM(p.id);const ask=F?`${F.ask.yrs}년 ${Ms(F.ask.tot)} <small>(연 ${Ms(F.ask.sal)})</small>`:`요구 연봉 ${Ms(SL.playerDemand(p,ut))}`;const pin=S.pins.includes(p.id);const b=SL.bdOf(p);
@@ -2438,6 +2438,7 @@ function coachRecs(){const ut=SL.userTeam();const R=[];if(!ut)return R;const P=i
   if(RS)R.push(RS.ra?{t:`실점 ${RS.v} · ${RS.r}위`,s:RS.u?`선발 ${RS.u.sp.rank}위 · 불펜 ${RS.u.rp.rank}위`:'경기당',b:'투수진',f:()=>A.go('roster','pitch')}:{t:`득점 ${RS.v} · ${RS.r}위`,s:'경기당',b:'타순',f:()=>A.go('roster','lineup')});   /* v171 (R142): 결과(득실점)와 포지션 전력을 따로 — 서로 다른 지표 */
   if(ut.league==='KR'){const RK=SL.unitRanks()[ut.id];const n=SL.krTeams().length;const w=Object.keys(SL.UNIT_KO).map(k=>({k,r:RK[k].rank})).sort((a,b)=>b.r-a.r)[0];if(w&&w.r>=n-1)R.push({t:`${SL.UNIT_KO[w.k]} 전력 ${w.r}위`,s:'능력 기준 · FA 후보',b:'전력 진단',f:()=>A.diagView()});}
   if(S.phase==='offseason'){const left=Object.keys(SL.AUTO_KEYS).filter(k=>!SL.autoOn(k)).length;if(left&&R.length<3)R.push({t:`잡무 ${left}가지`,s:'지명 · 코치 · 파견',b:'맡기기',f:()=>A.autoView()});}
+  if(S.phase==='season'&&!ut.style&&R.length<3){const bk=SL.styleBest(ut);if(bk!=='bal'){const f=SL.styleFit(ut,bk);R.push({t:`팀 전략 · ${SL.STYLE[bk].ko}`,s:`맞는 선수 ${f.n} / ${f.of} · 지금 균형`,b:'보기',f:()=>A.go('roster','style')});}}   /* v180: 아직 안 골랐고 잘 맞는 전략이 있을 때만 */
   return R.slice(0,3);}
 function recCard(all){const R=coachRecs();ui.recs=R;const n=autoCount();if(!R.length)return '';const one=!all&&!isWide()&&R.length>1;   /* v138: 휴대폰 감독실은 추천 한 줄 + 「n개 더」(첫 화면이 한 화면에 들어가게) */
   return `<div class="mkcard reccd"><div class="rch"><b${one?` class="rcm" role="button" tabindex="0" onclick="UI.recAll()"`:''}>코치 추천${one?` <small>${R.length}개 ›</small>`:''}</b>${all?'':`<button class="sm ghost" onclick="UI.autoView()">맡기기 ${n}/${Object.keys(SL.AUTO_KEYS).length} ›</button>`}</div>${(one?R.slice(0,1):R).map((r,i)=>`<div class="rcr"><span class="a"><b>${esc(r.t)}</b><small>${r.s}</small></span><button class="sm" onclick="UI.recDo(${i})">${esc(r.b)}</button></div>`).join('')}</div>`;}
@@ -2745,6 +2746,18 @@ Object.assign(A,{
 
 // v142 (R113): 글자 「작게」는 화면 전체를 줄여 그림 — 화면 좌표(px)로 잰 값을 자리 값으로 쓸 때 나눠 줌
 function zf(){try{return parseFloat(getComputedStyle(document.body).zoom)||1;}catch(e){return 1;}}
+// ======================= v180 (R151): 팀 전략 화면 · 선수 이벤트 창 =======================
+function styleHtml(){const ut=SL.userTeam();const R=SL.styleRows(ut);const best=SL.styleBest(ut);const q=SL.styleStat(ut);const cur=R.find(r=>r.on)||R[0];const sbp=q.sb+q.cs?Math.round(q.sb/(q.sb+q.cs)*100):null;
+  let h=`<div class="card">${hd('우리 야구',`지금 · ${esc(cur.ko)}`)}<div class="small muted">맞는 선수(능력 ${SL.STYLE_FX.th} 이상)만 덤 · 값은 타선 전체 · 언제든 변경</div><div class="stylest small">도루 <b>${q.sb}</b>${sbp!=null?` · 성공 ${sbp}%`:''} · 홈런 <b>${q.hr}</b>${q.era!=null?` · 팀 ERA <b>${q.era.toFixed(2)}</b>`:''}</div></div>`;
+  h+=`<div class="card stylel">${R.map(r=>{const f=r.fit;return `<div class="styler${r.on?' on':''}"><div class="grow" style="min-width:0"><div class="nm">${esc(r.ko)}${best===r.k&&r.at?' <span class="tag ok">추천</span>':''}</div><div class="sub">${esc(r.fx)}</div><div class="sub">${r.at?`값 · ${esc(r.cost)}`:''}</div>${r.at?`<div class="sub">맞는 ${r.pit?'투수':'타자'} <b class="${f.of&&f.n/f.of>=0.55?'ok':f.of&&f.n/f.of<0.34?'bad':''}">${f.n} / ${f.of}</b> · 평균 ${esc(r.atKo)} ${f.avg}</div>`:''}</div>${r.on?'<span class="tag">사용 중</span>':`<button class="sm ghost" onclick="UI.styleSet('${r.k}')">선택</button>`}</div>`;}).join('')}</div>`;
+  return h;}
+A.styleSet=function(k){const e=SL.styleSet(k);if(e){toast(e);return;}autosave();toast(`팀 전략 · ${SL.STYLE[k].ko}`);render();};
+function pevModal(){const v=SL.pevInfo();if(!v)return;const p=S.players[v.pid];const ut=SL.userTeam();
+  modal(`<div class="cere" style="--tc:var(--sel)"><div class="ctag">선수 이벤트 ${v.n} / ${v.max} · ${v.left}일</div><div class="cface">${face(p,96)}</div><div class="ctitle"><b>${esc(p.name)}</b> · ${esc(v.ko)}</div><div class="muted">${SL.POS_KO[p.pos]||p.pos} · 종합 ${Math.round(SL.calcOvr(p))} · 사기 ${Math.round(p.morale==null?60:p.morale)} · 피로 ${Math.round(p.fatigue||0)}</div>
+    <div class="cquote">${esc(v.why)}</div><div class="glist">${v.opts.map(o=>`<button class="gopt" onclick="UI.pevAns('${o.k}')"><b>${esc(o.t)}</b><span>${esc(o.d)}</span></button>`).join('')}</div>
+    <div class="small muted" style="margin-top:8px">답 없으면 「${esc(v.opts[v.opts.length-1].t)}」</div><div class="shbar"><button class="ghost" onclick="UI.closeModal()">나중에</button></div></div>`);}
+A.pev=function(){pevModal();};
+A.pevAns=function(k){const r=SL.pevAnswer(k);if(!r.ok){toast(r.msg);return;}closeModal();autosave();sfx(r.win?'levelup':'notify',0.5);toast(`${r.name} · ${r.opt} · ${r.res}`,3200);render();if(ui.chain&&mflow())A.taskNext();};
 // ======================= v179 (R150): 처음 하는 사람 — 손가락 따라가기 =======================
 // 광우: 「처음 하는 친구들은 뭘 해야 하는지 모르더라」. 눌러야 할 단추만 밝게(나머지 어둡게) · 한 걸음에 한 단추 · 첫 경기 → 자동 진행까지.
 // 누르는 것을 막지 않는다(고리 · 어둠은 pointer-events:none) — 다른 곳을 눌러도 게임은 그대로, 안내는 그 단추가 다시 보일 때 이어짐. 상태 S.tour {i,ok,d}

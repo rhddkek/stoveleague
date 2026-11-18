@@ -10,7 +10,7 @@ const {chromium}=require('playwright');const path=require('path');
       SL.newGame(4096,3,{arch:true,games:36,league:'KR',scen:'inj'});const S=SL.state();const ut=SL.userTeam();const inj=S.scen.who.map(id=>S.players[id]).filter(q=>q.inj&&q.inj.left>0).length;const top=ut.lineup.map(id=>S.players[id]).some(q=>S.scen.who.includes(q.id));
       SL.newGame(4096,3,{arch:true,games:36,league:'KR',scen:'broke'});const c1=SL.userTeam().cash;const B=SL.budgetInfo();
       return {bs,inj,top,ratio:c1/c0,xfer:B.xfer,news:SL.state().news.some(n=>/도전 시나리오\] 모기업/.test(n.text||n.t||''))};});
-    r.bs.length===4&&r.inj===5&&!r.top&&Math.abs(r.ratio-0.2)<0.01&&r.xfer===0&&r.news?ok(`도전 시나리오: 고급 설정 「${r.bs.join('·')}」 · 부상 병동 주전 ${r.inj}명 부상(라인업에서 빠짐) · 지원 중단 현금 ${Math.round(r.ratio*100)}% · 이적 예산 0`):bad('시나리오 '+JSON.stringify(r));}
+    r.bs.length===5&&r.inj===5&&!r.top&&Math.abs(r.ratio-0.2)<0.01&&r.xfer===0&&r.news?ok(`도전 시나리오: 고급 설정 「${r.bs.join('·')}」 · 부상 병동 주전 ${r.inj}명 부상(라인업에서 빠짐) · 지원 중단 현금 ${Math.round(r.ratio*100)}% · 이적 예산 0`):bad('시나리오 '+JSON.stringify(r));}
   // 2. 시즌 중반 구원 투입: 전반기는 AI → 반 지난 날 최하위 구단을 맡음 · 우리 구단은 한 곳 · 감독 → 내 실적에 시나리오 카드 · 시즌 끝 판정
   {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:36,league:'KR',scen:'mid'});const S=SL.state();S.tutorialDone=true;const first=SL.userTeam().name;let k=0;while(!SL.scenMidStep(4).done&&k++<50);
       const st0=SL.standings(SL.compOf(SL.userTeam()));const last=st0[st0.length-1];const nt=SL.scenMidFinish();const users=Object.values(S.teams).filter(t=>t.isUser).length;
@@ -50,6 +50,6 @@ const {chromium}=require('playwright');const path=require('path');
   // 7. 감독 칭호: 14가지 · 새내기는 처음부터 · 못 얻은 칭호는 못 검 · 대표 칭호가 감독 평판 옆에
   {const r=await p.evaluate(()=>{const L=SL.titleList();const e=SL.titleSet('dyn');const e2=SL.titleSet('rookie');UI.go('club','mgr');/* v120 (R103): 시안 — 평판 옆 「새내기 감독 · 무명」, 칭호는 [칭호 보기]를 눌러 펼침 */const head=/새내기 감독 · /.test((document.querySelector('.mgtop')||{}).innerText||'');const tb=document.querySelector('.mgbox .ob');if(tb&&!document.querySelector('.ttlc'))tb.click();const chips=document.querySelectorAll('.ttlc .chiprow button').length;
       return {n:L.length,rk:L.find(x=>x.k==='rookie').got,e,e2,head,chips,w:document.documentElement.scrollWidth<=innerWidth+1};});
-    r.n===14&&r.rk&&r.e&&!r.e2&&r.head&&r.chips>=1&&r.w?ok(`감독 칭호 ${r.n}가지: 새내기 감독 처음부터 · 못 얻은 「왕조 설계자」는 못 검 · 감독 평판 옆 「새내기 감독」`):bad('칭호 '+JSON.stringify(r));}
+    r.n===15&&r.rk&&r.e&&!r.e2&&r.head&&r.chips>=1&&r.w?ok(`감독 칭호 ${r.n}가지: 새내기 감독 처음부터 · 못 얻은 「왕조 설계자」는 못 검 · 감독 평판 옆 「새내기 감독」`):bad('칭호 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v102 검사 실패 ${fails}건`:'v102 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

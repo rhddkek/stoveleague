@@ -1120,3 +1120,15 @@ body:has(.gamev) .toast{top:auto!important;bottom:calc(6px + env(safe-area-inset
 #tourtip .tf i{font-style:normal;font-size:11.5px;margin-right:auto;opacity:.7}
 #tourtip button{font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid rgba(0,0,0,.35);background:transparent;color:#111;min-height:0}
 #tourtip button.ok{background:#111;color:#fff;border-color:#111}
+
+/* v180 (R151): 팀 전략 줄 · 새 게임 난이도 묶음 */
+.styler{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.styler:last-child{border-bottom:0}
+.styler.on .nm{color:var(--sel)}
+.styler .nm{font-size:15px;font-weight:600}
+.styler .sub{font-size:12.5px;color:var(--muted,#9aa4b2);margin-top:2px}
+.stylest{margin-top:8px}
+.ngopt{margin:4px 0 0}
+.ngopt .dfsel{margin:4px 0}
+.ngopt .dfsel button{min-height:30px;padding-top:4px;padding-bottom:4px}
+.ngopt .dfwhy{margin:0 0 4px}
