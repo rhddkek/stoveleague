@@ -15,7 +15,7 @@ const path=require('path');const FILE='file://'+path.resolve(__dirname,'../stove
   (await p.evaluate(()=>!SL.userTeam().arch))?ok('구단 유형 없이 시작 (v103)'):bad('구단 시작 '+await p.evaluate(()=>SL.userTeam().name+'/'+SL.userTeam().arch));
   await has('감독 첫 시즌');ok('홈: 첫 시즌 이야기 카드');
   await p.evaluate(()=>{SL.state().tutorialDone=false;});await p.evaluate(()=>UI.setTab('home'));let tt='';for(let i=0;i<5;i++){tt+=await p.evaluate(()=>document.body.innerText);await p.evaluate(()=>UI.tutNext(5));}
-  /첫 시즌 할 일/.test(tt)&&/자동 진행/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내 한 장 → 「첫 시즌 할 일」로 이어짐'):bad('튜토리얼 문구');
+  /시작하기/.test(tt)&&/단추 안내/.test(tt)&&/건너뛰기/.test(tt)&&!/한 구씩/.test(tt)?ok('첫 안내 한 장 → 「시작하기」 따라가기 · 「건너뛰기」 (v179)'):bad('튜토리얼 문구');
   const tabs=[['home'],['roster','list'],['roster','lineup'],['dev','train'],['dev','res'],['league','fut'],['dev','draft'],['market','offers'],['market','buy'],['market','fa'],['market','scout'],['club','mgr'],['club','pres'],['club','spon'],['league','table'],['league','rec'],['club','fin'],['club','fac'],['club','staff'],['league','overseas'],['club','alumni'],['league','hist'],['league','events'],['league','ach'],['league','sched'],['dev','fgn'],['market','trade'],['club','data']];
   const sweep=async tag=>{for(const [t,s] of tabs){await p.evaluate(([t,s])=>{if(s)UI.go(t,s);else UI.setTab(t);},[t,s]);await p.waitForTimeout(40);await over(`${tag} ${t}/${s||''}`);await navCover(`${tag} ${t}/${s||''}`);}};
   await sweep('시즌 중');ok('시즌 중 22개 화면 가로 넘침·하단 가림 검사');

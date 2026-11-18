@@ -614,7 +614,7 @@ function decorateTables(){ui.tsort=ui.tsort||{};const app=document.getElementByI
   for(const tb of app.querySelectorAll('table')){if(tb.classList.contains('nosort')||tb.matches('.negt,.kvt,.rnw')||(tblRows(tb)||[]).length<4)continue;const hr=tblHead(tb);if(!hr||!tblRows(tb))continue;const ths=[...hr.cells];if(ths.some(th=>th.colSpan>1))continue;
     tb.classList.add('asort');ths.forEach((th,i)=>{if(th.classList.contains('srt')||th.getAttribute('onclick'))return;if(!th.dataset.lab)th.dataset.lab=th.textContent.trim();if(!th.querySelector('i.as'))th.insertAdjacentHTML('beforeend',' <i class="as">⇅</i>');th.classList.add('asc0');th.onclick=()=>{const sig=tblSig(tb);const cur=ui.tsort[sig];const first=(()=>{const rows=tblRows(tb);if(!rows)return 1;const k=cellKey(rows[0].cells[i]);return k.n!=null&&!k.pos?-1:1;})();const dir=cur&&cur.c===i?-cur.d:first;ui.tsort[sig]={c:i,d:dir};sortTable(tb,i,dir);};});
     const st=ui.tsort[tblSig(tb)];if(st&&ths[st.c])sortTable(tb,st.c,st.d);}}
-function render(){try{document.body.classList.toggle('ingame',!!(S&&S.liveGame));}catch(e){}renderBase();try{if(S&&!S.liveGame&&S.achNew&&S.achNew.length){const n=S.achNew.length;const t=S.achNew[0];S.achNew=[];toast(`★ 도전과제 「${t}」${n>1?` 외 ${n-1}`:''}`,2200);}}catch(e){}try{if(!(S&&S.liveGame))unslopIcons(document.getElementById('app'));}catch(e){}try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}try{bgmSync();}catch(e){}try{navTrack();chipScroll();topBtnSync();}catch(e){}try{fitLists();}catch(e){}}
+function render(){try{document.body.classList.toggle('ingame',!!(S&&S.liveGame));}catch(e){}renderBase();try{if(S&&!S.liveGame&&S.achNew&&S.achNew.length){const n=S.achNew.length;const t=S.achNew[0];S.achNew=[];toast(`★ 도전과제 「${t}」${n>1?` 외 ${n-1}`:''}`,2200);}}catch(e){}try{if(!(S&&S.liveGame))unslopIcons(document.getElementById('app'));}catch(e){}try{decorateTables();playerNavInit();nameLinks();}catch(e){if(typeof console!=='undefined')console.error(e);}try{bgmSync();}catch(e){}try{navTrack();chipScroll();topBtnSync();}catch(e){}try{fitLists();}catch(e){}try{tourTick();}catch(e){}}
 // ---- 선수 검색 ----
 function searchHtml(q){const ut=SL.userTeam();q=(q||'').trim();if(!q)return '<div class="muted small" style="padding:8px">이름 두 글자 이상 (예: 김민, 페레스)</div>';
   const all=Object.values(S.players).filter(p=>p&&!p.retired&&p.name&&p.name.includes(q));const rk=p=>(p.teamId===ut.id||ut.dev.includes(p.id)?0:p.teamId==null?1:S.teams[p.teamId]&&S.teams[p.teamId].league===ut.league?2:3);all.sort((a,b)=>rk(a)-rk(b)||SL.calcOvr(b)-SL.calcOvr(a));
@@ -2745,6 +2745,44 @@ Object.assign(A,{
 
 // v142 (R113): 글자 「작게」는 화면 전체를 줄여 그림 — 화면 좌표(px)로 잰 값을 자리 값으로 쓸 때 나눠 줌
 function zf(){try{return parseFloat(getComputedStyle(document.body).zoom)||1;}catch(e){return 1;}}
+// ======================= v179 (R150): 처음 하는 사람 — 손가락 따라가기 =======================
+// 광우: 「처음 하는 친구들은 뭘 해야 하는지 모르더라」. 눌러야 할 단추만 밝게(나머지 어둡게) · 한 걸음에 한 단추 · 첫 경기 → 자동 진행까지.
+// 누르는 것을 막지 않는다(고리 · 어둠은 pointer-events:none) — 다른 곳을 눌러도 게임은 그대로, 안내는 그 단추가 다시 보일 때 이어짐. 상태 S.tour {i,ok,d}
+const TOUR=[
+  {k:'roster',sel:()=>[`nav button[onclick="UI.navTap('roster')"]`,`.side button[onclick="UI.setTab('roster')"]`],t:()=>['선수단','내 선수 · 타순 보기'],done:()=>ui.tab==='roster'},
+  {k:'lineup',sel:()=>[`button[onclick="UI.setSub('roster','lineup')"]`,`.side button[onclick="UI.go('roster','lineup')"]`],t:()=>['타순','자동 편성됨 · 바꿀 자리만 누르기'],done:()=>ui.tab==='roster'&&ui.sub.roster==='lineup'},
+  {k:'home',sel:()=>[`nav button[onclick="UI.navTap('home')"]`,`.side button[onclick="UI.setTab('home')"]`],t:()=>['감독실','확인 끝 · 돌아가기'],done:()=>ui.tab==='home'&&!ui.view},
+  {k:'play',sel:()=>[`button.gold[onclick="UI.startGame()"]`],t:()=>['경기 보기','첫 경기 · 직접 지휘'],done:T=>!!S.liveGame||S.day>T.d},
+  {k:'inn',sel:()=>['.cmgo .gold'],t:()=>['이닝 끝까지','누를 때마다 반 이닝'],done:T=>!S.liveGame||S.liveGame.done||S.liveGame.inn>=2},
+  {k:'bar',ok:1,av:'.cmgo',sel:()=>['.cmbar'],t:()=>['작전 · 교체','수비 작전 · 선수교체 · 라인업'],done:T=>!!T.ok||!S.liveGame||S.liveGame.done},
+  {k:'fin',sel:()=>['.cmgo .gold',`button[onclick="UI.endGame()"]`],t:()=>S.liveGame&&S.liveGame.done?['다음날','경기 끝 · 감독실로']:['끝까지','계속 누르기 · 9회까지'],done:()=>!S.liveGame},
+  {k:'auto',dn:1,sel:()=>[`button[onclick^="UI.autoRun(7"]`],t:()=>['7경기 자동','다음부터 자동 · 일 생기면 멈춤'],done:T=>S.day>(T.dA!=null?T.dA:(T.dA=S.day))},
+  {k:'guide',ok:1,sel:()=>[`[onclick="UI.sheet('guide')"]`,()=>[...document.querySelectorAll('.tile2')].filter(x=>/첫 시즌 할 일/.test(x.textContent)),'.card.guide'],t:()=>['첫 시즌 할 일','남은 안내 · 하나씩'],done:T=>!!T.ok||!guideOn()}];
+let tourTimer=null;
+function tourBegin(){if(!S||S.phase!=='season')return;S.tour={i:0,d:S.day};if(!tourTimer)tourTimer=setInterval(()=>{try{tourTick();}catch(e){}},350);}
+function tourHide(){for(const id of ['tourring','tourtip']){const e=document.getElementById(id);if(e)e.style.display='none';}}
+function tourEnd(msg){if(S&&S.tour){S.tour.done=1;}tourHide();if(tourTimer){clearInterval(tourTimer);tourTimer=null;}if(msg)toast(msg,2200);try{autosave();}catch(e){}}
+function tourTick(){const T=S&&S.tour;if(!T||T.done||!S.tutorialDone||ui.titleMode){tourHide();return;}
+  if(!tourTimer)tourTimer=setInterval(()=>{try{tourTick();}catch(e){}},350);
+  if(S.phase!=='season'){tourEnd();return;}
+  let g=0;while(T.i<TOUR.length&&TOUR[T.i].done(T)&&g++<TOUR.length){T.i++;T.ok=0;}
+  if(T.i>=TOUR.length){tourEnd('안내 끝 · 이제 자유롭게');return;}
+  const st=TOUR[T.i];let el=null;if(!document.getElementById('modal'))for(const s of st.sel()){el=(typeof s==='function'?s():[...document.querySelectorAll(s)]).find(x=>{const q=x.getClientRects();return q.length&&q[0].width>0&&getComputedStyle(x).visibility!=='hidden';});if(el)break;}
+  if(!el){tourHide();return;}
+  let ring=document.getElementById('tourring'),tip=document.getElementById('tourtip');
+  if(!ring){ring=document.createElement('div');ring.id='tourring';document.body.appendChild(ring);tip=document.createElement('div');tip.id='tourtip';document.body.appendChild(tip);}
+  const z=zf(),r=el.getBoundingClientRect(),W=innerWidth,H=innerHeight,pad=4;
+  if(r.top<0||r.bottom>H){if(T.sc!==T.i){T.sc=T.i;try{el.scrollIntoView({block:'center'});}catch(e){}}}
+  const x=Math.max(2,r.left-pad),y=Math.max(2,r.top-pad),w=Math.min(W-4-x,r.width+pad*2),h=Math.min(H-4-y,r.height+pad*2);
+  ring.style.cssText=`display:block;left:${x/z}px;top:${y/z}px;width:${w/z}px;height:${h/z}px`;
+  const tx=st.t(T);const key=T.i+'|'+tx[0];if(tip.dataset.k!==key){tip.dataset.k=key;tip.innerHTML=`<b>${esc(tx[0])}</b><span>${esc(tx[1])}</span><div class="tf"><i>${T.i+1} / ${TOUR.length}</i>${st.ok?`<button class="ok" onclick="UI.tourOk()">확인</button>`:''}<button onclick="UI.tourSkip()">건너뛰기</button></div>`;}
+  tip.style.display='block';const tw=Math.min(240,W-16),th=tip.offsetHeight*z||76;const below=(st.dn||y+h/2<H/2||y-8-th<4)&&y+h+8+th<H-4;let ty=below?y+h+8:Math.max(4,y-8-th);if(!below&&st.av){const q=document.querySelector(st.av);if(q)ty=Math.max(4,q.getBoundingClientRect().top-8-th);}const txp=Math.min(W-8-tw,Math.max(8,x+w/2-tw/2));
+  if(!below){for(const q of document.querySelectorAll('.gobar,.selwrap,.shbar,.mkgobar')){const b=q.getBoundingClientRect();if(b.width&&b.height&&b.top<ty+th&&b.bottom>ty&&b.top-8-th>4)ty=b.top-8-th;}}   /* 아래 고정 단추 줄은 가리지 않는다 */
+  tip.style.left=txp/z+'px';tip.style.top=ty/z+'px';tip.style.width=tw/z+'px';tip.className=below?'dn':'up';}
+A.tourOk=function(){if(S&&S.tour){S.tour.ok=1;tourTick();}};
+A.tourSkip=function(){tourEnd('안내 끔 · 감독실 「첫 시즌 할 일」에서 다시');};
+A.tourStart=function(){closeModal();if(!S||S.phase!=='season'){toast('시즌 중에만');return;}ui.view=null;ui.stack=[];S.tour=null;tourBegin();if(S.liveGame)S.tour.i=4;else if(S.day>1)S.tour.i=0;render();};
+
 
 // ===================== v144 (R116): 픽셀랩 배경 그림 =====================
 const ARTX=(typeof ASSETS!=='undefined'&&ASSETS&&ASSETS.art)||{};

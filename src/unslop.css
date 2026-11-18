@@ -1108,3 +1108,15 @@ body:has(.gamev) .toast{top:auto!important;bottom:calc(6px + env(safe-area-inset
 /* v178 (R149): 겨울리그 일정 줄 */
 .wlsteps{margin-top:8px;line-height:1.7}
 .wlsteps span.on{color:var(--sel);font-weight:600}
+
+/* v179 (R150): 손가락 따라가기 — 눌러야 할 단추만 밝게 */
+#tourring{position:fixed;z-index:9000;border:2px solid #f4c24a;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.58);pointer-events:none;display:none;transition:left .18s,top .18s,width .18s,height .18s}
+#tourtip{position:fixed;z-index:9001;display:none;background:#f4c24a;opacity:1;color:#111;border-radius:12px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+#tourtip{pointer-events:none}
+#tourtip button{pointer-events:auto}
+#tourtip b{display:block;font-size:15px;font-weight:600}
+#tourtip span{display:block;font-size:12.5px;margin-top:2px}
+#tourtip .tf{display:flex;align-items:center;gap:8px;margin-top:8px}
+#tourtip .tf i{font-style:normal;font-size:11.5px;margin-right:auto;opacity:.7}
+#tourtip button{font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid rgba(0,0,0,.35);background:transparent;color:#111;min-height:0}
+#tourtip button.ok{background:#111;color:#fff;border-color:#111}
