@@ -1719,7 +1719,7 @@ Object.assign(A,{
   renameGo(pid){const el=$('#rn_n');const e=SL.renamePlayer(pid,el?el.value:'');if(e){toast(e);return;}autosave();toast('이름 변경');render();},
   teamSheet(tid){const T=SL.teamSheet(tid);if(!T)return;const t=S.teams[tid];const B=SL.bossInfo(tid);const st=SL.standings(SL.compOf(t));const rk=st.findIndex(x=>x.id===tid)+1;
     /* v118 (R100): 구단 창 머리에 순위·성적·감독 */
-    const head=`<div class="small" style="margin:-4px 0 8px">${t.rec.w+t.rec.l?`${rk}위 · `:''}${t.rec.w}승 ${t.rec.l}패${B?` · 감독 <b>${esc(B.name)}</b> <span class="muted">${B.age}세 · ${B.year}년차 · ${esc(B.style)}${B.ex?` · 선수 출신 (前 ${esc(B.ex.team)})`:''}</span>`:''}${SL.rivalOfTeam(t)?` · <span class="tsrv">라이벌 ${esc(SL.rivalOfTeam(t).name)}</span>`:''}</div>`;modal(teamSheetHtml(T).replace('</h3>','</h3>'+head));},
+    const head=`<div class="small" style="margin:-4px 0 8px">${t.rec.w+t.rec.l?`${rk}위 · `:''}${t.rec.w}승 ${t.rec.l}패${B?` · 감독 <b>${esc(B.name)}</b> <span class="muted">${B.age}세 · ${B.year}년차 · ${esc(B.style)}${B.ex?` · 선수 출신 (前 ${esc(B.ex.team)})`:''}</span>`:''}${SL.rivalOfTeam(t)?` · <span class="tsrv">라이벌 ${esc(SL.rivalOfTeam(t).name)}</span> ${wlTag(t)}`:''}</div>`;modal(teamSheetHtml(T).replace('</h3>','</h3>'+head));},
   teamTap(tid){if(isWide()){ui.lgTeam=tid;render();}else A.teamSheet(tid);}
 });
 
@@ -2648,6 +2648,7 @@ function teamNowHtml(ut){const m=S.mgr||{};const cp=SL.compOf(ut);const T=SL.com
   h+=`<div class="tnl"><div class="t">핵심 전력</div><div class="g">${core.map(p=>chip(p,`${p.pos} · ${p.age}세 · 종합 ${Math.round(SL.calcOvr(p))}${hasSt(p.cur)?' · '+statShort(p,p.cur):''}`)).join('')}</div></div>`;
   if(pros.length)h+=`<div class="tnl"><div class="t">주요 유망주</div><div class="g">${pros.map(p=>chip(p,`${p.pos} · ${p.age}세 · 종합 ${Math.round(SL.calcOvr(p))} · 잠재 ${SL.potText(p)}${ut.dev.includes(p.id)?' · 육성군':SL.inEntry(ut,p.id)?' · 1군':' · 2군'}`)).join('')}</div></div>`;
   const aw=(S.awardLog||[]).filter(a=>a.tid===ut.id||a.tn===ut.name).slice(-4).reverse();const champ=(m.seasons||[]).filter(x=>x.team===ut.id&&x.ps==='champ').length;
+  h+=`<div class="tnl wll"><div class="t">${ut.league==='KR'?'모기업':'연고 시장'}</div><div class="aw">${wlTag(ut)} <span class="small">${esc(wlLine(ut).split(' · ').slice(1).join(' · '))}</span></div></div>`;   /* v183 */
   {const rv=SL.rivalInfo();if(rv){const R=rv.team;h+=`<div class="tnl rvl"><div class="t">라이벌</div><div class="aw"><button class="tnp" onclick="UI.teamSheet(${R.id})">${emblem(R,36)}<span><b>${esc(R.name)}</b><small>${inS&&played?`${rv.rk}위 (우리 ${rv.my}위) · `:''}올해 ${rv.h.w}승 ${rv.h.l}패${rv.h.left?` · 남은 ${rv.h.left}경기`:''}${rv.hist.length?` · 지난 ${rv.hist.length}시즌 우세 ${rv.up} · 열세 ${rv.down}`:''}</small></span></button></div></div>`;}}   /* v172 (R143) */
   h+=`<div class="tnl"><div class="t">수상 · 우승</div><div class="aw">${champ?`<span class="tg ok">우승 ${champ}회</span>`:''}${aw.map(a=>`<span class="tg">${mkYear(a.s)}시즌 ${esc(a.name)} · ${esc(a.lab)}</span>`).join('')||(champ?'':'<span class="muted small">수상 없음 · 시즌 끝 시상식</span>')}</div></div></div>`;
   return h;}
@@ -2747,6 +2748,9 @@ Object.assign(A,{
 
 // v142 (R113): 글자 「작게」는 화면 전체를 줄여 그림 — 화면 좌표(px)로 잰 값을 자리 값으로 쓸 때 나눠 줌
 function zf(){try{return parseFloat(getComputedStyle(document.body).zoom)||1;}catch(e){return 1;}}
+// v183 (R154): 재력 표시 — 한국 「모기업」 · 해외 「연고 시장」 · 별 1~3
+function wlTag(t){const w=SL.wealthOf(t);return `<span class="wltag w${w}">${t.league==='KR'?'모기업':'시장'} ${'★'.repeat(w)}${'☆'.repeat(3-w)}</span>`;}
+function wlLine(t){const w=SL.wealthOf(t);const F=SL.WEALTH_FX;const pc=x=>`${x>=1?'+':'−'}${Math.round(Math.abs(x-1)*100)}%`;return w===2?`${t.league==='KR'?'모기업':'연고 시장'} 보통 · 기준`:`${t.league==='KR'?'모기업':'연고 시장'} ${F.ko[w-1]} · 지원금 ${pc(F.grant[w-1])} · 시작 자금 ${pc(F.cash[w-1])}`;}
 // ======================= v180 (R151): 팀 전략 화면 · 선수 이벤트 창 =======================
 function styleHtml(){const ut=SL.userTeam();const R=SL.styleRows(ut);const best=SL.styleBest(ut);const q=SL.styleStat(ut);const cur=R.find(r=>r.on)||R[0];const sbp=q.sb+q.cs?Math.round(q.sb/(q.sb+q.cs)*100):null;
   let h=`<div class="card">${hd('우리 야구',`지금 · ${esc(cur.ko)}`)}<div class="small muted">맞는 선수(능력 ${SL.STYLE_FX.th} 이상)만 덤 · 값은 타선 전체 · 언제든 변경</div><div class="stylest small">도루 <b>${q.sb}</b>${sbp!=null?` · 성공 ${sbp}%`:''} · 홈런 <b>${q.hr}</b>${q.era!=null?` · 팀 ERA <b>${q.era.toFixed(2)}</b>`:''}</div></div>`;

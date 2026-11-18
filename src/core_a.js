@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v182';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v183';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -436,12 +436,24 @@ function salFloor(p,lg,tr){lg=lg||lgOfP(p);const m=PAY_MIN[lg];return m?m[Math.m
 function salaryFor(p,lg,tr){lg=lg||lgOfP(p);const v=baseVal(calcOvr(p))*krAdj(p)*BAL.SALARY_RATE*(p.age<=23?0.75:1)*(p.age>=33?0.8:1)*lvlPay(p,lg,tr);return Math.max(salFloor(p,lg,tr),Math.round(v/10)*10);}   // tr: 단계를 알 때(1 = 1군)
 function money(m){m=(m||0)*BAL.WON;const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const e=m/10000;s=(e>=100?Math.round(e):Math.round(e*10)/10).toLocaleString()+'억원';}else s=m?m.toLocaleString()+'만원':'0원';return (neg?'-':'')+s;}
 
+// ---------- 구단 재력 (v183, R154 — 광우: 「부자 구단 · 거지 구단 · 모기업 빵빵한 느낌, 현실적으로」) ----------
+// 1 가난 · 2 보통 · 3 부자. 한국 = 모기업(구단 이름 표, 가상 — 실제 기업을 가리키지 않음) · 해외 = 연고 시장 크기(도시). 위상(명문 · 약소)과 별개 축. 수치 WEALTH_FX 한곳(인덱스 = 재력 − 1)
+const WEALTH_KR={'서울 머스탱스':3,'대구 블레이즈':3,'인천 세일러스':3,'수원 울브스':2,'광주 레드폭스':2,'서울 콘도르스':2,'대전 썬더스':2,'부산 돌핀스':2,'창원 스톰':1,'서울 피닉스':1};
+const WEALTH_CITY={도쿄:3,오사카:3,후쿠오카:3,나고야:2,요코하마:2,삿포로:2,센다이:2,사이타마:2,고베:2,히로시마:1,치바:1,
+  뉴욕:3,로스앤젤레스:3,보스턴:3,시카고:3,필라델피아:3,샌프란시스코:3,휴스턴:2,댈러스:2,애틀랜타:2,시애틀:2,토론토:2,워싱턴:2,세인트루이스:2,애너하임:2,덴버:2,디트로이트:2,샌디에이고:2,피닉스:2,
+  캔자스시티:1,피츠버그:1,신시내티:1,밀워키:1,탬파베이:1,클리블랜드:1,마이애미:1,새크라멘토:1,미네소타:1,볼티모어:1,
+  타이베이:3,신베이:2,타오위안:2,타이중:2,타이난:2,가오슝:1,몬테레이:3,멕시코시티:3,시드니:3,산토도밍고:2,상하이:3,선전:3};
+const WEALTH_FX={ko:['가난','보통','부자'],cash:[0.75,1,1.3],grant:[0.75,1,1.3],cap:[0.75,1,1.35],bidP:[0.18,0.24,0.32],bidSal:[0.95,1,1.06],refill:2};
+function wealthOf(t){if(!t)return 2;if(t.wl)return t.wl;const nm=String(t.name||'');const w=t.league==='KR'?WEALTH_KR[nm]:WEALTH_CITY[nm.split(' ')[0]];return w||2;}
+function wfx(t,k){return WEALTH_FX[k][wealthOf(t)-1];}
+function wealthKo(t){return WEALTH_FX.ko[wealthOf(t)-1];}
+
 // ---------- 구단 ----------
 function genTeam(name,color,league,div,isUser){
   const t={id:nid(),name,color,league,div,cash:0,rep:0,fac:{train:1,youth:1,scout:1},roster:[],entry:[],lineup:[],pos:{},rotation:[],bullpen:[],closer:null,rpRole:{},rotIdx:0,rec:{w:0,l:0,rs:0,ra:0},fin:newFin(),isUser:!!isUser,loan:0,lastRank:null,dev:[]};
   if(league==='KR'){t.cash=BAL.START_CASH[1]*(0.9+rnd()*0.3);t.rep=ri(60,85);}
   else{t.cash=BAL.OVERSEAS_CASH[league]*(ECON_R[league]||1);t.rep=league==='US'?ri(85,98):league==='JP'?ri(70,85):league==='AU'?ri(30,45):ri(45,65);}
-  t.cash=Math.round(t.cash);
+  t.cash=Math.round(t.cash*wfx(t,'cash'));   /* v183: 재력 — 시작 현금 */
   return t;
 }
 function campHomeN(){const lg=typeof S!=='undefined'&&S&&S.teams&&S.teams[S.userTeamId]?S.teams[S.userTeamId].league:'KR';return ({KR:['한국 캠프','남해안 · 비용 없음'],JP:['미야자키 캠프','일본 남부 · 비용 없음'],TW:['가오슝 캠프','대만 남부 · 비용 없음'],US:['플로리다 캠프','플로리다 · 비용 없음']})[lg]||['홈 캠프','비용 없음'];}
