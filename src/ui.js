@@ -50,9 +50,13 @@ function pxPortrait(idx,color){const key=idx+'|'+color;if(PX.cache[key])return P
   const d=x.getImageData(0,0,c.width,c.height),a=d.data;const [th,ts,tl]=hexHsl(color);
   for(let i=0;i<a.length;i+=4){if(a[i+3]<100)continue;const [h,s,l]=hexHsl('#'+[a[i],a[i+1],a[i+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));if(h>0.53&&h<0.72&&s>0.35&&l>0.12){const nl=Math.max(0.06,Math.min(0.92,l*(tl/0.42)));const [r,g,b]=hslRgb(th,Math.max(ts,0.35),nl);a[i]=r;a[i+1]=g;a[i+2]=b;}}
   x.putImageData(d,0,0);return PX.cache[key]=c.toDataURL();}
-function portraitIdx(p){const h=hsh(p.id+3);const cats=PX_NAT[p.nat]||PX_NAT.KR;if(p.coach){const cp=pxOf(['coach']);if(cp.length)return cp[h%cp.length];}
-  if(p.pos==='C'&&cats[0]==='ea'&&(h%2===0)){const cp=pxOf(['catch']);if(cp.length)return cp[(h>>>3)%cp.length];}
-  const age=p.age<=23?'young':p.age>=32?'vet':'mid';let cand=pxOf(cats,age);if(cand.length<3||(h%10)>=8)cand=cand.concat(pxOf(cats,'mid'));if(!cand.length)cand=pxOf(cats);if(!cand.length)cand=pxOf(['ea']);if(!cand.length)cand=PXM.map((m,i)=>i);return cand[(h>>>4)%cand.length];}
+/* v185 (R156): 얼굴 나이대 5단계 — 고졸 신인(~20) · 젊은(21~23) · 중견(24~31) · 베테랑(32~35) · 노장(36~). 모자라면 옆 단계로. 코치는 아시아(coach) · 그 밖(coachx), 55세 넘으면 vet */
+const PX_AGE=a=>a<=20?'rook':a<=23?'young':a>=36?'old':a>=32?'vet':'mid',PX_NB={rook:'young',young:'mid',mid:'mid',vet:'old',old:'vet'};
+function portraitIdx(p){const h=hsh(p.id+3);const cats=PX_NAT[p.nat]||PX_NAT.KR;
+  if(p.coach){const k=cats[0]==='ea'?'coach':'coachx';const ca=(p.age||50)>=55?'vet':'mid';let cp=pxOf([k],ca);if(cp.length<2)cp=cp.concat(pxOf([k]));if(!cp.length)cp=pxOf(['coach','coachx']);if(cp.length)return cp[h%cp.length];}
+  const age=PX_AGE(p.age||27);
+  if(p.pos==='C'&&cats[0]==='ea'&&(h%2===0)){let cp=pxOf(['catch'],age==='rook'?'young':age==='old'?'vet':age);if(!cp.length)cp=pxOf(['catch']);if(cp.length)return cp[(h>>>3)%cp.length];}
+  let cand=pxOf(cats,age);if(cand.length<3)cand=cand.concat(pxOf(cats,PX_NB[age]));if((age==='young'||age==='vet')&&(h%10)>=8)cand=cand.concat(pxOf(cats,'mid'));if(!cand.length)cand=pxOf(cats);if(!cand.length)cand=pxOf(['ea']);if(!cand.length)cand=PXM.map((m,i)=>i);return cand[(h>>>4)%cand.length];}
 const SFX={on:true,a:{},last:{}};
 // 개인 설정: 효과음 크기, 글자 크기, 움직임 줄이기 (기기별, 저장 파일과 별개)
 const PREF={vol:70,font:'s',motion:true,annc:true,ump:true,dense:true};   /* v142 (R113): 글자 크기 기본 = 작게(화면 전체 0.88배 — 한 화면에 더 많이) */
@@ -1858,7 +1862,7 @@ function pitchMenu(){S=SL.state();const lg=S.liveGame;const ut=SL.userTeam();con
 const TUT_N=1;
 function renderTut(){const ut=SL.userTeam();const A=ut&&ut.arch?SL.BAL.ARCH[ut.arch]:null;const g=S.mgr&&S.mgr.cur&&S.mgr.cur.goal;
   const steps=[[`${ut.name} 감독 부임`,`${A?`<b>${A.name}</b> — ${A.pitch}<br><br>`:''}${g?`이번 시즌 목표: <b>${esc(g.text)}</b><br><br>`:''}<b>시작하기</b> · 첫 경기까지 단추 안내<br><b>건너뛰기</b> · 바로 시작`]];
-  const s=steps[Math.min(ui.tut,steps.length-1)];return `<div class="tut"><div class="box"><div class="hd"><h3>${esc(s[0])}</h3><small>${ui.tut+1}/${steps.length}</small></div><p style="font-size:15px;line-height:1.65">${s[1]}</p><div class="btns"><button onclick="UI.tutSkip()">건너뛰기</button><button class="primary" onclick="UI.tutNext(${steps.length})">${ui.tut===steps.length-1?'시작하기':'다음'}</button></div></div></div>`;}
+  const s=steps[Math.min(ui.tut,steps.length-1)];return `<div class="tut"><div class="box">${ui.tut===0?artBan('hire'):''}<div class="hd"><h3>${esc(s[0])}</h3><small>${ui.tut+1}/${steps.length}</small></div><p style="font-size:15px;line-height:1.65">${s[1]}</p><div class="btns"><button onclick="UI.tutSkip()">건너뛰기</button><button class="primary" onclick="UI.tutNext(${steps.length})">${ui.tut===steps.length-1?'시작하기':'다음'}</button></div></div></div>`;}
 
 // ---------- 액션 ----------
 function go(view){if(ui.view)ui.stack.push(ui.view);if(ui.stack.length>8)ui.stack.shift();ui.view=view;closeModal();render();if(isWide()){const r=$('#rpane');if(r)r.scrollTop=0;}else scrollTop();}
@@ -1988,7 +1992,7 @@ const A={
   loanOut(pid,tid){const e=SL.loanPlayer(pid,tid);toast(e||`${SL.P(pid).name} 임대 확정 — ${SL.state().teams[tid].name}`,3500);if(!e)sfx('click',0.4);autosave();if(!e&&ui.view&&ui.view.type==='loan')ui.view=ui.stack.pop()||null;render();},
   jobView(id){go({type:'job',id});},
   declineJob(id){SL.declineJob(id);toast('잔류 · 의리 평판 +1');autosave();if(ui.view&&ui.view.type==='job'){ui.view.msg='잔류를 선택';}render();},
-  confirmMove(id){const o=(SL.state().jobOffers||[]).find(x=>x.id===id);if(!o)return;const t=SL.state().teams[o.team];modal(`<h3>${esc(t.name)} 감독 취임</h3><div>${esc(SL.josa(SL.userTeam().name,'을','를'))} 떠납니다. 되돌릴 수 없지만, 나중에 친정 복귀 요청이 올 수 있습니다.</div><div style="height:12px"></div><div class="btns"><button class="primary" onclick="UI.moveMgr(${id})">취임 확정</button><button onclick="UI.closeModal()">취소</button></div>`);},
+  confirmMove(id){const o=(SL.state().jobOffers||[]).find(x=>x.id===id);if(!o)return;const t=SL.state().teams[o.team];modal(`${artBan('hire')}<h3>${esc(t.name)} 감독 취임</h3><div>${esc(SL.userTeam().name)} 떠남 · 되돌릴 수 없음 · 나중에 친정 복귀 요청 가능</div><div style="height:12px"></div><div class="btns"><button class="primary" onclick="UI.moveMgr(${id})">취임 확정</button><button onclick="UI.closeModal()">취소</button></div>`);},
   moveMgr(id){const e=SL.moveManager(id);closeModal();if(e){toast(e,4000);return;}sfx('win',0.6);ui.view=null;ui.stack=[];ui.tab='home';ui.gameResult=null;toast(`${SL.userTeam().name} 감독 취임`,3500);autosave();render();scrollTop();},
   dispatch(pid,tid){const e=SL.dispatchPlayer(pid,tid);toast(e||`${SL.P(pid).name} 파견 확정`,3500);autosave();if(!e&&ui.view&&ui.view.type==='dispatch')ui.view=ui.stack.pop()||null;render();},
   cancelDispatch(pid){const e=SL.cancelDispatch(pid);toast(e||'파견을 취소했습니다.');autosave();render();},

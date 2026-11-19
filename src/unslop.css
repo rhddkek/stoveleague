@@ -1157,3 +1157,5 @@ body.ingame .chainpill{display:none!important}   /* v184: 경기 중엔 「할 �
 :root.ea[data-theme="light"] body:not(.ingame) :is(.club .nextb:not(.must),button.pick:not(:disabled),.prow button.primary:not(.tgl):not(.on),.drrow button.go,.decide button.primary:not(.tgl)){background:transparent!important;color:#15171c!important;border:1px solid #c99a1c!important}   /* v184: 밝은 색에서도 테두리 */
 :root.ea body:not(.ingame) :is(.dg2 button,.drow2 button.primary,.decide2 button.primary){background:transparent!important;color:var(--acc,#9a6b00)!important;border:1px solid var(--acc,#c99a1c)!important}
 :root.ea[data-theme="light"] body:not(.ingame) :is(.dg2 button,.drow2 button.primary,.decide2 button.primary){color:#15171c!important;border-color:#c99a1c!important}
+.achrow .achi{width:26px}.achrow .achi img{width:26px;height:26px;image-rendering:pixelated}.achrow:not(.got) .achi img{filter:grayscale(1);opacity:.45}   /* v185: 도전과제 배지 */
+.tnow .tnl.wll,.tnow .tnl.rvl{display:inline-block;width:calc(50% - 4px);vertical-align:top}.tnow .tnl.wll{margin-right:8px}.tnow .tnl.rvl .tnp{max-width:100%}   /* v185: 내 팀 — 모기업 · 라이벌 한 줄(휴대폰 한 화면) */
