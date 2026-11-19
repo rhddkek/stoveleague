@@ -1250,7 +1250,7 @@ html.fz-s .bigcut{zoom:1}
 .wtd .due,.wrow .due{background:none!important;color:#f2c14e!important;border:0!important;padding:0 4px!important}
 .mkgo .bdg{background:#2a2f3a!important;color:#eceef2!important;box-shadow:none!important}
 /* v186: 경기 전 준비 = VS 가운데 · 밝은 색 테마는 노랑 대신 진한 황토(글자 대비) */
-.tdx .vsc .tdprep{margin-top:4px;font-size:12px;color:#f2c14e;white-space:nowrap}
+.tdx .vsc .tdprep{width:auto;min-height:0;height:24px;margin-top:4px;padding:0 4px;border:0;background:none;font-size:12px;font-weight:400;color:#f2c14e;white-space:nowrap}
 [data-theme="light"] .wtd .due,[data-theme="light"] .wrow .due{color:#8a5a00!important}
 [data-theme="light"] .pck .pca.top b,[data-theme="light"] .grinn td.sc{color:#8a5a00}
 [data-theme="light"] .pck .pca.top i u{background:#c9970f!important}

@@ -3192,7 +3192,7 @@ html.fz-s .bigcut{zoom:1}
 .wtd .due,.wrow .due{background:none!important;color:#f2c14e!important;border:0!important;padding:0 4px!important}
 .mkgo .bdg{background:#2a2f3a!important;color:#eceef2!important;box-shadow:none!important}
 /* v186: 경기 전 준비 = VS 가운데 · 밝은 색 테마는 노랑 대신 진한 황토(글자 대비) */
-.tdx .vsc .tdprep{margin-top:4px;font-size:12px;color:#f2c14e;white-space:nowrap}
+.tdx .vsc .tdprep{width:auto;min-height:0;height:24px;margin-top:4px;padding:0 4px;border:0;background:none;font-size:12px;font-weight:400;color:#f2c14e;white-space:nowrap}
 [data-theme="light"] .wtd .due,[data-theme="light"] .wrow .due{color:#8a5a00!important}
 [data-theme="light"] .pck .pca.top b,[data-theme="light"] .grinn td.sc{color:#8a5a00}
 [data-theme="light"] .pck .pca.top i u{background:#c9970f!important}
@@ -12855,7 +12855,7 @@ function todayPhone(ut,g,home,opp,pi){const gi=S.schedule.indexOf(g);let pm=null
   const rk=t=>{try{return SL.rankOf(t);}catch(e){return 0;}};const tm=(t,me)=>`<div class="tdtm ${me?'me':'op'}">${emblem(t,32)}<div><b>${esc(t.name.split(' ')[0])}</b><small>${t.rec.w}승 ${t.rec.l}패${rk(t)?` · ${rk(t)}위`:''}</small></div></div>`;
   const bg=ART&&(ART.stadiumGame||ART.stadiumHome);const wr=SL.watchReasons();const C=SL.careerStages();const m=ui.lastRun===999?999:ui.lastRun===1?1:7;
   return `<div class="card today cmp tdx${pi?' postc':''}"><div class="tdhero"${bg?` style="background-image:url(${bg})"`:''}><div class="tdtop"><span class="tdband" style="--tc:${ut.color}">${esc(todayHeadline(ut,opp,pi))}</span><button class="tdcar" onclick="UI.sheet('career')">커리어 ${C.done}/${C.list.length} ›</button></div>
-    <div class="tdvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${tm(ut,1)}<div class="vsc"><span class="vs pxf">VS</span><small class="tdmeta">${dayLabel()} · ${home?'홈':'원정'}</small><small class="tdprep">경기 전 준비 ›</small></div>${tm(opp,0)}</div><div class="tdsps">${sp(mySp,true)}${sp(opSp,false)}</div></div>
+    <div class="tdvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${tm(ut,1)}<div class="vsc"><span class="vs pxf">VS</span><small class="tdmeta">${dayLabel()} · ${home?'홈':'원정'}</small><button class="tdprep" onclick="event.stopPropagation();UI.prematch(${gi})">경기 전 준비 ›</button></div>${tm(opp,0)}</div><div class="tdsps">${sp(mySp,true)}${sp(opSp,false)}</div></div>
     <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${wr.length?`<div class="watchl small">${liSvg('eye')} ${wr.slice(0,2).map(x=>esc(x.text)).join(' · ')}</div>`:''}${decideRow()}${missionLine()}
     <button class="gold big" onclick="UI.startGame()">▶ ${pi?esc(pi.title)+' 시작':'경기 보기'}</button><div class="tdrow btns3 b2">${pi?`<button class="ghost sm" onclick="UI.autoDays(1)">이 경기 자동</button>`:`<button class="ghost sm" onclick="${m===1?'UI.autoDays(1)':`UI.autoRun(${m},this)`}">${m===1?'이 경기 자동':m===999?'시즌 끝까지':'7경기 자동'}</button><button class="ghost sm more" aria-label="다른 자동 진행" onclick="UI.autoPick()">⋯</button>`}</div></div></div>`;}
 A._cut=(k,o)=>bigCut(k,o);A._cutGame=lg=>cutGame(lg);   /* 검사용 */
