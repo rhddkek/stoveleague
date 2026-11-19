@@ -36,6 +36,8 @@
 
 - 얼굴 · 순간 그림(v185, R156 — 광우: 「선수들 나이에 맞게」): 얼굴 나이대 5단계 `PX_AGE`(rook ~20 · young ~23 · mid ~31 · vet ~35 · old 36~, 모자라면 `PX_NB`) — 파일 이름 `<분류>-<rook·young·mid·vet·old>-NN.png`. 코치는 `coach`(아시아) · `coachx`(그 밖) × mid · vet(55세~). 순간 배너 `artBan`: champ(우승 결산) · post(가을야구 진출) · abroad(해외 진출 창) · retno(영구결번 창) · hire(부임 · 취임 창). 도전과제 배지 `ACH_IC` → `assets/badges`. 새 얼굴은 기존 얼굴을 화풍 기준으로(`create_image_pro_from_style`), 배너는 테두리 흰 줄을 잘라 넣는다. 검사용 `UI.pxMeta(p)`.
 
+- 그림 · 연출 · 화면 개편(v186, R157 — 광우: 「일단해보세여 · 감독은 얼굴을 빼는게」, 보고서 https://claude.ai/artifact/HGFngt84M3KNutxkXDR3dN): **감독 얼굴은 쓰지 않는다**(엠블럼으로). 아이콘은 16×16 픽셀 한 벌(`PXI` → `LI` · `pxSvg(키,크기)`) — 새 아이콘은 `PXI`에 16줄 비트맵으로, 선 아이콘 · 이모지 그림을 새로 넣지 않는다. 폰 시즌 감독실 첫 줄 = 경기 카드(`todayPhone` · 선발은 `preMatch`). 결과 창 = 신문 1면(`resultCard` g · 자동 1경기도 `grSnap`). 큰 컷 `bigCut(키,{art,t,top,sub,pid})` — 시즌 10번 상한(`S.cuts`) · 같은 키 한 번 · 자동 검사에선 꺼짐(`window.__cutTest`로 켬). 새 순간은 이 함수로, 그림은 `assets/art`(256×112 → 2배 · 3배). 픽셀 글꼴 `SLPixel`(갈무리 조각, OFL)은 점수 · 등급 · 큰 컷 제목만 — 새 글자를 쓰면 `tools/font_subset.py`의 `TITLES`에 넣고 다시 자른다. 얼굴 크기는 32 · 64 · 128(정수배).
+
 ## 이적 탭 · 겨울 제도 (v132)
 - 이적 위 줄: **영입 · 내 선수 · 협상 · 결과** (R107). 이적 첫 화면은 협상 · 전체(답변 필요 먼저).
 - 외국인(v137, R108): 한곳에서 시작하고 끝남 — 외국인 관리 자리 표(일반 1~3 · 아시아, `SL.fgnSlots`) → 그 자리 후보(`SL.fgnCands` · 연봉·이적료·아시아 가능 미리 계산) → 협상 → 계약 → 배치 → 다음 빈자리. 조건만 보고 나가면 협상 기회를 쓰지 않음(`SL.negActed`). 교체 후보 화면(`fgSlotView`)은 맨 위에 지금 선수(`.fgnow`), 줄마다 차이(`.fgd`), 단추 위에 이적료 + 첫해 연봉 + 위약금 합계와 방출 시점(`.fgsum`) — 이 줄들은 줄이지 않는다(v145, R116). 처리한 일은 「처리 완료」로 바로 바뀌어야 한다.

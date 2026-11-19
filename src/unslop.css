@@ -1159,3 +1159,93 @@ body.ingame .chainpill{display:none!important}   /* v184: 경기 중엔 「할 �
 :root.ea[data-theme="light"] body:not(.ingame) :is(.dg2 button,.drow2 button.primary,.decide2 button.primary){color:#15171c!important;border-color:#c99a1c!important}
 .achrow .achi{width:26px}.achrow .achi img{width:26px;height:26px;image-rendering:pixelated}.achrow:not(.got) .achi img{filter:grayscale(1);opacity:.45}   /* v185: 도전과제 배지 */
 .tnow .tnl.wll,.tnow .tnl.rvl{display:inline-block;width:calc(50% - 4px);vertical-align:top}.tnow .tnl.wll{margin-right:8px}.tnow .tnl.rvl .tnp{max-width:100%}   /* v185: 내 팀 — 모기업 · 라이벌 한 줄(휴대폰 한 화면) */
+
+/* v186 (R157): 감독 얼굴 뺌 — 겨울 감독실 머리 · 구단 → 감독 */
+.whead.nf>:first-child{width:56px!important;height:56px!important;margin:0;align-self:center}
+.whead.nf>:last-child{flex:1;width:auto!important;height:auto!important;align-self:center}
+.whead.nf .x{border-left:0;padding-left:4px}
+.mgtop.nf{padding:0 16px}
+.mgtop.nf>:first-child{flex:1;width:auto!important;height:auto!important;margin:0}
+.mgtop.nf .mgr1{border-left:0;padding-left:0}
+/* v186 (R157): 경기 결과 = 신문 1면 — 픽셀 숫자 점수 · 엠블럼 64 · 우리 득점 이닝 노랑 · 수훈 얼굴 128 */
+.pxf{font-family:"SLPixel",var(--f-body);font-weight:400!important;letter-spacing:0}
+.grsc.gx{gap:12px;padding:12px 8px}
+.grsc.gx .tm{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px}
+.grsc.gx .n{font-size:14px}
+.grsc.gx .s{font-family:"SLPixel",var(--f-body);font-size:56px;font-weight:400;letter-spacing:0;line-height:1;display:flex;align-items:center;gap:8px;margin:0}
+.grsc.gx .s i{font-style:normal;font-size:28px;color:var(--muted)}
+.grsc.gx .s em{color:var(--text)}
+.grsc.gx .s em+i+em{color:var(--muted)}
+.grsc.gx .s em.w{color:#f2c14e}
+.grinn td:not(.tn){font-family:"SLPixel",var(--f-body);font-size:13px}
+.grinn td.sc{color:#f2c14e}
+.grmvp{align-items:center;min-height:0;padding:8px 12px 8px 8px}
+.grmvp>:nth-child(2){margin:0}
+.grmvp>i{z-index:1}
+/* v186 (R157): 큰 컷 — 그림 2배(폰) · 3배(넓은 화면) 정수배 · 제목 픽셀 글꼴 · 얼굴 128 원래 크기 */
+.bigcut{position:fixed;inset:0;z-index:9500;background:#0a0c10;display:flex;flex-direction:column;align-items:center;cursor:pointer;animation:bcIn .24s ease-out}
+.bigcut .bcart{width:100%;height:224px;flex:none;background-color:#0a0c10;background-repeat:no-repeat;background-position:center;background-size:512px 224px;image-rendering:pixelated;position:relative}
+.bigcut .bcart::after{content:'';position:absolute;left:0;right:0;bottom:0;height:72px;background:linear-gradient(180deg,rgba(10,12,16,0),#0a0c10)}
+.bigcut .bcb{width:100%;max-width:420px;padding:0 16px;margin-top:-24px;position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;animation:bcUp .32s ease-out .08s both}
+.bigcut .bcb>small{font-size:13px;color:#a3a9b6}
+.bigcut .bcb>b{font-size:40px;line-height:1.15;color:#f2c14e;margin:4px 0}
+.bigcut .bcb>span{font-size:16px;color:#d3d7df}
+.bigcut .bcp{display:flex;align-items:center;gap:16px;margin-top:20px;padding:12px;width:100%;text-align:left;background:#171a21;border:1px solid rgba(255,255,255,.08);border-radius:12px}
+.bigcut .bcp>:first-child{flex:none;width:128px!important;height:128px!important}
+.bigcut .bcp small{display:block;font-size:12px;color:#a3a9b6}
+.bigcut .bcp b{display:block;font-size:20px;font-weight:600;color:#eceef2;margin:4px 0}
+.bigcut .bcp span{display:block;font-size:14px;color:#d3d7df}
+.bigcut .bce{margin-top:20px}
+.bigcut .bchint{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-style:normal;font-size:12px;color:#6b7280}
+@media (min-width:700px){.bigcut .bcart{height:336px;background-size:768px 336px}}
+@keyframes bcIn{from{opacity:0}to{opacity:1}}
+@keyframes bcUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.bigcut,.bigcut .bcb{animation:none}}
+html.fz-s .bigcut{zoom:1}
+/* v186 (R157): 폰 감독실 경기 카드 */
+.card.today.tdx{padding:0;overflow:hidden}
+.tdx .tdhero{position:relative;padding:12px;background-color:#101318;background-size:512px auto;background-position:center 62%;background-repeat:no-repeat;image-rendering:pixelated}
+.tdx .tdhero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,19,24,.82),rgba(16,19,24,.5) 45%,rgba(16,19,24,.95) 85%)}
+.tdx .tdhero>*{position:relative}
+.tdx .tdtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tdx .tdtop .tdband{background:none!important;padding:0!important;margin:0!important;color:#eceef2;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tdx .tdcar{flex:none;width:auto;min-height:0;height:24px;padding:0 8px;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:rgba(16,19,24,.6);color:#c9ced8;font-size:12px;font-weight:400}
+.tdx .tdvs{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 8px;cursor:pointer}
+.tdx .tdtm{display:flex;align-items:center;gap:8px;min-width:0;color:#eceef2}
+.tdx .tdtm.op{flex-direction:row-reverse;text-align:right}
+.tdx .tdtm>:first-child{flex:none;width:32px!important;height:32px!important}
+.tdx .tdtm b{display:block;font-size:16px;font-weight:600;line-height:1.2}
+.tdx .tdtm small{display:block;font-size:12px;color:#c9ced8;white-space:nowrap}
+.tdx .vsc{display:flex;flex-direction:column;align-items:center;flex:none}
+.tdx .vsc .vs{font-size:20px;color:#a3a9b6;line-height:1}
+.tdx .vsc .tdmeta{font-size:12px;color:#a3a9b6;margin:4px 0 0;white-space:nowrap}
+.tdx .tdsps{display:flex;gap:8px}
+.tdx .tdsp{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(23,26,33,.92);border:1px solid rgba(255,255,255,.08);cursor:pointer;color:#eceef2}
+.tdx .tdsp.op{flex-direction:row-reverse;text-align:right}
+.tdx .tdsp>:first-child{flex:none;width:64px!important;height:64px!important}
+.tdx .tdsp div{min-width:0}
+.tdx .tdsp b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tdx .tdsp small{display:block;font-size:12px;color:#a3a9b6;white-space:nowrap}
+.tdx .tdsp0{width:64px;height:64px;border-radius:8px;background:#1e222b}
+.tdx .tdbody{padding:12px;display:flex;flex-direction:column;gap:8px}
+.tdx .tdbody>*{margin:0!important}
+.tdx .watchl{display:flex;align-items:center;gap:4px;color:var(--muted)}
+.tdx .tdrow{display:flex;gap:8px}
+.tdx .tdrow>button{flex:1}
+.tdx .tdrow>button.more{flex:0 0 48px}
+/* v186 (R157): 선수 카드 머리 — 얼굴 128 · 등급 배지 테두리(노랑 채움 아님) · 픽셀 숫자 · 능력 막대 8px, 가장 높은 능력만 노랑 */
+.pch.p128{align-items:flex-start;gap:16px}
+.pch.p128>:first-child{flex:none;border-radius:12px}
+.pch.p128 .a b{font-size:24px;line-height:1.15}
+.pcgr{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.pcgr .g .gbadge2{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:0;font-family:"SLPixel",var(--f-body);font-weight:400;font-size:28px;line-height:1;color:var(--text)}
+.pcgr .g .gbadge2 b{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;border:2px solid currentColor;border-radius:8px;font-weight:400;font-size:26px}
+.pcgr .g .ov{font-family:"SLPixel",var(--f-body);font-weight:400;font-size:28px}
+.pcc2{font-size:12px;color:var(--muted);padding:2px 8px;border:1px solid var(--line);border-radius:8px}
+.pck .pca i{height:8px!important;border-radius:4px}
+.pck .pca i u{border-radius:4px;background:#8a909c!important}
+.pck .pca.top i u{background:#f2c14e!important}
+.pck .pca.top b{color:#f2c14e}
+/* v186 (R157): 겨울 감독실 — 빨강 0 (마감은 노란 글자 · 미처리 수는 회색), 빨강은 나쁜 결과에만 */
+.wtd .due,.wrow .due{background:none!important;color:#f2c14e!important;border:0!important;padding:0 4px!important}
+.mkgo .bdg{background:#2a2f3a!important;color:#eceef2!important;box-shadow:none!important}

@@ -12,9 +12,9 @@ const emIdx=fs.existsSync(A+'/emblems/index.json')?JSON.parse(fs.readFileSync(A+
 const sfx={};if(fs.existsSync(A+'/sfx'))for(const f of fs.readdirSync(A+'/sfx'))if(/\.(mp3|ogg|wav)$/.test(f))sfx[path.basename(f).replace(/\.[^.]+$/,'')]=b64(A+'/sfx/'+f,f.endsWith('.mp3')?'audio/mpeg':f.endsWith('.ogg')?'audio/ogg':'audio/wav');
 const field=fs.existsSync(A+'/field.png')?b64(A+'/field.png','image/png'):null;
 const title=fs.existsSync(A+'/title.png')?b64(A+'/title.png','image/png'):null;
-const officeWinter=fs.existsSync(A+'/office_winter.jpg')?b64(A+'/office_winter.jpg','image/jpeg'):null;   // v119: 겨울 감독실 그림 (시안)
-const pitchBanner=fs.existsSync(A+'/pitch_banner.jpg')?b64(A+'/pitch_banner.jpg','image/jpeg'):null;   // v120: 투수진 제목 그림 (시안)
-const jp=n=>fs.existsSync(A+'/'+n)?b64(A+'/'+n,'image/jpeg'):null;const resBanner=jp('res_banner.jpg'),winterCamp=jp('winter_camp.jpg'),newBanner=jp('newgame_banner.jpg');   // v121: 2군·겨울리그·새 야구 인생 그림 (시안)
+const officeWinter=null;   // v119: 겨울 감독실 그림 (시안)
+const pitchBanner=fs.existsSync(A+'/pitch_banner.png')?b64(A+'/pitch_banner.png','image/png'):fs.existsSync(A+'/pitch_banner.jpg')?b64(A+'/pitch_banner.jpg','image/jpeg'):null;   // v120: 투수진 제목 그림 (시안)
+const jp=n=>{const pn=n.replace(/\.jpg$/,'.png');return fs.existsSync(A+'/'+pn)?b64(A+'/'+pn,'image/png'):fs.existsSync(A+'/'+n)?b64(A+'/'+n,'image/jpeg'):null;};const resBanner=jp('res_banner.jpg'),winterCamp=jp('winter_camp.jpg'),newBanner=null;   /* v186 (R157): 픽셀랩 픽셀 PNG가 있으면 그것 (가짜 픽셀 JPG 대신) · 새 게임 배너(오타 간판) · 겨울 감독실 JPG는 쓰는 곳 없어 뺌 */   // v121: 2군·겨울리그·새 야구 인생 그림 (시안)
 const title2=fs.existsSync(A+'/title2.jpg')?b64(A+'/title2.jpg','image/jpeg'):null;   // v118: 시작 화면 그림 (광우 시안)
 const office=fs.existsSync(A+'/office.png')?b64(A+'/office.png','image/png'):null;
 const stadiumHome=fs.existsSync(A+'/stadium_home.png')?b64(A+'/stadium_home.png','image/png'):null;const stadiumGame=fs.existsSync(A+'/stadium_game.png')?b64(A+'/stadium_game.png','image/png'):null;
@@ -22,9 +22,12 @@ const badges={};if(fs.existsSync(A+'/badges'))for(const f of fs.readdirSync(A+'/
 const bgm={};if(fs.existsSync(A+'/bgm'))for(const f of fs.readdirSync(A+'/bgm'))if(/\.mp3$/.test(f))bgm[path.basename(f,'.mp3')]=b64(A+'/bgm/'+f,'audio/mpeg');   // v71: 배경 음악
 const leagues={};if(fs.existsSync(A+'/leagues'))for(const f of fs.readdirSync(A+'/leagues'))if(f.endsWith('.png'))leagues[f.replace(/\.png$/,'')]=b64(A+'/leagues/'+f,'image/png');   // v82: 리그 마크 (픽셀랩, 국기 모티프)
 const assetsJs='const ASSETS='+JSON.stringify({sprites:(()=>{const o={};const d=A+'/sprites';if(fs.existsSync(d))for(const f of fs.readdirSync(d).filter(f=>f.endsWith('.png')).sort()){const m=f.match(/^(.+)-(\d+)\.png$/);if(m)o[m[1]]={src:b64(d+'/'+f,'image/png'),n:+m[2]};}return o;})(),art:(()=>{const o={};const d=A+'/art';if(fs.existsSync(d))for(const f of fs.readdirSync(d).filter(f=>f.endsWith('.png')).sort())o[f.replace('.png','')]=b64(d+'/'+f,'image/png');return o;})(),portraits,portraitMeta,emblems,field,sfx,title,title2,officeWinter,pitchBanner,resBanner,winterCamp,newBanner,stadiumHome,stadiumGame,badges,office,bgm,leagues})+';';
+// v186 (R157): 픽셀 글꼴 조각(갈무리, OFL — assets/fonts/Galmuri_OFL.md) · 점수 · 등급 · 큰 컷 제목만 (tools/font_subset.py)
+const pxFontCss=fs.existsSync(A+'/fonts/galmuri_sub.woff2')?`@font-face{font-family:"SLPixel";src:url(${b64(A+'/fonts/galmuri_sub.woff2','font/woff2')}) format("woff2");font-display:block}`:'';
 const html=`<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><title>스토브리그 — 작은 구단의 기적</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
+${pxFontCss}
 ${r('style.css')}
 ${r('unslop_gen.css')}
 ${r('unslop.css')}

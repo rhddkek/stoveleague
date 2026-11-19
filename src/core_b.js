@@ -234,6 +234,7 @@ function endHalf(lg){
   aiPitchCheck(lg,1-lg.half,true);
 }
 function finishGameState(lg,walkoff){
+  if(walkoff&&lg.half===1&&lg.innScores[1][lg.inn-1]==null)lg.innScores[1][lg.inn-1]=lg.halfRuns;   /* v186 (R157): 끝내기 이닝 점수도 이닝표에 (예전엔 「-」 · 이닝 합 ≠ 점수) */
   lg.done=true;const w=lg.score[1]>lg.score[0]?1:0;
   const wp=lg.por[w],lp=lg.lossP;if(wp!=null)ensureBox(lg,wp).pW=1;if(lp!=null)ensureBox(lg,lp).pL=1;
   const fp=lg.pitcher[w];const sv=lg.svs?lg.svs[fp]:null;if(fp!=null&&fp!==wp&&sv&&!sv.blown){const el=sv.lead,o=ensureBox(lg,fp).pOuts;if(el>0&&o>=1&&((sv.sit&&el<=3&&o>=3)||sv.tie||o>=9))ensureBox(lg,fp).pSV=1;}
