@@ -7,7 +7,7 @@ const V=SL.INV;
 {SL.newGame(17301,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=20000000;season(S);(SL.ownerSweep===undefined&&ut.cash>19000000&&!S.news.some(n=>/^\[구단주\] 보유 현금/.test(n.text)))?ok(`현금 1조를 들고 시즌을 넘겨도 회수 없음(${SL.money(ut.cash)})`):bad('회수 '+ut.cash);}
 // 2. 새 시설
 {SL.newGame(17302,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;const c0=ut.cash;const costs=[];for(let i=0;i<5;i++){const b=ut.cash;const e=SL.invFacUp('med');if(e)bad('의료센터 '+e);costs.push(b-ut.cash);}
-  const e6=SL.invFacUp('med');(costs.join()===[1,2,3,4,5].map(x=>V.fac.med.cost*x).join()&&e6==='최대 레벨입니다.'&&SL.invOf(ut).med===5)?ok(`의료센터 0 → 5레벨: ${costs.map(SL.money).join(' · ')} (모두 ${SL.money(c0-ut.cash)}) · 6번째는 「${e6}」`):bad('의료센터 값 '+costs.join());
+  const e6=SL.invFacUp('med');(costs.join()===[1,2,3,4,5].map(x=>V.fac.med.cost*x).join()&&e6==='최대 레벨'&&SL.invOf(ut).med===5)?ok(`의료센터 0 → 5레벨: ${costs.map(SL.money).join(' · ')} (모두 ${SL.money(c0-ut.cash)}) · 6번째는 「${e6}」`):bad('의료센터 값 '+costs.join());
   SL.invFacUp('lab');SL.invFacUp('farm');SL.invFacUp('farm');const up=SL.invUpkeep(ut);up===V.fac.med.up*5+V.fac.lab.up+V.fac.farm.up*2?ok(`한 해 유지비 ${SL.money(up)} (의료 5 · 분석 1 · 2군 2)`):bad('유지비 '+up);
   const R=SL.invFacRows('med',5);R[0][1]==='−25%'&&R[1][1]==='−25%'&&SL.invFacRows('farm',2)[0][1]==='+8%'&&SL.invFacRows('lab',1)[0][1]==='+8%'?ok('화면 수치: 의료 5레벨 부상 확률 · 기간 −25% · 2군 구장 2레벨 성장 +8% · 분석실 1레벨 관찰 +8%'):bad('표 '+JSON.stringify(R));
   ut.cash=10;SL.invFacUp('lab')&&/자금 부족/.test(SL.invFacUp('lab'))?ok('돈이 모자라면 「자금 부족」'):bad('자금 검사');}
@@ -16,18 +16,18 @@ const V=SL.INV;
 {SL.newGame(17304,2,{games:72});const S=SL.state();const ut=SL.userTeam();SL.invOf(ut).farm=5;season(S);const hit=ut.dev.concat(ut.roster).map(i=>S.players[i]).filter(p=>p&&JSON.stringify(p).includes('2군 구장 Lv.5')).length;hit>=1?ok(`2군 구장 5레벨: 시즌 끝 성장 기록에 「2군 구장 Lv.5」가 붙은 선수 ${hit}명`):bad('2군 구장 효과 없음');}
 // 3. 구장 증축
 {SL.newGame(17305,2,{games:36});let S=SL.state();let ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const i0=SL.seatInfo(ut);const e=SL.seatBuild();const e2=SL.seatBuild();
-  (!e&&b-ut.cash===V.seat[0].cost&&e2==='이미 공사 중입니다.'&&SL.invTicketF(ut)===1&&i0.next.open===2&&S.news.some(n=>/^\[구장\] 외야석 증축 착공/.test(n.text)))?ok(`외야석 증축 착공 ${SL.money(V.seat[0].cost)} · 공사 중에는 수입 그대로 · 또 누르면 「${e2}」`):bad('착공 '+JSON.stringify([e,e2,b-ut.cash]));
+  (!e&&b-ut.cash===V.seat[0].cost&&e2==='이미 공사 중'&&SL.invTicketF(ut)===1&&i0.next.open===2&&S.news.some(n=>/^\[구장\] 외야석 증축 착공/.test(n.text)))?ok(`외야석 증축 착공 ${SL.money(V.seat[0].cost)} · 공사 중에는 수입 그대로 · 또 누르면 「${e2}」`):bad('착공 '+JSON.stringify([e,e2,b-ut.cash]));
   season(S);offseason(S);S=SL.state();ut=SL.userTeam();(SL.invOf(ut).seat===1&&!SL.invOf(ut).build&&Math.abs(SL.invTicketF(ut)-1.1)<1e-9&&S.news.some(n=>/^\[구장\] 외야석 증축 완공 · 입장 \+10%/.test(n.text)))?ok('다음 개막에 완공 — 입장 수입 ×1.10'):bad('완공 '+JSON.stringify(SL.invOf(ut)));
   const a=SL.ticketIncome?1:0;SL.invOf(ut).seat=3;Math.abs(SL.invTicketF(ut)-1.4)<1e-9&&SL.seatInfo(ut).next===null?ok('새 구장까지 지으면 ×1.40 · 더 지을 것 없음'):bad('새 구장');}
 // 4. 해외 아카데미
 {SL.newGame(17306,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const e=SL.acadOpen('CB');SL.acadOpen('AU');SL.acadOpen('MX');const dup=SL.acadOpen('CB');const badN=SL.acadOpen('JP');
-  (!e&&b-ut.cash===V.acad.set*3&&dup==='이미 운영 중입니다.'&&/세울 수 없는/.test(badN)&&SL.invUpkeep(ut)===V.acad.run*3)?ok(`아카데미 3곳 설립 ${SL.money(V.acad.set)}씩 · 운영비 한 해 ${SL.money(SL.invUpkeep(ut))}`):bad('아카데미 설립 '+JSON.stringify([e,dup,badN]));
+  (!e&&b-ut.cash===V.acad.set*3&&dup==='이미 운영 중'&&/세울 수 없는/.test(badN)&&SL.invUpkeep(ut)===V.acad.run*3)?ok(`아카데미 3곳 설립 ${SL.money(V.acad.set)}씩 · 운영비 한 해 ${SL.money(SL.invUpkeep(ut))}`):bad('아카데미 설립 '+JSON.stringify([e,dup,badN]));
   season(S);const ys=S.youth.map(i=>S.players[i]).filter(p=>p&&p.acad===ut.id);const nats=ys.map(p=>p.nat).sort().join();const p=ys[0];
   (ys.length===3&&nats==='AU,CB,MX'&&ys.every(q=>q.natv&&!SL.isFgn(q)&&q.age>=17&&q.age<=19&&q.pot>SL.calcOvr(q)+8)&&SL.fgnBlock(ut,p,3000)===null&&S.news.some(n=>/^\[아카데미\] 유망주 3명 · /.test(n.text)))?ok(`겨울에 유망주 3명(${ys.map(q=>`${q.name} ${q.nat} ${q.age}세 ${Math.round(SL.calcOvr(q))}/${Math.round(q.pot)}`).join(' · ')}) — 외국인 정원에 들지 않음`):bad('아카데미 유망주 '+JSON.stringify(ys.map(q=>[q.nat,q.natv,q.age,q.pot])));
   SL.acadClose('AU');Object.keys(SL.invOf(ut).acad).length===2?ok('닫으면 운영비에서 빠짐 '+SL.money(SL.invUpkeep(ut))):bad('닫기');}
 // 5. 마케팅 · 보너스
 {SL.newGame(17307,2,{games:36});const S=SL.state();const ut=SL.userTeam();ut.cash=9e6;const b=ut.cash;const e=SL.mktSet(2);const e2=SL.mktSet(3);const rep0=ut.rep;
-  (!e&&b-ut.cash===V.mkt[2].cost&&/이미 정했습니다/.test(e2)&&Math.abs(SL.invTicketF(ut)-1.06)<1e-9)?ok(`시즌 캠페인 ${SL.money(V.mkt[2].cost)} — 입장 수입 ×1.06 · 한 해에 한 번`):bad('마케팅 '+JSON.stringify([e,e2]));
+  (!e&&b-ut.cash===V.mkt[2].cost&&/이미 정함/.test(e2)&&Math.abs(SL.invTicketF(ut)-1.06)<1e-9)?ok(`시즌 캠페인 ${SL.money(V.mkt[2].cost)} — 입장 수입 ×1.06 · 한 해에 한 번`):bad('마케팅 '+JSON.stringify([e,e2]));
   const m0=ut.roster.map(i=>S.players[i].morale);const b2=ut.cash;const eb=SL.bonusSet('champ');const m1=ut.roster.map(i=>S.players[i].morale);const up=m1.filter((x,i)=>x===Math.min(100,m0[i]+V.bonus.champ.mor)).length;
   (!eb&&ut.cash===b2&&up===m0.length&&/이미 약속/.test(SL.bonusSet('ps')))?ok(`우승 보너스 ${SL.money(V.bonus.champ.cost)} 약속 — 돈은 아직 그대로 · 선수단 사기 +${V.bonus.champ.mor}`):bad('보너스 약속 '+JSON.stringify([eb,up,m0.length]));
   const c1=ut.cash;SL.invSeasonEnd({post:{champ:ut.id,ser:[]}});(c1-ut.cash===V.bonus.champ.cost&&ut.rep>=rep0+V.mkt[2].rep&&S.news.some(n=>/^\[보너스\] 우승 달성 · /.test(n.text))&&S.news.some(n=>/^\[마케팅\] 시즌 캠페인 · 평판 \+2/.test(n.text)))?ok('시즌 끝: 우승하면 보너스 지급 · 마케팅 팬 평판 +2'):bad('시즌 끝 '+JSON.stringify([c1-ut.cash,ut.rep,rep0]));

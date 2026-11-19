@@ -22,7 +22,7 @@ const {chromium}=require('playwright');const path=require('path');
   {const r=await p.evaluate(()=>{SL.newGame(77,3,{arch:true,games:36,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();let k=0;while(!S.oreq&&k++<12){UI.autoDays(1);UI.closeModal();}
       const o=SL.oreqInfo();UI.inbox&&UI.inbox();const todo=(typeof decisionItems==='function'?[]:[]);UI.go('club','mgr');const card=(document.querySelector('.oreqc')||{}).innerText||'';const x0=SL.budgetInfo().xfer;
       S.oreq.k='youth';S.oreq.need=1;S.oreq.cur=0;S.oreq.to=S.day+5;k=0;while(S.oreq&&k++<6){UI.autoDays(1);UI.closeModal();}const H=(S.oreqH||[]).slice(-1)[0];
-      return {day:o&&o.d0,at:SL.dayAt(0.2),ko:o&&o.ko,card:card.slice(0,60),done:!S.oreq,ok:H&&H.ok,dx:SL.budgetInfo().xfer-x0,news:S.news.some(n=>/구단주 요청\] 「.*」 해냈습니다/.test(n.text||n.t||''))};});
+      return {day:o&&o.d0,at:SL.dayAt(0.2),ko:o&&o.ko,card:card.slice(0,60),done:!S.oreq,ok:H&&H.ok,dx:SL.budgetInfo().xfer-x0,news:S.news.some(n=>/구단주 요청\] 「.*」 (해냈습니다|해냄)/.test(n.text||n.t||''))};});
     r.day===r.at&&/구단주 요청/.test(r.card)&&r.done&&r.ok&&r.dx===10000&&r.news?ok(`구단주 요청: ${r.at}일차 「${r.ko}」 → 감독 화면 카드 · 해내면 이적 예산 +5억 · 소식`):bad('구단주 요청 '+JSON.stringify(r));}
   // 4. 계약 조항: 연봉 인상·바이아웃을 걸면 선수가 더 낮은 연봉에 응함 · 계약에 남고 시즌이 바뀌면 연봉 인상 · 바이아웃 금액을 내는 구단이 나오면 이적
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const q=ut.roster.map(id=>S.players[id]).filter(x=>!SL.isFgn(x)&&x.contract.years>=2).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a))[3];q.contract.years=1;

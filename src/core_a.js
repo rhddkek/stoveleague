@@ -2,7 +2,7 @@
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v183';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v184';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -73,10 +73,10 @@ const BAL={
   POST_PRIZE:{champ:60000,runner:25000,po:12000,semi:8000,wc:5000},   // 포스트시즌 배당금(만원) — 탈락 단계별
   AI_CASH_CAP:{1:600000},          // AI 구단 시즌 말 보유 한도(넘는 돈의 70%는 모기업 회수) — 이적시장 예산이 의미 있게
   // 시작 구단 유형 (10개 구단마다 실제 사정에 맞춰 하나씩) — 난이도가 아니라 '다른 고민'
-  ARCH:{youth:{name:'유망주 중심',pitch:'어린 선수가 많아 「내가 키운다」는 맛이 큽니다.',worry:'당장은 이기기 어렵습니다.',tip:'출장 기회를 주며 1~2시즌 뒤를 노리세요.'},
-    popular:{name:'지역 인기 구단',pitch:'관중이 많아 입장 수입과 스폰서가 안정적입니다.',worry:'팬과 구단주의 기대가 높아 목표가 빡빡합니다.',tip:'수입을 영입에 써서 기대에 맞추세요.'},
-    poor:{name:'재정난 구단',pitch:'싼 선수를 찾아 되살리는 재미가 있습니다.',worry:'돈이 거의 없고 비싼 주축 2명의 연봉이 무겁습니다.',tip:'주축을 팔지, 버틸지 첫 결정이 중요합니다.'},
-    vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌부터 가을야구를 노릴 수 있습니다.',worry:'2~3년 안에 세대교체가 급합니다.',tip:'좋을 때 팔고 젊은 선수를 모으세요.'}},
+  ARCH:{youth:{name:'유망주 중심',pitch:'어린 선수가 많아 「내가 키운다」는 맛이 큼',worry:'당장은 이기기 어려움',tip:'출장 기회를 주며 1~2시즌 뒤를 노리기'},
+    popular:{name:'지역 인기 구단',pitch:'관중이 많아 입장 수입과 스폰서가 안정적',worry:'팬과 구단주의 기대가 높아 목표가 빡빡함',tip:'수입을 영입에 써서 기대에 맞추기'},
+    poor:{name:'재정난 구단',pitch:'싼 선수를 찾아 되살리는 재미가 있음',worry:'돈이 거의 없고 비싼 주축 2명의 연봉이 무거움',tip:'주축을 팔지, 버틸지 첫 결정이 중요함'},
+    vet:{name:'노장 중심',pitch:'경험 많은 선수들로 첫 시즌부터 가을야구를 노릴 수 있음',worry:'2~3년 안에 세대교체가 급함',tip:'좋을 때 팔고 젊은 선수를 모으기'}},
   ARCH_OF:['popular','vet','vet','popular','vet','vet','youth','popular','youth','poor'],
   // 한국 10개 구단 = 실제 연고 도시 + 가상 애칭 + 기본 위상만. 실제 구단의 역사(우승 횟수·순위)·구장·색은 쓰지 않는다
   // 시작 전력은 기본 위상에서만 나온다: 위상 15점 = 주전 평균 약 0.9 → 144경기 모의 10회: 위상 90 구단 승률 .58, 위상 30 구단 .40
@@ -590,10 +590,10 @@ function entryEnsure(t,pid){t.entry=t.entry||[];if(t.entry.includes(pid))return 
   const core=new Set([...t.lineup,...t.rotation,...(t.closer!=null?[t.closer]:[]),...Object.keys(t.rpRole||{}).map(Number)]);const out=t.entry.filter(id=>!core.has(id)&&isPitcher(S.players[id])===isPitcher(p)).sort((a,b)=>calcOvr(S.players[a])-calcOvr(S.players[b]))[0];if(out==null)return {ok:false};
   t.entry=t.entry.filter(x=>x!==out);t.lineup=t.lineup.filter(x=>x!==out);delete t.pos[out];t.rotation=t.rotation.filter(x=>x!==out);t.bullpen=t.bullpen.filter(x=>x!==out);if(t.closer===out)t.closer=null;t.entry.push(pid);applyEntry(t);return {ok:true,down:S.players[out]};}
 // 1군 등록·말소 (유저)
-function entryUp(pid,downPid){const t=userTeam();const p=S.players[pid];if(!p||p.teamId!==t.id||!t.roster.includes(pid))return '선수단(1군·2군) 선수가 아닙니다. 육성군은 먼저 2군으로 올리세요.';if(inEntry(t,pid))return '이미 1군 엔트리에 있습니다.';if(p.inj)return '부상 중인 선수는 등록할 수 없습니다.';if(!fgnCanEnter(Object.assign({},t,{entry:(t.entry||[]).filter(x=>x!==downPid)}),p))return `1군 외국인 규정 — ${fgnRuleText(t.league)}. 다른 외국인을 먼저 내리세요.`;   /* v155 */
-  if(t.entry.length>=entryCap(t)){if(downPid==null)return `1군 엔트리가 가득 찼습니다 (${entryCap(t)}명). 내릴 선수를 고르세요.`;const r=entryDown(downPid,true);if(r)return r;}
+function entryUp(pid,downPid){const t=userTeam();const p=S.players[pid];if(!p||p.teamId!==t.id||!t.roster.includes(pid))return '선수단(1군·2군) 선수가 아님 · 육성군은 먼저 2군으로 올리기';if(inEntry(t,pid))return '이미 1군 엔트리에 있음';if(p.inj)return '부상 중인 선수는 등록 불가';if(!fgnCanEnter(Object.assign({},t,{entry:(t.entry||[]).filter(x=>x!==downPid)}),p))return `1군 외국인 규정 — ${fgnRuleText(t.league)}. 다른 외국인을 먼저 내리기`;   /* v155 */
+  if(t.entry.length>=entryCap(t)){if(downPid==null)return `1군 엔트리가 가득 참 (${entryCap(t)}명). 내릴 선수를 고르기`;const r=entryDown(downPid,true);if(r)return r;}
   t.entry.push(pid);applyEntry(t);fixLineup(t);news(`[1군 등록] ${p.name}`,'contract');return null;}
-function entryDown(pid,quiet){const t=userTeam();const p=S.players[pid];if(!p||!inEntry(t,pid))return '1군 엔트리 선수가 아닙니다.';
-  if(t.league==='US'&&S.phase==='season'&&!p.inj){if(p.r5&&p.r5.s===S.season)return `룰5로 데려온 선수는 시즌 내내 1군에 둬야 합니다 — 내리려면 원 소속 구단에 돌려줘야 합니다(선수 카드 ⋯ → 룰5 반환).`;if(!optUse(p))return `${p.name}: 옵션 ${BAL.LR.US.opt}년을 다 써서 2군으로 내릴 수 없습니다 — 선수 카드 ⋯ → 지명할당(웨이버)`;}   /* v155: 미국 옵션 · 룰5 */
+function entryDown(pid,quiet){const t=userTeam();const p=S.players[pid];if(!p||!inEntry(t,pid))return '1군 엔트리 선수가 아님';
+  if(t.league==='US'&&S.phase==='season'&&!p.inj){if(p.r5&&p.r5.s===S.season)return `룰5로 데려온 선수는 시즌 내내 1군에 둬야 함 — 내리려면 원 소속 구단에 돌려줘야 함(선수 카드 ⋯ → 룰5 반환)`;if(!optUse(p))return `${p.name}: 옵션 ${BAL.LR.US.opt}년을 다 써서 2군으로 내릴 수 없음 — 선수 카드 ⋯ → 지명할당(웨이버)`;}   /* v155: 미국 옵션 · 룰5 */
   t.entry=t.entry.filter(x=>x!==pid);t.lineup=t.lineup.filter(x=>x!==pid);delete t.pos[pid];t.rotation=t.rotation.filter(x=>x!==pid);t.bullpen=t.bullpen.filter(x=>x!==pid);if(t.closer===pid)t.closer=null;if(t.rpRole)delete t.rpRole[pid];if(t.locks)delete t.locks[pid];
   applyEntry(t);if(!quiet){fixLineup(t,{noFill:true});news(`[1군 말소] ${p.name} → 2군`,'contract');}return null;}

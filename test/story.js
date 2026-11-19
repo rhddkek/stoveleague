@@ -28,7 +28,7 @@ b2.every(l=>!l||/휴식/.test(l.f.join()))&&S.players[ov[0]].cond>=3/* v142: 시
 SL.newGame(77,2);S=SL.state();const old=SL.userTeam().roster.map(id=>S.players[id]).sort((a,b)=>b.age-a.age)[0];old.age=40;old.exUser=true;while(S.phase==='season')SL.playDayAuto();
 S.staffPool.some(c=>c.alumni===old.id)?ok(`은퇴한 우리 출신 ${old.name} → 코치 시장 등장`):bad('출신 코치 없음');
 S.mgr.rep=90;S.mgr.seasons.forEach(m=>{m.devHits=3;m.goalMet=true;});SL.genJobOffers();
-if(S.jobOffers.length){const r=S.jobOffers[0].reason;/원합니다|요청합니다/.test(r)?ok('감독 제의 이유: '+r):bad('제의 이유 '+r);}else console.log('  (제의 없음 — 이유 문구 미확인)');
+if(S.jobOffers.length){const r=S.jobOffers[0].reason;/원합니다|요청합니다|원함|요청함/.test(r)?ok('감독 제의 이유: '+r):bad('제의 이유 '+r);}else console.log('  (제의 없음 — 이유 문구 미확인)');
 console.log('[5] R003: 유형별 목표 · 약점 설명 범위');
 SL.newGame(1234,AIx('youth'),{arch:true});S=SL.state();let G=S.mgr.cur.goal;(!G.kind||G.kind==='rank')&&/위 이내/.test(G.text)?ok('창원·대구 등 어린 선수 많은 구단도 순위 목표: '+G.text):bad('목표 '+JSON.stringify(G));
 const gpr=SL.goalProgress();gpr&&gpr.parts.length>=1?ok('목표 진행: '+gpr.parts.map(x=>x.text).join(' · ')):bad('진행 표시');

@@ -214,7 +214,7 @@ function parkOf(t,modX){if(!t)return {hr:1,xb:1,dim:{l:98,c:121,r:98},name:'구�
   const hr=Math.round(clamp(1+(R.eAvg-R.eff(d))*0.028,0.92,1.08)*100)/100;const xb=Math.round(clamp(1+(d.c-R.c)*0.012,0.96,1.04)*100)/100;
   const city=t.name.split(' ')[0];const nick=t.name.split(' ').slice(1).join(' ');const shared=t.league==='KR'&&TEAM_NAMES.KR.filter(x=>x[0].split(' ')[0]===city).length>1;const notes=[];if(d.l<=96)notes.push('좌측 펜스 짧음');if(d.r<=96)notes.push('우측 펜스 짧음');if(d.c>=123)notes.push('중앙 깊음 · 2 · 3루타 ↑');if(d.fence)notes.push('외야 펜스 높음');if(d.wind)notes.push('외야 바람 · 타구 ↑');if(!notes.length)notes.push('표준 규격');
   return PARK_MEMO[key]={name:shared?`${nick} ${d.sfx}`:`${city} ${d.sfx}`,hr,xb,dim:{l:d.l,c:d.c,r:d.r},fence:!!d.fence,wind:!!d.wind,notes,mod,tag:hr>=1.04?'타자 친화':hr<=0.96?'투수 친화':'중립'};}
-function parkRemodel(mod){const t=userTeam();mod=mod<0?-1:mod>0?1:0;if((t.parkMod||0)===mod)return '이미 그 상태입니다.';if(S.phase!=='offseason')return '구장 공사는 스토브리그(겨울)에만 할 수 있습니다.';const cost=BAL.PARK.cost;if(t.cash<cost)return `현금이 부족합니다 (공사비 ${money(cost)}).`;t.cash-=cost;t.fin.facility=(t.fin.facility||0)+cost;t.parkMod=mod;const pk=parkOf(t);news(`홈구장 공사 — ${pk.name} ${mod<0?'펜스를 당겼습니다 (타자 쪽)':mod>0?'펜스를 밀었습니다 (투수 쪽)':'원래 규격으로 되돌렸습니다'} · 공사비 ${money(cost)}`,'club');return null;}
+function parkRemodel(mod){const t=userTeam();mod=mod<0?-1:mod>0?1:0;if((t.parkMod||0)===mod)return '이미 그 상태';if(S.phase!=='offseason')return '구장 공사는 스토브리그(겨울)에만 할 수 있음';const cost=BAL.PARK.cost;if(t.cash<cost)return `현금이 부족함 (공사비 ${money(cost)})`;t.cash-=cost;t.fin.facility=(t.fin.facility||0)+cost;t.parkMod=mod;const pk=parkOf(t);news(`홈구장 공사 — ${pk.name} ${mod<0?'펜스를 당김 (타자 쪽)':mod>0?'펜스를 밀었음 (투수 쪽)':'원래 규격으로 되돌림'} · 공사비 ${money(cost)}`,'club');return null;}
 // 비거리 dist가 다른 한국 구장에선 넘어갔을지 (그 방향 펜스가 더 가까운 구장 중 가장 유명한 곳)
 function parkNear(side,dist,homeId){const home=S.teams[homeId];const c=krTeams().filter(t=>t.id!==homeId).map(t=>({t,p:parkOf(t)})).filter(x=>x.p.dim[side]+(x.p.fence?1:0)<dist).sort((a,b)=>presOf(b.t)-presOf(a.t)||a.p.dim[side]-b.p.dim[side]);return c[0]?c[0].p:null;}
 const KO_POS={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수'};
@@ -305,14 +305,14 @@ function autoSteal(lg){if(lg.done||lg.balls||lg.strikes||lg.stl===lg.paCount)ret
   if(rnd()<stealP(lg,r.pid)-(from===1?0.06:0)){b[from+1]=r;b[from]=null;rb.sb++;ev={type:'sb',text:`${nm}, ${base} 도루 성공`};}
   else{b[from]=null;rb.cs++;addOut(lg,1);ev={type:'cs',text:`${nm}, ${base} 도루 실패 — 포수 송구에 아웃 (${lg.outs}아웃)`};}
   ev.sc0=sc0;ev.on=on0;ev.o0=o0;ev.steal=true;glog(lg,ev.text,ev.type,lg.userGame?{pid:r.pid,pit:lg.pitcher[1-bs],sc0,sc1:lg.score.slice(),on:on0,o0}:null);lg.last=ev;if(lg.outs>=3)endHalf(lg);return ev;}
-function tacOk(lg,side,k){const T=TACTICS[k];if(!T||lg.done)return {ok:false,why:'경기 중이 아닙니다.'};const atBat=lg.half===side;const b=lg.bases;
-  if(T.side==='off'&&!atBat)return {ok:false,why:'공격 때만 쓸 수 있습니다.'};if(T.side==='def'&&atBat)return {ok:false,why:'수비 때만 쓸 수 있습니다.'};
-  if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1·2루 주자 필요'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않습니다.'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험합니다 (파울이면 삼진).'};}
-  if(k==='steal'){if(!((b[0]&&!b[1])||(b[1]&&!b[2])))return {ok:false,why:'앞 베이스가 빈 1루·2루 주자가 있어야 합니다.'};}
-  if(k==='dsteal'){if(!(b[0]&&b[1]&&!b[2]))return {ok:false,why:'1·2루에 주자가 있고 3루가 비어야 합니다.'};}
-  if(k==='hitrun'){if(!b[0]||b[1])return {ok:false,why:'1루에만 주자가 있을 때 씁니다.'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 의미가 적습니다.'};}
+function tacOk(lg,side,k){const T=TACTICS[k];if(!T||lg.done)return {ok:false,why:'경기 중이 아님'};const atBat=lg.half===side;const b=lg.bases;
+  if(T.side==='off'&&!atBat)return {ok:false,why:'공격 때만 쓸 수 있음'};if(T.side==='def'&&atBat)return {ok:false,why:'수비 때만 쓸 수 있음'};
+  if(k==='bunt'){if(!(b[0]||b[1]))return {ok:false,why:'1·2루 주자 필요'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 보내기 번트를 하지 않음'};if(lg.strikes>=2)return {ok:false,why:'2스트라이크에는 번트가 위험함 (파울이면 삼진)'};}
+  if(k==='steal'){if(!((b[0]&&!b[1])||(b[1]&&!b[2])))return {ok:false,why:'앞 베이스가 빈 1루·2루 주자가 있어야 함'};}
+  if(k==='dsteal'){if(!(b[0]&&b[1]&&!b[2]))return {ok:false,why:'1·2루에 주자가 있고 3루가 비어야 함'};}
+  if(k==='hitrun'){if(!b[0]||b[1])return {ok:false,why:'1루에만 주자가 있을 때 씀'};if(lg.outs>=2)return {ok:false,why:'2아웃에는 의미가 적음'};}
   if(k==='team'){if(!(b[1]||b[2]))return {ok:false,why:'득점권 주자 필요'};}
-  if(k==='ibb'){if(lg.balls||lg.strikes)return {ok:false,why:'타석 시작 때만 고의사구를 할 수 있습니다.'};}
+  if(k==='ibb'){if(lg.balls||lg.strikes)return {ok:false,why:'타석 시작 때만 고의사구를 할 수 있음'};}
   return {ok:true};}
 function setTactic(lg,side,k){const c=tacOk(lg,side,k);if(!c.ok)return {ok:false,msg:c.why};const T=TACTICS[k];
   if(!T.now){lg.tac={k,pa:lg.paCount};glog(lg,`[작전] ${T.ko}`,'tac');return {ok:true,msg:`${T.ko} 지시 — 이번 타석에 적용`};}

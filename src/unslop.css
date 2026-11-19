@@ -1145,3 +1145,15 @@ body:has(.gamev) .toast{top:auto!important;bottom:calc(6px + env(safe-area-inset
 .wltag.w3{color:var(--sel);border-color:var(--sel)}
 .wltag.w1{opacity:.75}
 .wlrow{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* v184 (R155): 노랑 채움은 화면마다 하나 — 머리줄 「▶ 경기」 · 목록 줄 단추 · 고르는 카드 단추는 테두리 */
+:root.ea body:not(.ingame) .club .nextb:not(.must),
+:root.ea body:not(.ingame) :is(.prow,.drrow,.lrow,tr) button:is(.primary,.go):not(.tgl):not(.on):not(:disabled),
+:root.ea body:not(.ingame) button.pick:not(:disabled){background:transparent!important;color:var(--acc,#9a6b00)!important;border:1px solid var(--acc,#c99a1c)!important;box-shadow:none!important}
+:root.ea[data-theme="light"] body:not(.ingame) :is(.club .nextb:not(.must),button.pick,.prow button.primary:not(.tgl)){color:#15171c!important}
+:root.ea body:not(.ingame) .decide button.primary:not(.tgl){background:transparent!important;color:var(--acc,#9a6b00)!important;border:1px solid var(--acc,#c99a1c)!important}
+@media (max-width:699px){.stvt.tcol .tn{width:44%}.stvt.tcol th{white-space:nowrap}}   /* v184: 트레이드 두 칸 표 머리 글자 겹침 */
+body.ingame .chainpill{display:none!important}   /* v184: 경기 중엔 「할 일 n건 · 다음」 알약이 아래 메뉴를 가리지 않게 */
+:root.ea[data-theme="light"] body:not(.ingame) :is(.club .nextb:not(.must),button.pick:not(:disabled),.prow button.primary:not(.tgl):not(.on),.drrow button.go,.decide button.primary:not(.tgl)){background:transparent!important;color:#15171c!important;border:1px solid #c99a1c!important}   /* v184: 밝은 색에서도 테두리 */
+:root.ea body:not(.ingame) :is(.dg2 button,.drow2 button.primary,.decide2 button.primary){background:transparent!important;color:var(--acc,#9a6b00)!important;border:1px solid var(--acc,#c99a1c)!important}
+:root.ea[data-theme="light"] body:not(.ingame) :is(.dg2 button,.drow2 button.primary,.decide2 button.primary){color:#15171c!important;border-color:#c99a1c!important}

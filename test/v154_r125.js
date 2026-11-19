@@ -23,7 +23,7 @@ const {chromium}=require('playwright');const path=require('path');
     k.fa===`${k.y}시즌 뒤`&&k.n>=5&&k.f1===k.nv?ok(`${W} 선수 카드: 「FA ${k.fa}」 · 훈련 ${k.n}가지 중 고르면 바로 적용 (${k.f0} → ${k.nv}) · 줄 ${k.keys}`):bad(W+' 선수 카드 '+JSON.stringify(k));
     // 5. 육성군 단추: 「2군 등록」
     if(vp.m){const d=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();if(!ut.dev.length){const y=ut.roster.map(id=>S.players[id]).filter(q=>!ut.lineup.includes(q.id)&&!ut.rotation.includes(q.id)&&!SL.isFgn(q)).sort((a,b)=>a.age-b.age);for(const q of y){if(!SL.demoteDev(q.id))break;}}UI.setTab('dev');UI.setSub('dev','dev');const B=[...document.querySelectorAll('#app button')].filter(x=>/promote/.test(x.getAttribute('onclick')||''));const lab=B.map(x=>x.textContent.trim());const n0=ut.roster.length;if(B[0])B[0].click();return {lab,up:ut.roster.length-n0,toast:(document.getElementById('toast')||{}).textContent||''};});
-      d.lab.length&&d.lab.every(x=>x==='2군 등록')&&d.up===1&&/^(2군|1군)에 등록했습니다\.$/.test(d.toast)?ok(`육성군: 단추 「2군 등록」 → 알림 「${d.toast}」`):bad('육성군 단추 '+JSON.stringify(d));}
+      d.lab.length&&d.lab.every(x=>x==='2군 등록')&&d.up===1&&/^(2군|1군)에 등록(했습니다\.)?$/.test(d.toast)?ok(`육성군: 단추 「2군 등록」 → 알림 「${d.toast}」`):bad('육성군 단추 '+JSON.stringify(d));}
     await c.close();}
   if(errs.length)bad('페이지 오류: '+errs.slice(0,3).join(' / '));
   await b.close();console.log(fails?`실패 ${fails}건`:'v154 통과');process.exit(fails?1:0);})();
