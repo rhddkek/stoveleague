@@ -1,33 +1,31 @@
 // v187 (R158): GPT 시안대로 — 2등신 캐릭터(픽셀랩) · 폰 감독실 · 위 탭 밑줄 · 명단 3칸 + 자세히 · 중계 세로(뒤쪽 시점 구장)
 const fs=require('fs');const path=require('path');let fails=0;const bad=m=>{fails++;console.log('  FAIL:',m);};const ok=m=>console.log('  OK',m);
 const ROOT=path.resolve(__dirname,'..');
-// 0. 2등신 그림: 64×64 · 네 분류(ea · wh · bl · la) · 밤 구장 그림
-{const d=ROOT+'/assets/chibi';const fl=fs.existsSync(d)?fs.readdirSync(d).filter(f=>f.endsWith('.png')):[];const cats=['ea','wh','bl','la'].filter(c=>!fl.some(f=>f.startsWith(c+'-')));
-  const sz=fl.filter(f=>{const b=fs.readFileSync(d+'/'+f);return b.readUInt32BE(16)!==64||b.readUInt32BE(20)!==64;});const park=fs.existsSync(ROOT+'/assets/art/park_night.png');
-  fl.length>=24&&!cats.length&&!sz.length&&park?ok(`2등신 ${fl.length}장(64×64 · 네 분류) · 밤 구장 그림`):bad('그림 '+JSON.stringify({n:fl.length,cats,sz,park}));}
+// 0. (v188, R160) 2등신 그림은 뺌 — 얼굴은 선수 카드와 같은 face() 하나 · 밤 구장 그림은 그대로
+{const chb=fs.existsSync(ROOT+'/assets/chibi');const park=fs.existsSync(ROOT+'/assets/art/park_night.png');!chb&&park?ok('2등신 그림 없음(얼굴 하나로) · 밤 구장 그림'):bad('그림 '+JSON.stringify({chb,park}));}
 (async()=>{const {chromium}=require('playwright');const b=await chromium.launch();const errs=[];
   const mk=async(w,h,mob)=>{const p=await (await b.newContext({viewport:{width:w,height:h},isMobile:mob,hasTouch:mob})).newPage();p.on('pageerror',e=>errs.push(e.message));
     await p.goto('file://'+ROOT+'/stoveleague.html?test=1');await p.waitForTimeout(600);
     await p.evaluate(()=>{UI.pickLg('KR');UI.pickTeam(2);UI.newGame();});await p.waitForTimeout(300);
     await p.evaluate(()=>{UI.tutSkip&&UI.tutSkip();UI.closeModal();UI.setTab('home');});await p.waitForTimeout(300);
     await p.evaluate(()=>{let k=0;while(SL.state().phase!=='season'&&k++<12){UI.startSeason?UI.startSeason():UI.advanceWeek();UI.closeModal();}let j=0;while(!SL.userGameToday()&&j++<5){UI.autoDays(1);UI.closeModal();}UI.closeModal();UI.setTab('home');});
-    await p.waitForFunction(()=>UI.chbOn&&UI.chbOn(),null,{timeout:5000}).catch(()=>{});await p.evaluate(()=>UI.setTab('home'));await p.waitForTimeout(300);return p;};
+    await p.evaluate(()=>UI.setTab('home'));await p.waitForTimeout(300);return p;};
   const p=await mk(390,844,true);
   // 1. 폰 감독실: 구장 그림 위 「우리 vs 상대」 + 양쪽 선발 2등신 · [경기 보기 | 7경기 자동 ▾] · 아래 줄 목록 4줄 안
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const g=SL.userGameToday();const op=S.teams[g.home===ut.id?g.away:g.home];const c=document.querySelector('.gx');if(!c)return {gx:false};
-      const t=(c.querySelector('.gxt')||{}).textContent||'';const exp=`${ut.name.split(' ')[0]} vs ${op.name.split(' ')[0]}`;const chb=c.querySelectorAll('.gxvs .chb').length;const go=!!c.querySelector('button.gold[onclick="UI.startGame()"]');const auto=!!c.querySelector('button[onclick^="UI.autoRun(7"]');
+      const t=(c.querySelector('.gxt')||{}).textContent||'';const exp=`${ut.name.split(' ')[0]} vs ${op.name.split(' ')[0]}`;const chb=c.querySelectorAll('.gxvs .gxf .av').length;const go=!!c.querySelector('button.gold[onclick="UI.startGame()"]');const auto=!!c.querySelector('button[onclick^="UI.autoRun(7"]');
       const rows=[...document.querySelectorAll('.tiles.hrows .tile')].map(x=>x.textContent);return {gx:true,t:t.replace(/\s+/g,' ').trim(),exp,chb,go,auto,rows:rows.length,inbox:rows.some(x=>/받은 소식/.test(x)),bot:Math.round(c.getBoundingClientRect().bottom)};});
-    r.gx&&r.t===r.exp&&r.chb===2&&r.go&&r.auto&&r.rows>=1&&r.rows<=4&&r.inbox&&r.bot<700?ok(`폰 감독실: 「${r.t}」 · 선발 2등신 ${r.chb} · [경기 보기][7경기 자동] · 아래 줄 ${r.rows}개(받은 소식 포함) · 카드 끝 ${r.bot}px`):bad('감독실 '+JSON.stringify(r));}
+    r.gx&&r.t===r.exp&&r.chb===2&&r.go&&r.auto&&r.rows>=1&&r.rows<=4&&r.inbox&&r.bot<700?ok(`폰 감독실: 「${r.t}」 · 선발 얼굴 ${r.chb} · [경기 보기][7경기 자동] · 아래 줄 ${r.rows}개(받은 소식 포함) · 카드 끝 ${r.bot}px`):bad('감독실 '+JSON.stringify(r));}
   // 2. 위 탭 = 밑줄(바탕 없음 · 노랑 글자 · 안쪽 밑줄)
   {await p.evaluate(()=>UI.setTab('roster'));await p.waitForTimeout(300);const r=await p.evaluate(()=>{const b=document.querySelector('.htabs button.on');if(!b)return {on:false};const s=getComputedStyle(b);return {on:true,bg:s.backgroundColor,col:s.color,sh:s.boxShadow};});
     r.on&&/rgba\(0, 0, 0, 0\)|transparent/.test(r.bg)&&/242, 193, 78/.test(r.col)&&/inset/.test(r.sh)?ok('위 탭: 바탕 없음 · 노랑 글자 · 밑줄'):bad('탭 '+JSON.stringify(r));}
   // 3. 명단 3칸: 선수 · 종합 · 상태 · 종합 = 실제 값 · 누르면 펼침(선수 카드 ›) · 「자세히」 = 예전 전체 표 · 「간단히」로 돌아옴
   {const r=await p.evaluate(async()=>{const S=SL.state();const ut=SL.userTeam();const h=[...document.querySelectorAll('.sqc .sqh span')].map(x=>x.textContent);const rows=[...document.querySelectorAll('.sqc .sqr')];
-      const ovrOk=rows.every(x=>{const id=+x.getAttribute('onclick').match(/\d+/)[0];return +x.querySelector('.sqo').textContent===Math.round(SL.calcOvr(S.players[id]));});const chb=rows.filter(x=>x.querySelector('.chb')).length;
+      const ovrOk=rows.every(x=>{const id=+x.getAttribute('onclick').match(/\d+/)[0];const o=x.querySelector('.sqo');const v=Math.round(SL.calcOvr(S.players[id]));return +o.dataset.v===v&&o.textContent.trim()===SL.gradeOf(v)+v&&getComputedStyle(o).fontFamily.indexOf('SLPixel')<0;});const chb=rows.filter(x=>x.querySelector('.sqn .av')).length;
       rows[0].click();await new Promise(r=>setTimeout(r,150));const x=document.querySelector('.sqx');const card=!!(x&&x.querySelector('[onclick^="UI.openPlayer("]'));
       document.querySelector('.sqfull').click();await new Promise(r=>setTimeout(r,150));const full=!!document.querySelector('table.rosterq2');const back=[...document.querySelectorAll('button')].find(b=>/간단히/.test(b.textContent));back&&back.click();await new Promise(r=>setTimeout(r,150));
       return {h,n:rows.length,entry:ut.entry.length,ovrOk,chb,x:!!x,card,full,back:!!document.querySelector('.sqc')};});
-    r.h.join()==='선수,종합,상태'&&r.n===r.entry&&r.ovrOk&&r.chb===r.n&&r.x&&r.card&&r.full&&r.back?ok(`명단 3칸: ${r.n}명 = 1군 · 종합 = 실제 값 · 2등신 ${r.chb} · 펼침 → 선수 카드 › · 자세히 ↔ 간단히`):bad('명단 '+JSON.stringify(r));}
+    r.h.join()==='선수,종합,상태'&&r.n===r.entry&&r.ovrOk&&r.chb===r.n&&r.x&&r.card&&r.full&&r.back?ok(`명단 3칸: ${r.n}명 = 1군 · 종합 = 등급 + 실제 값(보통 글꼴) · 얼굴 ${r.chb} · 펼침 → 선수 카드 › · 자세히 ↔ 간단히`):bad('명단 '+JSON.stringify(r));}
   // 4. 중계 세로: 구장 이름 머리 · 큰 점수 = 실제 · 뒤쪽 시점(기울인 판 + 밤 구장) · 투수/타자 줄 = 오늘 칸과 같은 선수 · 아이콘 단추 4 · 한 화면 안
   {await p.evaluate(()=>{UI.setTab('home');UI.startGame();});await p.waitForTimeout(1200);
     const r=await p.evaluate(()=>{const v=document.querySelector('.cmv.gp');if(!v)return {gp:false};const S=SL.state();const lg=S.liveGame;const sc=[...v.querySelectorAll('.cmsb .tm b')].map(x=>+x.textContent);

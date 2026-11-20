@@ -110,7 +110,7 @@ function squadList(ut){const f=ui.sqf=ui.sqf||{grp:'E',kind:'A',sort:'ovr',dir:'
   const stc=p=>f.grp!=='E'?'':(ut.lineup.includes(p.id)||ut.rotation.includes(p.id)||ut.closer===p.id)?'rqst':'rqbn';
   if(mflow()&&!isWide()&&!ui.sqFull){const stx=p=>p.inj?['부상','bad']:!inSeason?['-','']:condPct(p)<70?['피로','warn']:['정상',''];
     h+=`<div class="sqc"><div class="sqh"><span>선수</span><span>종합</span><span>상태</span></div>${ps.map(p=>{const o=ui.sqOpen===p.id;const sx=stx(p);const pct=condPct(p);
-      return `<button class="sqr${o?' on':''} ${stc(p)}" onclick="UI.sqOpen(${p.id})"><span class="sqn">${chibi(p,32,'h')}<b>${esc(p.name)}</b>${nfl(p)}<em>${esc(p.pos)}</em></span><b class="sqo pxf">${Math.round(SL.calcOvr(p))}</b><span class="sqs ${sx[1]}">${o?'▲':sx[0]}</span></button>`+(o?`<div class="sqx">${chibi(p,64,'f')}<div class="sqxi"><span>${p.age}세 · ${esc(role(p))}</span>${inSeason&&!p.inj?`<span class="sqxb">컨디션 ${pct}%<i><u style="width:${pct}%"></u></i></span>`:p.inj?`<span class="sqxb bad">부상 · 복귀까지 ${p.inj.left}일</span>`:''}</div><button class="sqxg" onclick="UI.openPlayer(${p.id})">선수 카드 ›</button></div>`:'');}).join('')}</div>`;
+      return `<button class="sqr${o?' on':''} ${stc(p)}" onclick="UI.sqOpen(${p.id})"><span class="sqn">${face(p,32)}<b>${esc(p.name)}</b>${nfl(p)}<em>${esc(p.pos)}</em></span><b class="sqo" data-v="${Math.round(SL.calcOvr(p))}">${gv(SL.calcOvr(p))}</b><span class="sqs ${sx[1]}">${o?'▲':sx[0]}</span></button>`+(o?`<div class="sqx">${face(p,64)}<div class="sqxi"><span>${p.age}세 · ${esc(role(p))}</span>${inSeason&&!p.inj?`<span class="sqxb">컨디션 ${pct}%<i><u style="width:${pct}%"></u></i></span>`:p.inj?`<span class="sqxb bad">부상 · 복귀까지 ${p.inj.left}일</span>`:''}</div><button class="sqxg" onclick="UI.openPlayer(${p.id})">선수 카드 ›</button></div>`:'');}).join('')}</div>`;
     return h+`<button class="sqfull" onclick="UI.sqFull(1)">자세히 · 기록 열 ›</button>`;}
   if(mflow()&&!isWide())h+=`<button class="sqfull" onclick="UI.sqFull(0)">‹ 간단히</button>`;
   /* v140 (R111): 명단이 가장 많은 지표 — PC는 나이 · 잠재 열, 타자/투수 칸은 이번 시즌 기록 열(누르면 정렬). 휴대폰은 네 칸 그대로, 타자/투수 칸만 상태 대신 기록 */
@@ -2873,7 +2873,7 @@ function cutScan(){try{const ut=SL.userTeam();if(!ut)return;const R=S.lastRecap;
 function todayPhone(ut,g,home,opp,pi){const gi=S.schedule.indexOf(g);let pm=null;try{pm=SL.preMatch(gi);}catch(e){}
   const spP=x=>x&&x.sp?S.players[x.sp.pid]:null;const mySp=spP(pm&&pm.me)||null,opSp=spP(pm&&pm.op)||null;const C=SL.careerStages();const m=ui.lastRun===999?999:ui.lastRun===1?1:7;
   const nth=S.schedule.filter(x=>x.res&&((x.home===ut.id&&x.away===opp.id)||(x.away===ut.id&&x.home===opp.id))&&!x.post).length+1;const sn=t=>esc(t.name.split(' ')[0]);
-  const side=(p,t)=>p?chibi(p,64,'h'):`<span class="chb h gxe">${emblem(t,40)}</span>`;
+  const side=(p,t)=>`<span class="gxf">${p?face(p,64):emblem(t,40)}</span>`;
   return `<div class="card today cmp tdx gx${pi?' postc':''}"><div class="gxhero${artHas('post')?' art art-post':''}"><button class="tdcar" onclick="UI.sheet('career')">커리어 ${C.done}/${C.list.length} ›</button>
     <div class="tdvs gxvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${side(mySp,ut)}<b class="gxt">${sn(ut)} <i>vs</i> ${sn(opp)}</b>${side(opSp,opp)}</div>
     <span class="gxpill">${pi?esc(pi.title):`${nth}차전`} · ${home?'홈':'원정'}</span></div>
@@ -2885,21 +2885,11 @@ A.recOpen=function(){modal(`<div class="sheet"><div class="shh"><b>코치 추천
 A._cut=(k,o)=>bigCut(k,o);A._cutGame=lg=>cutGame(lg);   /* 검사용 */
 // ===================== v187 (R158): 2등신 캐릭터 — 목록 · 감독실 · 중계 (선수 카드 · 큰 컷은 흉상 그대로) =====================
 // assets/chibi/<ea|wh|bl|la>-NN.png (64px, 파란 모자 · 소매 → 구단 색) · 국적은 PX_NAT 분류, 같은 선수는 늘 같은 그림(idHash 대신 hsh)
-const CHB={im:[],cat:[],url:{},ready:false};
-(function(){try{const L=(typeof ASSETS!=='undefined'&&ASSETS.chibi)||[];if(!L.length||typeof document==='undefined'||/jsdom/i.test(navigator.userAgent))return;let n=0;L.forEach((c,i)=>{const im=new Image();CHB.cat[i]=c.c;im.onload=()=>{if(++n===L.length){CHB.ready=true;try{if(typeof S!=='undefined'&&S&&!S.liveGame)render();}catch(e){}}};im.src=c.src;CHB.im[i]=im;});}catch(e){}})();
-function chbIdx(p){const cats=(PX_NAT[p.nat]||['ea']).map(c=>c==='cb'?'la':c);const pool=[];CHB.cat.forEach((c,i)=>{if(cats.includes(c))pool.push(i);});const L=pool.length?pool:CHB.cat.map((c,i)=>i);return L[hsh(p.id+11)%L.length];}
-function chbUrl(i,color){const key=i+'|'+color;if(CHB.url[key])return CHB.url[key];const im=CHB.im[i];const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.drawImage(im,0,0);
-  const d=x.getImageData(0,0,64,64),a=d.data;const [th,ts,tl]=hexHsl(color);for(let j=0;j<a.length;j+=4){if(a[j+3]<100)continue;const [h,s2,l]=hexHsl('#'+[a[j],a[j+1],a[j+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));if(h>0.53&&h<0.72&&s2>0.35&&l>0.12){const nl=Math.max(0.06,Math.min(0.92,l*(tl/0.42)));const [r,g,b]=hslRgb(th,Math.max(ts,0.35),nl);a[j]=r;a[j+1]=g;a[j+2]=b;}}x.putImageData(d,0,0);
-  return CHB.url[key]=c.toDataURL();}
-// mode 'h' = 머리만(모자 · 얼굴, 36×36 잘라 크게) · 'f' = 전신
-function chibi(p,size,mode){if(!p)return '';if(!CHB.ready)return face(p,size);const t=p.teamId!=null&&S.teams[p.teamId]?S.teams[p.teamId]:SL.userTeam();const u=chbUrl(chbIdx(p),(t&&t.color)||'#2f5bd3');
-  if(mode==='f')return `<img class="chb f" alt="" src="${u}" width="${size}" height="${size}" data-pid="${p.id}">`;
-  const k=size/36;return `<span class="chb h" data-pid="${p.id}" style="width:${size}px;height:${size}px;background-image:url(${u});background-size:${Math.round(64*k)}px ${Math.round(64*k)}px;background-position:${-Math.round(14*k)}px ${-Math.round(1*k)}px"></span>`;}
-A.chbOn=()=>CHB.ready;
+/* v187 (R160 · 광우: 「초상화 넣을 거면 선수 정보 안의 얼굴로 통일」): 2등신 그림은 뺌 — 목록 · 감독실 · 중계도 face() 하나 */
 A.sqOpen=function(id){ui.sqOpen=ui.sqOpen===id?null:id;render();};A.sqFull=function(v){ui.sqFull=!!v;render();};
 // v187 (R158): 휴대폰 세로 중계 판정 · 투수/타자 줄
 function cmPort(){try{return !isWide()&&innerWidth<700&&innerHeight>innerWidth;}catch(e){return false;}}
-function cmDuo(lg,B,P){const row=(p,k)=>p?`<button class="cdr" onclick="UI.openPlayer(${p.id})">${chibi(p,40,'h')}<em>${k}</em><b>${esc(p.name)}</b><small>${esc(seasonBrief(p,lg))}</small></button>`:'';return `<div class="cmduo gut">${row(P,'투수')}${row(B,'타자')}</div>`;}
+function cmDuo(lg,B,P){const row=(p,k)=>p?`<button class="cdr" onclick="UI.openPlayer(${p.id})">${face(p,32)}<em>${k}</em><b>${esc(p.name)}</b><small>${esc(seasonBrief(p,lg))}</small></button>`:'';return `<div class="cmduo gut">${row(P,'투수')}${row(B,'타자')}</div>`;}
 
 // ===================== v187 (R159): 전체 메뉴 두 층 — GPT 시안 · 광우 「이거 메뉴 참고」 =====================
 // 첫 층: 찾기 · 바로가기 4 · 대메뉴 6(이름만) · 설정·저장(맨 아래 고정) → 대메뉴를 누르면 같은 창에서 목적지(밑줄 탭 = 묶음).

@@ -22,7 +22,7 @@ const ROOT=path.resolve(__dirname,'..');
     r.nav>=5&&r.navPx===r.nav&&r.li>=1&&r.liPx===r.li&&r.stroke===0?ok(`픽셀 아이콘: 아래 메뉴 ${r.nav}/${r.nav} · 화면 아이콘 ${r.liPx}/${r.li} (선 아이콘 0)`):bad('아이콘 '+JSON.stringify(r));}
   // 4. 폰 시즌 감독실: 구장 띠 없이 경기 카드가 첫 줄 · 선발 = 경기 전 준비 · 선발 그림 64 (v187: GPT 시안 — 엠블럼 대결 → 「우리 vs 상대」 + 2등신)
   {const r=await p.evaluate(()=>{const S=SL.state();const g=SL.userGameToday();const gi=S.schedule.indexOf(g);const pm=SL.preMatch(gi);
-      const first=document.querySelector('.card.today');const hero=!!document.querySelector('.hero2');const nm=[...document.querySelectorAll('.tdx .gxsp b')].map(x=>x.textContent);const fw=[...document.querySelectorAll('.tdx .gxvs>.chb')].map(x=>Math.round(x.getBoundingClientRect().width));
+      const first=document.querySelector('.card.today');const hero=!!document.querySelector('.hero2');const nm=[...document.querySelectorAll('.tdx .gxsp b')].map(x=>x.textContent);const fw=[...document.querySelectorAll('.tdx .gxvs>.gxf')].map(x=>Math.round(x.getBoundingClientRect().width));
       const exp=[pm.me.sp?S.players[pm.me.sp.pid].name:'미정',pm.op.sp?S.players[pm.op.sp.pid].name:'미정'];const go=!!document.querySelector('.tdx button.gold[onclick="UI.startGame()"]');const auto=!!document.querySelector('.tdx button[onclick^="UI.autoRun(7"]');
       const tiles=[...document.querySelectorAll('.tile')].map(x=>x.textContent).join('|');const bot=first?first.getBoundingClientRect().bottom:9999;
       return {tdx:!!document.querySelector('.tdx'),hero,nm,exp,fw,go,auto,inbox:/받은 소식/.test(tiles),bot:Math.round(bot)};});

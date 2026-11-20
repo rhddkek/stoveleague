@@ -1257,8 +1257,6 @@ html.fz-s .bigcut{zoom:1}
 [data-theme="light"] .grsc.gx .s em.w{color:#8a5a00}
 [data-theme="light"] .mkgo .bdg{background:#e4e2dc!important;color:#15171c!important}
 /* v187 (R158): 2등신 캐릭터 */
-.chb{image-rendering:pixelated;flex:none;display:inline-block}
-.chb.h{background-repeat:no-repeat;border-radius:8px;background-color:#232836}
 /* v187 (R158): GPT 시안 — 위 탭은 밑줄(노란 글자 + 노란 밑줄), 상자 · 칸막이 없음 */
 html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) .htabs{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:0!important;gap:0}
 html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) .htabs button{border-left:0!important;font-size:16px;color:var(--muted)!important;background:transparent!important;box-shadow:none!important}
@@ -1271,7 +1269,7 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .gx .gxhero>*{position:relative}
 .gx .tdcar{position:absolute;top:8px;right:8px;width:auto;min-height:0;height:24px;padding:0 8px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(16,19,24,.6);color:#d3d7df;font-size:12px;font-weight:400}
 .gx .gxvs{display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;margin:0 0 8px}
-.gx .gxvs .chb.h{width:64px;height:64px;border:2px solid rgba(255,255,255,.18);background-color:rgba(16,19,24,.7)}
+.gx .gxvs .gxf{width:64px;height:64px;flex:none;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.18);border-radius:8px;overflow:hidden;background:rgba(16,19,24,.7)}.gx .gxvs .gxf>.av{width:64px;height:64px;border-radius:0}
 .gx .gxe{display:flex;align-items:center;justify-content:center;width:64px;height:64px}
 .gx .gxt{font-size:28px;font-weight:600;color:#fff;white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .gx .gxt i{font-style:normal;font-size:18px;color:#d3d7df;margin:0 4px}
@@ -1305,7 +1303,7 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .sqc .sqn{display:flex;align-items:center;gap:8px;min-width:0}
 .sqc .sqn b{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sqc .sqn em{font-style:normal;font-size:12px;padding:2px 6px;border-radius:6px;background:var(--sunk,#1e222b);color:var(--muted);flex:none}
-.sqc .sqo{text-align:center;font-size:22px;color:#f2c14e}
+.sqc .sqo{text-align:center;font-size:16px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}.sqc .sqo .gl2{margin-right:4px}
 .sqc .sqs{text-align:center;font-size:14px;color:var(--muted)}
 .sqc .sqs.bad{color:#e06a5a}.sqc .sqs.warn{color:#f2c14e}
 .sqc .sqx{display:flex;align-items:center;gap:12px;padding:8px 12px 12px;border:2px solid #f2c14e;border-top:0;border-radius:0 0 12px 12px;background:rgba(242,193,78,.06);margin-bottom:4px}
