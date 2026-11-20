@@ -1331,7 +1331,7 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmsb .inn{grid-area:c;justify-self:center;font-size:14px;padding:2px 12px;border-radius:12px;border:1px solid rgba(242,193,78,.5);color:#f2c14e}
 .cmv.gp .cmsb .bs{grid-area:b;justify-self:center;margin:0}
 .cmv.gp .cmlsw,.cmv.gp .cmtoday{display:none!important}
-.cmv.gp .cmf2 .fld{position:relative;height:380px;overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
+.cmv.gp .cmf2 .fld{position:relative;height:clamp(300px,calc(100svh - 470px),380px);overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
 .cmv.gp .cmf2 .fld>svg{position:absolute;left:0;bottom:0;width:100%!important;height:auto!important;transform:translateY(56px) rotateX(62deg) scale(1.45);transform-origin:50% 92%;background:#336f33}
 .cmv.gp .fsv .fog{fill:#3b7d36}
 .cmv.gp .fsv text,.cmv.gp .ftag{display:none!important}
@@ -1348,3 +1348,5 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmgo .cmmd{border:0!important;border-left:1px solid rgba(20,22,27,.25)!important;border-radius:0!important;background:#f2c14e!important;color:#14161b!important}
 .cmv.gp .cmgo .cmmd small{display:none}
 .cmv.gp .cmbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px}
+
+.cmv.gp .cmres .cmt2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

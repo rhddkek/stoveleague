@@ -2878,7 +2878,7 @@ function todayPhone(ut,g,home,opp,pi){const gi=S.schedule.indexOf(g);let pm=null
     <div class="tdvs gxvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${side(mySp,ut)}<b class="gxt">${sn(ut)} <i>vs</i> ${sn(opp)}</b>${side(opSp,opp)}</div>
     <span class="gxpill">${pi?esc(pi.title):`${nth}차전`} · ${home?'홈':'원정'}</span></div>
     <div class="gxsp"><span class="gxl">선발</span><b>${mySp?esc(mySp.name):'미정'}</b><i>vs</i><b>${opSp?esc(opSp.name):'미정'}</b><button class="tdprep" onclick="UI.prematch(${gi})">경기 전 준비 ›</button></div>
-    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${decideRow()}
+    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${decideRow()}${missionLine()}
     <div class="gxgo"><button class="gold big" onclick="UI.startGame()">▶ ${pi?esc(pi.title)+' 시작':'경기 보기'}</button><div class="btns3 b2">${pi?`<button onclick="UI.autoDays(1)">이 경기 자동</button>`:`<button onclick="${m===1?'UI.autoDays(1)':`UI.autoRun(${m},this)`}">${m===1?'이 경기 자동':m===999?'시즌 끝까지':'7경기 자동'}</button><button class="more" aria-label="다른 자동 진행" onclick="UI.autoPick()">▾</button>`}</div></div></div></div>`;}
 // 코치 추천 = 한 줄 → 누르면 창
 A.recOpen=function(){modal(`<div class="sheet"><div class="shh"><b>코치 추천</b></div>${recCard(true)}<div class="shbar"><button class="ghost" onclick="UI.closeModal()">닫기</button></div></div>`);};

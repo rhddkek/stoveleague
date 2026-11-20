@@ -992,7 +992,7 @@ function renderHome(){
     if(!W&&S.week<5)h+=strengthCard();}
   h+=resH;
   if(W)h+=myCard()+guideCard();
-  if(!W)return h+homeTiles(ut,S.phase==='season');   /* v187 (R158): 폰 시즌은 코치 추천 · 받은 소식 · 할 일을 한 줄씩(타일 대신 목록) */
+  if(!W)return h+homeTiles(ut,S.phase==='season'&&mflow());   /* v187 (R158): 폰 시즌은 코치 추천 · 받은 소식 · 할 일을 한 줄씩(타일 대신 목록) */
   h+=story;
   if(S.phase==='offseason'&&S.week<=3){const s0=S.season;if(S.awards&&S.awards[s0])h+=awardHomeCard(s0);if(S.asia&&S.asia[s0])h+=asiaCard(s0);}
   h+=newsCard();
