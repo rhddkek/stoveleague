@@ -2909,7 +2909,7 @@ function mnTabs(sec){const singles=sec.rows.filter(r=>r.items.length===1&&!r.mor
   let side=null;const T=[];if(singles.length===1&&groups.length)side=singles[0];else if(singles.length)T.push({t:'기본',items:singles});   /* 하나뿐인 목적지(이적 「이번 시즌」)는 제목 옆 바로가기 */
   for(const g of groups)T.push({t:g.more?'그 밖':g.t,items:g.items});return {T,side};}
 function mnHtml(){const [t0,s0]=curScreen();const secs=allScreens();const x0=`<button class="mnx" aria-label="닫기" onclick="UI.closeModal()">✕</button>`;
-  const setRow=`<div class="mnfoot"><button class="mnr" onclick="UI.closeModal();UI.go('club','data')">${pxSvg('gear',20)}<b>설정·저장</b><i>›</i></button></div>`;
+  const setRow=`<div class="mnfoot"><div class="mnmini"><button onclick="UI.glossary()">용어집</button><label><input type="checkbox" ${PREF.dense?'checked':''} onchange="UI.setPref('dense',this.checked)"> 촘촘히 보기</label>${window.__SL_CHILD?'<button onclick="UI.mview(false)">PC 화면으로</button>':''}</div><button class="mnr" onclick="UI.closeModal();UI.go('club','data')">${pxSvg('gear',20)}<b>설정·저장</b><i>›</i></button></div>`;
   const sec=ui.mnSec&&secs.find(s=>s.key===ui.mnSec);
   if(!sec){const L=favList().slice(-4);const on=L.some(x=>x.k===t0&&x.s===s0);const dot=key=>key==='market'&&S.market.offers.length||key==='home'&&decisions()?'<i class="hdot"></i>':'';
     return `<div class="mnu mn2"><div class="mnh"><b>전체 메뉴</b>${x0}</div>
