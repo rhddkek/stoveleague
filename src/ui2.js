@@ -2906,13 +2906,13 @@ function mnHtml(){const [t0,s0]=curScreen();const secs=allScreens();const x0=`<b
       <input id="psq" type="search" placeholder="선수 · 화면 · 용어 찾기" autocomplete="off" oninput="const r=document.getElementById('psr');r.innerHTML=this.value.trim()?UI.searchList(this.value):'';r.style.display=this.value.trim()?'block':'none'"><div id="psr" class="msr" style="display:none"></div>
       <div class="mfav"><div class="mnl"><b>바로가기</b>${t0!=='home'?`<button class="mnfe" onclick="UI.favToggle()">${on?'★ 지금 화면 빼기':'☆ 지금 화면 넣기'}</button>`:''}</div><div class="mnft">${L.map(x=>`<button class="${x.k===t0&&x.s===s0?'on':''}" onclick="UI.closeModal();UI.go('${x.k}','${x.s}')">${pxSvg(MN_FAV_IC[x.s]||'star',24)}<span>${esc(x.t)}</span></button>`).join('')}</div></div>
       <div class="mnl0">${secs.map(s=>`<button class="mnr${t0===s.key?' on':''}" onclick="${s.key==='home'?"UI.closeModal();UI.setTab('home')":`UI.mnSec('${s.key}')`}">${icon(s.key)}<b>${s.label}</b>${dot(s.key)}<i>›</i></button>`).join('')}</div>${setRow}</div>`;}
-  const {T,side}=mnTabs(sec);let ti=ui.mnTab;if(ti==null){ti=t0===sec.key?T.findIndex(x=>x.items.some(it=>it.k===s0)):0;if(ti<0)ti=0;}ti=Math.min(ti,T.length-1);
-  const row=it=>`<button class="mnr${t0===sec.key&&s0===it.k?' on':''}" onclick="UI.closeModal();UI.go('${sec.key}','${it.k}')"><b>${esc(it.t)}</b>${it.hot?'<i class="hdot"></i>':''}<i>›</i></button>`;
+  /* v189 (R161 · 광우: 「훈련 - 000 - 00 작은 소제목식으로」): 대메뉴 안 = 묶음마다 작은 소제목 + 그 아래 목적지 줄(탭 넘김 없이 한 번에) — 「기본」 묶음은 소제목 없이 맨 위 */
+  const {T,side}=mnTabs(sec);
+  const row=it=>`<button class="mnr mni${t0===sec.key&&s0===it.k?' on':''}" onclick="UI.closeModal();UI.go('${sec.key}','${it.k}')"><b>${esc(it.t)}</b>${it.hot?'<i class="hdot"></i>':''}<i>›</i></button>`;
   return `<div class="mnu mn2 mn1"><div class="mnh"><button class="mnb" onclick="UI.mnSec(null)">‹ 전체 메뉴</button>${x0}</div>
     <div class="mnt"><b>${sec.label}</b>${side?`<button class="mnsc" onclick="UI.closeModal();UI.go('${sec.key}','${side.k}')">${esc(side.t)} ›</button>`:''}</div>
-    ${T.length>1?`<div class="mntabs">${T.map((x,i)=>`<button class="${i===ti?'on':''}" onclick="UI.mnTab(${i})">${esc(x.t)}</button>`).join('')}</div>`:''}
-    <div class="mnl1">${T.length?T[ti].items.map(row).join(''):''}</div>${setRow}</div>`;}
+    <div class="mnl1">${T.map(g=>`<div class="mng">${g.t==='기본'&&T.length>1||T.length===1?'':`<div class="mngh">${esc(g.t)}</div>`}${g.items.map(row).join('')}</div>`).join('')}</div>${setRow}</div>`;}
 function mnRe(){const m=document.querySelector('#modal .mn2');if(m)m.outerHTML=mnHtml();else modal(mnHtml());}
 {const menuOld=A.menu;A.menu=function(){if(isWide())return menuOld.call(A);ui.mnSec=null;ui.mnTab=null;modal(mnHtml());};}
 A.mnSec=function(k){ui.mnSec=k||null;ui.mnTab=null;mnRe();};
-A.mnTab=function(i){ui.mnTab=i;mnRe();};
+A.mnTab=function(i){ui.mnTab=i;mnRe();};   /* v189: 탭은 없어짐 — 예전 호출만 받음 */

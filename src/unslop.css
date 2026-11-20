@@ -1380,3 +1380,14 @@ html[data-theme="light"] .mn2 .mntabs button.on,html[data-theme="light"] .mn2 .m
 html[data-theme="light"] .mn2 .mnr.on{box-shadow:none}
 .modal:has(>.mn2)>.close{display:none}
 .mn2 .mnmini{display:flex;align-items:center;gap:16px;padding:8px 4px;font-size:13px;color:var(--muted)}.mn2 .mnmini button{border:0;background:transparent;color:var(--muted);font-size:13px;padding:4px 0}.mn2 .mnmini label{display:flex;align-items:center;gap:4px}
+/* v189 (R161): 대메뉴 안 = 작은 소제목 + 들여쓴 목적지 줄 */
+.mn2 .mnl1{border-top:0}
+.mn2 .mng{display:flex;flex-direction:column}
+.mn2 .mngh{font-size:13px;font-weight:600;color:#f2c14e;padding:16px 4px 4px;border-bottom:1px solid var(--line)}
+html[data-theme="light"] .mn2 .mngh{color:#1f3a7a}
+.mn2 .mnr.mni{min-height:44px;padding-left:16px;gap:8px}
+.mn2 .mnr.mni::before{content:"";width:4px;height:4px;border-radius:2px;background:var(--muted);flex:none}
+.mn2 .mnl1 .mnr.mni b{font-size:16px;font-weight:400}
+.mn2 .mnr.mni.on::before{background:#f2c14e}
+/* v189: 메뉴 창은 휴대폰 화면 거의 전체 — 긴 대메뉴(이적)도 덜 밀어서 봄 */
+@media (max-width:699px){.modal:has(>.mn2){max-height:calc(100dvh - 24px)!important}html.fz-s .modal:has(>.mn2){max-height:calc((100dvh - 24px) / .88)!important}}
