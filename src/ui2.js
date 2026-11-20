@@ -2900,3 +2900,29 @@ A.sqOpen=function(id){ui.sqOpen=ui.sqOpen===id?null:id;render();};A.sqFull=funct
 // v187 (R158): 휴대폰 세로 중계 판정 · 투수/타자 줄
 function cmPort(){try{return !isWide()&&innerWidth<700&&innerHeight>innerWidth;}catch(e){return false;}}
 function cmDuo(lg,B,P){const row=(p,k)=>p?`<button class="cdr" onclick="UI.openPlayer(${p.id})">${chibi(p,40,'h')}<em>${k}</em><b>${esc(p.name)}</b><small>${esc(seasonBrief(p,lg))}</small></button>`:'';return `<div class="cmduo gut">${row(P,'투수')}${row(B,'타자')}</div>`;}
+
+// ===================== v187 (R159): 전체 메뉴 두 층 — GPT 시안 · 광우 「이거 메뉴 참고」 =====================
+// 첫 층: 찾기 · 바로가기 4 · 대메뉴 6(이름만) · 설정·저장(맨 아래 고정) → 대메뉴를 누르면 같은 창에서 목적지(밑줄 탭 = 묶음).
+// PC(넓은 화면)는 왼쪽 메뉴가 늘 모든 화면을 보여 주므로 예전 한 장 그대로.
+const MN_FAV_IC={lineup:'board',train:'gym',fa:'deal',rec:'chart',pitch:'ball',list:'users',renew:'doc',buy:'find',std:'trophy',fin:'coin',data:'save',sched:'cal'};
+function mnTabs(sec){const singles=sec.rows.filter(r=>r.items.length===1&&!r.more).flatMap(r=>r.items);const groups=sec.rows.filter(r=>r.items.length>1||r.more);
+  let side=null;const T=[];if(singles.length===1&&groups.length)side=singles[0];else if(singles.length)T.push({t:'기본',items:singles});   /* 하나뿐인 목적지(이적 「이번 시즌」)는 제목 옆 바로가기 */
+  for(const g of groups)T.push({t:g.more?'그 밖':g.t,items:g.items});return {T,side};}
+function mnHtml(){const [t0,s0]=curScreen();const secs=allScreens();const x0=`<button class="mnx" aria-label="닫기" onclick="UI.closeModal()">✕</button>`;
+  const setRow=`<div class="mnfoot"><button class="mnr" onclick="UI.closeModal();UI.go('club','data')">${pxSvg('gear',20)}<b>설정·저장</b><i>›</i></button></div>`;
+  const sec=ui.mnSec&&secs.find(s=>s.key===ui.mnSec);
+  if(!sec){const L=favList().slice(-4);const on=L.some(x=>x.k===t0&&x.s===s0);const dot=key=>key==='market'&&S.market.offers.length||key==='home'&&decisions()?'<i class="hdot"></i>':'';
+    return `<div class="mnu mn2"><div class="mnh"><b>전체 메뉴</b>${x0}</div>
+      <input id="psq" type="search" placeholder="선수 · 화면 · 용어 찾기" autocomplete="off" oninput="const r=document.getElementById('psr');r.innerHTML=this.value.trim()?UI.searchList(this.value):'';r.style.display=this.value.trim()?'block':'none'"><div id="psr" class="msr" style="display:none"></div>
+      <div class="mfav"><div class="mnl"><b>바로가기</b>${t0!=='home'?`<button class="mnfe" onclick="UI.favToggle()">${on?'★ 지금 화면 빼기':'☆ 지금 화면 넣기'}</button>`:''}</div><div class="mnft">${L.map(x=>`<button class="${x.k===t0&&x.s===s0?'on':''}" onclick="UI.closeModal();UI.go('${x.k}','${x.s}')">${pxSvg(MN_FAV_IC[x.s]||'star',24)}<span>${esc(x.t)}</span></button>`).join('')}</div></div>
+      <div class="mnl0">${secs.map(s=>`<button class="mnr${t0===s.key?' on':''}" onclick="${s.key==='home'?"UI.closeModal();UI.setTab('home')":`UI.mnSec('${s.key}')`}">${icon(s.key)}<b>${s.label}</b>${dot(s.key)}<i>›</i></button>`).join('')}</div>${setRow}</div>`;}
+  const {T,side}=mnTabs(sec);let ti=ui.mnTab;if(ti==null){ti=t0===sec.key?T.findIndex(x=>x.items.some(it=>it.k===s0)):0;if(ti<0)ti=0;}ti=Math.min(ti,T.length-1);
+  const row=it=>`<button class="mnr${t0===sec.key&&s0===it.k?' on':''}" onclick="UI.closeModal();UI.go('${sec.key}','${it.k}')"><b>${esc(it.t)}</b>${it.hot?'<i class="hdot"></i>':''}<i>›</i></button>`;
+  return `<div class="mnu mn2 mn1"><div class="mnh"><button class="mnb" onclick="UI.mnSec(null)">‹ 전체 메뉴</button>${x0}</div>
+    <div class="mnt"><b>${sec.label}</b>${side?`<button class="mnsc" onclick="UI.closeModal();UI.go('${sec.key}','${side.k}')">${esc(side.t)} ›</button>`:''}</div>
+    ${T.length>1?`<div class="mntabs">${T.map((x,i)=>`<button class="${i===ti?'on':''}" onclick="UI.mnTab(${i})">${esc(x.t)}</button>`).join('')}</div>`:''}
+    <div class="mnl1">${T.length?T[ti].items.map(row).join(''):''}</div>${setRow}</div>`;}
+function mnRe(){const m=document.querySelector('#modal .mn2');if(m)m.outerHTML=mnHtml();else modal(mnHtml());}
+{const menuOld=A.menu;A.menu=function(){if(isWide())return menuOld.call(A);ui.mnSec=null;ui.mnTab=null;modal(mnHtml());};}
+A.mnSec=function(k){ui.mnSec=k||null;ui.mnTab=null;mnRe();};
+A.mnTab=function(i){ui.mnTab=i;mnRe();};

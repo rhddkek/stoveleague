@@ -3273,14 +3273,14 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmsb .inn{grid-area:c;justify-self:center;font-size:14px;padding:2px 12px;border-radius:12px;border:1px solid rgba(242,193,78,.5);color:#f2c14e}
 .cmv.gp .cmsb .bs{grid-area:b;justify-self:center;margin:0}
 .cmv.gp .cmlsw,.cmv.gp .cmtoday{display:none!important}
-.cmv.gp .cmf2 .fld{position:relative;height:clamp(300px,calc(100svh - 470px),380px);overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
-.cmv.gp .cmf2 .fld>svg{position:absolute;left:0;bottom:0;width:100%!important;height:auto!important;transform:translateY(56px) rotateX(62deg) scale(1.45);transform-origin:50% 92%;background:#336f33}
+.cmv.gp .cmf2 .fld{position:relative;height:clamp(280px,calc(100svh - 510px),380px);overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
+.cmv.gp .cmf2 .fld>svg{position:absolute;left:0;bottom:0;width:100%!important;height:auto!important;transform:translateY(34px) rotateX(62deg) scale(1.45);transform-origin:50% 92%;background:#336f33}
 .cmv.gp .fsv .fog{fill:#3b7d36}
 .cmv.gp .fsv text,.cmv.gp .ftag{display:none!important}
 .cmv.gp .fsv image.sprim{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(2.13)}
 .cmv.gp .cmres{position:static!important;margin:8px 0 0!important;width:auto!important;max-width:none!important;animation:none!important;opacity:1!important;transform:none!important}
 .cmduo{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px}
-.cmduo .cdr{display:flex;align-items:center;gap:8px;width:100%;min-height:52px;padding:4px 12px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:#eceef2;font:inherit;text-align:left}
+.cmduo .cdr{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:2px 12px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:#eceef2;font:inherit;text-align:left}
 .cmduo .cdr:first-child{border-top:0}
 .cmduo .cdr em{font-style:normal;font-size:12px;padding:2px 8px;border-radius:6px;background:#1e222b;color:#a3a9b6}
 .cmduo .cdr b{font-size:16px;font-weight:600}
@@ -3292,6 +3292,37 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px}
 
 .cmv.gp .cmres .cmt2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* v187 (R159): 전체 메뉴 두 층 (GPT 시안) — 큰 제목 · 찾기 · 바로가기 4칸 · 대메뉴 6줄 · 설정·저장 고정 · 대메뉴 안은 밑줄 탭 + 줄 목록 */
+.mn2{display:flex;flex-direction:column;gap:12px;min-height:min(78vh,700px)}
+.mn2 .mnh{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.mn2 .mnh>b{font-size:26px;font-weight:600}
+.mn2 .mnx{width:44px;height:44px;font-size:24px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--text)}
+.mn2 .mnb{border:0;background:transparent;color:var(--text);font-size:16px;padding:8px 0;min-height:44px}
+.mn2 #psq{width:100%;font-size:16px;padding:12px 16px;border-radius:12px}
+.mn2 .mnl{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mn2 .mnl>b{font-size:16px;font-weight:600;border-left:3px solid #f2c14e;padding-left:8px}
+.mn2 .mnfe{border:0;background:transparent;color:var(--muted);font-size:12px;padding:4px 0}
+.mn2 .mnft{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mn2 .mnft button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:72px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--text);font-size:14px;padding:8px 4px}
+.mn2 .mnft button.on{border-color:#f2c14e;color:#f2c14e}
+.mn2 .mnft span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mn2 .mnl0,.mn2 .mnl1{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.mn2 .mnr{display:flex;align-items:center;gap:16px;width:100%;min-height:56px;padding:0 4px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;color:var(--text);text-align:left}
+.mn2 .mnr svg{width:24px;height:24px;flex:none}
+.mn2 .mnr b{font-size:20px;font-weight:600;flex:1;min-width:0}
+.mn2 .mnl1 .mnr b{font-size:18px}
+.mn2 .mnr>i:last-child{font-style:normal;font-size:20px;color:var(--muted)}
+.mn2 .mnr.on b,.mn2 .mnr.on{color:#f2c14e}
+.mn2 .mnfoot{margin-top:auto;border-top:1px solid var(--line)}
+.mn2 .mnt{display:flex;align-items:baseline;gap:12px}
+.mn2 .mnt>b{font-size:32px;font-weight:600}
+.mn2 .mnsc{border:1px solid var(--line);border-radius:16px;background:transparent;color:var(--text);font-size:13px;padding:4px 12px}
+.mn2 .mntabs{display:flex;border-bottom:1px solid var(--line)}
+.mn2 .mntabs button{flex:1;border:0;border-radius:0;background:transparent;color:var(--muted);font-size:16px;min-height:44px}
+.mn2 .mntabs button.on{color:#f2c14e;box-shadow:inset 0 -3px 0 #f2c14e}
+html[data-theme="light"] .mn2 .mntabs button.on,html[data-theme="light"] .mn2 .mnr.on{color:#1f3a7a;box-shadow:inset 0 -3px 0 #1f3a7a}
+html[data-theme="light"] .mn2 .mnr.on{box-shadow:none}
+.modal:has(>.mn2)>.close{display:none}
 
 </style></head><body><script id="mview">
 /* v111 (R093): PC에서도 휴대폰 화면으로 — 설정(sl_view=m)이면 같은 파일을 폭 430px 틀 안에 띄우고, 바깥 쪽 게임은 시작하지 않음 */
@@ -12989,6 +13020,32 @@ A.sqOpen=function(id){ui.sqOpen=ui.sqOpen===id?null:id;render();};A.sqFull=funct
 // v187 (R158): 휴대폰 세로 중계 판정 · 투수/타자 줄
 function cmPort(){try{return !isWide()&&innerWidth<700&&innerHeight>innerWidth;}catch(e){return false;}}
 function cmDuo(lg,B,P){const row=(p,k)=>p?`<button class="cdr" onclick="UI.openPlayer(${p.id})">${chibi(p,40,'h')}<em>${k}</em><b>${esc(p.name)}</b><small>${esc(seasonBrief(p,lg))}</small></button>`:'';return `<div class="cmduo gut">${row(P,'투수')}${row(B,'타자')}</div>`;}
+
+// ===================== v187 (R159): 전체 메뉴 두 층 — GPT 시안 · 광우 「이거 메뉴 참고」 =====================
+// 첫 층: 찾기 · 바로가기 4 · 대메뉴 6(이름만) · 설정·저장(맨 아래 고정) → 대메뉴를 누르면 같은 창에서 목적지(밑줄 탭 = 묶음).
+// PC(넓은 화면)는 왼쪽 메뉴가 늘 모든 화면을 보여 주므로 예전 한 장 그대로.
+const MN_FAV_IC={lineup:'board',train:'gym',fa:'deal',rec:'chart',pitch:'ball',list:'users',renew:'doc',buy:'find',std:'trophy',fin:'coin',data:'save',sched:'cal'};
+function mnTabs(sec){const singles=sec.rows.filter(r=>r.items.length===1&&!r.more).flatMap(r=>r.items);const groups=sec.rows.filter(r=>r.items.length>1||r.more);
+  let side=null;const T=[];if(singles.length===1&&groups.length)side=singles[0];else if(singles.length)T.push({t:'기본',items:singles});   /* 하나뿐인 목적지(이적 「이번 시즌」)는 제목 옆 바로가기 */
+  for(const g of groups)T.push({t:g.more?'그 밖':g.t,items:g.items});return {T,side};}
+function mnHtml(){const [t0,s0]=curScreen();const secs=allScreens();const x0=`<button class="mnx" aria-label="닫기" onclick="UI.closeModal()">✕</button>`;
+  const setRow=`<div class="mnfoot"><button class="mnr" onclick="UI.closeModal();UI.go('club','data')">${pxSvg('gear',20)}<b>설정·저장</b><i>›</i></button></div>`;
+  const sec=ui.mnSec&&secs.find(s=>s.key===ui.mnSec);
+  if(!sec){const L=favList().slice(-4);const on=L.some(x=>x.k===t0&&x.s===s0);const dot=key=>key==='market'&&S.market.offers.length||key==='home'&&decisions()?'<i class="hdot"></i>':'';
+    return `<div class="mnu mn2"><div class="mnh"><b>전체 메뉴</b>${x0}</div>
+      <input id="psq" type="search" placeholder="선수 · 화면 · 용어 찾기" autocomplete="off" oninput="const r=document.getElementById('psr');r.innerHTML=this.value.trim()?UI.searchList(this.value):'';r.style.display=this.value.trim()?'block':'none'"><div id="psr" class="msr" style="display:none"></div>
+      <div class="mfav"><div class="mnl"><b>바로가기</b>${t0!=='home'?`<button class="mnfe" onclick="UI.favToggle()">${on?'★ 지금 화면 빼기':'☆ 지금 화면 넣기'}</button>`:''}</div><div class="mnft">${L.map(x=>`<button class="${x.k===t0&&x.s===s0?'on':''}" onclick="UI.closeModal();UI.go('${x.k}','${x.s}')">${pxSvg(MN_FAV_IC[x.s]||'star',24)}<span>${esc(x.t)}</span></button>`).join('')}</div></div>
+      <div class="mnl0">${secs.map(s=>`<button class="mnr${t0===s.key?' on':''}" onclick="${s.key==='home'?"UI.closeModal();UI.setTab('home')":`UI.mnSec('${s.key}')`}">${icon(s.key)}<b>${s.label}</b>${dot(s.key)}<i>›</i></button>`).join('')}</div>${setRow}</div>`;}
+  const {T,side}=mnTabs(sec);let ti=ui.mnTab;if(ti==null){ti=t0===sec.key?T.findIndex(x=>x.items.some(it=>it.k===s0)):0;if(ti<0)ti=0;}ti=Math.min(ti,T.length-1);
+  const row=it=>`<button class="mnr${t0===sec.key&&s0===it.k?' on':''}" onclick="UI.closeModal();UI.go('${sec.key}','${it.k}')"><b>${esc(it.t)}</b>${it.hot?'<i class="hdot"></i>':''}<i>›</i></button>`;
+  return `<div class="mnu mn2 mn1"><div class="mnh"><button class="mnb" onclick="UI.mnSec(null)">‹ 전체 메뉴</button>${x0}</div>
+    <div class="mnt"><b>${sec.label}</b>${side?`<button class="mnsc" onclick="UI.closeModal();UI.go('${sec.key}','${side.k}')">${esc(side.t)} ›</button>`:''}</div>
+    ${T.length>1?`<div class="mntabs">${T.map((x,i)=>`<button class="${i===ti?'on':''}" onclick="UI.mnTab(${i})">${esc(x.t)}</button>`).join('')}</div>`:''}
+    <div class="mnl1">${T.length?T[ti].items.map(row).join(''):''}</div>${setRow}</div>`;}
+function mnRe(){const m=document.querySelector('#modal .mn2');if(m)m.outerHTML=mnHtml();else modal(mnHtml());}
+{const menuOld=A.menu;A.menu=function(){if(isWide())return menuOld.call(A);ui.mnSec=null;ui.mnTab=null;modal(mnHtml());};}
+A.mnSec=function(k){ui.mnSec=k||null;ui.mnTab=null;mnRe();};
+A.mnTab=function(i){ui.mnTab=i;mnRe();};
 
 return A;
 })();
