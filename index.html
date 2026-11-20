@@ -3273,7 +3273,7 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmsb .inn{grid-area:c;justify-self:center;font-size:14px;padding:2px 12px;border-radius:12px;border:1px solid rgba(242,193,78,.5);color:#f2c14e}
 .cmv.gp .cmsb .bs{grid-area:b;justify-self:center;margin:0}
 .cmv.gp .cmlsw,.cmv.gp .cmtoday{display:none!important}
-.cmv.gp .cmf2 .fld{position:relative;height:380px;overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
+.cmv.gp .cmf2 .fld{position:relative;height:clamp(300px,calc(100svh - 470px),380px);overflow:hidden;border-radius:12px;background-color:#2f6b30;background-repeat:no-repeat;background-position:center top;background-size:auto 290px;image-rendering:pixelated;perspective:520px;perspective-origin:50% 0%}
 .cmv.gp .cmf2 .fld>svg{position:absolute;left:0;bottom:0;width:100%!important;height:auto!important;transform:translateY(56px) rotateX(62deg) scale(1.45);transform-origin:50% 92%;background:#336f33}
 .cmv.gp .fsv .fog{fill:#3b7d36}
 .cmv.gp .fsv text,.cmv.gp .ftag{display:none!important}
@@ -3288,8 +3288,10 @@ html:root:is(.ea,html)[data-theme="light"] body:not(.ingame) .htabs button.on{co
 .cmv.gp .cmgo{display:flex;gap:0;border-radius:12px;overflow:hidden;background:#f2c14e}
 .cmv.gp .cmgo .gold.big{flex:1;border-radius:0!important}
 .cmv.gp .cmgo .cmmd{border:0!important;border-left:1px solid rgba(20,22,27,.25)!important;border-radius:0!important;background:#f2c14e!important;color:#14161b!important}
-.cmv.gp .cmgo .cmmd small{display:none}
+.cmv.gp .cmgo .cmmd{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px}.cmv.gp .cmgo .cmmd small{font-size:11.5px;color:rgba(20,22,27,.7)}
 .cmv.gp .cmbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px}
+
+.cmv.gp .cmres .cmt2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 </style></head><body><script id="mview">
 /* v111 (R093): PC에서도 휴대폰 화면으로 — 설정(sl_view=m)이면 같은 파일을 폭 430px 틀 안에 띄우고, 바깥 쪽 게임은 시작하지 않음 */
@@ -8918,7 +8920,7 @@ function renderSeasonHome0(){
     if(!W&&S.week<5)h+=strengthCard();}
   h+=resH;
   if(W)h+=myCard()+guideCard();
-  if(!W)return h+homeTiles(ut,S.phase==='season');   /* v187 (R158): 폰 시즌은 코치 추천 · 받은 소식 · 할 일을 한 줄씩(타일 대신 목록) */
+  if(!W)return h+homeTiles(ut,S.phase==='season'&&mflow());   /* v187 (R158): 폰 시즌은 코치 추천 · 받은 소식 · 할 일을 한 줄씩(타일 대신 목록) */
   h+=story;
   if(S.phase==='offseason'&&S.week<=3){const s0=S.season;if(S.awards&&S.awards[s0])h+=awardHomeCard(s0);if(S.asia&&S.asia[s0])h+=asiaCard(s0);}
   h+=newsCard();
@@ -10715,7 +10717,7 @@ function searchHtml(q){const ut=SL.userTeam();q=(q||'').trim();if(!q)return '<di
   const lab=p=>{const r=rk(p);return r===0?'<span class="chip g">우리</span>':r===1?'<span class="chip y">FA</span>':`<span class="muted">${esc(S.teams[p.teamId]?S.teams[p.teamId].name:'')}</span>`;};
   return all.slice(0,30).map(p=>`<div class="prow act" onclick="UI.closeModal();UI.openPlayer(${p.id})">${face(p,34)}<div class="grow"><div class="nm">${esc(p.name)} <span class="muted small">${p.pos} · ${p.age}세</span></div><div class="sub small">${lab(p)}</div></div><b>${hidOf(p)?'?':Math.round(SL.calcOvr(p))}</b></div>`).join('')||'<div class="muted small" style="padding:8px">찾는 선수가 없음</div>';}
 // ---- 선수 상세: 이전/다음 선수 (목록 순서 그대로) + 좌우로 밀기 ----
-function listIdsOnScreen(){const ids=[];for(const el of document.querySelectorAll('#app [onclick*="selRow("],#app [onclick*="openPlayer("],#app [onclick*="sqTap("]')){const m=(el.getAttribute('onclick')||'').match(/(?:selRow|openPlayer|sqTap)\((\d+)/);if(m&&!ids.includes(+m[1]))ids.push(+m[1]);}return ids;}
+function listIdsOnScreen(){const ids=[];for(const el of document.querySelectorAll('#app [onclick*="selRow("],#app [onclick*="openPlayer("],#app [onclick*="sqTap("],#app [onclick*="sqOpen("]')){const m=(el.getAttribute('onclick')||'').match(/(?:selRow|openPlayer|sqTap|sqOpen)\((\d+)/);if(m&&!ids.includes(+m[1]))ids.push(+m[1]);}return ids;}
 function playerNavInit(){const v=ui.view;const bar=document.querySelector('.pv .pvbar');if(!v||v.type!=='player'||v.tab==='cmp'||v.tab==='scout'||!bar||!ui.plist||ui.plist.length<2)return;const i=ui.plist.indexOf(v.id);if(i<0)return;
   if(!bar.querySelector('.pnav'))bar.insertAdjacentHTML('beforeend',`<span class="pnav"><button aria-label="이전 선수" ${i>0?'':'disabled'} onclick="UI.pStep(-1)">‹</button><small>${i+1}/${ui.plist.length}</small><button aria-label="다음 선수" ${i<ui.plist.length-1?'':'disabled'} onclick="UI.pStep(1)">›</button></span>`);
   const el=document.querySelector('.pv .content');if(el&&!el.dataset.sw){el.dataset.sw=1;let x0=null,y0=null;el.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;},{passive:true});el.addEventListener('touchend',e=>{if(x0==null)return;const t=e.changedTouches[0];const dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)>80&&Math.abs(dy)<40&&!e.target.closest('table,.chev,.prevpk,input,select,.mkt'))A.pStep(dx<0?1:-1);},{passive:true});}}
@@ -12965,7 +12967,7 @@ function todayPhone(ut,g,home,opp,pi){const gi=S.schedule.indexOf(g);let pm=null
     <div class="tdvs gxvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${side(mySp,ut)}<b class="gxt">${sn(ut)} <i>vs</i> ${sn(opp)}</b>${side(opSp,opp)}</div>
     <span class="gxpill">${pi?esc(pi.title):`${nth}차전`} · ${home?'홈':'원정'}</span></div>
     <div class="gxsp"><span class="gxl">선발</span><b>${mySp?esc(mySp.name):'미정'}</b><i>vs</i><b>${opSp?esc(opSp.name):'미정'}</b><button class="tdprep" onclick="UI.prematch(${gi})">경기 전 준비 ›</button></div>
-    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${decideRow()}
+    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${decideRow()}${missionLine()}
     <div class="gxgo"><button class="gold big" onclick="UI.startGame()">▶ ${pi?esc(pi.title)+' 시작':'경기 보기'}</button><div class="btns3 b2">${pi?`<button onclick="UI.autoDays(1)">이 경기 자동</button>`:`<button onclick="${m===1?'UI.autoDays(1)':`UI.autoRun(${m},this)`}">${m===1?'이 경기 자동':m===999?'시즌 끝까지':'7경기 자동'}</button><button class="more" aria-label="다른 자동 진행" onclick="UI.autoPick()">▾</button>`}</div></div></div></div>`;}
 // 코치 추천 = 한 줄 → 누르면 창
 A.recOpen=function(){modal(`<div class="sheet"><div class="shh"><b>코치 추천</b></div>${recCard(true)}<div class="shbar"><button class="ghost" onclick="UI.closeModal()">닫기</button></div></div>`);};
