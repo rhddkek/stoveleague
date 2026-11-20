@@ -106,6 +106,13 @@ function squadList(ut){const f=ui.sqf=ui.sqf||{grp:'E',kind:'A',sort:'ovr',dir:'
   let h=`<div class="grptab g3"><button class="${f.grp==='E'?'on':''}" onclick="UI.sqf('grp','E')">${usF?'메이저':'1군'} ${ut.entry.length}/${cap}</button><button class="${f.grp==='R'?'on':''}" onclick="UI.sqf('grp','R')">${usF?'챌린저스':'2군'}</button><button class="${f.grp==='D'?'on':''}" onclick="UI.sqf('grp','D')">${usF?'루키스':'육성군'}</button>${(ut.loaned||[]).length?`<button class="${f.grp==='L'?'on':''}" onclick="UI.sqf('grp','L')">임대</button>`:''}</div>`;
   h+=`<div class="chiprow sqchips" style="margin:0 0 8px">${[['A','전체'],['B','타자'],['P','투수'],['I','부상']].map(x=>`<button class="${f.kind===x[0]?'on':''}" onclick="UI.sqf('kind','${x[0]}')">${x[1]}</button>`).join('')}${ut.league==='US'?`<span class="sq40">40인 ${ut.roster.length}/${SL.LR('US').roster}</span>`:''}<span class="sqfind" role="button" tabindex="0" aria-label="선수 찾기" onclick="UI.psOpen('M')">${pxSvg('find',20)}</span></div>`;
   if(f.kind==='I')return h+injView(ut);
+  /* v187 (R158): 휴대폰 = GPT 시안 — 3칸(선수 · 종합 · 상태) + 줄을 누르면 펼침(전신 · 나이 · 보직 · 컨디션 · 선수 카드). 「자세히」 = 예전 전체 열(v140 지표) */
+  const stc=p=>f.grp!=='E'?'':(ut.lineup.includes(p.id)||ut.rotation.includes(p.id)||ut.closer===p.id)?'rqst':'rqbn';
+  if(mflow()&&!isWide()&&!ui.sqFull){const stx=p=>p.inj?['부상','bad']:!inSeason?['-','']:condPct(p)<70?['피로','warn']:['정상',''];
+    h+=`<div class="sqc"><div class="sqh"><span>선수</span><span>종합</span><span>상태</span></div>${ps.map(p=>{const o=ui.sqOpen===p.id;const sx=stx(p);const pct=condPct(p);
+      return `<button class="sqr${o?' on':''} ${stc(p)}" onclick="UI.sqOpen(${p.id})"><span class="sqn">${chibi(p,32,'h')}<b>${esc(p.name)}</b>${nfl(p)}<em>${esc(p.pos)}</em></span><b class="sqo pxf">${Math.round(SL.calcOvr(p))}</b><span class="sqs ${sx[1]}">${o?'▲':sx[0]}</span></button>`+(o?`<div class="sqx">${chibi(p,64,'f')}<div class="sqxi"><span>${p.age}세 · ${esc(role(p))}</span>${inSeason&&!p.inj?`<span class="sqxb">컨디션 ${pct}%<i><u style="width:${pct}%"></u></i></span>`:p.inj?`<span class="sqxb bad">부상 · 복귀까지 ${p.inj.left}일</span>`:''}</div><button class="sqxg" onclick="UI.openPlayer(${p.id})">선수 카드 ›</button></div>`:'');}).join('')}</div>`;
+    return h+`<button class="sqfull" onclick="UI.sqFull(1)">자세히 · 기록 열 ›</button>`;}
+  if(mflow()&&!isWide())h+=`<button class="sqfull" onclick="UI.sqFull(0)">‹ 간단히</button>`;
   /* v140 (R111): 명단이 가장 많은 지표 — PC는 나이 · 잠재 열, 타자/투수 칸은 이번 시즌 기록 열(누르면 정렬). 휴대폰은 네 칸 그대로, 타자/투수 칸만 상태 대신 기록 */
   /* v141 (R112): 휴대폰도 같은 열 — 선수 칸은 왼쪽에 붙어 있고 나머지(나이 · 잠재 · 종합 · 기록 · 상태)는 옆으로 밀어서 봄. 주전 줄은 옅은 바탕색 */
   const wide=isWide();const kB=f.kind==='B',kP=f.kind==='P';const stS=p=>two2?p.res:p.cur;const sl=p=>hasSt(stS(p))?SL.statLine(p,stS(p)):null;const tc=(v,c)=>`<td class="tc rnum ${c||''}">${v}</td>`;
@@ -113,7 +120,6 @@ function squadList(ut){const f=ui.sqf=ui.sqf||{grp:'E',kind:'A',sort:'ovr',dir:'
   const rh=kB&&!two2?th('avg','타율','tc')+th('hr','홈런','tc')+th('rbi','타점','tc')+th('ops','OPS','tc'):kP&&!two2?th('era','ERA','tc')+th('w','승-패-세-홀','tc')+th('ip','이닝','tc'):'';
   const rd=p=>{if(!rh)return '';const x=sl(p);if(kB)return x?tc(x.avg)+tc(x.hr)+tc(x.rbi)+tc(`<b>${x.ops}</b>`):tc('-')+tc('-')+tc('-')+tc('-');return x?tc(`<b>${x.era}</b>`)+tc(`${x.w}-${x.l}-${x.sv}-${x.hd}`)+tc(x.ip):tc('-')+tc('-')+tc('-');};
   const lastTh=two2?`<th>${usF?'마이너 기록':'2군 기록'}</th>`:inSeason?th('cond','상태'):'<th>지난 시즌</th>';const lastTd=p=>two2?((usF&&ut.dev.includes(p.id)?'<small class="r40">40인 밖</small> ':'')+(hasSt(p.res)?statShort(p,p.res):'-')):inSeason?cbar(p):statMini(p);const ncol=6+(rh?(kB?4:3):0);
-  const stc=p=>f.grp!=='E'?'':(ut.lineup.includes(p.id)||ut.rotation.includes(p.id)||ut.closer===p.id)?'rqst':'rqbn';
   h+=`<div class="mkcard fitl rqscroll" style="padding:0"><table class="mkt sq rosterq2 ${wide?'rqw':'rqs'}"><thead><tr>${th('name','선수','tn')}${th('pos','포지션')}${th('ovr','종합')}${xh}${rh}${lastTh}</tr></thead><tbody>${ps.map(p=>`<tr class="${stc(p)} ${sel&&sel.id===p.id?'sel':''}" onclick="UI.selRow(${p.id})"><td class="nm tn"><span class="tfn">${face(p,34)}<b>${esc(p.name)}${nfl(p)}</b></span></td><td class="rpos">${mkTag(p)}</td><td class="ov">${gv(SL.calcOvr(p))}${dv(p)}</td>${xd(p)}${rd(p)}<td class="rst">${lastTd(p)}</td></tr>`).join('')||`<tr><td colspan="${ncol}" class="muted" style="padding:18px 8px">${f.kind==='I'?'부상 선수 없음':f.grp==='D'?(usF?'루키스 선수 없음':'육성군 선수 없음'):'선수 없음'}</td></tr>`}</tbody></table></div>`;
   if(!wide&&ps.length&&f.grp==='E')h+=`<div class="rqleg"><i class="rqst"></i>주전 · 선발 · 마무리<i class="rqbn"></i>벤치 · 불펜<span>표를 옆으로 밀면 기록</span></div>`;
   if(mflow())return h;   /* v138 (R109): 휴대폰은 줄을 누르면 선수 카드 창 — 아래 선택 줄은 PC만 */
@@ -981,9 +987,10 @@ function offseasonSteps(){if(S.phase!=='offseason')return '';const w=S.week;cons
 // ======================= v74 (R058): 경기 화면 = 감독모드 (EA 프로야구 2011 감독모드의 화면 구성을 참고, 그림·글꼴은 우리 것) =======================
 // 위: 감독모드 제목 · 점수판 한 줄(팀 색 · 점수 · ▲▼회 · 볼카운트 · OUT) / 가운데: 어둡게 비친 구장 + 다이아몬드 + 타자·주자 이름표 + 방금 결과 반투명 창 / 아래: 두 팀 TODAY 칸 + 작전지시·대결정보·선수교체 + OK 진행
 function renderGame(){if(['pitch','pa','hl','half'].includes(ui.stepMode))ui.dmode=ui.stepMode;if(PREF.gview==='classic')return renderGame0();const lg=S.liveGame;if(!lg)return renderGame0();const H=S.teams[lg.home],A=S.teams[lg.away];const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
-  const g0=SL.userGameToday();const pi=g0&&SL.postInfo(g0);const nm=t=>esc(t.name);
+  const g0=SL.userGameToday();const pi=g0&&SL.postInfo(g0);const nm=t=>esc(cmPort()?t.name.split(' ')[0]:t.name);
   const ck=chgKey(lg);const chgNow=!!ck&&ui.chgShow===ck&&ui.chgSeen!==ck;
-  let h=`<div class="cmv${lg.done?' done':''}${chgNow?' int':''}">`;
+  const gp=cmPort();ui.gp=gp;   /* v187 (R158): 휴대폰 세로 = GPT 시안 (뒤쪽 시점 구장 · 투수/타자 줄 · 갈라진 진행 단추) — 가로 화면은 그대로 */
+  let h=`<div class="cmv${lg.done?' done':''}${chgNow?' int':''}${gp?' gp':''}">`;
   h+=`<div class="cmtop gut">${lg.done?`<b class="cmt">${lg.score[my]>lg.score[1-my]?'승리':lg.score[my]<lg.score[1-my]?'패배':'무승부'}</b><small class="cme">경기 종료</small>`:chgNow?`<b class="cmt cmt2">${pi?esc(pi.title):`시즌 ${h2hNo(lg)}차전`}</b><small class="cme">공수교대</small>`:''}<span class="cmmeta">${chgNow?'':`${pi?esc(pi.title):`시즌 ${h2hNo(lg)}차전`} · `}${esc(SL.parkOf(H).name)}</span></div>`;
   h+=`<div class="cmsb gut"><span class="tm ${lg.half===0&&!lg.done?'atk':''}"><i class="em" style="background:${A.color}">${embIn(A,22)}</i><span class="tnm">${nm(A)}</span>${my===0?'<em>MY</em>':''}<b>${lg.score[0]}</b></span><span class="tm ${lg.half===1&&!lg.done?'atk':''}"><i class="em" style="background:${H.color}">${embIn(H,22)}</i><span class="tnm">${nm(H)}</span>${my===1?'<em>MY</em>':''}<b>${lg.score[1]}</b></span>${lg.done?'':`<span class="inn">${lg.inn}회${lg.half===0?'초':'말'}</span><span class="bs"><small>B</small>${dots(lg.balls,3,'g')}<small>S</small>${dots(lg.strikes,2,'y')}<small>O</small>${dots(lg.outs,2,'r')}</span>`}</div>`;
   if(lg.done)return h+cmDone(lg,my)+`</div>`;
@@ -991,6 +998,7 @@ function renderGame(){if(['pitch','pa','hl','half'].includes(ui.stepMode))ui.dmo
   const B=SL.curBatter(lg),P=SL.curPitcher(lg);
   h+=`<div class="gut cmlsw">${lineScore(lg,true)}</div><div class="cmfield gut">${cmField(lg,my,B,P)}</div>`;
   h+=`<div class="cmtoday gut">${cmToday(lg,0,B,P)}${cmToday(lg,1,B,P)}</div>`;
+  if(gp)h+=cmDuo(lg,B,P);
   h+=cmControls(lg,my,B,P);
   return h+`</div>`;}
 // v94 (R078): 해설에 상황 한 줄 — 특별한 장면(역전·홈런 등)이 아닐 때, 오늘 기록(lg.box)에서 바로 읽은 사실만 붙임
@@ -1129,7 +1137,7 @@ function cmField(lg,my,B,P){const fx0=lg.fx;const F=fx0&&fx0.n===(lg.evN||0)&&!(
       sv+=`<circle class="fbat${sp?' sprh':''}" r="7" cx="${lh?196:164}" cy="288" style="fill:${batCol(lg.half)}"${wait?` opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(endT+.1).toFixed(2)}s" dur=".25s" fill="freeze"/></circle>`:'/>'}`;}}
   sv+=fLab+`</svg>`;
   const pct=(p)=>`left:${(p[0]/FX_W*100).toFixed(1)}%;top:${(p[1]/FX_H*100).toFixed(1)}%`;
-  let h=`<div class="cmf cmf2"><div class="fld">${sv}`;
+  let h=`<div class="cmf cmf2"><div class="fld${ui.gp&&artHas('park_night')?' art-park_night':''}">${sv}`;
   // 주자 이름표
   const TP=[[252,262],[180,158],[108,262]];
   tags.forEach(t=>{const r=S.players[t.pid];if(!r)return;h+=`<div class="ftag f${t.b+1}" style="${pct(TP[t.b])}${t.late?`;animation-delay:${t.late.toFixed(2)}s`:''}"${t.late?' data-late="1"':''}><b>${esc(r.name)}</b><span>${Math.round(r.attrs.speed)}</span></div>`;});
@@ -1169,7 +1177,7 @@ function cmControls(lg,my,B,P){const off=lg.half===my;const cur=SL.tacNow(lg);co
   if(!off&&P&&bp&&!lg.done){const st=pitSta(lg,P);if(st.pct<=15)h+=`<button class="cmwarn" onclick="UI.pitchMenu()"><b>${esc(P.name)} ${st.pc}구 · 체력 ${st.pct}%</b><span>불펜 보기 ›</span></button>`;}
   h+=`<div class="cmgo"><button class="gold big" onclick="UI.step('${md}')">${md==='to'?`${toI}회까지 자동 ▶▶`:esc(M[2])+' ▶'}</button><button class="cmmd" onclick="UI.cmSheet('mode')" aria-label="진행 방식 바꾸기"><small>진행 방식</small>${esc(M[1])} ▾</button></div>`;
   if(md==='to')h+=`<div class="toinn small">구간 진행: ${toI}회 시작까지 자동 → 그다음부터 <b>${DM_KO[ui.dmode||'half']}</b> <button class="lnk" onclick="UI.cmSheet('mode')">바꾸기</button></div>`;
-  h+=`<div class="cmbar"><button onclick="UI.cmSheet('tac')">${off?'작전지시':'수비 작전'}</button><button onclick="UI.sheet2('detail')">대결정보</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}>선수교체</button><button onclick="UI.cmSheet('lineup')">라인업</button></div>`;
+  const gi=k=>ui.gp?pxSvg(k,20):'';h+=`<div class="cmbar"><button onclick="UI.cmSheet('tac')">${gi(off?'flag':'shield')}${off?'작전지시':'수비 작전'}</button><button onclick="UI.sheet2('detail')">${gi('chart')}대결정보</button><button onclick="UI.cmSheet('sub')" ${bench||bp?'':'disabled'}>${gi('swap')}선수교체</button><button onclick="UI.cmSheet('lineup')">${gi('board')}라인업</button></div>`;
   return h+`</div>`;}
 function cmSheetHtml(k){const lg=S.liveGame;if(!lg)return '';const ut=SL.userTeam();const my=lg.home===ut.id?1:0;
   if(k==='tac'){const off=lg.half===my;const keys=Object.keys(SL.TACTICS).filter(x=>SL.TACTICS[x].side===(off?'off':'def'));const cur=SL.tacNow(lg);
@@ -2861,15 +2869,34 @@ function cutScan(){try{const ut=SL.userTeam();if(!ut)return;const R=S.lastRecap;
   for(const id of ids){if(snap.ids.has(id))continue;const p=S.players[id];if(!p||p.drafted&&p.drafted.s===S.season||!p.contract)continue;const others=ids.filter(x=>x!==id).map(sal).sort((a,b)=>b-a);if(sal(id)>0&&sal(id)>=(others[2]||0)&&(p.contract.years||1)>=1)
     bigCut('bs-'+id,{art:'bigsign',t:'대형 계약',top:`${mkYear(S.phase==='season'?S.season:S.season+1)} · ${ut.name}`,sub:`연봉 ${SL.money(sal(id))} · ${p.contract.years||1}년`,pid:id,pl:`${p.pos} · ${p.age}세`,line:`팀 연봉 ${others.filter(v=>v>sal(id)).length+1}위`,snd:'notify'});}}catch(e){}}
 {const e0=A.endGame;A.endGame=function(){const lg=SL.state().liveGame;const r=e0.apply(A,arguments);cutGame(lg);return r;};}
-// v186 (R157): 폰 감독실 경기 카드 — 다음 경기가 주인공: 구장 그림 바탕 · 엠블럼 64 대결 · 양쪽 선발 얼굴 64 (선발은 경기 전 준비와 같은 계산 preMatch)
+// v187 (R158): 폰 감독실 = GPT 시안 — 노을 구장 그림 위 「우리 vs 상대」 + 양쪽 선발 2등신 · 몇 차전 · 선발 줄 · 할 일 한 줄 · [▶ 경기 보기 | 7경기 자동 ▾] (선발은 경기 전 준비와 같은 계산 preMatch)
 function todayPhone(ut,g,home,opp,pi){const gi=S.schedule.indexOf(g);let pm=null;try{pm=SL.preMatch(gi);}catch(e){}
-  const spP=x=>x&&x.sp?S.players[x.sp.pid]:null;const mySp=spP(pm&&pm.me)||null,opSp=spP(pm&&pm.op)||null;
-  const spLine=p=>{const c=p&&p.cur||{};return c.pOuts?`${c.pW||0}승 ${c.pL||0}패 · ${(c.pER*27/c.pOuts).toFixed(2)}`:'시즌 첫 등판';};
-  const sp=(p,me)=>`<div class="tdsp ${me?'me':'op'}"${p?` onclick="event.stopPropagation();UI.openPlayer(${p.id})"`:''}>${p?face(p,64):'<span class="tdsp0"></span>'}<div><small>${me?'우리 선발':'상대 선발'}</small><b>${p?esc(p.name):'미정'}</b><small>${p?spLine(p):'-'}</small></div></div>`;
-  const rk=t=>{try{return SL.rankOf(t);}catch(e){return 0;}};const tm=(t,me)=>`<div class="tdtm ${me?'me':'op'}">${emblem(t,32)}<div><b>${esc(t.name.split(' ')[0])}</b><small>${t.rec.w}승 ${t.rec.l}패${rk(t)?` · ${rk(t)}위`:''}</small></div></div>`;
-  const bg=ART&&(ART.stadiumGame||ART.stadiumHome);const wr=SL.watchReasons();const C=SL.careerStages();const m=ui.lastRun===999?999:ui.lastRun===1?1:7;
-  return `<div class="card today cmp tdx${pi?' postc':''}"><div class="tdhero"${bg?` style="background-image:url(${bg})"`:''}><div class="tdtop"><span class="tdband" style="--tc:${ut.color}">${esc(todayHeadline(ut,opp,pi))}</span><button class="tdcar" onclick="UI.sheet('career')">커리어 ${C.done}/${C.list.length} ›</button></div>
-    <div class="tdvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${tm(ut,1)}<div class="vsc"><span class="vs pxf">VS</span><small class="tdmeta">${dayLabel()} · ${home?'홈':'원정'}</small><button class="tdprep" onclick="event.stopPropagation();UI.prematch(${gi})">경기 전 준비 ›</button></div>${tm(opp,0)}</div><div class="tdsps">${sp(mySp,true)}${sp(opSp,false)}</div></div>
-    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${wr.length?`<div class="watchl small">${liSvg('eye')} ${wr.slice(0,2).map(x=>esc(x.text)).join(' · ')}</div>`:''}${decideRow()}${missionLine()}
-    <button class="gold big" onclick="UI.startGame()">▶ ${pi?esc(pi.title)+' 시작':'경기 보기'}</button><div class="tdrow btns3 b2">${pi?`<button class="ghost sm" onclick="UI.autoDays(1)">이 경기 자동</button>`:`<button class="ghost sm" onclick="${m===1?'UI.autoDays(1)':`UI.autoRun(${m},this)`}">${m===1?'이 경기 자동':m===999?'시즌 끝까지':'7경기 자동'}</button><button class="ghost sm more" aria-label="다른 자동 진행" onclick="UI.autoPick()">⋯</button>`}</div></div></div>`;}
+  const spP=x=>x&&x.sp?S.players[x.sp.pid]:null;const mySp=spP(pm&&pm.me)||null,opSp=spP(pm&&pm.op)||null;const C=SL.careerStages();const m=ui.lastRun===999?999:ui.lastRun===1?1:7;
+  const nth=S.schedule.filter(x=>x.res&&((x.home===ut.id&&x.away===opp.id)||(x.away===ut.id&&x.home===opp.id))&&!x.post).length+1;const sn=t=>esc(t.name.split(' ')[0]);
+  const side=(p,t)=>p?chibi(p,64,'h'):`<span class="chb h gxe">${emblem(t,40)}</span>`;
+  return `<div class="card today cmp tdx gx${pi?' postc':''}"><div class="gxhero${artHas('post')?' art art-post':''}"><button class="tdcar" onclick="UI.sheet('career')">커리어 ${C.done}/${C.list.length} ›</button>
+    <div class="tdvs gxvs" onclick="UI.prematch(${gi})" title="경기 전 준비">${side(mySp,ut)}<b class="gxt">${sn(ut)} <i>vs</i> ${sn(opp)}</b>${side(opSp,opp)}</div>
+    <span class="gxpill">${pi?esc(pi.title):`${nth}차전`} · ${home?'홈':'원정'}</span></div>
+    <div class="gxsp"><span class="gxl">선발</span><b>${mySp?esc(mySp.name):'미정'}</b><i>vs</i><b>${opSp?esc(opSp.name):'미정'}</b><button class="tdprep" onclick="UI.prematch(${gi})">경기 전 준비 ›</button></div>
+    <div class="tdbody">${pi?`<div class="small tdpi"><b class="due">${esc(pi.stake)}</b> · 시리즈 ${esc(pi.series)}</div>`:''}${decideRow()}
+    <div class="gxgo"><button class="gold big" onclick="UI.startGame()">▶ ${pi?esc(pi.title)+' 시작':'경기 보기'}</button><div class="btns3 b2">${pi?`<button onclick="UI.autoDays(1)">이 경기 자동</button>`:`<button onclick="${m===1?'UI.autoDays(1)':`UI.autoRun(${m},this)`}">${m===1?'이 경기 자동':m===999?'시즌 끝까지':'7경기 자동'}</button><button class="more" aria-label="다른 자동 진행" onclick="UI.autoPick()">▾</button>`}</div></div></div></div>`;}
+// 코치 추천 = 한 줄 → 누르면 창
+A.recOpen=function(){modal(`<div class="sheet"><div class="shh"><b>코치 추천</b></div>${recCard(true)}<div class="shbar"><button class="ghost" onclick="UI.closeModal()">닫기</button></div></div>`);};
 A._cut=(k,o)=>bigCut(k,o);A._cutGame=lg=>cutGame(lg);   /* 검사용 */
+// ===================== v187 (R158): 2등신 캐릭터 — 목록 · 감독실 · 중계 (선수 카드 · 큰 컷은 흉상 그대로) =====================
+// assets/chibi/<ea|wh|bl|la>-NN.png (64px, 파란 모자 · 소매 → 구단 색) · 국적은 PX_NAT 분류, 같은 선수는 늘 같은 그림(idHash 대신 hsh)
+const CHB={im:[],cat:[],url:{},ready:false};
+(function(){try{const L=(typeof ASSETS!=='undefined'&&ASSETS.chibi)||[];if(!L.length||typeof document==='undefined'||/jsdom/i.test(navigator.userAgent))return;let n=0;L.forEach((c,i)=>{const im=new Image();CHB.cat[i]=c.c;im.onload=()=>{if(++n===L.length){CHB.ready=true;try{if(typeof S!=='undefined'&&S&&!S.liveGame)render();}catch(e){}}};im.src=c.src;CHB.im[i]=im;});}catch(e){}})();
+function chbIdx(p){const cats=(PX_NAT[p.nat]||['ea']).map(c=>c==='cb'?'la':c);const pool=[];CHB.cat.forEach((c,i)=>{if(cats.includes(c))pool.push(i);});const L=pool.length?pool:CHB.cat.map((c,i)=>i);return L[hsh(p.id+11)%L.length];}
+function chbUrl(i,color){const key=i+'|'+color;if(CHB.url[key])return CHB.url[key];const im=CHB.im[i];const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.drawImage(im,0,0);
+  const d=x.getImageData(0,0,64,64),a=d.data;const [th,ts,tl]=hexHsl(color);for(let j=0;j<a.length;j+=4){if(a[j+3]<100)continue;const [h,s2,l]=hexHsl('#'+[a[j],a[j+1],a[j+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));if(h>0.53&&h<0.72&&s2>0.35&&l>0.12){const nl=Math.max(0.06,Math.min(0.92,l*(tl/0.42)));const [r,g,b]=hslRgb(th,Math.max(ts,0.35),nl);a[j]=r;a[j+1]=g;a[j+2]=b;}}x.putImageData(d,0,0);
+  return CHB.url[key]=c.toDataURL();}
+// mode 'h' = 머리만(모자 · 얼굴, 36×36 잘라 크게) · 'f' = 전신
+function chibi(p,size,mode){if(!p)return '';if(!CHB.ready)return face(p,size);const t=p.teamId!=null&&S.teams[p.teamId]?S.teams[p.teamId]:SL.userTeam();const u=chbUrl(chbIdx(p),(t&&t.color)||'#2f5bd3');
+  if(mode==='f')return `<img class="chb f" alt="" src="${u}" width="${size}" height="${size}" data-pid="${p.id}">`;
+  const k=size/36;return `<span class="chb h" data-pid="${p.id}" style="width:${size}px;height:${size}px;background-image:url(${u});background-size:${Math.round(64*k)}px ${Math.round(64*k)}px;background-position:${-Math.round(14*k)}px ${-Math.round(1*k)}px"></span>`;}
+A.chbOn=()=>CHB.ready;
+A.sqOpen=function(id){ui.sqOpen=ui.sqOpen===id?null:id;render();};A.sqFull=function(v){ui.sqFull=!!v;render();};
+// v187 (R158): 휴대폰 세로 중계 판정 · 투수/타자 줄
+function cmPort(){try{return !isWide()&&innerWidth<700&&innerHeight>innerWidth;}catch(e){return false;}}
+function cmDuo(lg,B,P){const row=(p,k)=>p?`<button class="cdr" onclick="UI.openPlayer(${p.id})">${chibi(p,40,'h')}<em>${k}</em><b>${esc(p.name)}</b><small>${esc(seasonBrief(p,lg))}</small></button>`:'';return `<div class="cmduo gut">${row(P,'투수')}${row(B,'타자')}</div>`;}

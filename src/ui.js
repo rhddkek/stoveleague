@@ -917,7 +917,7 @@ function raceCard(ut){const cp=SL.compOf(ut);const st=SL.standings(cp);const r=s
   const pre=st.every(t=>t.rec.w+t.rec.l===0);if(pre)goalTxt='';
   return `<div class="card">${hd(pre?'순위 경쟁 · 개막 전':'순위 경쟁',pre?'순위 미정':`남은 ${left}경기`)}${pre?'<div class="small muted" style="margin-bottom:6px">아직 경기를 치르지 않아 순위가 없음 · 첫 경기 뒤부터 순위가 매겨짐</div>':''}${goalTxt?`<div class="small b" style="margin-bottom:6px">${esc(goalTxt)}</div>`:''}<div class="tw"><table><tr><th>#</th><th style="text-align:left">구단</th><th>승</th><th>패</th><th>차</th></tr>${st.map((t,i)=>`<tr class="${t.isUser?'me':''}"><td>${pre?'<span class="dim">-</span>':`<span class="rz ${zone(i)}">${i+1}</span>`}</td><td style="text-align:left;white-space:nowrap">${esc(t.name)}</td><td>${t.rec.w}</td><td>${t.rec.l}</td><td>${i===0?'-':(((st[0].rec.w-st[0].rec.l)-(t.rec.w-t.rec.l))/2).toFixed(1).replace('.0','')}</td></tr>`).join('')}</table></div>${kr?'<div class="small muted" style="margin-top:4px"><span class="rz y">■</span> 한국시리즈 직행 <span class="rz g">■</span> 플레이오프·준PO <span class="rz o">■</span> 와일드카드 — 5위까지 가을야구</div>':lg==='JP'?'<div class="small muted" style="margin-top:4px"><span class="rz y">■</span> 파이널 스테이지 직행 <span class="rz g">■</span> 퍼스트 스테이지 — 3위까지 클라이맥스 시리즈</div>':lg==='US'?'<div class="small muted" style="margin-top:4px"><span class="rz y">■</span> 지구 1위 가을야구 · 와일드카드 3장은 리그 전체 승률순 (순위 탭)</div>':lg==='TW'?'<div class="small muted" style="margin-top:4px">전·후반기 1위가 가을야구 — 반기 순위는 순위 탭</div>':''}</div>`;}
 // ----- 모바일 홈: 한 화면 + 타일 → 아래에서 올라오는 창 -----
-function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
+function homeTiles(ut,rows){const it=decisionItems();const st=SL.weeklyStory();const rep=SL.growthReport(1)[0];const n0=S.news[0];const off=S.phase!=='season';
   const cp=SL.compOf(ut);const sd=SL.standings(cp);const rk=sd.findIndex(t=>t.id===ut.id)+1;const T=[];
   if(guideOn()){const n=GUIDE.filter(g=>guideDone(g.k)).length;const nx=guideNext();T.push({k:'guide',ic:'🧭',t:'첫 시즌 할 일',v:`${n}/${GUIDE.length}`,s:nx?`다음: ${nx.t}`:'다음 할 일은 경기가 더 진행된 뒤에',hot:true});}
   if(!(S.phase==='season'&&SL.userGameToday()&&it.length)&&!(mflow()&&!it.length))T.push({k:'dec',ic:'📋',t:it.length?'할 일':'할 일 없음',v:it.length?`${it.length}건`:'',s:it[0]?it[0].title:'',hot:it.length>0});
@@ -926,13 +926,14 @@ function homeTiles(ut){const it=decisionItems();const st=SL.weeklyStory();const 
   else T.push({k:'race',ic:'📊',t:off?'지난 시즌':'순위 경쟁',v:off&&S.lastSummary?`${S.lastSummary.rank}위`:ut.rec.w+ut.rec.l?`${rk}위`:'개막 전',s:off&&S.lastSummary?`${S.lastSummary.w}승 ${S.lastSummary.l}패${S.lastSummary.post?' · '+S.lastSummary.post:''}`:(()=>{const gp=SL.grantProjection(ut);return gp.total&&S.day<=SL.lgGames(ut.league)?`예상 지원금 ${SL.money(gp.total)}`:(S.mgr&&S.mgr.cur&&S.mgr.cur.goal?`목표 ${S.mgr.cur.goal.text}`:`${ut.rec.w}승 ${ut.rec.l}패`);})()});
   if(rep||!mflow())T.push({k:'growth',ic:'🌱',t:'성장 점검',v:rep?`+${rep.r.d}`:'',s:rep?`${rep.p.name} ${rep.r.from}→${rep.r.to}`:'대기'});
   if(off&&S.asia&&S.asia[S.season]&&S.week<=3)T.push({k:'asia',ic:'🌏',t:'아시아 챔피언십',v:'',s:`우승 ${S.asia[S.season].final.wn}`});
-  else{const un=SL.unreadN();if(un)T.push({k:'inbox',go:"UI.go('home','inbox')",ic:'✉',t:'받은 소식',v:`새 소식 ${un>99?'99+':un}`,s:n0?String(n0.text).replace(/<[^>]+>/g,''):''});else if(!tickerItems().length)T.push({k:'news',ic:'📰',t:'소식',v:'',s:n0?n0.text:'아직 소식이 없음'});}
+  else{const un=SL.unreadN();if(un||rows)T.push({k:'inbox',go:"UI.go('home','inbox')",ic:'✉',t:'받은 소식',v:un?`새 소식 ${un>99?'99+':un}`:'',s:n0?String(n0.text).replace(/<[^>]+>/g,''):'소식 없음'});else if(!tickerItems().length)T.push({k:'news',ic:'📰',t:'소식',v:'',s:n0?n0.text:'아직 소식이 없음'});}
   {const b=SL.jobBoard();if(b.list.length&&!(mflow()&&S.phase==='season'))T.push({k:'jobs',ic:'💼',t:'감독 채용',v:`${b.list.length}곳`,s:`채용 ${b.list.length}곳 · 평판 ${b.rep}`});}
   {const M=SL.myPlayers(4);if(M.length){const x=M[0];const c=x.p.cur;T.splice(guideOn()?2:1,0,{k:'mine',ic:'⭐',t:'내 선수',v:`${M.length}명`,s:`${x.p.name} ${x.up?`${SL.ATTR_KO[x.up.k]} +${x.up.d}`:''}${x.ev?' · '+x.ev.line:SL.isPitcher(x.p)?'':c.ab?` · 타율 ${(c.h/c.ab).toFixed(3).replace(/^0/,'')}`:''}`,hot:!!x.up});}}
   // v85: 타일은 6개까지(2×3 / 3×2로 딱 맞게) — 넘치면 이야기 → 성장 점검 순으로 뺌 (각자 탭에서 볼 수 있음)
   // v103: 키 작은 폰(높이 700 미만)은 한 줄(3개)만 — 오늘의 결정 줄이 붙은 날에도 감독실이 한 화면에
-  {const cap=innerHeight<700?3:6;for(const k of ['story','growth','news','mine','jobs','race','asia','awards']){while(T.length>cap){const i=T.findIndex(x=>x.k===k&&!x.hot);if(i<0)break;T.splice(i,1);}}}
-  return `<div class="tiles${T.length>=5?' t3':''}">${T.map(x=>`<button class="tile${x.hot?' hot':''}" onclick="${x.go||`UI.sheet('${x.k}')`}"><div class="th"><span>${x.ic} ${x.t}</span>${x.v?`<b>${esc(x.v)}</b>`:''}</div><div class="ts">${esc(x.s)}</div></button>`).join('')}</div>`;}
+  if(rows){try{const R=coachRecs();if(R.length)T.unshift({k:'rec',go:'UI.recOpen()',ic:'📋',t:'코치 추천',v:`${R.length}`,s:R[0].t||R[0].title||''});}catch(e){}}
+  {const cap=rows?4:innerHeight<700?3:6;const keep=rows&&guideOn()?'story':'';for(const k of ['story','growth','news','mine','jobs','race','asia','awards']){if(k===keep)continue;while(T.length>cap){const i=T.findIndex(x=>x.k===k&&!x.hot);if(i<0)break;T.splice(i,1);}}}
+  return `<div class="tiles${rows?' hrows':T.length>=5?' t3':''}">${T.map(x=>`<button class="tile${x.hot?' hot':''}" onclick="${x.go||`UI.sheet('${x.k}')`}"><div class="th"><span>${x.ic} ${x.t}</span>${x.v?`<b>${esc(x.v)}</b>`:''}</div><div class="ts">${esc(x.s)}</div></button>`).join('')}</div>`;}
 function sheetHtml(k){const ut=SL.userTeam();switch(k){
   case 'result':{const hasRep=ui.weekReport&&S.phase==='season'&&ui.weekReport.s===S.season&&!ui.weekReport.ended;return hasRep?reportCard(ui.weekReport):ui.gameResult?resultCard(ui.gameResult):'';}
   case 'guide':return guideCard()||'<div class="card"><div class="muted">첫 시즌 할 일 완료</div></div>';
@@ -991,7 +992,7 @@ function renderHome(){
     if(!W&&S.week<5)h+=strengthCard();}
   h+=resH;
   if(W)h+=myCard()+guideCard();
-  if(!W)return h+(S.phase==='season'?recCard():'')+homeTiles(ut);
+  if(!W)return h+homeTiles(ut,S.phase==='season');   /* v187 (R158): 폰 시즌은 코치 추천 · 받은 소식 · 할 일을 한 줄씩(타일 대신 목록) */
   h+=story;
   if(S.phase==='offseason'&&S.week<=3){const s0=S.season;if(S.awards&&S.awards[s0])h+=awardHomeCard(s0);if(S.asia&&S.asia[s0])h+=asiaCard(s0);}
   h+=newsCard();

@@ -20,13 +20,13 @@ const ROOT=path.resolve(__dirname,'..');
   // 3. 아이콘: 선 아이콘 → 픽셀(crispEdges), 아래 메뉴도
   {const r=await p.evaluate(()=>{const nav=[...document.querySelectorAll('nav svg, .nav svg')];const li=[...document.querySelectorAll('svg.li, svg.pxi')];const px=s=>!!s.querySelector('path[shape-rendering="crispEdges"]');const stroke=[...document.querySelectorAll('#app svg.li')].filter(s=>!px(s)).length;return {nav:nav.length,navPx:nav.filter(px).length,li:li.length,liPx:li.filter(px).length,stroke};});
     r.nav>=5&&r.navPx===r.nav&&r.li>=1&&r.liPx===r.li&&r.stroke===0?ok(`픽셀 아이콘: 아래 메뉴 ${r.nav}/${r.nav} · 화면 아이콘 ${r.liPx}/${r.li} (선 아이콘 0)`):bad('아이콘 '+JSON.stringify(r));}
-  // 4. 폰 시즌 감독실: 구장 띠 없이 경기 카드가 첫 줄 · 엠블럼 대결 · 양쪽 선발 얼굴 64 (경기 전 준비와 같은 선발) · 받은 소식 칸 그대로
-  {const r=await p.evaluate(()=>{const S=SL.state();const g=SL.userGameToday();const gi=S.schedule.indexOf(g);const pm=SL.preMatch(gi);const c=document.querySelector('.content')||document.getElementById('app');
-      const first=document.querySelector('.card.today');const hero=!!document.querySelector('.hero2');const sp=[...document.querySelectorAll('.tdx .tdsp')];const nm=sp.map(x=>(x.querySelector('b')||{}).textContent);const fw=sp.map(x=>{const f=x.firstElementChild;return f?Math.round(f.getBoundingClientRect().width):0;});
+  // 4. 폰 시즌 감독실: 구장 띠 없이 경기 카드가 첫 줄 · 선발 = 경기 전 준비 · 선발 그림 64 (v187: GPT 시안 — 엠블럼 대결 → 「우리 vs 상대」 + 2등신)
+  {const r=await p.evaluate(()=>{const S=SL.state();const g=SL.userGameToday();const gi=S.schedule.indexOf(g);const pm=SL.preMatch(gi);
+      const first=document.querySelector('.card.today');const hero=!!document.querySelector('.hero2');const nm=[...document.querySelectorAll('.tdx .gxsp b')].map(x=>x.textContent);const fw=[...document.querySelectorAll('.tdx .gxvs>.chb')].map(x=>Math.round(x.getBoundingClientRect().width));
       const exp=[pm.me.sp?S.players[pm.me.sp.pid].name:'미정',pm.op.sp?S.players[pm.op.sp.pid].name:'미정'];const go=!!document.querySelector('.tdx button.gold[onclick="UI.startGame()"]');const auto=!!document.querySelector('.tdx button[onclick^="UI.autoRun(7"]');
-      const tiles=[...document.querySelectorAll('.tile')].map(x=>x.textContent).join('|');const emb=document.querySelectorAll('.tdx .tdtm').length;const bot=first?first.getBoundingClientRect().bottom:9999;
-      return {tdx:!!document.querySelector('.tdx'),hero,nm,exp,fw,go,auto,inbox:/받은 소식/.test(tiles),emb,bot:Math.round(bot)};});
-    r.tdx&&!r.hero&&r.nm.join()===r.exp.join()&&r.fw.every(w=>w>=56)&&r.go&&r.auto&&r.emb===2&&r.bot<700?ok(`폰 감독실: 경기 카드 첫 줄(구장 띠 없음) · 선발 ${r.nm.join(' vs ')} = 경기 전 준비 · 얼굴 ${r.fw.join('/')}px · [경기 보기][7경기 자동] · 카드 끝 ${r.bot}px`):bad('감독실 '+JSON.stringify(r));}
+      const tiles=[...document.querySelectorAll('.tile')].map(x=>x.textContent).join('|');const bot=first?first.getBoundingClientRect().bottom:9999;
+      return {tdx:!!document.querySelector('.tdx'),hero,nm,exp,fw,go,auto,inbox:/받은 소식/.test(tiles),bot:Math.round(bot)};});
+    r.tdx&&!r.hero&&r.nm.join()===r.exp.join()&&r.fw.length===2&&r.fw.every(w=>w>=56)&&r.go&&r.auto&&r.bot<700?ok(`폰 감독실: 경기 카드 첫 줄(구장 띠 없음) · 선발 ${r.nm.join(' vs ')} = 경기 전 준비 · 선발 그림 ${r.fw.join('/')}px · [경기 보기][7경기 자동] · 카드 끝 ${r.bot}px`):bad('감독실 '+JSON.stringify(r));}
   // 5. 자동 1경기 결과 = 신문 1면: 점수 픽셀 글꼴 · 이닝표 합 = 점수 · 수훈 얼굴 128 · 창 안 단추 줄은 하나(.shbar)
   {const r=await p.evaluate(async()=>{const S=SL.state();const ut=SL.userTeam();let k=0;while(!SL.userGameToday()&&k++<5)UI.autoDays(1);UI.closeModal();UI.autoDays(1);await new Promise(r=>setTimeout(r,700));const m=document.querySelector('#modal .rsheet');if(!m)return {sheet:false};
       const s=m.querySelector('.grsc .s');const ff=s?getComputedStyle(s).fontFamily:'';const sc=s?s.innerText.replace(/\s+/g,''):'';const last=S.schedule.filter(x=>x.res&&(x.home===ut.id||x.away===ut.id)).sort((a,b)=>b.day-a.day)[0];const my=last.home===ut.id?last.res.hs:last.res.as,op=last.home===ut.id?last.res.as:last.res.hs;

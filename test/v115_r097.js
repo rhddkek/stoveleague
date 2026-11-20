@@ -5,7 +5,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
   const p=await b.newPage({viewport:{width:393,height:852}});p.on('pageerror',e=>errs.push(e.message));await p.goto('file://'+file+'?test=1');await p.waitForTimeout(300);
 
   // 1. 선수단 → 명단 (v119 시안): 필터는 칩 한 줄(전체·타자·투수·부상) · 고르는 상자(select) 없음 · 「이름을 누르면…」 설명 없음 · 표는 선수 | 포지션 | 종합 | 상태
-  {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:144,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();UI.go('roster','list');
+  {const r=await p.evaluate(()=>{SL.newGame(4096,3,{arch:true,games:144,league:'KR'});const S=SL.state();S.tutorialDone=true;UI.setTab('home');UI.closeModal();(UI.sqFull&&UI.sqFull(1)),UI.go('roster','list');
       const f=document.querySelector('.sqchips');const kids=[...f.children].filter(e=>e.offsetHeight);const tb=kids.map(e=>{const r=e.getBoundingClientRect();return r.top+r.height/2;});const t=document.querySelector('.content').innerText;
       return {rows:Math.max(...tb)-Math.min(...tb)<12?1:2,chips:kids.map(e=>e.textContent.replace(/[\s\d]+$/,'')).join(','),sel:document.querySelectorAll('.content select').length,th:[...document.querySelectorAll('.rosterq2 thead th')].map(x=>x.textContent.replace(/[▼▲\s]/g,'')).join(','),hint:/이름을 누르면/.test(t),arrow:/→ \d+%/.test(t)};});
     r.rows===1&&r.chips.replace(/,$/,'')==='전체,타자,투수,부상'&&r.sel===0&&r.th==='선수,포지션,종합,나이,잠재,상태'&&!r.hint&&!r.arrow?ok(`명단: 칩 한 줄 「${r.chips}」 · 표 「${r.th}」 · 고르는 상자 없음`):bad('필터 '+JSON.stringify(r));}
@@ -28,7 +28,7 @@ const {chromium}=require('playwright');const path=require('path');const fs=requi
     r.jp[0]>=r.G-1&&r.jp[1]<=r.G&&r.pst===0&&r.jp0?ok(`시즌 끝 일본 팀 ${r.jp.join('~')}경기(정규 ${r.G}) · 해외 선수 기록 안 쌓임 · 새 시즌 0부터`):bad('간이 순위 시즌 '+JSON.stringify(r));}
 
   // 5. 예전 저장 · 버전
-  {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);UI.closeModal();UI.autoDays(7);UI.closeModal();UI.go('roster','list');UI.go('league','table');return {ver:SL.GAME_VER};},j);
+  {const j=fs.readFileSync(path.resolve(__dirname,'v29_save.json'),'utf8');const r=await p.evaluate(s=>{SL.load(s);UI.closeModal();UI.autoDays(7);UI.closeModal();(UI.sqFull&&UI.sqFull(1)),UI.go('roster','list');UI.go('league','table');return {ver:SL.GAME_VER};},j);
     /^v1\d\d$/.test(r.ver)?ok('예전 저장: 목록·순위표 정상 · '+r.ver):bad('예전 저장 '+JSON.stringify(r));}
   errs.length?bad('페이지 오류 '+errs.slice(0,3).join(' | ')):ok('페이지 오류 없음');
   await b.close();console.log(fails?`v115 검사 실패 ${fails}건`:'v115 검사 통과');process.exit(fails?1:0);})().catch(e=>{console.log('FAIL',e.message);process.exit(1);});

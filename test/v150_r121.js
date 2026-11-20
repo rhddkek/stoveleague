@@ -6,7 +6,7 @@ const {chromium}=require('playwright');const path=require('path');
   await p.evaluate(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.trim()==='시작하기');if(b)b.click();UI.closeModal();const S=SL.state();S.settings.stopOnOffer=false;S.settings.stopOnCheck=false;});await p.waitForTimeout(300);
   // 1. 감독실: 큰 단추 하나 + 자동(한 가지) + ⋯
   {const r=await p.evaluate(()=>{const B=[...document.querySelectorAll('#app .btns3 button')].map(x=>x.textContent.trim());UI.autoPick();const rows=[...document.querySelectorAll('#modal .prow.act .nm')].map(x=>x.textContent.trim());UI.closeModal();return {B,rows,gold:document.querySelectorAll('#app button.gold.big').length};});
-    r.gold===1&&r.B.join('|')==='7경기 자동|⋯'&&r.rows.join('|')==='이 경기 자동|7경기 자동|시즌 끝까지'?ok(`감독실 진행: [경기 보기] + [${r.B.join('] [')}] · ⋯ 안에 ${r.rows.length}가지`):bad('감독실 단추 '+JSON.stringify(r));}
+    r.gold===1&&r.B.join('|')==='7경기 자동|▾'&&r.rows.join('|')==='이 경기 자동|7경기 자동|시즌 끝까지'?ok(`감독실 진행: [경기 보기] + [${r.B.join('] [')}] · ⋯ 안에 ${r.rows.length}가지`):bad('감독실 단추 '+JSON.stringify(r));}
   // 2. 알림은 위 탭을 가리지 않음
   {await p.evaluate(()=>UI.go('roster','lineup'));await p.waitForTimeout(250);const r=await p.evaluate(()=>{const t=document.querySelector('#toast');const tabs=document.querySelector('#app .htabs');if(!t||t.style.display==='none'||!tabs)return null;const a=t.getBoundingClientRect(),q=tabs.getBoundingClientRect();return {tb:Math.round(a.bottom),tabTop:Math.round(q.top),right:Math.round(a.right),w:innerWidth,txt:t.textContent.slice(0,30)};});
     !r?bad('알림이 뜨지 않음'):r.tb<=r.tabTop+2&&r.right<=r.w-120?ok(`알림 「${r.txt}」: 아래 끝 ${r.tb}px ≤ 탭 줄 ${r.tabTop}px · 오른쪽 단추(메뉴 · 경기)도 안 가림`):bad('알림 위치 '+JSON.stringify(r));}
