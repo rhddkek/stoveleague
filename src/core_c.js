@@ -24,7 +24,7 @@ function addLateLeague(lg){const r0=S.rng;S.rng=((S.seed|0)^0x4c4e)|0;
     for(const pid of t.roster){const p=S.players[pid];p.snap={s:S.season,ovr:r1(calcOvr(p)),val:calcValue(p)};if(p.age<=25)p.deb=1;}}
   S.rng=r0;}
 function playLg(){const t=userTeam();return t&&t.league!=='KR'?t.league:null;}
-function liveTeams(){const pl=playLg();return pl?krTeams().concat(Object.values(S.teams).filter(t=>t.league===pl&&(t.isUser||activeT(t)))):krTeams();}   /* v190 (R162): 맡은 리그 AI 구단도 연봉 · 입장 수입 · 스폰서 · 유지비 · 시설 투자가 돎(예전: 한국 AI만) */
+function liveTeams(){const pl=playLg();return pl?[...new Set(krTeams().concat(Object.values(S.teams).filter(t=>t.league===pl&&(t.isUser||activeT(t)))))]:krTeams();}   /* v190 (R162): 맡은 리그 AI 구단도 연봉 · 입장 수입 · 스폰서 · 유지비 · 시설 투자가 돎(예전: 한국 AI만) */
 function econ(t){const e=econ0(t);return gf()===1?e:{...e,ticket:e.ticket/gf()};}
 // 리그 경제: 한국 기준값 × 리그 규모(선수 연봉 총액 비율). 우리 리그가 어디든 「연봉 대비 수입」 감각은 같게
 const LG_ECON={JP:1.6*ECON_R.JP,TW:0.35*ECON_R.TW,US:4.8*ECON_R.US};   /* v159 (R130): 리그 연봉 수준(PAY_LG)을 실제에 맞추면서 수입도 같은 비율(ECON_R) */   /* v157 (R128): 미국 수준을 올리면서 연봉 총액이 한국의 약 4.9배 → 리그 경제도 같은 비율 */

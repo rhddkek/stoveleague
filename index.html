@@ -3352,7 +3352,7 @@ const ASSETS={"sprites":{"bat":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUh
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v189';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v190';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -4332,7 +4332,7 @@ function addLateLeague(lg){const r0=S.rng;S.rng=((S.seed|0)^0x4c4e)|0;
     for(const pid of t.roster){const p=S.players[pid];p.snap={s:S.season,ovr:r1(calcOvr(p)),val:calcValue(p)};if(p.age<=25)p.deb=1;}}
   S.rng=r0;}
 function playLg(){const t=userTeam();return t&&t.league!=='KR'?t.league:null;}
-function liveTeams(){const pl=playLg();return pl?krTeams().concat(Object.values(S.teams).filter(t=>t.league===pl&&(t.isUser||activeT(t)))):krTeams();}   /* v190 (R162): 맡은 리그 AI 구단도 연봉 · 입장 수입 · 스폰서 · 유지비 · 시설 투자가 돎(예전: 한국 AI만) */
+function liveTeams(){const pl=playLg();return pl?[...new Set(krTeams().concat(Object.values(S.teams).filter(t=>t.league===pl&&(t.isUser||activeT(t)))))]:krTeams();}   /* v190 (R162): 맡은 리그 AI 구단도 연봉 · 입장 수입 · 스폰서 · 유지비 · 시설 투자가 돎(예전: 한국 AI만) */
 function econ(t){const e=econ0(t);return gf()===1?e:{...e,ticket:e.ticket/gf()};}
 // 리그 경제: 한국 기준값 × 리그 규모(선수 연봉 총액 비율). 우리 리그가 어디든 「연봉 대비 수입」 감각은 같게
 const LG_ECON={JP:1.6*ECON_R.JP,TW:0.35*ECON_R.TW,US:4.8*ECON_R.US};   /* v159 (R130): 리그 연봉 수준(PAY_LG)을 실제에 맞추면서 수입도 같은 비율(ECON_R) */   /* v157 (R128): 미국 수준을 올리면서 연봉 총액이 한국의 약 4.9배 → 리그 경제도 같은 비율 */
@@ -4684,7 +4684,7 @@ function finishDay(){
   if(d===dayAt(0.54))endorseOffers();endorseTick();
   if(d<=BAL.SEASON_GAMES)futDay(d);
   if(d%7===0&&d<=BAL.SEASON_GAMES)userFarmWeek();
-  if(d%7===0&&d<=BAL.SEASON_GAMES){for(const t of liveTeams())lockerWeek(t);for(const t of liveTeams()){for(const pid of t.roster)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t});for(const pid of t.dev)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t,dev:true});}
+  if(d%7===0&&d<=BAL.SEASON_GAMES){for(const t of liveTeams())lockerWeek(t);for(const t of liveTeams()){if(!t.isUser&&t.league!=='KR')continue;   /* v190 (R162): 맡은 리그 AI는 돈만 돌고 성장은 예전 해외 방식(겨울 한 번) — 시즌 중 성장까지 더하면 리그 수준이 10년에 +5 */for(const pid of t.roster)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t});for(const pid of t.dev)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t,dev:true});}
     for(const pid of userTeam().roster)improveScout(P_(pid),0.06);scoutWatch();}
   promiseTick();try{complainTick();rivalDay(d);aiPoachTick(d);pevTick();}catch(e){}grievanceTick();convTick(1);if(d<=BAL.SEASON_GAMES){bdayTick(d);if(d%7===0)wgoalTick(d);}achCheck();if(d%7===0)try{achSeason();}catch(e){}
   if(d===dayAt(0.5)){interestCheck();aiAims(false);farmCheck();}
@@ -5589,7 +5589,7 @@ function endSeason(){
     if(rnd()<pr){const t=p.teamId!=null?S.teams[p.teamId]:null;if(!t||t.league==='KR')exPoolAdd(p,t,s);if(t)removeFromTeam(t,p);S.fa=S.fa.filter(x=>x!==p.id);S.pendingFA=S.pendingFA.filter(x=>x!==p.id);p.retired=true;p.retiredSeason=s;
       if(p.userLink){retired.push(p.name);news(`${p.name} 은퇴 (${p.age}세)`,'contract');alumniRetire(p);hofRetire(p,s);try{frRetire(p,s);}catch(e){}}else if(!hofRetire(p,s))delete S.players[pid];}}
   // 계약 갱신
-  for(const t of liveTeams().concat(lrAI())){for(const pid of [...t.roster,...t.dev]){const p=P_(pid);if(!p.contract)continue;p.contract.years--;clauseRaiseTick(p);if(t.league==='KR'&&p.contract.years>0&&p.contract.salary<minSal(S.season+1))p.contract.salary=minSal(S.season+1);   /* v101: 최저 연봉 (2027년 3,300만) */
+  for(const t of [...new Set(liveTeams().concat(lrAI()))]){for(const pid of [...t.roster,...t.dev]){const p=P_(pid);if(!p.contract)continue;p.contract.years--;clauseRaiseTick(p);if(t.league==='KR'&&p.contract.years>0&&p.contract.salary<minSal(S.season+1))p.contract.salary=minSal(S.season+1);   /* v101: 최저 연봉 (2027년 3,300만) */
       if(p.contract.years<=0){if(BAL.LR[t.league]&&!faElig(p,t.league)){resvAdd(t,p,s);continue;}   /* v155: FA 자격 전 = 보류 (연봉 재계약 · 미국은 구단 결정 / 연봉 조정) */
         if(!t.isUser&&BAL.LR[t.league]&&!isFgnIn(p,t.league))faUse(p,t.league);
         if(t.isUser){S.pendingFA.push(pid);news(`${p.name} 계약 만료 — 스토브리그 2주차까지 우선 협상 가능`,'contract');}
@@ -5607,7 +5607,6 @@ function endSeason(){
     for(const pid of [...t.roster]){const p=P_(pid);if(p.age>=37||(p.age>=34&&rnd()<0.25)||osCut(p,t)){removeFromTeam(t,p);if(p.userLink){p.retired=true;p.retiredSeason=s;news(`[출신] ${p.name} ${t.name}에서 은퇴 (${p.age}세)`,'alumni');alumniRetire(p);hofRetire(p,s);}else if(!hofRetire(p,s))delete S.players[pid];}}}
   // 유소년/신인
   for(const t of krTeams()){if(t.isUser)continue;for(let i=0;i<1;i++){const need=needOf(t);const p=genPlayer({pos:need.length?pick(need):pick(ROSTER_TEMPLATE),age:ri(18,21),lvl:BAL.LEVEL_OVR.ROOKIE+5,potBoost:t.fac.youth*1.5});registerPlayer(p);addToTeam(p,t,{salary:BAL.SALARY_MIN,years:3});}}
-  for(const t of lrAI()){if(t.league==='KR')continue;const need=needOf(t);const p=genPlayer({pos:need.length?pick(need):pick(ROSTER_TEMPLATE),age:ri(18,21),lvl:BAL.LEVEL_OVR.ROOKIE+5+rookOff(t.league),potBoost:t.fac.youth*1.5,nat:t.league});registerPlayer(p);addToTeam(p,t,{salary:salaryFor(p,t.league),years:3});}   /* v190 (R162): 맡은 리그 AI도 한국 AI처럼 해마다 유소년 1명 */
   for(const id of S.youth)if(P_(id)&&P_(id).teamId==null)delete S.players[id];S.youth=[];
   staffSeasonEnd();const sfx=staffFx(ut);
   const yn=2+ut.fac.youth;for(let i=0;i<yn;i++){const need=needOf(ut);const p=genPlayer({pos:(need.length&&rnd()<0.6)?pick(need):pick(ROSTER_TEMPLATE),age:ri(17,20),lvl:BAL.LEVEL_OVR.ROOKIE+ut.fac.youth*1.2+rookOff(ut.league),potBoost:ut.fac.youth*2.5+Math.max(0,sfx.P.scout-0.4)*0.6,conf:clamp(0.35+ut.fac.youth*0.05+sfx.conf,0.1,0.8)});p.youth=true;registerPlayer(p);S.youth.push(p.id);}
@@ -5680,6 +5679,7 @@ function startNewSeason(){
     applySponsor(t);let up=econ(t).overhead;if(t.isUser&&t.staff)up=Math.max(0,up-Math.min(up*0.8,BAL.STAFF_CREDIT[staffTier(t)]));for(const k in t.fac)up+=BAL.FACILITY[k].upkeep*t.fac[k];t.cash-=up;t.fin.facility+=up;if(t.isUser)try{invSeasonStart();}catch(e){}
     if(!t.isUser&&t.cash>payroll(t)*2.5){const k=pick(['train','youth','scout']);if(t.fac[k]<5){const c=BAL.FACILITY[k].cost*t.fac[k];t.cash-=c;t.fin.facility+=c;t.fac[k]++;}}
     campOpen(t);
+    if(!t.isUser&&t.league!=='KR')continue;   /* v190 (R162): 맡은 리그 AI의 겨울 성장 · 신인 채우기는 해외 구단 길에서 한 번만 */
     if(!t.isUser){skCampAI(t);aiFillRookies(t);autoLineup(t);}
     for(const pid of t.roster.concat(t.dev)){const p=P_(pid);const dd=p.dispatchDone&&p.dispatchDone.s===S.season-1?p.dispatchDone:null;
       if(dd){growthTick(p,{kind:'dispatch',label:`${yr(S.season-1)}시즌 겨울리그 파견`,team:t,dd});p.fatigue=Math.round(30+dd.share*35);p.cond=-(2+dd.share*3);}
@@ -5944,13 +5944,13 @@ function savePrune(){const uid=S.userTeamId;for(const id in S.players){const p=S
 /* ======================= v172 (R143): 10시즌 자동 진행 점검 — 리그 수준 닻 · AI 자금 바닥 · 스타 해외 진출 / 라이벌 · 상대 구단 소식 · 출전 불만 =======================
    새 규칙은 게임 난수를 쓰지 않는다(idHash). 수치는 LONG_FX 한곳. */
 const LVA0={JP:71.2,US:80.7,TW:58.1};
-const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
+const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:1.5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
 function lgStarters(lg){const a=[];for(const t of Object.values(S.teams))if(t.league===lg&&!t.isUser&&activeT(t))for(const id of (t.lineup||[]).concat(t.rotation||[])){const q=P_(id);if(q&&!q.retired)a.push(q);}return a;}
 function lgLevelNow(lg){const a=lgStarters(lg);return a.length>=18?a.reduce((x,q)=>x+calcOvr(q),0)/a.length:null;}
 function lgAnchorInit(){S.lvA={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const v=lgLevelNow(lg);if(v!=null)S.lvA[lg]=r1(v);}}
 function lgTarget(lg){S.lvA=S.lvA||{};if(S.lvA[lg]==null){const A=lgLevelNow(lg);if(A==null)return null;S.lvA[lg]=LVA0[lg]!=null?LVA0[lg]:r1(A);}return S.lvA[lg];}
 /* 겨울마다: 리그 주전 평균이 처음 수준에서 벗어난 만큼 AI 구단 1군 선수를 조금 되돌린다(우리 구단 · 우리 출신 선수는 그대로) */
-function lgAnchor(){const out={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const A=lgLevelNow(lg);const T=lgTarget(lg);if(A==null||T==null)continue;const d=T-A;if(Math.abs(d)<LONG_FX.dead)continue;const sh=r1(clamp(d,-LONG_FX.nudgeMax,LONG_FX.nudgeMax)*LONG_FX.nudge);if(!sh)continue;
+function lgAnchor(){const out={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const A=lgLevelNow(lg);const T=lgTarget(lg);if(A==null||T==null)continue;const d=T-A;if(Math.abs(d)<LONG_FX.dead)continue;const nm=lg===playLg()?LONG_FX.nudgeMaxPl:LONG_FX.nudgeMax;const sh=r1(clamp(d,-nm,nm)*LONG_FX.nudge);   /* v190 (R162): 맡은 리그는 AI도 돈이 돌아 FA가 리그에 남음 — 되돌리는 힘을 키움 */if(!sh)continue;
     for(const t of Object.values(S.teams)){if(t.league!==lg||t.isUser||!activeT(t))continue;for(const id of t.roster){const p=P_(id);if(!p||p.retired||p.userLink||p.exUser||p.loan||(p.tier||1)!==1)continue;if(sh>0&&p.age>=34)continue;for(const k in p.attrs)if(typeof p.attrs[k]==='number')p.attrs[k]=clamp(r1(p.attrs[k]+sh),10,99);if(p.pot!=null&&p.pot<calcOvr(p))p.pot=r1(calcOvr(p));}autoLineup(t);}out[lg]=sh;}return out;}
 function tierLvl(p,t){const tr=p.tier||1;if(tr===1)return levelOf(t);return t.league==='US'?(tr===2?BAL.LEVEL_OVR.US2:BAL.LEVEL_OVR.US3):t.league==='JP'?BAL.LEVEL_OVR.JP2:levelOf(t)-8;}
 /* 해외 AI 구단의 세대 교체: 서른 넘어 그 단계 수준에 못 미치는 선수는 절반쯤 팀을 떠난다(예전에는 34세부터만 — 10시즌 뒤 평균 나이 +3.5세 · 수준 −2.5) */
