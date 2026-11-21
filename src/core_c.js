@@ -376,7 +376,7 @@ function finishDay(){
   if(d===dayAt(0.54))endorseOffers();endorseTick();
   if(d<=BAL.SEASON_GAMES)futDay(d);
   if(d%7===0&&d<=BAL.SEASON_GAMES)userFarmWeek();
-  if(d%7===0&&d<=BAL.SEASON_GAMES){for(const t of liveTeams())lockerWeek(t);for(const t of liveTeams()){for(const pid of t.roster)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t});for(const pid of t.dev)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t,dev:true});}
+  if(d%7===0&&d<=BAL.SEASON_GAMES){for(const t of liveTeams())lockerWeek(t);for(const t of liveTeams()){if(!t.isUser&&t.league!=='KR')continue;   /* v190 (R162): 맡은 리그 AI는 돈만 돌고 성장은 예전 해외 방식(겨울 한 번) — 시즌 중 성장까지 더하면 리그 수준이 10년에 +5 */for(const pid of t.roster)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t});for(const pid of t.dev)growthTick(P_(pid),{kind:'season',label:`${yr(S.season)}시즌 ${d}일차`,team:t,dev:true});}
     for(const pid of userTeam().roster)improveScout(P_(pid),0.06);scoutWatch();}
   promiseTick();try{complainTick();rivalDay(d);aiPoachTick(d);pevTick();}catch(e){}grievanceTick();convTick(1);if(d<=BAL.SEASON_GAMES){bdayTick(d);if(d%7===0)wgoalTick(d);}achCheck();if(d%7===0)try{achSeason();}catch(e){}
   if(d===dayAt(0.5)){interestCheck();aiAims(false);farmCheck();}
@@ -1371,6 +1371,7 @@ function startNewSeason(){
     applySponsor(t);let up=econ(t).overhead;if(t.isUser&&t.staff)up=Math.max(0,up-Math.min(up*0.8,BAL.STAFF_CREDIT[staffTier(t)]));for(const k in t.fac)up+=BAL.FACILITY[k].upkeep*t.fac[k];t.cash-=up;t.fin.facility+=up;if(t.isUser)try{invSeasonStart();}catch(e){}
     if(!t.isUser&&t.cash>payroll(t)*2.5){const k=pick(['train','youth','scout']);if(t.fac[k]<5){const c=BAL.FACILITY[k].cost*t.fac[k];t.cash-=c;t.fin.facility+=c;t.fac[k]++;}}
     campOpen(t);
+    if(!t.isUser&&t.league!=='KR')continue;   /* v190 (R162): 맡은 리그 AI의 겨울 성장 · 신인 채우기는 해외 구단 길에서 한 번만 */
     if(!t.isUser){skCampAI(t);aiFillRookies(t);autoLineup(t);}
     for(const pid of t.roster.concat(t.dev)){const p=P_(pid);const dd=p.dispatchDone&&p.dispatchDone.s===S.season-1?p.dispatchDone:null;
       if(dd){growthTick(p,{kind:'dispatch',label:`${yr(S.season-1)}시즌 겨울리그 파견`,team:t,dd});p.fatigue=Math.round(30+dd.share*35);p.cond=-(2+dd.share*3);}
@@ -1378,7 +1379,7 @@ function startNewSeason(){
       else{const cf=campFx(t,p);growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:t,campF:cf.f,campL:cf.l});p.fatigue=0;if(cf.cond)p.cond=clamp((p.cond||0)+cf.cond,-5,5);}
       p.winterPlan=null;
       p.xp=0;p.ovrStart=r1(calcOvr(p));}}
-  for(const t of overseasTeams()){if(t.isUser||t.league===playLg())continue;for(const pid of t.roster){const p=P_(pid);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null,os:p.osRole||null,osLg:t.league});}}
+  for(const t of overseasTeams()){if(t.isUser)continue;for(const pid of t.roster){const p=P_(pid);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null,os:p.osRole||null,osLg:t.league});}}
   for(const id of S.fa){const p=P_(id);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null});}
   try{aiFgnRefill();lgAnchor();}catch(e){}   /* v172 (R143): 리그 수준 닻 — 겨울 성장 뒤 */
   const keepAttrs=new Set();for(const id of ut.roster.concat(ut.dev))keepAttrs.add(+id);for(const id of S.pins||[])keepAttrs.add(+id);
