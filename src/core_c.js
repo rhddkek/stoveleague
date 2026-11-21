@@ -1635,7 +1635,7 @@ function savePrune(){const uid=S.userTeamId;for(const id in S.players){const p=S
 /* ======================= v172 (R143): 10시즌 자동 진행 점검 — 리그 수준 닻 · AI 자금 바닥 · 스타 해외 진출 / 라이벌 · 상대 구단 소식 · 출전 불만 =======================
    새 규칙은 게임 난수를 쓰지 않는다(idHash). 수치는 LONG_FX 한곳. */
 const LVA0={JP:71.2,US:80.7,TW:58.1};
-const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:3,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
+const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
 function lgStarters(lg){const a=[];for(const t of Object.values(S.teams))if(t.league===lg&&!t.isUser&&activeT(t))for(const id of (t.lineup||[]).concat(t.rotation||[])){const q=P_(id);if(q&&!q.retired)a.push(q);}return a;}
 function lgLevelNow(lg){const a=lgStarters(lg);return a.length>=18?a.reduce((x,q)=>x+calcOvr(q),0)/a.length:null;}
 function lgAnchorInit(){S.lvA={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const v=lgLevelNow(lg);if(v!=null)S.lvA[lg]=r1(v);}}
