@@ -1369,7 +1369,7 @@ function startNewSeason(){
   for(const t of liveTeams()){t.rec={w:0,l:0,rs:0,ra:0};t.fin=newFin();t.rotIdx=0;
     if(t.loan>0){t.cash-=t.loan;t.fin.other+=t.loan;news(`대출 ${money(t.loan)} 상환`,'fin');t.loan=0;}
     applySponsor(t);let up=econ(t).overhead;if(t.isUser&&t.staff)up=Math.max(0,up-Math.min(up*0.8,BAL.STAFF_CREDIT[staffTier(t)]));for(const k in t.fac)up+=BAL.FACILITY[k].upkeep*t.fac[k];t.cash-=up;t.fin.facility+=up;if(t.isUser)try{invSeasonStart();}catch(e){}
-    if(!t.isUser&&t.league==='KR'&&t.cash>payroll(t)*2.5){const k=pick(['train','youth','scout']);if(t.fac[k]<5){const c=BAL.FACILITY[k].cost*t.fac[k];t.cash-=c;t.fin.facility+=c;t.fac[k]++;}}
+    if(!t.isUser&&t.cash>payroll(t)*2.5){const k=pick(['train','youth','scout']);if(t.fac[k]<5){const c=BAL.FACILITY[k].cost*t.fac[k];t.cash-=c;t.fin.facility+=c;t.fac[k]++;}}
     campOpen(t);
     if(!t.isUser){skCampAI(t);aiFillRookies(t);autoLineup(t);}
     for(const pid of t.roster.concat(t.dev)){const p=P_(pid);const dd=p.dispatchDone&&p.dispatchDone.s===S.season-1?p.dispatchDone:null;
@@ -1635,13 +1635,13 @@ function savePrune(){const uid=S.userTeamId;for(const id in S.players){const p=S
 /* ======================= v172 (R143): 10시즌 자동 진행 점검 — 리그 수준 닻 · AI 자금 바닥 · 스타 해외 진출 / 라이벌 · 상대 구단 소식 · 출전 불만 =======================
    새 규칙은 게임 난수를 쓰지 않는다(idHash). 수치는 LONG_FX 한곳. */
 const LVA0={JP:71.2,US:80.7,TW:58.1};
-const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
+const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:3,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
 function lgStarters(lg){const a=[];for(const t of Object.values(S.teams))if(t.league===lg&&!t.isUser&&activeT(t))for(const id of (t.lineup||[]).concat(t.rotation||[])){const q=P_(id);if(q&&!q.retired)a.push(q);}return a;}
 function lgLevelNow(lg){const a=lgStarters(lg);return a.length>=18?a.reduce((x,q)=>x+calcOvr(q),0)/a.length:null;}
 function lgAnchorInit(){S.lvA={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const v=lgLevelNow(lg);if(v!=null)S.lvA[lg]=r1(v);}}
 function lgTarget(lg){S.lvA=S.lvA||{};if(S.lvA[lg]==null){const A=lgLevelNow(lg);if(A==null)return null;S.lvA[lg]=LVA0[lg]!=null?LVA0[lg]:r1(A);}return S.lvA[lg];}
 /* 겨울마다: 리그 주전 평균이 처음 수준에서 벗어난 만큼 AI 구단 1군 선수를 조금 되돌린다(우리 구단 · 우리 출신 선수는 그대로) */
-function lgAnchor(){const out={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const A=lgLevelNow(lg);const T=lgTarget(lg);if(A==null||T==null)continue;const d=T-A;if(Math.abs(d)<LONG_FX.dead)continue;const sh=r1(clamp(d,-LONG_FX.nudgeMax,LONG_FX.nudgeMax)*LONG_FX.nudge);if(!sh)continue;
+function lgAnchor(){const out={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const A=lgLevelNow(lg);const T=lgTarget(lg);if(A==null||T==null)continue;const d=T-A;if(Math.abs(d)<LONG_FX.dead)continue;const nm=lg===playLg()?LONG_FX.nudgeMaxPl:LONG_FX.nudgeMax;const sh=r1(clamp(d,-nm,nm)*LONG_FX.nudge);   /* v190 (R162): 맡은 리그는 AI도 돈이 돌아 FA가 리그에 남음 — 되돌리는 힘을 키움 */if(!sh)continue;
     for(const t of Object.values(S.teams)){if(t.league!==lg||t.isUser||!activeT(t))continue;for(const id of t.roster){const p=P_(id);if(!p||p.retired||p.userLink||p.exUser||p.loan||(p.tier||1)!==1)continue;if(sh>0&&p.age>=34)continue;for(const k in p.attrs)if(typeof p.attrs[k]==='number')p.attrs[k]=clamp(r1(p.attrs[k]+sh),10,99);if(p.pot!=null&&p.pot<calcOvr(p))p.pot=r1(calcOvr(p));}autoLineup(t);}out[lg]=sh;}return out;}
 function tierLvl(p,t){const tr=p.tier||1;if(tr===1)return levelOf(t);return t.league==='US'?(tr===2?BAL.LEVEL_OVR.US2:BAL.LEVEL_OVR.US3):t.league==='JP'?BAL.LEVEL_OVR.JP2:levelOf(t)-8;}
 /* 해외 AI 구단의 세대 교체: 서른 넘어 그 단계 수준에 못 미치는 선수는 절반쯤 팀을 떠난다(예전에는 34세부터만 — 10시즌 뒤 평균 나이 +3.5세 · 수준 −2.5) */
