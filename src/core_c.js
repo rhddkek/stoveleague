@@ -1281,7 +1281,7 @@ function endSeason(){
     if(rnd()<pr){const t=p.teamId!=null?S.teams[p.teamId]:null;if(!t||t.league==='KR')exPoolAdd(p,t,s);if(t)removeFromTeam(t,p);S.fa=S.fa.filter(x=>x!==p.id);S.pendingFA=S.pendingFA.filter(x=>x!==p.id);p.retired=true;p.retiredSeason=s;
       if(p.userLink){retired.push(p.name);news(`${p.name} 은퇴 (${p.age}세)`,'contract');alumniRetire(p);hofRetire(p,s);try{frRetire(p,s);}catch(e){}}else if(!hofRetire(p,s))delete S.players[pid];}}
   // 계약 갱신
-  for(const t of liveTeams().concat(lrAI())){for(const pid of [...t.roster,...t.dev]){const p=P_(pid);if(!p.contract)continue;p.contract.years--;clauseRaiseTick(p);if(t.league==='KR'&&p.contract.years>0&&p.contract.salary<minSal(S.season+1))p.contract.salary=minSal(S.season+1);   /* v101: 최저 연봉 (2027년 3,300만) */
+  for(const t of [...new Set(liveTeams().concat(lrAI()))]){for(const pid of [...t.roster,...t.dev]){const p=P_(pid);if(!p.contract)continue;p.contract.years--;clauseRaiseTick(p);if(t.league==='KR'&&p.contract.years>0&&p.contract.salary<minSal(S.season+1))p.contract.salary=minSal(S.season+1);   /* v101: 최저 연봉 (2027년 3,300만) */
       if(p.contract.years<=0){if(BAL.LR[t.league]&&!faElig(p,t.league)){resvAdd(t,p,s);continue;}   /* v155: FA 자격 전 = 보류 (연봉 재계약 · 미국은 구단 결정 / 연봉 조정) */
         if(!t.isUser&&BAL.LR[t.league]&&!isFgnIn(p,t.league))faUse(p,t.league);
         if(t.isUser){S.pendingFA.push(pid);news(`${p.name} 계약 만료 — 스토브리그 2주차까지 우선 협상 가능`,'contract');}
@@ -1378,7 +1378,7 @@ function startNewSeason(){
       else{const cf=campFx(t,p);growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:t,campF:cf.f,campL:cf.l});p.fatigue=0;if(cf.cond)p.cond=clamp((p.cond||0)+cf.cond,-5,5);}
       p.winterPlan=null;
       p.xp=0;p.ovrStart=r1(calcOvr(p));}}
-  for(const t of overseasTeams()){if(t.isUser)continue;for(const pid of t.roster){const p=P_(pid);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null,os:p.osRole||null,osLg:t.league});}}
+  for(const t of overseasTeams()){if(t.isUser||t.league===playLg())continue;for(const pid of t.roster){const p=P_(pid);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null,os:p.osRole||null,osLg:t.league});}}
   for(const id of S.fa){const p=P_(id);if(p)growthTick(p,{kind:'winter',label:`${yr(S.season)}시즌 동계훈련`,team:null});}
   try{aiFgnRefill();lgAnchor();}catch(e){}   /* v172 (R143): 리그 수준 닻 — 겨울 성장 뒤 */
   const keepAttrs=new Set();for(const id of ut.roster.concat(ut.dev))keepAttrs.add(+id);for(const id of S.pins||[])keepAttrs.add(+id);
@@ -1635,7 +1635,7 @@ function savePrune(){const uid=S.userTeamId;for(const id in S.players){const p=S
 /* ======================= v172 (R143): 10시즌 자동 진행 점검 — 리그 수준 닻 · AI 자금 바닥 · 스타 해외 진출 / 라이벌 · 상대 구단 소식 · 출전 불만 =======================
    새 규칙은 게임 난수를 쓰지 않는다(idHash). 수치는 LONG_FX 한곳. */
 const LVA0={JP:71.2,US:80.7,TW:58.1};
-const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
+const LONG_FX={poachMax:4,rookK:0.6,ballK:0.5,ballDead:0.04,ballStep:0.035,nudge:0.8,nudgeMax:1.5,nudgeMaxPl:1.5,dead:0.6,cutAge:30,cutGap:2,cutP:0.5,farmAge:29,refill:2,refillMax:6,aiFloor:300000,starOut:0.6,starMax:3,cmpMax:2,cmpGap:2,cmpEvery:10,cmpFrom:30,cmpMor:6,stayBase:0.3,rvMor:1,rvRep:1};
 function lgStarters(lg){const a=[];for(const t of Object.values(S.teams))if(t.league===lg&&!t.isUser&&activeT(t))for(const id of (t.lineup||[]).concat(t.rotation||[])){const q=P_(id);if(q&&!q.retired)a.push(q);}return a;}
 function lgLevelNow(lg){const a=lgStarters(lg);return a.length>=18?a.reduce((x,q)=>x+calcOvr(q),0)/a.length:null;}
 function lgAnchorInit(){S.lvA={};for(const lg of Object.keys(BAL.LEAGUES)){if(lg==='KR')continue;const v=lgLevelNow(lg);if(v!=null)S.lvA[lg]=r1(v);}}
