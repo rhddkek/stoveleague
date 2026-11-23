@@ -1391,3 +1391,15 @@ html[data-theme="light"] .mn2 .mngh{color:#1f3a7a}
 .mn2 .mnr.mni.on::before{background:#f2c14e}
 /* v189: 메뉴 창은 휴대폰 화면 거의 전체 — 긴 대메뉴(이적)도 덜 밀어서 봄 */
 @media (max-width:699px){.modal:has(>.mn2){max-height:calc(100dvh - 24px)!important}html.fz-s .modal:has(>.mn2){max-height:calc((100dvh - 24px) / .88)!important}}
+/* v191 (R163): 겨울 감독실 마감 줄 · 맡긴 일 · 명단 펼침 단추 · 해외 선수 고르기 3개 · 자리 관리 */
+.wrow.wmr{border-color:#f2c14e!important;box-shadow:inset 3px 0 0 #f2c14e}
+.wrow.wmr .due{background:#f2c14e;color:#14161b;border-radius:6px;padding:2px 8px}
+.wrow.wauto{opacity:.72}.wrow.wauto .wau{margin-left:auto;font-size:13px;color:var(--muted);white-space:nowrap}.wrow.wauto .wgo{font-style:normal;color:var(--muted);margin-left:8px}
+.sqc .sqx{flex-wrap:wrap}
+.sqc .sqxa{flex:1 0 100%;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:8px}
+.sqc .sqxb1{min-height:40px;padding:0 16px;border:1px solid #f2c14e;border-radius:8px;background:transparent;color:#f2c14e;font-size:14px;font-weight:600}
+.sqc .sqxt{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex:1;min-width:0}.sqc .sqxt select{flex:1;min-width:0;min-height:40px;font-size:14px}
+.sqc .sqxa .sqxg{border-left:0;margin-left:auto;white-space:nowrap}
+.fg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}.fg3 select{width:100%;min-height:44px;font-size:14px;min-width:0}
+.fg3:has(select:only-child){grid-template-columns:1fr}
+button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:transparent;color:var(--text);padding:4px 12px;font-size:13px}button.stvc.fgseat b{color:#f2c14e}
