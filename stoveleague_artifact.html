@@ -3367,10 +3367,16 @@ button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:tr
 .ngsum b{display:block;font-size:18px;font-weight:600}
 .ngsum small{display:block;font-size:12px;color:var(--muted)}
 @media (min-width:700px){.nglgs{grid-template-columns:1fr 1fr}}
-:root.ea[data-theme="light"] .ngst button.on{color:#1e2a5c;border-bottom-color:#1e2a5c}
-:root.ea[data-theme="light"] .ngst button.on i{background:#1e2a5c;border-color:#1e2a5c;color:#fff}
 .ngp .dfsel button.on{background:transparent;color:var(--sel);border-color:var(--sel)}
-:root.ea[data-theme="light"] .ngp .dfsel button.on{background:transparent;color:#1e2a5c;border-color:#1e2a5c}
+/* 밝은 색: 첫 화면 칸은 남색 바탕 그대로 — 글자는 밝게, 고른 걸음은 금색 */
+:root.ea[data-theme="light"] .title .nglg{color:#fff;border-color:rgba(255,255,255,.2)}
+:root.ea[data-theme="light"] .title .nglg small,:root.ea[data-theme="light"] .title .nglg>i,:root.ea[data-theme="light"] .title .ngst button,:root.ea[data-theme="light"] .title .ngst button small,:root.ea[data-theme="light"] .title .ngsum small{color:var(--on-navy-dim,#aab3d0)}
+:root.ea[data-theme="light"] .title .ngst button{border-bottom-color:rgba(255,255,255,.2)}
+:root.ea[data-theme="light"] .title .ngst button i{border-color:rgba(255,255,255,.3)}
+:root.ea[data-theme="light"] .title .ngst button.dn,:root.ea[data-theme="light"] .title .ngsum b{color:#fff}
+:root.ea[data-theme="light"] .title .ngst button.on{color:#f3c76b;border-bottom-color:#f3c76b}
+:root.ea[data-theme="light"] .title .ngst button.on i{background:#f3c76b;border-color:#f3c76b;color:#15171c}
+:root.ea[data-theme="light"] .title .ngsum{border-bottom-color:rgba(255,255,255,.2)}
 
 </style>
 <div id="app"></div>
