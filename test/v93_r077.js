@@ -31,7 +31,7 @@ const {chromium}=require('playwright');const path=require('path');
     r.u==='none'&&r.c===r.tx?ok(`선수 이름: 밑줄 없음 · 글자색 ${r.c}`):bad('이름 '+JSON.stringify(r));}
   // 6. 알림 띠: 올린 면(무채색) · 반짝이 그림자 없음
   {const r=await p.evaluate(()=>{UI.go('market','buy');UI.setFocus(SL.userTeam().lineup[0],'balance');const t=document.querySelector('#toast');const cs=getComputedStyle(t);return {bg:cs.backgroundColor,pe:cs.pointerEvents};});
-    /33, 36, 43/.test(r.bg)&&r.pe==='none'?ok(`알림 띠 바탕 ${r.bg} · 손가락 통과`):bad('알림 '+JSON.stringify(r));}
+    (/33, 36, 43/.test(r.bg)||/^rgb\((\d+), (\d+), (\d+)\)$/.test(r.bg)&&(m=>Math.max(+m[1],+m[2],+m[3])-Math.min(+m[1],+m[2],+m[3])<=8)(r.bg.match(/^rgb\((\d+), (\d+), (\d+)\)$/)))&&r.pe==='none'   /* v192: 휴대폰은 머리줄 바탕(무채색) */?ok(`알림 띠 바탕 ${r.bg} · 손가락 통과`):bad('알림 '+JSON.stringify(r));}
   // 7. 경기 화면은 그대로: 경기 중엔 body.ingame → 예전 남색 토큰·주황 그대로, 이모지 처리도 안 함
   {const r=await p.evaluate(()=>{let k=0;while(!SL.state().liveGame&&k++<10){UI.setTab('home');if(SL.userGameToday())UI.startGame();else UI.autoDays(1);}const cs=getComputedStyle(document.body);const g={ingame:document.body.classList.contains('ingame'),bg:cs.getPropertyValue('--bg').trim(),or:cs.getPropertyValue('--orange').trim(),li:document.querySelectorAll('.gamev svg.li').length};
       UI.step&&UI.set('stepMode','game');UI.step('game');UI.endGame();UI.closeModal();const cs2=getComputedStyle(document.body);g.after=document.body.classList.contains('ingame');g.bg2=cs2.getPropertyValue('--bg').trim();return g;});
