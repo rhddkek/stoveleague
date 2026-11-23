@@ -2622,7 +2622,9 @@ function hookRow(x){return `<div class="hk">${x.face?face(x.face,30):`<span clas
 // 4) 경기 결과 창 — 자동 진행·경기 끝나면 결과 + 멈춘 이유 + 다음 목표 + [다음 경기 ▶]
 function resultSheetHtml(){ui.rsIn=1;let base='';try{base=sheetHtml('result');}finally{ui.rsIn=0;}if(!base)return '';const st=ui.autoStop;const H=nextHooks();const today=S.phase==='season'&&!S.liveGame&&SL.userGameToday();const post=!!S.post||!!(typeof abroadLg==='function'&&abroadLg()&&S.lpost);
   let h=`<div class="rsheet">${base}`;if(H.length)h+=`<div class="hooks"><div class="hkh">다음 목표</div>${H.map(hookRow).join('')}</div>`;
-  let bar;if(st&&S.phase==='season'&&!stopDone(st)&&st.k!=='chk'){h+=`<div class="rstop"><b>자동 진행 멈춤</b> · ${esc(st.text)}</div>`;bar=`<button class="ghost" onclick="UI.closeModal();UI.autoGo()">${esc(st.go||'계속')}</button><button class="primary" onclick="UI.closeModal();${st.on}">${esc(st.rv||'제안 검토')} ▶</button>`;}
+  if(base.indexOf('class="rdec"')<0)h+=decHtml();   /* v193: 한 경기 결과에도 결정 칸 */
+  let bar;if(st&&S.phase==='season'&&!stopDone(st)&&decKind(st.k)){bar=`<button class="ghost" onclick="UI.closeModal();UI.autoGo()">${esc(st.go||'계속')}</button>`;}   /* v193: 결정은 위 칸에서 바로 답함 — 「결정 ▶」으로 창을 한 번 더 열지 않음 */
+  else if(st&&S.phase==='season'&&!stopDone(st)&&st.k!=='chk'){h+=`<div class="rstop"><b>자동 진행 멈춤</b> · ${esc(st.text)}</div>`;bar=`<button class="ghost" onclick="UI.closeModal();UI.autoGo()">${esc(st.go||'계속')}</button><button class="primary" onclick="UI.closeModal();${st.on}">${esc(st.rv||'제안 검토')} ▶</button>`;}
   else bar=nextBar();
   return h+`<div class="shbar n${(bar.match(/<button/g)||[]).length}">${bar}</div></div>`;}
 // v139 (R110): 다음 걸음 단추 — 고른 진행 방식을 이어 감(직접 보기 → 다음 경기 · 7경기 자동 → 7경기 더 · 시즌 끝까지 → 계속) · 가을야구는 시리즈 다음 경기
@@ -2796,7 +2798,7 @@ const TOUR=[
   {k:'inn',sel:()=>['.cmgo .gold'],t:()=>['이닝 끝까지','누를 때마다 반 이닝'],done:T=>!S.liveGame||S.liveGame.done||S.liveGame.inn>=2},
   {k:'bar',ok:1,av:'.cmgo',sel:()=>['.cmbar'],t:()=>['작전 · 교체','수비 작전 · 선수교체 · 라인업'],done:T=>!!T.ok||!S.liveGame||S.liveGame.done},
   {k:'fin',sel:()=>['.cmgo .gold',`button[onclick="UI.endGame()"]`],t:()=>S.liveGame&&S.liveGame.done?['다음날','경기 끝 · 감독실로']:['끝까지','계속 누르기 · 9회까지'],done:()=>!S.liveGame},
-  {k:'auto',dn:1,sel:()=>[`button[onclick^="UI.autoRun(7"]`],t:()=>['7경기 자동','다음부터 자동 · 일 생기면 멈춤'],done:T=>S.day>(T.dA!=null?T.dA:(T.dA=S.day))},
+  {k:'auto',dn:1,sel:()=>[`button[onclick^="UI.autoRun(7"]`],t:()=>['7경기 자동','끝까지 자동 · 끝에 보고서'],done:T=>S.day>(T.dA!=null?T.dA:(T.dA=S.day))},
   {k:'guide',ok:1,sel:()=>[`[onclick="UI.sheet('guide')"]`,()=>[...document.querySelectorAll('.tile2')].filter(x=>/첫 시즌 할 일/.test(x.textContent)),'.card.guide'],t:()=>['첫 시즌 할 일','남은 안내 · 하나씩'],done:T=>!!T.ok||!guideOn()}];
 let tourTimer=null;
 function tourBegin(){if(!S||S.phase!=='season')return;S.tour={i:0,d:S.day};if(!tourTimer)tourTimer=setInterval(()=>{try{tourTick();}catch(e){}},350);}
@@ -2945,3 +2947,24 @@ function sqActs(p,ut){const id=p.id;if(p.loan)return '';const isP=SL.isPitcher(p
   return use+`<label class="sqxt">훈련<select aria-label="${esc(p.name)} 훈련 방향" onclick="event.stopPropagation()" onchange="UI.setFocus(${id},this.value)">${Object.entries(F).map(([k,v])=>`<option value="${k}" ${p.focus===k?'selected':''}>${v}</option>`).join('')}</select></label>`;}
 // v192 (R164): 검사용 — 알림 · 짧은 구단 이름
 A.toast=toast;A.tShort=tShort;
+
+// ===================== v193 (R165): 자동 진행 끊김 줄이기 — 결정은 보고서 안에서 =====================
+// 선수 이벤트 · 면담 · 개인 광고: 보고서(휴대폰 결과 창 · PC 감독실 보고서 카드) 안 「결정 n건」 칸에서 바로 답함. 선택지 · 확률은 예전 창과 같은 함수.
+function decKind(k){return k==='pev'||k==='griev'||k==='end';}
+function decList(){const L=[];if(!S||S.phase!=='season')return L;const ut=SL.userTeam();const lf=x=>Math.max(0,(x.exp||0)-S.clock);
+  try{const v=SL.pevInfo&&SL.pevInfo();const p=v&&S.players[v.pid];if(p)L.push({k:'pev',id:p.id,p,t:v.ko,why:v.why,left:v.left,opts:v.opts.map(o=>({k:o.k,t:o.t,d:o.d})),def:v.opts[v.opts.length-1].t});}catch(e){}
+  for(const g of S.grievances||[]){const p=S.players[g.pid];if(!p||p.teamId!==ut.id)continue;const out=g.kind==='out';
+    L.push({k:'griev',id:p.id,p,t:out?'이적 요청':'면담',why:out?'이기는 팀 희망':g.kind==='play'?`${g.n}경기 중 ${g.on}경기 출전`:`주전 약속 · ${g.n}경기 중 ${g.on}경기`,left:lf(g),def:'넘김',
+      opts:[out?{k:'stay',t:'잔류 설득',d:`성공 ${Math.round(SL.stayOdds(p)*100)}% · 사기 +6 / −8`}:{k:'apology',t:'기회 약속',d:'사기 +8 · 7경기 중 4경기 주전 · 어기면 −15'},{k:'trade',t:'트레이드 수용',d:'사기 +5 · 판매 목록 · 이적료 −12%'},{k:'ignore',t:'넘김',d:'사기 −10 · 재계약 연봉 +15%'}]});}
+  const c=SL.BAL.SPON.endorse.comm;for(const o of S.endorseOffers||[]){const p=S.players[o.pid];if(!p)continue;L.push({k:'end',id:o.id,p,t:'광고 제안',why:`${o.co} · ${o.years}년 · 연 ${Ms(o.fee)} · 구단 몫 ${Ms(Math.round(o.fee*c))}`,left:lf(o),def:'만료',opts:[{k:'y',t:'수락',d:'사기 ↑ · 재계약 요구 +5%'},{k:'n',t:'거절',d:'사기 ↓'}]});}
+  return L;}
+function decHtml(){const L=decList();const D=ui.decDone||[];if(!L.length&&!D.length)return '';const key=d=>d.k+d.id;const open=L.find(d=>key(d)===ui.decOpen)||L[0];
+  const row=d=>{const on=d===open;return `<div class="rdc${on?' on':''}" data-k="${d.k}"><button class="rdh" onclick="UI.decOpen('${key(d)}')">${face(d.p,32)}<span class="grow"><b>${esc(d.p.name)} · ${esc(d.t)}</b><small>${esc(d.why)}</small></span><em>${d.left<=0?'오늘 마감':d.left+'일 남음'}</em></button>${on?`<div class="rdo">${d.opts.map(o=>`<button onclick="UI.decAns('${d.k}',${d.id},'${o.k}')"><b>${esc(o.t)}</b><span>${esc(o.d)}</span></button>`).join('')}</div><div class="rdn">답 없으면 「${esc(d.def)}」</div>`:''}</div>`;};
+  return `<div class="rdec">${L.length?`<div class="hkh">결정 ${L.length}건</div>`:''}${L.slice(0,4).map(row).join('')}${L.length>4?`<div class="rdn">그 밖 ${L.length-4}건 · 감독실</div>`:''}${D.map(t=>`<div class="rdd">✓ ${esc(t)}</div>`).join('')}</div>`;}
+function decRe(){render();const el=document.querySelector('#modal .rsheet');if(el){const h=resultSheetHtml();if(h)el.outerHTML=h;}}
+A.decOpen=function(k){ui.decOpen=k;decRe();};
+A.decAns=function(k,id,o){let txt='';
+  if(k==='pev'){const r=SL.pevAnswer(o);if(!r.ok){toast(r.msg);return;}txt=`${r.name} · ${r.opt} · ${r.res}`;sfx(r.win?'levelup':'notify',0.5);}
+  else if(k==='griev'){const p=S.players[id];const e=SL.grievanceAnswer(id,o);txt=`${p?p.name:''} · ${e||({stay:'잔류 설득',apology:'기회 약속',trade:'판매 목록 등록',ignore:'넘김'})[o]}`;sfx('click',0.4);}
+  else{const of=(S.endorseOffers||[]).find(x=>x.id===id);const p=of&&S.players[of.pid];const e=SL.endorseAnswer(id,o==='y');txt=`${p?p.name:''} · ${e||(o==='y'?'광고 수락':'광고 거절')}`;sfx('click',0.4);}
+  (ui.decDone=ui.decDone||[]).push(txt);ui.decOpen=null;autosave();decRe();};

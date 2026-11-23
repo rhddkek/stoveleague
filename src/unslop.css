@@ -1435,3 +1435,21 @@ button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:tr
 :root.ea[data-theme="light"] .title .ngst button.on{color:#f3c76b;border-bottom-color:#f3c76b}
 :root.ea[data-theme="light"] .title .ngst button.on i{background:#f3c76b;border-color:#f3c76b;color:#15171c}
 :root.ea[data-theme="light"] .title .ngsum{border-bottom-color:rgba(255,255,255,.2)}
+
+/* ===== v193 (R165): 보고서 안 결정 칸 ===== */
+.rdec{margin:0 0 12px}
+.rdec .hkh{margin-bottom:4px}
+.rdc{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.rdc.on{border-color:var(--sel)}
+.rdh{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:8px 12px;background:transparent;border:0;border-radius:0;text-align:left;color:var(--text)}
+.rdh b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdh small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdh .grow{min-width:0}
+.rdh em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
+.rdo{display:grid;gap:4px;padding:0 8px 8px}
+.rdo button{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px;background:transparent;border:1px solid var(--line);border-radius:8px;text-align:left;color:var(--text)}
+.rdo button b{font-size:14px;font-weight:600;white-space:nowrap}
+.rdo button span{flex:1;min-width:0;font-size:12px;color:var(--muted);text-align:right}
+.rdo button:active{border-color:var(--sel)}
+.rdn{font-size:12px;color:var(--muted);padding:0 12px 8px}
+.rdd{font-size:13px;color:var(--muted);padding:4px 0}
