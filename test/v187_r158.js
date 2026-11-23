@@ -13,7 +13,7 @@ const ROOT=path.resolve(__dirname,'..');
   const p=await mk(390,844,true);
   // 1. 폰 감독실: 구장 그림 위 「우리 vs 상대」 + 양쪽 선발 2등신 · [경기 보기 | 7경기 자동 ▾] · 아래 줄 목록 4줄 안
   {const r=await p.evaluate(()=>{const S=SL.state();const ut=SL.userTeam();const g=SL.userGameToday();const op=S.teams[g.home===ut.id?g.away:g.home];const c=document.querySelector('.gx');if(!c)return {gx:false};
-      const t=(c.querySelector('.gxt')||{}).textContent||'';const exp=`${ut.name.split(' ')[0]} vs ${op.name.split(' ')[0]}`;const chb=c.querySelectorAll('.gxvs .gxf .av').length;const go=!!c.querySelector('button.gold[onclick="UI.startGame()"]');const auto=!!c.querySelector('button[onclick^="UI.autoRun(7"]');
+      const t=(c.querySelector('.gxt')||{}).textContent||'';const sh=t=>{const c=t.name.split(' ')[0];return Object.values(S.teams).some(x=>x.id!==t.id&&x.league===t.league&&x.name.split(' ')[0]===c)?t.name.split(' ').slice(1).join(' '):c;};const exp=`${sh(ut)} vs ${sh(op)}`;const chb=c.querySelectorAll('.gxvs .gxf .av').length;const go=!!c.querySelector('button.gold[onclick="UI.startGame()"]');const auto=!!c.querySelector('button[onclick^="UI.autoRun(7"]');
       const rows=[...document.querySelectorAll('.tiles.hrows .tile')].map(x=>x.textContent);return {gx:true,t:t.replace(/\s+/g,' ').trim(),exp,chb,go,auto,rows:rows.length,inbox:rows.some(x=>/받은 소식/.test(x)),bot:Math.round(c.getBoundingClientRect().bottom)};});
     r.gx&&r.t===r.exp&&r.chb===2&&r.go&&r.auto&&r.rows>=1&&r.rows<=4&&r.inbox&&r.bot<700?ok(`폰 감독실: 「${r.t}」 · 선발 얼굴 ${r.chb} · [경기 보기][7경기 자동] · 아래 줄 ${r.rows}개(받은 소식 포함) · 카드 끝 ${r.bot}px`):bad('감독실 '+JSON.stringify(r));}
   // 2. 위 탭 = 밑줄(바탕 없음 · 노랑 글자 · 안쪽 밑줄)

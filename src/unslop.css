@@ -1403,3 +1403,29 @@ html[data-theme="light"] .mn2 .mngh{color:#1f3a7a}
 .fg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}.fg3 select{width:100%;min-height:44px;font-size:14px;min-width:0}
 .fg3:has(select:only-child){grid-template-columns:1fr}
 button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:transparent;color:var(--text);padding:4px 12px;font-size:13px}button.stvc.fgseat b{color:#f2c14e}
+
+/* ===== v192 (R164): 새 게임 세 걸음(리그 → 구단 → 시작) ===== */
+.ngst{display:flex;gap:4px;margin:0 0 12px}
+.ngst button{flex:1;min-width:0;min-height:36px;display:flex;align-items:center;justify-content:center;gap:4px;padding:4px;background:transparent;border:0;border-bottom:2px solid var(--line);border-radius:0;color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden}
+.ngst button i{font-style:normal;width:20px;height:20px;line-height:20px;border-radius:10px;border:1px solid var(--line);font-size:12px;flex-shrink:0;text-align:center}
+.ngst button b{font-weight:500}
+.ngst button small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.ngst button.on{color:var(--sel);border-bottom-color:var(--sel);opacity:1}
+.ngst button.on i{background:var(--sel);border-color:var(--sel);color:var(--sel-ink,#15171c)}
+.ngst button.dn{color:var(--text)}
+.ngst button:disabled{opacity:1}
+.nglgs{display:grid;gap:8px}
+.nglg{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 12px;text-align:left;background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--text)}
+.nglg b{display:block;font-size:18px;font-weight:600}
+.nglg small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.nglg>i{font-style:normal;color:var(--muted);font-size:18px}
+.nglg:active{border-color:var(--sel)}
+.ngnext{margin-top:12px;width:100%}
+.ngsum{display:flex;align-items:center;gap:12px;padding:8px 0 12px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.ngsum b{display:block;font-size:18px;font-weight:600}
+.ngsum small{display:block;font-size:12px;color:var(--muted)}
+@media (min-width:700px){.nglgs{grid-template-columns:1fr 1fr}}
+:root.ea[data-theme="light"] .ngst button.on{color:#1e2a5c;border-bottom-color:#1e2a5c}
+:root.ea[data-theme="light"] .ngst button.on i{background:#1e2a5c;border-color:#1e2a5c;color:#fff}
+.ngp .dfsel button.on{background:transparent;color:var(--sel);border-color:var(--sel)}
+:root.ea[data-theme="light"] .ngp .dfsel button.on{background:transparent;color:#1e2a5c;border-color:#1e2a5c}
