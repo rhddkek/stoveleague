@@ -7,7 +7,10 @@
 1. `review/STATUS.md`에서 상태 「접수」·「재요청」 항목과 해당 `review/요청/` 파일을 읽는다. 채팅에 요청서가 붙어 왔으면 먼저 `review/요청/R번호_제목.md`로 저장하고 STATUS에 「접수」로 올린다.
 2. 항목마다 고친다. 규칙 위반(실존 구단명 등)·중복은 「반려」, 광우 결정이 필요한 건 「보류」로 두고 이유를 적는다.
 3. `GAME_VER`(src/core_a.js)를 올리고, 저장 형식이 바뀌면 `VERSION`과 `migrate()`도 고친다.
-4. `npm test` 전체 통과 (새 기능은 테스트 추가). Playwright로 바뀐 화면을 폰·PC 폭에서 직접 본다.
+4. 검사(광우, 2026-11-25 — 「B로」: 매번 35분 전체는 과함). 새 기능은 검사를 새로 만들고, Playwright로 바뀐 화면을 폰·PC 폭에서 직접 본다.
+   - **매 버전: 관련 검사만** — 새 검사 + 바꾼 함수 · 클래스 · 문구 이름으로 `test/`를 grep해 걸리는 검사 + `ui_layout.js`. 떨어지면 고치고 그 검사들만 다시.
+   - **전체(`node test/all.js`, 약 35분)는 이때만**: 엔진 계산 · 경기 결과 · 저장 형식(`VERSION` · `migrate()`)을 건드린 버전, 또는 마지막 전체 검사 뒤 3버전째. 마지막 전체 검사 버전은 `review/STATUS.md` 머리에 적는다.
+   - 수정기록에 그 버전이 「관련 검사 n개」인지 「전체」인지 적는다.
 5. `node build.js` → `index.html`·`stoveleague.html`·`stoveleague_artifact.html` 갱신, 아티팩트 재게시.
 6. `review/수정기록/vNN.md` 작성: 항목 | 결과(반영·부분·보류·반려) | **GPT가 확인할 방법**(주소 옵션·화면 위치·기대 문구).
 7. `review/STATUS.md` 갱신(상태·반영 버전·다음 요청 번호), 커밋, `git push origin main`.
