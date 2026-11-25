@@ -1471,3 +1471,18 @@ button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:tr
 .hubv:not(.big) .hubx{padding:4px 8px 8px}
 .hubv:not(.big) .hubx b{font-size:14px}
 .hubv:not(.big) .hubx em{font-size:12px}
+
+/* ===== v195 (R167): 겨울 감독실 노랑 하나 · 2차 드래프트 보호 명단 ===== */
+body:not(.ingame) .stvline span.on{background:transparent;box-shadow:inset 0 0 0 1px var(--sel)}
+body:not(.ingame) .stvline span.on i,body:not(.ingame) .stvline span.on b{color:var(--sel)}
+body:not(.ingame) .whead .wmust{background:rgba(12,13,16,.82);color:var(--sel);box-shadow:inset 0 0 0 1px var(--sel)}
+body:not(.ingame) .gobar.wgo.w9g.one{grid-template-columns:1fr}
+.prl .pr.on .ck{background:transparent;border-color:var(--sel);color:var(--sel)}
+.sdh{position:relative;padding-right:72px}
+.sdh .sdrb{position:absolute;right:8px;top:50%;transform:translateY(-50%);min-height:32px;padding:0 8px;background:transparent;border:0;color:var(--muted);font-size:12px}
+.sdh:has(.sdrule) .sdrb{top:16px}
+.sdrule{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.6}
+.sdsec{margin:12px 0 8px}
+:root.ea[data-theme="light"] body:not(.ingame) .whead .wmust{background:rgba(255,255,255,.9);color:#1e2a5c;box-shadow:inset 0 0 0 1px #1e2a5c}
+:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on{box-shadow:inset 0 0 0 1px #1e2a5c}
+:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on i,:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on b{color:#1e2a5c}

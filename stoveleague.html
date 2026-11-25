@@ -3414,6 +3414,21 @@ button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:tr
 .hubv:not(.big) .hubx b{font-size:14px}
 .hubv:not(.big) .hubx em{font-size:12px}
 
+/* ===== v195 (R167): 겨울 감독실 노랑 하나 · 2차 드래프트 보호 명단 ===== */
+body:not(.ingame) .stvline span.on{background:transparent;box-shadow:inset 0 0 0 1px var(--sel)}
+body:not(.ingame) .stvline span.on i,body:not(.ingame) .stvline span.on b{color:var(--sel)}
+body:not(.ingame) .whead .wmust{background:rgba(12,13,16,.82);color:var(--sel);box-shadow:inset 0 0 0 1px var(--sel)}
+body:not(.ingame) .gobar.wgo.w9g.one{grid-template-columns:1fr}
+.prl .pr.on .ck{background:transparent;border-color:var(--sel);color:var(--sel)}
+.sdh{position:relative;padding-right:72px}
+.sdh .sdrb{position:absolute;right:8px;top:50%;transform:translateY(-50%);min-height:32px;padding:0 8px;background:transparent;border:0;color:var(--muted);font-size:12px}
+.sdh:has(.sdrule) .sdrb{top:16px}
+.sdrule{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.6}
+.sdsec{margin:12px 0 8px}
+:root.ea[data-theme="light"] body:not(.ingame) .whead .wmust{background:rgba(255,255,255,.9);color:#1e2a5c;box-shadow:inset 0 0 0 1px #1e2a5c}
+:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on{box-shadow:inset 0 0 0 1px #1e2a5c}
+:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on i,:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on b{color:#1e2a5c}
+
 </style></head><body><script id="mview">
 /* v111 (R093): PC에서도 휴대폰 화면으로 — 설정(sl_view=m)이면 같은 파일을 폭 430px 틀 안에 띄우고, 바깥 쪽 게임은 시작하지 않음 */
 (function(){var w=null;try{w=localStorage.getItem('sl_view');}catch(e){}var child=/[?&]mframe=1/.test(location.search);window.__SL_CHILD=child;
@@ -3432,7 +3447,7 @@ const ASSETS={"sprites":{"bat":{"src":"data:image/png;base64,iVBORw0KGgoAAAANSUh
 const SL=(function(){
 'use strict';
 const VERSION=6;          // 저장 형식 버전 (바뀌면 migrate 필요)
-const GAME_VER='v194';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
+const GAME_VER='v195';     // 게임 버전 표시 (테스트 요청서에 적는 번호)
 // ---------- 밸런스 상수 (여기서만 수정) ----------
 const BAL={
   // v101 (R084) 돈 규모 현실화: 내부 금액 1 = 5만원(WON). 화면은 money()·Ms()가 ×WON 해서 보여 줌 → 모든 금액이 같은 비율로 커져 경제 균형은 그대로, 예전 저장도 그대로 이어짐.
@@ -11021,12 +11036,12 @@ function renderWinterHome(){const ut=SL.userTeam();const pv=SL.advancePreview(fa
     if(wAuto(x))return `<div class="mail td wrow w9 wauto" onclick="${x.on}">${ic}<b class="t">${esc(x.title)}</b><span class="s wau">자동 ${esc(x.btn)} 예정</span><i class="wgo">›</i></div>`;   /* v191 (R163): 맡긴 일 = 「자동 ○○ 예정」 한 줄(단추 없음) */
     const must=wMustRow(x);
     return `<div class="mail td wrow w9 ${x.hot?'hot':''}${must?' wmr':''}" onclick="${x.on}">${ic}<b class="t">${esc(x.title)}</b>${due?`<i class="due">${esc(x.tag)}</i>`:`<span class="s">${esc(x.tag)}${x.sub?' · '+esc(x.sub):''}</span>`}<button class="sm ${mflow()?'ghost':'primary'} tgl" onclick="event.stopPropagation();${x.on}">${esc(x.btn)}</button></div>`;};
-  h+=`<div class="mkcard todo wtd wbox"><div class="wbt">${pxSvg('board',24)}<span>주요 업무 <span class="tdcnt">${todoN(it)}</span></span>${mflow()&&chainItems().length?`<button class="sm primary wchain" onclick="UI.taskNext()">하나씩 처리 ▶</button>`:''}</div>${rows.map(wrow).join('')||'<div class="wrow none">할 일 없음 · 다음 주로</div>'}</div>`;
+  h+=`<div class="mkcard todo wtd wbox"><div class="wbt">${pxSvg('board',24)}<span>주요 업무 <span class="tdcnt">${todoN(it)}</span></span>${mflow()&&chainItems().length?`<button class="sm ${wMustN()?'primary':'ghost'} wchain" onclick="UI.taskNext()">하나씩 처리 ▶</button>`:''}</div>${rows.map(wrow).join('')||'<div class="wrow none">할 일 없음 · 다음 주로</div>'}</div>`;
   h+=recCard();   /* v135: 코치 추천 · v186: 주요 업무 아래 */
   h+=`<details class="fbox wmore w9f"><summary>${pxSvg('mail',24)}답변대기 <em class="${wait.length?'y':''}">${wait.length}</em></summary>${wait.map(x=>`<div class="small deal" style="padding:6px 12px;cursor:pointer" onclick="UI.waitView()">⏳ ${esc(x.p.name)} · ${esc(x.p.pos)} — 답을 기다리는 중</div>`).join('')||'<div class="small muted" style="padding:6px 12px 10px">답 대기 협상 없음</div>'}</details>`;
   h+=`<details class="fbox wmore w9f"><summary>${pxSvg('chk',24)}완료${done.length?` <em>${done.length}</em>`:''}</summary>${seasonResultCard()}${done.map(p=>`<div class="small" style="padding:4px 12px">✅ ${esc(p.name)} · ${esc(role(p))} <a class="pname" onclick="UI.openPlayer(${p.id})">보기</a></div>`).join('')}</details>`;
   const must=pv.loss.reduce((a,x)=>a+x.n,0);
-  h+=`<div class="gobar wgo w9g">${S.week<=W?`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button><button class="mkgo ${must?'must':''}${!must&&mflow()&&chainItems().length?' sub':''}" onclick="UI.advanceWeek()"><span>다음 주</span>${todoN(it)?`<i class="bdg">미처리 ${todoN(it)}</i>`:''}<small>${S.week} → ${S.week+1}주차</small></button><button class="skipb" onclick="UI.startSeason()">개막까지 ▶▶</button>`:`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button><button class="mkgo" onclick="UI.startSeason()"><span>${mkYear()+1}시즌 개막 ▶</span></button>`}</div>`;
+  h+=`<div class="gobar wgo w9g${wDiagDup(h)?' one':''}">${S.week<=W?`${wDiagDup(h)?'':`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button>`}<button class="mkgo ${must?'must':''}${!must&&mflow()&&wMustN()?' sub':''}" onclick="UI.advanceWeek()"><span>다음 주</span>${mflow()?(wMustN()?`<i class="bdg">이번 주 마감 ${wMustN()}</i>`:''):todoN(it)?`<i class="bdg">미처리 ${todoN(it)}</i>`:''}<small>${S.week} → ${S.week+1}주차</small></button><button class="skipb" onclick="UI.startSeason()">개막까지 ▶▶</button>`:`<button class="ghost wdg" onclick="UI.diagView()">전력 진단</button><button class="mkgo" onclick="UI.startSeason()"><span>${mkYear()+1}시즌 개막 ▶</span></button>`}</div>`;
   return h;}
 // 대기 중인 일(FA 검토·협상·관찰) — 작은 「대기 N」 버튼으로만
 function waitHtml(){const L=waitItems();return `<h3>답변 대기 ${L.length}</h3>${L.map(dealRow).join('')||'<div class="muted small">없음</div>'}<div class="btns" style="margin-top:10px"><button class="ghost" onclick="UI.closeModal();UI.go('market','deals')">이적 진행 중 전체</button><button class="primary" onclick="UI.closeModal()">닫기</button></div>`;}
@@ -12613,7 +12628,7 @@ function sdView(v){const D=SL.sd();const ut=SL.userTeam();const B=SL.BAL.SD;let 
   if(!D)return h+`<div class="mkcard">이번 겨울에는 2차 드래프트가 없음 · (2년에 한 번, 스토브리그 ${B.week}주차)</div></div></div>`;
   const n=D.order.length;const pk=x=>{const q=x.pid?S.players[x.pid]:null;const T=S.teams[x.team];return `<div class="r ${x.team===ut.id?'me':''}"><small>${x.r}R</small>${emblem(T,16)}<span>${esc(T.name)}</span><b>${q?`${esc(q.name)} ${q.pos} ← ${esc(S.teams[x.from].name)}`:'지명 안 함'}</b></div>`;};
   if(D.phase==='protect'){const list=ut.roster.concat(ut.dev||[]).map(id=>S.players[id]).filter(q=>SL.sdElig(q)).sort((a,b)=>SL.calcOvr(b)-SL.calcOvr(a));const sel=ui.sdSel&&ui.sdKey===D.s?ui.sdSel:(ui.sdKey=D.s,ui.sdSel=(D.prot[ut.id]||[]).slice());const m=sel.length;
-    return h+`<div class="cpi"><b>1단계 · 보호 명단</b> — 보호 선수 <b class="${m>B.prot?'bad':''}">${m} / ${B.prot}명</b>. 명단 밖 선수는 다른 구단이 지명 가능(구단마다 최대 ${B.maxLost}명 · 양도금 1R ${Ms(SL.sdFee(0))} · 2R ${Ms(SL.sdFee(1))} · 3R ${Ms(SL.sdFee(2))}). 외국인 · ${B.minAge-1}세 이하 · 올해 지명 신인 · 올겨울 영입 선수는 자동 보호</div>`+protList(list,sel,B.prot,'UI.sdTog')+`<div class="selwrap"><div class="gobar lugo in grgo rk2"><button class="ghost" onclick="UI.sdAutoP()">자동 추천</button><button class="primary" ${m>B.prot?'disabled':''} onclick="UI.sdSubmit()">명단 확정 → 지명 (${m}/${B.prot})</button></div></div></div></div>`;}
+    return h+sdProtHead(m,B,list.length)+sdProtBody(list,sel,B)+`<div class="selwrap"><div class="gobar lugo in grgo rk2"><button class="ghost" onclick="UI.sdAutoP()">자동 추천</button><button class="primary" ${m>B.prot?'disabled':''} onclick="UI.sdSubmit()">명단 확정 → 지명 (${m}/${B.prot})</button></div></div></div></div>`;}
   const r=Math.floor(D.idx/n);const my=SL.sdTurn();const pool=D.done?[]:SL.sdPool(ut.id);const sel=pool.find(q=>q.id===ui.sdPick)||null;const lostMe=D.picks.filter(x=>x.pid&&x.from===ut.id);const gotMe=D.picks.filter(x=>x.pid&&x.team===ut.id);
   h+=`<div class="cpi"><b>${D.done?'2차 드래프트 종료':my?`${r+1}라운드 · 우리 지명 차례`:'진행 중'}</b>${D.done?` — 모두 ${D.picks.filter(x=>x.pid).length}명 이적 · 우리 영입 ${gotMe.length}명 · 유출 ${lostMe.length}명`:` — 양도금 ${Ms(SL.sdFee(r))} · 현금 ${Ms(ut.cash)}`}</div>`;
   if(D.picks.length)h+=`<details class="fbox" ${D.done?'open':''}><summary>지명 결과 ${D.picks.filter(x=>x.pid).length}명</summary><div class="drprev" style="margin:0;border:0">${D.picks.filter(x=>x.pid||x.team===ut.id).map(pk).join('')||'<div class="l">아직 지명이 없음</div>'}</div></details>`;
@@ -12976,7 +12991,7 @@ Object.assign(A,{
 });
 
 // ===================== v142 (R113): 스토브리그 일정 띠 · 스프링캠프 · 시범경기 결산 =====================
-function stoveLineHtml(){const L=SL.stoveSteps();const w=S.week;const cur=L.find(x=>x.w===w)||L[L.length-1];return `<div class="stvline" role="list" aria-label="스토브리그 일정">${L.map(x=>`<span role="listitem" class="${x.w<w?'dn':x.w===w?'on':''}"><i>${x.w}주</i><b>${x.t}</b></span>`).join('')}</div><div class="stvnow"><b>${cur.w}주차 · ${cur.t}</b> ${cur.d}</div>`;}
+function stoveLineHtml(){const L=SL.stoveSteps();const w=S.week;const cur=L.find(x=>x.w===w)||L[L.length-1];return `<div class="stvline" role="list" aria-label="스토브리그 일정">${L.map(x=>`<span role="listitem" class="${x.w<w?'dn':x.w===w?'on':''}"><i>${x.w}주</i><b>${isWide()?x.t:(STV_SHORT[x.t]||x.t)}</b></span>`).join('')}</div><div class="stvnow"><b>${cur.w}주차 · ${cur.t}</b> ${cur.d}</div>`;}
 function campHtml(){const ut=SL.userTeam();const C=SL.BAL.CAMP;const c=ui.campSel||(ui.campSel=(o=>({loc:o.loc,focus:o.focus}))(SL.campOf(ut)));const L=C.loc[c.loc],F=C.focus[c.focus];
   const gb=Math.round((L.grow*F.b-1)*100),gp=Math.round((L.grow*F.p-1)*100);const sg=v=>`${v>=0?'+':''}${v}%`;
   return `<div class="campm">${artBan('camp_'+c.loc)}<h3>스프링캠프</h3><div class="small dim">5주차 출발 · 동계훈련 효과 · 개막 컨디션 · 다른 구단 ${esc(SL.BAL.CAMP.loc.home.n)} · 균형</div>
@@ -13229,6 +13244,17 @@ A.hubGo=function(t,k){ui.hubOn=null;A.go(t,k);};
  const sub0=A.setSub;A.setSub=function(k,v){ui.hubOn=null;return sub0.call(A,k,v);};
  const rt0=renderTab;renderTab=function(){try{setTimeout(()=>{try{toastPlace($('#toast'));}catch(e){}},0);}catch(e){}   /* 머리줄 단추 자리가 탭마다 달라 떠 있는 알림을 다시 맞춤 */
   if(ui.hubOn&&ui.hubOn===ui.tab&&!ui.view&&hubOk(ui.tab))return hubHtml(ui.tab);if(ui.hubOn&&ui.hubOn!==ui.tab)ui.hubOn=null;return rt0();};}
+
+// ===================== v195 (R167): 겨울 감독실 · 2차 드래프트 정리 =====================
+// 겨울 감독실(휴대폰): 노란 채움은 하나 — 이번 주 마감이 있으면 「하나씩 처리」, 없으면 「다음 주」. 급하지 않은 일(광고 6주 남음 등)이 「미처리」로 겁주지 않게 딱지는 「이번 주 마감 n」만.
+const STV_SHORT={'재계약 마감':'재계약','2차 드래프트':'2차 지명','룰5 드래프트':'룰5 지명','스프링캠프':'캠프'};
+function wMustN(){try{return SL.mustItems(S.week>=SL.BAL.OFFSEASON_WEEKS).length;}catch(e){return 0;}}
+function wDiagDup(h){return mflow()&&S.week<=SL.BAL.OFFSEASON_WEEKS&&/>\s*전력 진단\s*<\/button>/.test(String(h||''));}   /* 위 추천 줄에 「전력 진단」이 이미 있으면 아래 큰 단추는 뺌 */
+// 2차 드래프트 보호 명단: 설명은 한 줄 + 「규정」 펼침 · 목록은 경계선(명단 밖 + 보호 중 낮은 순 6명)만 먼저, 「모두 보기」로 전체
+function sdProtHead(m,B,tot){const out=Math.max(0,tot-m);return `<div class="cpi sdh"><b>보호 명단</b> <b class="${m>B.prot?'bad':''}">${m} / ${B.prot}명</b> · 밖 ${out}명 지명 대상<button class="lnk sdrb" onclick="UI.set('sdRule',${ui.sdRule?0:1})">규정 ${ui.sdRule?'▴':'▾'}</button>${ui.sdRule?`<div class="sdrule">구단마다 최대 ${B.maxLost}명 유출 · 양도금 1R ${Ms(SL.sdFee(0))} · 2R ${Ms(SL.sdFee(1))} · 3R ${Ms(SL.sdFee(2))}<br>자동 보호: 외국인 · ${B.minAge-1}세 이하 · 올해 지명 신인 · 올겨울 영입 선수</div>`:''}</div>`;}
+function sdProtBody(list,sel,B){const on=new Set(sel);if(ui.sdAll||list.length<=12)return protList(list,sel,B.prot,'UI.sdTog')+(list.length>12?`<button class="stvmore" onclick="UI.set('sdAll',0)">▲ 경계선만 보기</button>`:'');
+  const out=list.filter(q=>!on.has(q.id));const inn=list.filter(q=>on.has(q.id));const low=inn.slice(-6);
+  return `<div class="hkh sdsec">명단 밖 ${out.length}명</div>${out.length?protList(out,sel,B.prot,'UI.sdTog'):'<div class="mkcard muted small">없음 · 모두 보호</div>'}<div class="hkh sdsec">보호 중 · 낮은 순 ${low.length}명</div>${protList(low,sel,B.prot,'UI.sdTog')}<button class="stvmore" onclick="UI.set('sdAll',1)">▼ 보호 ${inn.length}명 모두 보기</button>`;}
 
 return A;
 })();
