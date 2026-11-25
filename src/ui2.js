@@ -826,7 +826,7 @@ Object.assign(A,{
 {const pr=A.placeRole;A.placeRole=function(pid,role){SL.markPlaced(pid);return pr.call(A,pid,role);};}
 // ---------- 시장 라우팅 ----------
 function renderMarket(){return `<div class="stv">${renderMarket1()}</div>`;}
-function renderMarket1(){const ut=SL.userTeam();const sub=ui.sub.market;const h=hubTabs('market');const s2=ui.sub.market;if(s2==='thub')return h+ddlBanner()+`<div class="stv">${thubHtml()}</div>`;if(s2==='want')return h+wantHtml();if(s2==='deals')return h+renderDeals();if(s2==='res')return h+renderResList();if(s2==='renew')return h+renderRenew();if(s2==='fa')return h+renderFaMock(ut);if(s2==='fgn')return h+renderFgnMock(ut);if(s2==='draft')return h+renderDraftMock(ut);if(s2==='trade')return h+ddlBanner()+renderTrade(ut);return renderMarket0();}
+function renderMarket1(){const ut=SL.userTeam();const sub=ui.sub.market;const h=hubTabs('market');const s2=ui.sub.market;if(s2==='thub')return h+ddlBanner()+`<div class="stv">${thubHtml()}</div>`;if(s2==='want')return h+wantHtml();if(s2==='deals')return h+renderDeals();if(s2==='res')return h+renderResList();if(s2==='renew')return h+renderRenew();if(s2==='fa')return h+renderFaMock(ut);if(s2==='fgn')return h+renderFgnMock(ut);if(s2==='draft')return h+renderDraftMock(ut);if(s2==='trade')return h+ddlBanner()+renderTrade(ut);if(s2==='list')return h+mlistHtml(ut);return renderMarket0();}
 // ---------- 계약 직후: 입단 팝업과 배치 화면을 하나로 (배치 화면이 곧 입단 화면) ----------
 function showPlacement(pid){const p=S.players[pid];if(!p)return;const v=ui.view;if(v&&v.type==='table'&&v.pid===pid&&v.result&&v.result.done){render();return;}go({type:'table',pid,result:{done:true}});}
 function contractCeremony(pid,neg,f,paid){const p=S.players[pid];const ut=SL.userTeam();if(p&&neg&&neg.mode!=='renew'&&p.teamId===ut.id){closeModal();showPlacement(pid);return;}return contractCeremony0(pid,neg,f,paid);}
@@ -3047,3 +3047,16 @@ A.pmStart=function(k){UI.closeModal();if(k==='hl')ui.stepMode='hl';else if(ui.st
 function facStars(lv,max){let h='';for(let i=0;i<max;i++)h+=`<i class="${i<lv?'on':''}">★</i>`;return `<span class="fstar" aria-label="Lv.${lv} / ${max}">${h}</span>`;}
 function facGrid(ut,sel){const I=SL.invOf(ut);const ks=Object.keys(SL.BAL.FACILITY).concat(Object.keys(SL.INV.fac));
   return `<div class="facgrid fpic" style="margin-bottom:12px">${ks.map(k=>{const lv=SL.INV.fac[k]?(I[k]||0):ut.fac[k];const art=artHas('fac_'+k);return `<button class="fac ${sel===k?'on':''}" onclick="UI.set('facSel','${k}')">${art?`<span class="fpp art-fac_${k}" aria-hidden="true"></span>`:`<span class="pic">${FAC_PIC[k]}</span>`}<span class="nm">${FAC_KO[k]||SL.INV.fac[k].ko}</span>${facStars(lv,5)}</button>`;}).join('')}</div>`;}
+A.allScreens=allScreens;
+
+// ===================== v197 (R169): 매물 등록 = 골라서 한 번에(클럽스토리 선수단 아래 줄처럼) — 줄마다 단추 두 개(판매 등록 · ⋯) 대신 줄을 눌러 고르고 아래 「판매 등록」 하나 =====================
+function mlistHtml(ut){const listed=S.market.listed.map(id=>S.players[id]).filter(Boolean);const cand=ut.roster.map(id=>S.players[id]).filter(p=>p&&!S.market.listed.includes(p.id)&&!p.loan&&!S.pendingFA.includes(p.id)).sort((a,b)=>SL.calcValue(b)-SL.calcValue(a));
+  const sel=(ui.mlSel||[]).filter(id=>cand.some(p=>p.id===id));ui.mlSel=sel;const on=new Set(sel);const n=ui.mlAll?cand.length:Math.min(cand.length,12);
+  const row=(p,chk)=>{const r=role(p);return `<div class="pr mlr${chk&&on.has(p.id)?' on':''}" role="button" tabindex="0" onclick="${chk?`UI.mlTog(${p.id})`:`UI.openPlayer(${p.id})`}">${chk?`<i class="ck">${on.has(p.id)?'✓':''}</i>`:''}${face(p,40)}<span class="a"><b>${esc(p.name)}</b><small>${p.pos} · ${p.age}세${r?' · '+esc(r):''} · 연봉 ${Ms(p.contract?p.contract.salary:0)}</small></span><span class="o"><em>가치 ${Ms(SL.calcValue(p))}</em><span class="pmlv">${gv(SL.calcOvr(p))}</span></span>${chk?'':`<button class="sm ghost" onclick="event.stopPropagation();UI.unlist(${p.id})">해제</button>`}</div>`;};
+  let h=`<div class="content gut mlv">`;
+  if(listed.length)h+=`<div class="hkh">판매 등록 중 ${listed.length}명</div><div class="prl">${listed.map(p=>row(p,false)).join('')}</div>`;
+  h+=`<div class="hkh">판매 후보 · 가치순 <small>${cand.length}명 · 눌러서 고르기</small></div><div class="prl">${cand.slice(0,n).map(p=>row(p,true)).join('')}</div>${cand.length>n?`<button class="stvmore" onclick="UI.set('mlAll',1)">▼ ${cand.length-n}명 더 보기</button>`:''}`;
+  h+=`<div class="selwrap"><div class="selmg"><span>선택 ${sel.length}명${sel.length?` · 가치 ${Ms(sel.reduce((a,id)=>a+SL.calcValue(S.players[id]),0))}`:''}</span><button class="primary" ${sel.length?'':'disabled'} onclick="UI.mlGo()">판매 등록</button></div></div>`;
+  return h+`</div>`;}
+A.mlTog=function(id){const L=ui.mlSel||[];const i=L.indexOf(id);if(i>=0)L.splice(i,1);else L.push(id);ui.mlSel=L;ui.keepScroll=true;render();};
+A.mlGo=function(){const L=(ui.mlSel||[]).slice();let ok=0,err='';for(const id of L){const e=SL.listPlayer(id);if(e)err=e;else ok++;}ui.mlSel=[];autosave();toast(ok?`판매 등록 ${ok}명 · 제안 기다리기${err?' · '+err:''}`:err||'등록 없음');ui.keepScroll=true;render();};

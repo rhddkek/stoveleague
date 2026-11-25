@@ -1552,3 +1552,19 @@ body:not(.ingame) .gobar.wgo.w9g.one{grid-template-columns:1fr}
 .fstar i{font-style:normal;color:var(--muted);opacity:.35}
 .fstar i.on{color:var(--sel);opacity:1}
 :root.ea[data-theme="light"] .fstar i.on{color:#c98a00}
+
+/* ===== v197 (R169): 고른 칸은 채우지 않음 — 노란 채움은 화면마다 「할 일 단추」 하나(클럽스토리처럼)
+   칩(아래 줄 화면 · 정렬 · 필터) = 노란 테두리 + 노란 글자 / 회색 상자 안 보기 전환 = 한 단계 밝은 칸 + 흰 글자 */
+html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) :is(.chiprow button.on,.htabs2 button.on,.htabs2 .sg.on,.stvsort button.on,.eql button.on,.stv .eqgrid button.on,.rtag.on,button.tgl.primary,.fgv button.on){background:transparent!important;color:var(--sel)!important;border-color:var(--sel)!important;box-shadow:inset 0 0 0 1px var(--sel)!important}
+html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) :is(.seg button.on,.grptab button.on,.mktabs2 button.on,.mktabs3 button.on,.mktabs4 button.on,.pgtabs button.on,.stvtab button.on,.msec .mi button.on){background:rgba(255,255,255,.14)!important;color:var(--text)!important;border-color:transparent!important;box-shadow:none!important;font-weight:600}
+html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) .grptab button.on::after{border-top-color:rgba(255,255,255,.14)!important}
+html:root:is(.ea,html):is([data-theme],html) body:not(.ingame) .fbox[open]>summary{background:transparent!important;color:var(--text)!important;border-color:var(--line)!important;box-shadow:none!important}
+html:root.ea[data-theme="light"] body:not(.ingame) :is(.chiprow button.on,.htabs2 button.on,.htabs2 .sg.on,.stvsort button.on,.eql button.on,.stv .eqgrid button.on,.rtag.on,button.tgl.primary,.fgv button.on){color:#1e2a5c!important;border-color:#1e2a5c!important;box-shadow:inset 0 0 0 1px #1e2a5c!important}
+html:root.ea[data-theme="light"] body:not(.ingame) :is(.seg button.on,.grptab button.on,.mktabs2 button.on,.mktabs3 button.on,.mktabs4 button.on,.pgtabs button.on,.stvtab button.on,.msec .mi button.on){background:#fff!important;color:#1e2027!important;box-shadow:0 1px 2px rgba(0,0,0,.12)!important}
+
+/* v197: 매물 등록 고르기 */
+.mlv .hkh small{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px}
+.mlr .o{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.mlr .o em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
+.mlr>.sm{flex:none}
+.mlv{padding-bottom:96px}
