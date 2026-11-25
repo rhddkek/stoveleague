@@ -495,7 +495,7 @@ function cardPreview(c){if(c.dataset&&c.dataset.sum)return c.dataset.sum;const t
 function contentH(root){const top=root.getBoundingClientRect().top;let b=top;for(const e of root.children){const cs=getComputedStyle(e);if(cs.position==='fixed'||cs.position==='absolute'||cs.display==='none')continue;b=Math.max(b,e.getBoundingClientRect().bottom+(parseFloat(cs.marginBottom)||0));}return b-top;}
 const overOf=root=>contentH(root)-availH(root);
 // 넘치면: ① 카드를 모두 타일로 바꾼 뒤 ② 앞에서부터 들어가는 만큼 카드를 원래대로 되돌리고 ③ 그래도 넘치면 가장 큰 덩어리 안에서만 스크롤
-function tileize(root,scope){if(!root)return;const cards=[...root.children].filter(e=>e.classList&&(e.classList.contains('card')||e.classList.contains('story')||e.classList.contains('goalbox'))&&!e.matches(KEEP_SEL)&&!e.querySelector('button.big'));
+function tileize(root,scope){if(!root)return;if(root.querySelector(':scope>.dshb'))return;   /* v196: 대시보드 감독실은 줄여 맞추지 않고 아래로 넘김(클럽스토리 대시보드처럼) */const cards=[...root.children].filter(e=>e.classList&&(e.classList.contains('card')||e.classList.contains('story')||e.classList.contains('goalbox'))&&!e.matches(KEEP_SEL)&&!e.querySelector('button.big'));
   if(overOf(root)<=4)return;for(const sel of [':scope>.hero2',':scope>.today',':scope>.phero2','.wboard',':scope>.decide']){const x=root.querySelector(sel+':not(.cmp)');if(x){x.classList.add('cmp');if(overOf(root)<=4)return;}}
   // v86: 그래도 넘치면(오늘의 결정·미션·볼거리 줄이 다 붙은 날) 덜 중요한 줄부터 감춤 — 볼거리 → 구장 줄 → 아래 타일 둘째 줄(알림 없는 것)
   for(const sel of [':scope>.today .watchl',':scope>.today .tdpark',':scope>.tiles .tile:nth-child(n+4):not(.hot)',':scope>.tiles .tile:nth-child(n+4)',':scope>.today .misl']){   /* v105: 좁은 폰(360)에서 알림 칸이 둘째 줄에 남아 넘치던 것 — 둘째 줄 전부, 그다음 미션 줄 */const xs=root.querySelectorAll(sel);if(xs.length){xs.forEach(x=>x.classList.add('fithide'));if(overOf(root)<=4)return;}}if(cards.length){
@@ -950,6 +950,7 @@ function homeTiles(ut,rows){const it=decisionItems();const st=SL.weeklyStory();c
   // v85: 타일은 6개까지(2×3 / 3×2로 딱 맞게) — 넘치면 이야기 → 성장 점검 순으로 뺌 (각자 탭에서 볼 수 있음)
   // v103: 키 작은 폰(높이 700 미만)은 한 줄(3개)만 — 오늘의 결정 줄이 붙은 날에도 감독실이 한 화면에
   if(rows){try{const R=coachRecs();if(R.length)T.unshift({k:'rec',go:'UI.recOpen()',ic:'📋',t:'코치 추천',v:`${R.length}`,s:R[0].t||R[0].title||''});}catch(e){}}
+  if(rows&&S.phase==='season'){const i=T.findIndex(x=>x.k==='race');if(i>=0)T.splice(i,1);}   /* v196: 순위는 아래 미니 순위표로 */
   {const cap=rows?4:innerHeight<700?3:6;const keep=rows&&guideOn()?'story':'';for(const k of ['story','growth','news','mine','jobs','race','asia','awards']){if(k===keep)continue;while(T.length>cap){const i=T.findIndex(x=>x.k===k&&!x.hot);if(i<0)break;T.splice(i,1);}}}
   return `<div class="tiles${rows?' hrows':T.length>=5?' t3':''}">${T.map(x=>`<button class="tile${x.hot?' hot':''}" onclick="${x.go||`UI.sheet('${x.k}')`}"><div class="th"><span>${x.ic} ${x.t}</span>${x.v?`<b>${esc(x.v)}</b>`:''}</div><div class="ts">${esc(x.s)}</div></button>`).join('')}</div>`;}
 function sheetHtml(k){const ut=SL.userTeam();switch(k){

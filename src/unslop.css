@@ -1486,3 +1486,69 @@ body:not(.ingame) .gobar.wgo.w9g.one{grid-template-columns:1fr}
 :root.ea[data-theme="light"] body:not(.ingame) .whead .wmust{background:rgba(255,255,255,.9);color:#1e2a5c;box-shadow:inset 0 0 0 1px #1e2a5c}
 :root.ea[data-theme="light"] body:not(.ingame) .stvline span.on{box-shadow:inset 0 0 0 1px #1e2a5c}
 :root.ea[data-theme="light"] body:not(.ingame) .stvline span.on i,:root.ea[data-theme="light"] body:not(.ingame) .stvline span.on b{color:#1e2a5c}
+
+/* ===== v196 (R168): 감독실 대시보드 — 진행 막대 · 일정 띠 · BEST · 미니 순위 ===== */
+.dshb{margin:0 0 12px}
+.dsp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:0 0 8px}
+.dspl{white-space:nowrap}
+.dspb{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.dspb i{display:block;height:100%;background:var(--sel)}
+.dspw{white-space:nowrap}.dspw b{color:var(--text);font-weight:600}
+.dss{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;cursor:pointer}
+.dsc{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;padding:4px 2px;border:1px solid var(--line);border-radius:8px}
+.dsc i{font-style:normal;font-size:12px;color:var(--text);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsc b{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
+.dsc.w b{color:var(--sel)}.dsc.l b{color:var(--muted)}
+.dsc.now{border-color:var(--sel)}.dsc.now b{color:var(--sel)}
+.dsbest,.dsst{margin:12px 0 0}
+.dsbr{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:4px 0;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;text-align:left;color:var(--text)}
+.dsbr small{display:block;font-size:12px;color:var(--muted)}
+.dsbr b{display:block;font-size:14px;font-weight:600}
+.dsbr em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
+.dsst{cursor:pointer}
+.dsst .hkh{display:flex;justify-content:space-between;align-items:baseline}
+.dsst .hkh small{font-size:12px;color:var(--muted);font-weight:400}
+.dsr{display:grid;grid-template-columns:20px 20px 1fr auto 32px;align-items:center;gap:8px;min-height:36px;border-bottom:1px solid var(--line);font-size:13px}
+.dsr b{font-weight:600;text-align:center}
+.dsr span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsr i{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+.dsr em{font-style:normal;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.dsr.me span,.dsr.me b{color:var(--sel)}
+:root.ea[data-theme="light"] .dsr.me span,:root.ea[data-theme="light"] .dsr.me b,:root.ea[data-theme="light"] .dsc.now b,:root.ea[data-theme="light"] .dsc.w b{color:#1e2a5c}
+:root.ea[data-theme="light"] .dsc.now{border-color:#1e2a5c}
+:root.ea[data-theme="light"] .dspb i{background:#1e2a5c}
+
+/* ===== v197 (R169): 경기 준비 라인업 · 세 단추 · 작전 큰 단추 ===== */
+.pmlu{margin:12px 0}
+.pmlt{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pmlt b{font-size:14px;font-weight:600}
+.pmlt .lnk{font-size:12px;color:var(--muted);background:transparent;border:0;min-height:32px}
+.pmlg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pmlc{min-width:0;border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+.pmlh{display:flex;align-items:center;gap:4px;min-height:28px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.pmlh b{font-size:13px;font-weight:600}
+.pmlr{display:grid;grid-template-columns:12px 24px 1fr auto;align-items:center;gap:4px;min-height:28px;font-size:12px;cursor:pointer}
+.pmlr i{font-style:normal;color:var(--muted)}
+.pmlr em{font-style:normal;color:var(--muted)}
+.pmlr b{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gobar.pmgo3{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;margin-top:12px}
+.gobar.pmgo3 button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;padding:4px}
+.gobar.pmgo3 b{font-size:15px;font-weight:600}
+.gobar.pmgo3 small{font-size:12px;opacity:.75;font-weight:400}
+.tacg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tacbig{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:72px;padding:8px 12px;background:transparent;border:1px solid var(--line);border-radius:12px;text-align:left;color:var(--text)}
+.tacbig b{font-size:16px;font-weight:600}
+.tacbig em{position:absolute;right:12px;top:8px;font-style:normal;font-size:14px;color:var(--sel);font-variant-numeric:tabular-nums}
+.tacbig small{font-size:12px;color:var(--muted);line-height:1.4}
+.tacbig.on{border-color:var(--sel)}
+.tacbig:disabled{opacity:.45}
+.pmlv{white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ===== v198 (R170): 시설 건물 그림 + 별 ===== */
+.facgrid.fpic .fac{display:flex;flex-direction:column;align-items:stretch;padding:0;overflow:hidden;gap:0}
+.facgrid.fpic .fpp{display:block;width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;image-rendering:pixelated}
+.facgrid.fpic .nm{display:block;padding:4px 8px 0;font-size:13px;text-align:left}
+.fstar{display:flex;gap:1px;padding:0 8px 8px;font-size:12px;line-height:1}
+.fstar i{font-style:normal;color:var(--muted);opacity:.35}
+.fstar i.on{color:var(--sel);opacity:1}
+:root.ea[data-theme="light"] .fstar i.on{color:#c98a00}

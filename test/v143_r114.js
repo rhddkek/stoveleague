@@ -8,7 +8,7 @@ const {chromium}=require('playwright');const path=require('path');
   const H=(list)=>p.evaluate(list=>list.map(([t,s])=>{UI.go(t,s);UI.closeModal();const pg=[...document.querySelectorAll('.pgtabs button')].map(x=>x.textContent.replace(/^\d+/,''));const hs=[];const n=Math.max(1,pg.length);for(let i=0;i<n;i++){if(pg.length)UI.pgGo(t+':'+s,i);hs.push(Math.round(document.documentElement.scrollHeight/innerHeight*100)/100);}if(pg.length)UI.pgGo(t+':'+s,0);return {k:t+'/'+s,pg,hs,ow:document.documentElement.scrollWidth-innerWidth};}),list);
   // 1. 시즌 중
   {const r=await H([['home',null],['roster','lineup'],['club','mgr'],['club','fac'],['league','sched'],['league','fut'],['dev','res'],['market','neg']]);const m=Object.fromEntries(r.map(x=>[x.k,x]));
-    const fit=r.every(x=>x.hs.every(h=>h<=1.12)&&x.ow<=0);
+    const fit=r.every(x=>x.hs.every(h=>h<=(x.k==='home/null'?1.6:1.12))&&x.ow<=0); /* v196: 휴대폰 시즌 감독실 = 대시보드(아래로 넘김) */
     fit&&m['club/mgr'].pg.join('|')==='내 팀|감독 평판'&&m['club/fac'].pg.length>=2&&m['league/sched'].pg.includes('이후 일정')?ok('시즌 중: '+r.map(x=>`${x.k}${x.pg.length?` [${x.pg.join(' · ')}]`:''} ${x.hs.join('/')}`).join(' · ')):bad('시즌 중 '+JSON.stringify(r));}
   // 2. 겨울
   {await p.evaluate(()=>{const S=SL.state();let g=0;while(S.phase==='season'&&g++<40){if(S.half&&!S.half.seen)SL.halfSeen();SL.testCmd('endSeason');UI.closeModal();}UI.closeModal();});await p.waitForTimeout(300);
