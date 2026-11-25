@@ -1453,3 +1453,21 @@ button.stvc.fgseat{border:1px solid var(--line);border-radius:16px;background:tr
 .rdo button:active{border-color:var(--sel)}
 .rdn{font-size:12px;color:var(--muted);padding:0 12px 8px}
 .rdd{font-size:13px;color:var(--muted);padding:4px 0}
+
+/* ===== v194 (R166): 첫 화면 큰 그림 타일(육성 · 이적 · 구단) ===== */
+.hubv{padding:0 0 16px}
+.hubg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hubt{display:flex;flex-direction:column;align-items:stretch;padding:0;min-width:0;background:var(--card,#16181d);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left;color:var(--text)}
+.hubt:active{border-color:var(--sel)}
+.hubt.hot{border-color:var(--sel)}
+.hubp{display:block;width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;image-rendering:pixelated}
+.hubx{display:block;padding:8px 12px 12px;min-width:0}
+.hubx b{display:flex;align-items:center;gap:4px;font-size:16px;font-weight:600}
+.hubx em{display:block;font-style:normal;font-size:13px;color:var(--text);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hubt.hot .hubx em{color:var(--sel)}
+.hubx small{display:block;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hubv:not(.big) .hubg{grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hubv:not(.big) .hubp{aspect-ratio:4/3}
+.hubv:not(.big) .hubx{padding:4px 8px 8px}
+.hubv:not(.big) .hubx b{font-size:14px}
+.hubv:not(.big) .hubx em{font-size:12px}

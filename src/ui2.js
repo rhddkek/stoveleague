@@ -2968,3 +2968,33 @@ A.decAns=function(k,id,o){let txt='';
   else if(k==='griev'){const p=S.players[id];const e=SL.grievanceAnswer(id,o);txt=`${p?p.name:''} · ${e||({stay:'잔류 설득',apology:'기회 약속',trade:'판매 목록 등록',ignore:'넘김'})[o]}`;sfx('click',0.4);}
   else{const of=(S.endorseOffers||[]).find(x=>x.id===id);const p=of&&S.players[of.pid];const e=SL.endorseAnswer(id,o==='y');txt=`${p?p.name:''} · ${e||(o==='y'?'광고 수락':'광고 거절')}`;sfx('click',0.4);}
   (ui.decDone=ui.decDone||[]).push(txt);ui.decOpen=null;autosave();decRe();};
+
+// ===================== v194 (R166): 육성 · 이적 · 구단 첫 화면 = 큰 그림 타일 =====================
+// 휴대폰(mflow)에서 아래 메뉴 「육성 · 이적 · 구단」을 누르면 타일 화면 → 타일을 누르면 예전 화면(위 탭 그대로). 다시 아래 메뉴를 누르면 타일로.
+// 상태 줄은 실제 값(없으면 안에 든 화면 이름). PC는 왼쪽 메뉴가 있으므로 예전 그대로.
+const HUB_TABS=['dev','market','club'];const HUB_KO={dev:'육성',market:'이적',club:'구단'};
+function hubOk(t){return HUB_TABS.includes(t)&&mflow();}
+function hubTiles(t){const ut=SL.userTeam();const T=[];const H=HUB[t]();const say=(f,d)=>{try{const v=f();return v==null||v===''?d:v;}catch(e){return d;}};
+  const grp=(i,pic,st,hot)=>{const c=H.core[i];if(!c)return;const last=(ui.hubLast||{})[t+i];T.push({k:c[1].includes(last)?last:c[1][0],t:c[0],pic,st,in:c[2]?c[2].map(x=>String(x).replace(/ ●$/,'').replace(/ \d+(\/\d+)?$/,'')).join(' · '):'',n:c[3]||0,hot});};
+  if(t==='dev'){const TI={light:'가볍게',normal:'보통',hard:'집중'};
+    grp(0,'train',say(()=>`강도 ${TI[ut.trainInt||'normal']||'보통'}`,''));grp(1,'grow','');grp(2,'farm',say(()=>`육성군 ${ut.dev.length}/${SL.devCap(ut)}`,''));
+    grp(3,'winter',S.phase==='offseason'?say(()=>`파견 ${((S.dispatch&&S.dispatch.list)||[]).length}명`,'겨울 진행 중'):'겨울에 열림');grp(4,'equip','선수 장비 · 보관함');}
+  else if(t==='market'){const off=(S.market.offers||[]).length,dl=dealCount(),pf=S.phase==='offseason'?(S.pendingFA||[]).length:0;const dt=SL.draftTurn()?1:0;
+    grp(0,'buy',dt?'신인 지명 차례':say(()=>`FA ${(S.fa||[]).length}명`,''),dt);grp(1,'mine',pf?`재계약 대상 ${pf}명`:`매물 ${(S.market.listed||[]).length}명`,pf>0);
+    grp(2,'nego',off||dl?`받은 제안 ${off} · 진행 ${dl}`:'진행 중인 협상 없음',off>0||mktNeedsReply());grp(3,'res',say(()=>`올해 ${(S.myRes||[]).filter(r=>r.s===S.season).length}건`,''));}
+  else{const sub=(k,name,pic,st,hot)=>T.push({k,t:name,pic,st,in:'',n:0,hot});const jobs=(S.jobOffers||[]).length;
+    sub('mgr','감독','mgr',jobs?`감독 제의 ${jobs}건`:say(()=>{const r=ut.rec;return S.phase==='season'?`${SL.rankOf(ut)}위 · ${r.w}승 ${r.l}패`:'내 팀 · 실적';},'내 팀 · 실적'),jobs>0);
+    sub('fin','재정','fin',say(()=>`자금 ${Ms(ut.cash)}`,''));sub('pay','연봉 · 계약','pay',say(()=>`연봉 ${Ms(SL.payroll(ut))}`,''));
+    sub('spon','스폰서·광고','spon',say(()=>{SL.ensureSpon(ut);const sp=ut.spon;const of=S.phase==='offseason'&&!sp.main&&sp.offers.length;return of?`제안 ${sp.offers.length}건`:sp.main?`메인 ${sp.main.co}`:'메인 없음';},''),say(()=>S.phase==='offseason'&&!ut.spon.main&&ut.spon.offers.length>0,false));
+    sub('fac','시설','fac',say(()=>{const I=SL.invOf(ut);const ks=Object.keys(SL.BAL.FACILITY).concat(Object.keys(SL.INV.fac));const lv=ks.map(k=>SL.INV.fac[k]?(I[k]||0):ut.fac[k]);return `${ks.length}곳 · 평균 Lv.${(lv.reduce((a,b)=>a+b,0)/ks.length).toFixed(1)}`;},''));
+    sub('inv','투자','inv','구장 · 아카데미 · 마케팅');sub('pres','구단 위상','pres',say(()=>`${SL.presTier(ut)} 구단`,''));
+    sub('alumni','옛 제자','alumni',say(()=>`${Object.values(S.players).filter(p=>(p.exUser||p.coached)&&!p.retired&&p.teamId!==ut.id).length}명`,''));sub('data','설정·저장','data','저장 · 소리 · 화면');}
+  return T;}
+function hubHtml(t){const T=hubTiles(t);const big=T.length<=5;
+  return `<div class="hubv hub-${t}${big?' big':''}"><div class="pgh"><b>${HUB_KO[t]}</b></div><div class="hubg">${T.map(x=>`<button class="hubt${x.hot?' hot':''}" onclick="UI.hubGo('${t}','${x.k}')"><span class="hubp art-hub_${x.pic}" aria-hidden="true"></span><span class="hubx"><b>${esc(x.t)}${x.n?` <i class="hbd">${x.n}</i>`:''}</b>${x.st?`<em>${esc(x.st)}</em>`:''}${x.in?`<small>${esc(x.in)}</small>`:''}</span></button>`).join('')}</div></div>`;}
+A.hubGo=function(t,k){ui.hubOn=null;A.go(t,k);};
+{const nav0=A.navTap;A.navTap=function(t){if(hubOk(t)){if(ui.tab===t&&ui.hubOn===t&&!ui.view&&(window.scrollY||0)>40){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}return;}ui.hubKeep=1;ui.hubOn=t;A.setTab(t);return;}return nav0.call(A,t);};
+ const set0=A.setTab;A.setTab=function(t){if(ui.hubKeep)ui.hubKeep=0;else ui.hubOn=null;return set0.call(A,t);};
+ const sub0=A.setSub;A.setSub=function(k,v){ui.hubOn=null;return sub0.call(A,k,v);};
+ const rt0=renderTab;renderTab=function(){try{setTimeout(()=>{try{toastPlace($('#toast'));}catch(e){}},0);}catch(e){}   /* 머리줄 단추 자리가 탭마다 달라 떠 있는 알림을 다시 맞춤 */
+  if(ui.hubOn&&ui.hubOn===ui.tab&&!ui.view&&hubOk(ui.tab))return hubHtml(ui.tab);if(ui.hubOn&&ui.hubOn!==ui.tab)ui.hubOn=null;return rt0();};}
