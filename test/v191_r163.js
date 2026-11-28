@@ -29,7 +29,7 @@ const path=require('path');let fails=0;const bad=m=>{fails++;console.log('  FAIL
       const rows=[...document.querySelectorAll('.wtd .wrow')];const kind=x=>x.classList.contains('wmr')?'M':x.classList.contains('wauto')?'A':/선택 업무/.test(x.textContent)?'L':'N';const seq=rows.map(kind).join('');
       const m=rows.find(x=>x.classList.contains('wmr'));const a=rows.filter(x=>x.classList.contains('wauto'));
       return {seq,m:m?m.textContent.replace(/\s+/g,' ').trim():'',mb:m?getComputedStyle(m).borderTopColor:'',au:a.map(x=>(x.querySelector('.wau')||{}).textContent),ab:a.some(x=>x.querySelector('button'))};});
-    /^M+N*A+L?$/.test(r.seq)&&/재계약/.test(r.m)&&/242, 193, 78/.test(r.mb)&&r.au.length&&r.au.every(t=>/^자동 .+ 예정$/.test(t))&&!r.ab?ok(`겨울 감독실: 줄 순서 ${r.seq}(마감 → 그 밖 → 맡긴 일 → 선택) · 「${r.m.slice(0,24)}」 노란 줄 · 맡긴 일 「${r.au[0]}」`):bad('겨울 감독실 '+JSON.stringify(r));}
+    /^M+N*A+L?$/.test(r.seq)&&/재계약/.test(r.m)&&/242, 193, 78/.test(r.mb)&&r.au.length&&r.au.every(t=>/^(평가 \d+ 미만 · )?자동 .+ 예정$/.test(t))&&!r.ab?ok(`겨울 감독실: 줄 순서 ${r.seq}(마감 → 그 밖 → 맡긴 일 → 선택) · 「${r.m.slice(0,24)}」 노란 줄 · 맡긴 일 「${r.au[0]}」`):bad('겨울 감독실 '+JSON.stringify(r));}
   // 4. PC: 해외 선수는 예전 칩 줄 그대로
   {const q=await (await b.newContext({viewport:{width:1280,height:860}})).newPage();q.on('pageerror',e=>errs.push(e.message));await q.goto('file://'+ROOT+'/stoveleague.html?test=1');await q.waitForTimeout(500);
     const r=await q.evaluate(async()=>{UI.pickLg('KR');UI.pickTeam(2);UI.newGame();UI.tutSkip&&UI.tutSkip();UI.closeModal();UI.go('market','fgn');await new Promise(r=>setTimeout(r,200));return {chips:document.querySelectorAll('.stvsort.fgv button').length,fg3:!!document.querySelector('.fg3')};});
