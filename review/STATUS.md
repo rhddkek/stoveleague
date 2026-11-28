@@ -3,7 +3,7 @@
 - 현재 버전: **v198** (2026-11-28)
 - 플레이: https://rhddkek.github.io/stoveleague/ · 테스트 모드 https://rhddkek.github.io/stoveleague/?test=1
 - 다음 요청 번호: **R171**
-- 마지막 전체 검사: **v195** (그 뒤 3버전째 · 엔진 · 저장 형식을 건드리면 다시 — CLAUDE.md 4번)
+- 마지막 전체 검사: **v198** (엔진 · 저장 형식을 건드리거나 그 뒤 3버전째면 다시 — CLAUDE.md 4번)
 
 ## 요청 목록
 

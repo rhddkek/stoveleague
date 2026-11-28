@@ -7423,8 +7423,8 @@ function preCheck(pid,offer){const p=P_(pid);const ut=userTeam();const neg=S.mar
   if(neg.stage==='player'&&neg.fgn1&&(c.salary+(c.bonus||0))>BAL.FGN.genMax)out.push({k:'fcap',msg:`신규 외국인 계약 상한 ${money(BAL.FGN.genMax)} (연봉+계약금)을 넘음`,room:Math.max(0,BAL.FGN.genMax-(c.bonus||0))});
   if(ut.league==='KR'){const I=budgetInfo();const counted=(p.teamId===ut.id&&!(S.phase==='offseason'&&S.pendingFA.includes(p.id))&&p.contract?p.contract.salary:0)+(neg.mode!=='renew'&&neg.stage==='player'&&neg.swapId!=null?swapPayCredit(ut,neg.swapId):0);const room=I.wageLeft+counted;
     /* v198 (R170): 이적료 단계(연봉 칸 0)에서도 선수 요구 연봉으로 검사 — 「연봉 0원 / 여유 0원」 ✗. 한도를 이미 넘었으면 넘은 액수 · 줄여야 할 액수, 예산 돌리기가 몇 번 필요한지(부족하면 0) */
-    const sal=c.salary||(neg.mode!=='renew'&&neg.stage!=='player'?(neg.demand||0):0);
-    if(sal>room){const need=sal-room;const U=bsUnit();const left=Math.max(0,3-(budget().shift||0));const spare=Math.max(0,I.xferLeft-(c.now||neg.ask||0));const nNeed=Math.ceil(need/U.w);const shift=nNeed<=Math.min(left,Math.floor(spare/U.x))?nNeed:0;
+    const club=!c.salary&&neg.mode!=='renew'&&neg.stage!=='player';const sal=c.salary||(club?(neg.demand||0):0);   /* 이적료 단계는 예전처럼 「이미 한도를 넘었을 때」만 막음 — 요구 연봉은 개인 협상에서 다시 검사 */
+    if(club?room<0:sal>room){const need=sal-room;const U=bsUnit();const left=Math.max(0,3-(budget().shift||0));const spare=Math.max(0,I.xferLeft-(c.now||neg.ask||0));const nNeed=Math.ceil(need/U.w);const shift=nNeed<=Math.min(left,Math.floor(spare/U.x))?nNeed:0;
       out.push({k:'wage',msg:room<0?`연봉 한도 이미 ${money(-room)} 초과 · 예상 연봉 ${money(sal)} → ${money(need)} 줄여야`:`연봉 예산 초과 — 연봉 ${money(sal)} / 여유 ${money(room)}`,room:Math.max(0,room),need,sal,over:room<0?-room:0,shift,hard:!shift});}
     if(c.now>0&&c.now>I.xferLeft)out.push({k:'xfer',msg:`이적 예산 초과 — 바로 지출 ${money(c.now)} / 남은 이적 예산 ${money(Math.max(0,I.xferLeft))}`,room:Math.max(0,I.xferLeft-c.fee-c.signFee)});}
   {const sw=neg.stage==='player'?swapOk(ut,neg.swapId):null;const ex=(sw?swapSev(sw):0)+(neg.major&&S.phase==='offseason'&&faM(pid)?faCompMax(p,ut):0);
